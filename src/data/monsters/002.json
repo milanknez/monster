@@ -1,0 +1,16 @@
+{
+  "id": "002",
+  "name": "Aqua Spirit",
+  "description": "Průzračná bytost žijící v horských pramenech. Dokáže ovládat proudy vody a léčit zranění.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 80,
+    "attack": 40,
+    "defense": 70
+  },
+  "abilities": [
+    { "name": "Vodní puls", "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást." },
+    { "name": "Léčivá pramen", "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví." }
+  ]
+}

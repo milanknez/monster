@@ -1,0 +1,16 @@
+{
+  "id": "003",
+  "name": "Terra Root",
+  "description": "Prastará rostlinná bytost, která čerpá sílu přímo ze země. Její kořeny jsou neuvěřitelně pevné.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 100,
+    "attack": 50,
+    "defense": 90
+  },
+  "abilities": [
+    { "name": "Kořenové vězení", "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo." },
+    { "name": "Fotosyntéza", "description": "Využívá sluneční světlo k postupné regeneraci zdraví." }
+  ]
+}

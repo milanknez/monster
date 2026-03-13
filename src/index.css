@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+body {
+  @apply bg-background-dark text-slate-100 min-h-screen overflow-x-hidden;
+}
+
+.glass {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
+}
+
+.primary-glow {
+  @apply shadow-[0_0_15px_rgba(13,185,242,0.3)];
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(13,185,242,0.5);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background-dark;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
+}

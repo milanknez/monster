@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0db9f2",
+                        "secondary": "#a855f7",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101e22",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 15px rgba(13, 185, 242, 0.3);
+        }
+        .neon-glow-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="flex items-center justify-between p-6 bg-background-light dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
+<button class="flex items-center justify-center size-10 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold tracking-tight uppercase">Trainer Profile</h1>
+<button class="flex items-center justify-center size-10 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-secondary/20 transition-colors">
+<span class="material-symbols-outlined text-secondary">share</span>
+</button>
+</header>
+<main class="flex-1 overflow-y-auto pb-24">
+<section class="flex flex-col items-center px-6 pt-4 pb-8">
+<div class="relative group">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+<div class="relative size-32 rounded-full border-4 border-primary p-1 bg-background-dark">
+<div class="size-full rounded-full bg-cover bg-center" data-alt="Cyberpunk style player avatar portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuANBApRuCGzxekPsWfvWs_pg11fBGJpWbFMUfiUapli62TeFGkFr-k9R4nTs68F3IXQYQvCAGoI7Rfhh48uGpEqAJ-MoRphecXMzKEPAWoBPUT8_7MRUnhIPDIiYhA_PFuU9VdfYEmqUQR2VoSImpbc9EJJwMWjuaOrB251Yzfn3jhxAEKQhhkIq5rQ3FFuhMwlo2jX4PzmH8WfZEcuWE1QH-DXX5wVR1XophVEj5ytFSbfWv0tYEG21LnjGTOuhFUeODdgre1WJ_Py')"></div>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-background-dark">
+                    LVL 42
+                </div>
+</div>
+<div class="mt-6 text-center">
+<h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Aether_Runner</h2>
+<div class="flex items-center justify-center gap-2 mt-1">
+<span class="material-symbols-outlined text-primary text-sm">public</span>
+<p class="text-primary font-medium">Global Rank: #1,245</p>
+</div>
+</div>
+<div class="w-full mt-8 bg-slate-200/50 dark:bg-slate-800/40 rounded-xl p-1 h-2">
+<div class="bg-gradient-to-r from-primary to-secondary h-full rounded-full w-[72%] shadow-[0_0_8px_rgba(13,185,242,0.5)]"></div>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">1,240 / 2,000 XP to next level</p>
+</section>
+<section class="grid grid-cols-3 gap-3 px-6">
+<div class="flex flex-col items-center justify-center p-4 bg-slate-200 dark:bg-slate-800/50 rounded-xl border border-slate-300 dark:border-primary/20">
+<span class="material-symbols-outlined text-primary mb-2">capture</span>
+<p class="text-2xl font-bold">152</p>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Monsters</p>
+</div>
+<div class="flex flex-col items-center justify-center p-4 bg-slate-200 dark:bg-slate-800/50 rounded-xl border border-slate-300 dark:border-primary/20">
+<span class="material-symbols-outlined text-primary mb-2">directions_walk</span>
+<p class="text-2xl font-bold">240<span class="text-sm font-normal text-slate-500 ml-0.5">km</span></p>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Walked</p>
+</div>
+<div class="flex flex-col items-center justify-center p-4 bg-slate-200 dark:bg-slate-800/50 rounded-xl border border-slate-300 dark:border-primary/20">
+<span class="material-symbols-outlined text-secondary mb-2">swords</span>
+<p class="text-2xl font-bold">843</p>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Battles</p>
+</div>
+</section>
+<section class="mt-10">
+<div class="flex items-center justify-between px-6 mb-4">
+<h3 class="text-lg font-bold">Achievements</h3>
+<a class="text-primary text-sm font-medium" href="#">View All</a>
+</div>
+<div class="flex gap-4 overflow-x-auto px-6 pb-4 no-scrollbar">
+<div class="flex-shrink-0 flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border-2 border-primary neon-glow-cyan">
+<span class="material-symbols-outlined text-primary text-3xl">workspace_premium</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400">PIONEER</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center border-2 border-secondary neon-glow-purple">
+<span class="material-symbols-outlined text-secondary text-3xl">bolt</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400">STORMER</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center gap-2 opacity-50">
+<div class="size-16 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-700">
+<span class="material-symbols-outlined text-slate-600 text-3xl">lock</span>
+</div>
+<span class="text-[10px] font-bold text-slate-500">LEGEND</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border-2 border-primary">
+<span class="material-symbols-outlined text-primary text-3xl">military_tech</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400">VETERAN</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center border-2 border-secondary">
+<span class="material-symbols-outlined text-secondary text-3xl">grade</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400">ELITE</span>
+</div>
+</div>
+</section>
+<section class="px-6 mt-8 flex flex-col gap-3">
+<button class="w-full flex items-center justify-between p-4 bg-slate-200 dark:bg-slate-800 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">settings</span>
+<span class="font-medium">Settings</span>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-red-500/10 dark:bg-red-500/10 rounded-xl hover:bg-red-500/20 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-red-500">logout</span>
+<span class="font-medium text-red-500">Log Out</span>
+</div>
+</button>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex justify-between items-center z-20">
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[10px] font-bold">MAP</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">backpack</span>
+<span class="text-[10px] font-bold">COLLECTION</span>
+</a>
+<div class="relative -mt-10">
+<div class="size-16 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-background-dark">
+<span class="material-symbols-outlined text-white text-3xl">swords</span>
+</div>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">social_distance</span>
+<span class="text-[10px] font-bold">SOCIAL</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-[1]">person</span>
+<span class="text-[10px] font-bold">PROFILE</span>
+</a>
+</nav>
+</body></html>

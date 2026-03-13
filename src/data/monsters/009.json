@@ -1,0 +1,22 @@
+{
+  "id": "009",
+  "name": "Umpahlodník",
+  "description": "Malý, ale neuvěřitelně houževnatý tvor z mechových lesů. Miluje dřevo a živí se prastarými kořeny stromů, ze kterých získává sílu. Často se skrývá v pařezech a napadá vetřelce nečekaně.",
+  "type": "Přírodní",
+  "rarity": "rare",
+  "stats": {
+    "hp": 110,
+    "attack": 120,
+    "defense": 90
+  },
+  "abilities": [
+    {
+      "name": "Hlodavý útok",
+      "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka."
+    },
+    {
+      "name": "Mechová regenerace",
+      "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví."
+    }
+  ]
+}

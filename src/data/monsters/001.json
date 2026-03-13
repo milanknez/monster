@@ -1,0 +1,16 @@
+{
+  "id": "001",
+  "name": "Ignis Dracon",
+  "description": "Malý drak, který se zrodil v hlubinách sopek. Jeho dech dokáže roztavit i nejtvrdší ocel.",
+  "type": "Ohnivá",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 60,
+    "attack": 85,
+    "defense": 45
+  },
+  "abilities": [
+    { "name": "Plamenný dech", "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny." },
+    { "name": "Lávová aura", "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka." }
+  ]
+}

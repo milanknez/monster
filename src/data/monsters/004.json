@@ -1,0 +1,16 @@
+{
+  "id": "004",
+  "name": "Volt Spark",
+  "description": "Rychlá a neposedná příšerka tvořená čistou energií. Se skákajícím výbojem dokáže zasáhnout více cílů naráz.",
+  "type": "Elektrická",
+  "rarity": "Rare",
+  "stats": {
+    "hp": 50,
+    "attack": 95,
+    "defense": 40
+  },
+  "abilities": [
+    { "name": "Bleskový výboj", "description": "Uvolní nahromaděnou energii v podobě ničivého blesku." },
+    { "name": "Statické nabití", "description": "Zvýší rychlost útoku a šanci na ochromení nepřítele." }
+  ]
+}

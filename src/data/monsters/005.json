@@ -1,0 +1,16 @@
+{
+  "id": "005",
+  "name": "Magma Core",
+  "description": "Těžkopádný obr z roztavené horniny. Tam, kde stane, země hoří.",
+  "type": "Ohnivá",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 120,
+    "attack": 110,
+    "defense": 100
+  },
+  "abilities": [
+    { "name": "Erupce", "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele." },
+    { "name": "Ztuhlá láva", "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu." }
+  ]
+}

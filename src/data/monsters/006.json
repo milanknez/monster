@@ -1,0 +1,16 @@
+{
+  "id": "006",
+  "name": "Leaf Blade",
+  "description": "Elegantní lovec skrytý v korunách stromů. Jeho čepele jsou ostré jako břitva a tiché jako vítr.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 70,
+    "attack": 120,
+    "defense": 60
+  },
+  "abilities": [
+    { "name": "Listová břitva", "description": "Vysílá ostré listy, které proříznou i brnění." },
+    { "name": "Tanec ve větru", "description": "Zvýší mrštnost a šanci na vyhnutí se útoku." }
+  ]
+}

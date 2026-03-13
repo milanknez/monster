@@ -1,0 +1,16 @@
+{
+  "id": "007",
+  "name": "Tidal Wave",
+  "description": "Legendární vládce oceánů. Má moc vyvolat obrovské vlny a potopit celé flotily.",
+  "type": "Vodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 150,
+    "attack": 130,
+    "defense": 110
+  },
+  "abilities": [
+    { "name": "Gigantická tsunamy", "description": "Vyvolá obrovskou vlnu, která smete vše v cestě." },
+    { "name": "Mořský hněv", "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví." }
+  ]
+}

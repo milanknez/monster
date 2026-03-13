@@ -1,0 +1,22 @@
+{
+  "id": "008",
+  "name": "Lesní žleb",
+  "description": "Tajemná bytost z hlubokých horských lesů. Vznikla prý tam, kde se po staletí setkává voda, kořeny stromů a stará magie. Stráží prameny a dokáže probudit samotný les k životu.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 160,
+    "attack": 95,
+    "defense": 140
+  },
+  "abilities": [
+    {
+      "name": "Kořenové sevření",
+      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii."
+    },
+    {
+      "name": "Dech pralesa",
+      "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí."
+    }
+  ]
+}
