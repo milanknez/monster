@@ -6,7 +6,10 @@ interface HeaderProps {
   showBack?: boolean
   onBack?: () => void
   playerName?: string
+  avatarStyle?: string
+  avatarSeed?: string
   onQrClick?: () => void
+  onSettingsClick?: () => void
 }
 
 export const Header = ({ 
@@ -14,7 +17,10 @@ export const Header = ({
   showBack = false, 
   onBack, 
   playerName = "Runner",
-  onQrClick 
+  avatarStyle = "avataaars",
+  avatarSeed = "seed",
+  onQrClick,
+  onSettingsClick
 }: HeaderProps) => (
   <header className="flex items-center justify-between p-4 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
     <div className="flex items-center gap-3 flex-1">
@@ -26,7 +32,7 @@ export const Header = ({
         <div className="size-11 rounded-full border-2 border-primary overflow-hidden bg-slate-800 p-0.5">
           <div 
             className="w-full h-full rounded-full bg-cover bg-center" 
-            style={{ backgroundImage: `url('https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(playerName.replace(/\s+/g, ''))}')` }} 
+            style={{ backgroundImage: `url('https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${encodeURIComponent(avatarSeed)}')` }} 
           />
         </div>
       )}
@@ -52,7 +58,10 @@ export const Header = ({
         </button>
       )}
       {!showBack && (
-        <button className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90">
+        <button 
+          onClick={onSettingsClick}
+          className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
+        >
           <Settings size={20} className="text-primary" />
         </button>
       )}

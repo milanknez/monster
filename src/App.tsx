@@ -20,6 +20,7 @@ import { WorldMap } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
 import { TradeModal } from './components/TradeModal'
 import { TradeSelectionModal } from './components/TradeSelectionModal'
+import { SettingsModal } from './components/SettingsModal'
 
 function App() {
   const [isScannerOpen, setIsScannerOpen] = useState(false)
@@ -29,8 +30,11 @@ function App() {
   const [tradeConfirmation, setTradeConfirmation] = useState<{ monster: Monster, received: { id: string, level: number, name: string } } | null>(null)
   const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
   const [activeTab, setActiveTab] = useState('home')
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
+  const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
+  const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
   
   // Vzdálenost: metry nachozené dnes (s resetem o půlnoci)
   const [dailyDistance, setDailyDistance] = useState(() => {
@@ -237,7 +241,10 @@ function App() {
           showBack={activeTab !== 'home'} 
           onBack={() => setActiveTab('home')}
           playerName={playerName || 'Aether_Runner'}
+          avatarStyle={avatarStyle}
+          avatarSeed={avatarSeed}
           onQrClick={activeTab === 'vault' ? () => setIsScannerOpen(true) : undefined}
+          onSettingsClick={() => setIsSettingsOpen(true)}
         />
       )}
       
@@ -370,6 +377,34 @@ function App() {
                 received: pendingOffer
               });
               setPendingOffer(null);
+            }}
+          />
+        )}
+        {isSettingsOpen && (
+          <SettingsModal 
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            playerName={playerName || 'Runner'}
+            onUpdateName={(name) => {
+              setPlayerName(name)
+              localStorage.setItem('monster_collector_player_name', name)
+            }}
+            onResetProgress={() => {
+              localStorage.removeItem('monster_collector_caught')
+              localStorage.removeItem('monster_collector_distance')
+              localStorage.removeItem('monster_collector_hp')
+              localStorage.removeItem('monster_collector_player_name')
+              localStorage.removeItem('monster_collector_avatar_style')
+              localStorage.removeItem('monster_collector_avatar_seed')
+              window.location.reload()
+            }}
+            avatarStyle={avatarStyle}
+            avatarSeed={avatarSeed}
+            onUpdateAvatar={(style, seed) => {
+              setAvatarStyle(style)
+              setAvatarSeed(seed)
+              localStorage.setItem('monster_collector_avatar_style', style)
+              localStorage.setItem('monster_collector_avatar_seed', seed)
             }}
           />
         )}
