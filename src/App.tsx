@@ -133,7 +133,11 @@ function App() {
                 >
                   <StatsCard caughtCount={caughtMonsters.length} />
                   <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
-                  <RecentActivity caughtMonsters={caughtMonsters} />
+                  <RecentActivity 
+                    caughtMonsters={caughtMonsters} 
+                    onSelect={setSelectedMonster}
+                    onSeeAll={() => setActiveTab('vault')}
+                  />
                   <DailyQuests />
                 </motion.div>
               )}

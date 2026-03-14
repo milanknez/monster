@@ -85,30 +85,35 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
               key={m.id}
               whileHover={isCaught ? { scale: 1.02, y: -4 } : {}}
               whileTap={isCaught ? { scale: 0.98 } : {}}
-              onClick={() => isCaught && onSelect(caughtMonsters.find(cm => cm.id === m.id) || { ...m, level: 1, image: `/monsters/${m.id}.png` } as Monster)}
+              onClick={() => {
+                if (!isCaught) return;
+                const caughtData = caughtMonsters.find(cm => cm.id === m.id) || { ...m, level: 1, image: `/monsters/${m.id}.png` } as Monster;
+                onSelect(caughtData);
+              }}
               className={cn(
                 "group relative aspect-square rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer",
                 isCaught ? colors.border : "border-slate-800 bg-slate-900/40 grayscale"
               )}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+              {/* Overlay gradient - pointer-events-none ensures clicks always reach the card */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 pointer-events-none" />
               
               {isCaught ? (
                 <>
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20">
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20 pointer-events-none">
                     <span className={cn("text-[9px] font-black uppercase", colors.text)}>{m.type}</span>
                   </div>
                   {/* Stack badge */}
                   {stackCount > 1 && (
-                    <div className="absolute top-2 right-2 min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary text-background-dark text-[10px] font-black flex items-center justify-center z-20 shadow-[0_0_8px_rgba(13,185,242,0.6)]">
+                    <div className="absolute top-2 right-2 min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary text-background-dark text-[10px] font-black flex items-center justify-center z-20 shadow-[0_0_8px_rgba(13,185,242,0.6)] pointer-events-none">
                       ×{stackCount}
                     </div>
                   )}
                   <img 
                     src={`/monsters/${m.id}.png`} 
-                    className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" 
+                    className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110 pointer-events-none" 
                   />
-                  <div className="absolute bottom-3 left-3 right-3 z-20">
+                  <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none">
                     <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{m.name}</p>
                     <div className="flex gap-1 mt-1.5">
                       <div className={cn("h-1 w-8 rounded-full", colors.bg.replace('/10', ''))}></div>
@@ -117,7 +122,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
                   </div>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center size-full gap-2 opacity-50">
+                <div className="flex flex-col items-center justify-center size-full gap-2 opacity-50 pointer-events-none">
                   <Lock size={32} className="text-slate-600" />
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Neznámý</p>
                 </div>
