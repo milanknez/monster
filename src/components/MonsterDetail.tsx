@@ -5,6 +5,7 @@ import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 
 export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster: Monster; onBack: () => void; onTrade?: () => void; onUpgrade?: () => void }) => {
+  if (!monster) return null;
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
   
   // Při otevření detailu nascrollovat nahoru
@@ -28,7 +29,9 @@ export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster
         "border-[#3a2a1a] bg-[#2a1a0a]"
       )}>
         {/* Holographic Overlays */}
-        <div className="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.4)_45%,rgba(255,255,255,0.4)_50%,transparent_55%)] animate-shimmer" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-b-[2.5rem]">
+          <div className="absolute inset-0 w-[200%] h-full opacity-20 bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.6)_45%,rgba(255,255,255,0.6)_50%,transparent_55%)] animate-shimmer transform-gpu" />
+        </div>
 
         {/* Card Content */}
         <div className="relative z-10 flex flex-col gap-3">

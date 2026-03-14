@@ -217,8 +217,8 @@ function App() {
         />
       )}
       
-      <main className={cn("mx-auto transition-all duration-300", selectedMonster ? "w-full max-w-none" : "max-w-md")}>
-        <AnimatePresence mode="wait">
+      <main className={cn("mx-auto relative", selectedMonster ? "w-full max-w-none" : "max-w-md")}>
+        <AnimatePresence mode="popLayout">
           {selectedMonster ? (
             <MonsterDetail 
               key="detail" 
@@ -230,7 +230,13 @@ function App() {
               }}
             />
           ) : (
-            <>
+            <motion.div
+              key="tabs-container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
               {activeTab === 'home' && (
                 <motion.div
                   key="home"
@@ -270,7 +276,7 @@ function App() {
               {activeTab === 'store' && (
                 <PlaceholderTab key="store" name="Obchod" icon={ShoppingBag} />
               )}
-            </>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>
