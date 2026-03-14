@@ -110,23 +110,36 @@ function pickMonster(seed: string, rarity: SpawnRarity): string {
   return arr[Math.floor(seededFloat(seed) * arr.length)].id
 }
 
+// Stabilní grid konstanty
+const REF_LAT = 50.0 // Referenční šířka pro fixní měřítko délky
+const LAT_STEP = metersToLatDeg(COMMON_GRID_M)
+const LNG_STEP = metersToLngDeg(COMMON_GRID_M, REF_LAT)
+
 function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns): SpawnPoint[] {
   if (!isFinite(playerLat) || !isFinite(playerLng)) return []
   const spawns: SpawnPoint[] = []
-  const latStep = metersToLatDeg(COMMON_GRID_M)
-  const lngStep = metersToLngDeg(COMMON_GRID_M, playerLat)
 
-  const baseLat = Math.round(playerLat / latStep) * latStep
-  const baseLng = Math.round(playerLng / lngStep) * lngStep
+  // Celočíselné indexy buněk gridu nezávislé na pohybu v rámci buňky
+  const centerIX = Math.floor(playerLat / LAT_STEP)
+  const centerIY = Math.floor(playerLng / LNG_STEP)
 
   for (let dy = -COMMON_RADIUS_CELLS; dy <= COMMON_RADIUS_CELLS; dy++) {
     for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
-      const lat = baseLat + dy * latStep
-      const lng = baseLng + dx * lngStep
-      if (seededFloat(`skip_${lat.toFixed(6)}_${lng.toFixed(6)}`) < 0.25) continue
-      const jLat = lat + (seededFloat(`jlat_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * latStep * 0.6
-      const jLng = lng + (seededFloat(`jlng_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * lngStep * 0.6
-      const id = `common_${lat.toFixed(6)}_${lng.toFixed(6)}`
+      const ix = centerIX + dy
+      const iy = centerIY + dx
+      
+      const gridLat = ix * LAT_STEP
+      const gridLng = iy * LNG_STEP
+      
+      // Unikátní a stabilní ID založené na statickém gridu
+      const id = `grid_${ix}_${iy}`
+      
+      if (seededFloat(`skip_${id}`) < 0.25) continue
+      
+      // Jitter (náhodný posun) je nyní vázán na ID, ne na plovoucí souřadnice
+      const jLat = gridLat + (seededFloat(`jlat_${id}`) - 0.5) * LAT_STEP * 0.7
+      const jLng = gridLng + (seededFloat(`jlng_${id}`) - 0.5) * LNG_STEP * 0.7
+      
       spawns.push({
         id, lat: jLat, lng: jLng, rarity: 'common',
         monsterId: pickMonster(id, 'common'),
@@ -232,19 +245,44 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
 
   const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number) => {
     const existing = markersRef.current
+    
+    // 1. Odstranění starých
     for (const [id, marker] of existing) {
       const spawn = currentSpawns.find(s => s.id === id)
       if (!spawn || spawn.caught) { marker.remove(); existing.delete(id) }
     }
+
+    // 2. Přidání nebo update
     for (const spawn of currentSpawns) {
       if (spawn.caught || !isFinite(spawn.lat) || !isFinite(spawn.lng)) continue
       const dist = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
       const isNearby = dist <= CATCH_RADIUS_M
       const isLocked = spawn.level > pLevel
-      if (existing.has(spawn.id)) { existing.get(spawn.id)!.setIcon(makeMarkerIcon(spawn, isNearby, isLocked)) } else {
-        const marker = L.marker([spawn.lat, spawn.lng], { icon: makeMarkerIcon(spawn, isNearby, isLocked), zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0 })
-        marker.bindTooltip(makeTooltipHtml(spawn, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1 })
-        marker.addTo(map); existing.set(spawn.id, marker)
+      
+      const marker = existing.get(spawn.id)
+      if (marker) {
+        // OPTIMALIZACE: Aktualizujeme ikonu jen když se změní stav "v dosahu"
+        // (to zabrání poskakování při každém GPS tiku na mobilu)
+        const prevNearby = (marker as any)._isNearby
+        if (prevNearby !== isNearby) {
+          marker.setIcon(makeMarkerIcon(spawn, isNearby, isLocked))
+          marker.setTooltipContent(makeTooltipHtml(spawn, pLevel))
+          ;(marker as any)._isNearby = isNearby
+        }
+      } else {
+        const newMarker = L.marker([spawn.lat, spawn.lng], { 
+          icon: makeMarkerIcon(spawn, isNearby, isLocked), 
+          zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0 
+        })
+        newMarker.bindTooltip(makeTooltipHtml(spawn, pLevel), { 
+          direction: 'top', 
+          offset: [0, -12], 
+          className: 'monster-tooltip', 
+          opacity: 1 
+        })
+        newMarker.addTo(map)
+        ;(newMarker as any)._isNearby = isNearby
+        existing.set(spawn.id, newMarker)
       }
     }
   }, [])
