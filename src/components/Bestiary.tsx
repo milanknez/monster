@@ -33,20 +33,23 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
           </div>
           <div className="text-right">
             <p className="text-slate-100 text-sm font-black uppercase">
-              {caughtMonsters.length} / {monsterDB.length} 
-              <span className="text-primary/60 ml-1">Objeveno</span>
+              {new Set(caughtMonsters.map(m => m.id)).size} / {monsterDB.length}
+              <span className="text-primary/60 ml-1">Druhů</span>
+            </p>
+            <p className="text-slate-500 text-[10px] font-black uppercase mt-0.5">
+              {caughtMonsters.length} celkem chyceno
             </p>
           </div>
         </div>
         <div className="relative h-3 w-full rounded-full bg-slate-800/50 border border-primary/20 p-0.5 overflow-hidden">
           <motion.div 
             initial={{ width: 0 }}
-            animate={{ width: `${(caughtMonsters.length / monsterDB.length) * 100}%` }}
+            animate={{ width: `${(new Set(caughtMonsters.map(m => m.id)).size / monsterDB.length) * 100}%` }}
             className="h-full rounded-full bg-gradient-to-r from-primary to-purple-500 shadow-[0_0_10px_#0db9f2]"
           />
         </div>
         <div className="flex justify-between">
-          <p className="text-primary text-[10px] font-black uppercase">{Math.round((caughtMonsters.length / monsterDB.length) * 100)}% Kompletní</p>
+          <p className="text-primary text-[10px] font-black uppercase">{Math.round((new Set(caughtMonsters.map(m => m.id)).size / monsterDB.length) * 100)}% Kompletní</p>
           <p className="text-slate-500 text-[10px] font-black uppercase">Další milník: {caughtMonsters.length + (5 - (caughtMonsters.length % 5))}</p>
         </div>
       </div>
@@ -74,6 +77,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
       <div className="grid grid-cols-2 gap-4 p-4">
         {filteredDB.map(m => {
           const isCaught = caughtMonsters.some(cm => cm.id === m.id)
+          const stackCount = caughtMonsters.filter(cm => cm.id === m.id).length
           const colors = TYPE_COLORS[m.type] || TYPE_COLORS['Default']
           
           return (
@@ -94,6 +98,12 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
                   <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20">
                     <span className={cn("text-[9px] font-black uppercase", colors.text)}>{m.type}</span>
                   </div>
+                  {/* Stack badge */}
+                  {stackCount > 1 && (
+                    <div className="absolute top-2 right-2 min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary text-background-dark text-[10px] font-black flex items-center justify-center z-20 shadow-[0_0_8px_rgba(13,185,242,0.6)]">
+                      ×{stackCount}
+                    </div>
+                  )}
                   <img 
                     src={`/monsters/${m.id}.png`} 
                     className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" 
