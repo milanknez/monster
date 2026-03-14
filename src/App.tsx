@@ -26,6 +26,45 @@ function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
+  
+  // HP systém: 100% za 4 hodiny (240 min)
+  const [hpState, setHpState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_hp')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (typeof parsed.val === 'number' && typeof parsed.time === 'number' && !isNaN(parsed.val)) {
+          return parsed
+        }
+      }
+    } catch (e) { console.warn("Poškozený HP state v localStorage") }
+    return { val: 100, time: Date.now() }
+  })
+
+  // Výpočet aktuálního HP s regenerací
+  const REGEN_RATE_PER_MS = 100 / (4 * 60 * 60 * 1000) // 100% za 4h
+  const getCurrentHP = () => {
+    const elapsed = Date.now() - hpState.time
+    const bonus = elapsed * REGEN_RATE_PER_MS
+    return Math.min(100, Math.max(0, hpState.val + bonus))
+  }
+
+  const [currentHP, setCurrentHP] = useState(getCurrentHP())
+
+  // Timer pro plynulý update progress baru (každých 10s pro úsporu, ale pro UI stačí)
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentHP(getCurrentHP()), 10000)
+    return () => clearInterval(timer)
+  }, [hpState])
+
+  const consumeHP = (amount: number) => {
+    const freshHP = getCurrentHP()
+    const newVal = Math.max(0, freshHP - amount)
+    const newState = { val: newVal, time: Date.now() }
+    setHpState(newState)
+    setCurrentHP(newVal)
+    localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
+  }
 
   // Load from LocalStorage
   useEffect(() => {
@@ -131,7 +170,7 @@ function App() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                 >
-                  <StatsCard caughtCount={caughtMonsters.length} />
+                  <StatsCard caughtCount={caughtMonsters.length} playerHP={currentHP} />
                   <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
                   <RecentActivity 
                     caughtMonsters={caughtMonsters} 
@@ -147,7 +186,7 @@ function App() {
               )}
 
               {activeTab === 'world' && (
-                <WorldMap key="world" onCatch={setNewMonster} />
+                <WorldMap key="world" onCatch={setNewMonster} playerHP={currentHP} onConsumeHP={consumeHP} />
               )}
 
               {activeTab === 'store' && (

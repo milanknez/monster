@@ -1,17 +1,20 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { monsterDB } from '../data/monsters'
 import type { Monster } from '../types'
+import { Heart } from 'lucide-react'
 
 // ── Leaflet default icon fix ──────────────────────────────────
-delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl
+  L.Icon.Default.mergeOptions({
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  })
+}
 
 // ── Typy ─────────────────────────────────────────────────────
 type SpawnRarity = 'common' | 'rare' | 'epic'
@@ -23,22 +26,31 @@ interface SpawnPoint {
   rarity: SpawnRarity
   monsterId: string
   level: number
-  caught: boolean   // true = je na cooldownu, nezobrazuje se
+  caught: boolean
 }
 
 interface WorldMapProps {
   onCatch: (monster: Monster) => void
+  playerHP: number
+  onConsumeHP: (amount: number) => void
 }
 
 // ── Konfigurace ───────────────────────────────────────────────
-const CATCH_RADIUS_M      = 305   // max. vzdálenost pro chytání (m) — TESTOVACÍ HODNOTA
-const COMMON_GRID_M       = 100   // krok mřížky pro common příšery (m)
-const COMMON_RADIUS_CELLS = 8     // počet buněk od hráče
-const OVERPASS_RADIUS_M   = 3000  // poloměr dotazu Overpass API (m)
-const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000   // 5 minut do respawnu
+const CATCH_RADIUS_M      = 15
+const COMMON_GRID_M       = 100
+const COMMON_RADIUS_CELLS = 8
+const OVERPASS_RADIUS_M   = 3000
+const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000
+
+// ── Pomocné funkce pro HP cost ───────────────────────────────
+const calculateHPCost = (level: number, rarity: SpawnRarity) => {
+  const base = 25
+  const rarityBonus = rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
+  return base + (level * 2) + rarityBonus 
+}
 
 // ── Cooldown helpers ──────────────────────────────────────────
-type Cooldowns = Record<string, number>  // { [spawnId]: expiresAtTimestamp }
+type Cooldowns = Record<string, number>
 
 function loadCooldowns(): Cooldowns {
   try { return JSON.parse(localStorage.getItem('map_cooldowns') ?? '{}') }
@@ -49,16 +61,15 @@ function isOnCooldown(cooldowns: Cooldowns, id: string): boolean {
   return Date.now() < (cooldowns[id] ?? 0)
 }
 
-// ── Player level ──────────────────────────────────────────────
-function getPlayerLevel(): number {
+function getPlayerLevelFromStorage(): number {
   try {
     const caught: Monster[] = JSON.parse(localStorage.getItem('monster_collector_caught') ?? '[]')
     return Math.max(1, Math.floor(caught.length / 3) + 1)
   } catch { return 1 }
 }
 
-// ── Pomocné funkce ────────────────────────────────────────────
 function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  if (!isFinite(lat1) || !isFinite(lng1) || !isFinite(lat2) || !isFinite(lng2)) return 999999
   const R = 6_371_000
   const dLat = (lat2 - lat1) * Math.PI / 180
   const dLng = (lng2 - lng1) * Math.PI / 180
@@ -69,23 +80,23 @@ function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): num
 
 function metersToLatDeg(m: number) { return m / 111_320 }
 function metersToLngDeg(m: number, lat: number) {
-  return m / (111_320 * Math.cos(lat * Math.PI / 180))
+  const cosLat = Math.cos(lat * Math.PI / 180)
+  return m / (111_320 * (Math.abs(cosLat) < 0.00001 ? 0.00001 : cosLat))
 }
 
 function seededFloat(seed: string): number {
   let h = 2166136261 >>> 0
   for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i)
-    h = Math.imul(h, 16777619) >>> 0
+    h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0
   }
   return (h >>> 0) / 0xFFFFFFFF
 }
 
 function pickLevel(seed: string, rarity: SpawnRarity): number {
   const r = seededFloat(seed + '_lvl')
-  if (rarity === 'common') return r < 0.40 ? 2 : 1    // 60 % Lv.1, 40 % Lv.2
-  if (rarity === 'rare')   return 3 + Math.floor(r * 4) // Lv. 3–6
-  return 7 + Math.floor(r * 4)                          // Lv. 7–10
+  if (rarity === 'common') return r < 0.40 ? 2 : 1
+  if (rarity === 'rare')   return 3 + Math.floor(r * 4)
+  return 7 + Math.floor(r * 4)
 }
 
 function pickMonster(seed: string, rarity: SpawnRarity): string {
@@ -99,9 +110,11 @@ function pickMonster(seed: string, rarity: SpawnRarity): string {
 }
 
 function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns): SpawnPoint[] {
+  if (!isFinite(playerLat) || !isFinite(playerLng)) return []
   const spawns: SpawnPoint[] = []
   const latStep = metersToLatDeg(COMMON_GRID_M)
   const lngStep = metersToLngDeg(COMMON_GRID_M, playerLat)
+  
   const baseLat = Math.round(playerLat / latStep) * latStep
   const baseLng = Math.round(playerLng / lngStep) * lngStep
 
@@ -110,10 +123,8 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
       const lat = baseLat + dy * latStep
       const lng = baseLng + dx * lngStep
       if (seededFloat(`skip_${lat.toFixed(6)}_${lng.toFixed(6)}`) < 0.25) continue
-
       const jLat = lat + (seededFloat(`jlat_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * latStep * 0.6
       const jLng = lng + (seededFloat(`jlng_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * lngStep * 0.6
-
       const id = `common_${lat.toFixed(6)}_${lng.toFixed(6)}`
       spawns.push({
         id, lat: jLat, lng: jLng, rarity: 'common',
@@ -126,25 +137,11 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
   return spawns
 }
 
-// ── Overpass API ──────────────────────────────────────────────
 async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): Promise<SpawnPoint[]> {
-  const query = `
-    [out:json][timeout:20];
-    (
-      node["historic"~"monument|memorial|archaeological_site|ruins|city_gate|fort|wayside_cross|wayside_shrine"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-      node["tourism"~"museum|attraction|artwork|viewpoint"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-      node["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-      way["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-      way["historic"~"monument|memorial|archaeological_site|ruins"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-      way["tourism"~"museum|attraction"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-    );
-    out center;
-  `.trim()
-
+  if (!isFinite(lat) || !isFinite(lng)) return []
+  const query = `[out:json][timeout:20];(node["historic"~"monument|memorial|archaeological_site|ruins|city_gate|fort|wayside_cross|wayside_shrine"](around:${OVERPASS_RADIUS_M},${lat},${lng});node["tourism"~"museum|attraction|artwork|viewpoint"](around:${OVERPASS_RADIUS_M},${lat},${lng});node["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["historic"~"monument|memorial|archaeological_site|ruins"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["tourism"~"museum|attraction"](around:${OVERPASS_RADIUS_M},${lat},${lng}););out center;`.trim()
   const res = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: 'data=' + encodeURIComponent(query),
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   })
   const json = await res.json()
   const spawns: SpawnPoint[] = []
@@ -152,7 +149,7 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
-    if (!elLat || !elLng) continue
+    if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
     const rarity: SpawnRarity = el.tags?.historic === 'castle' ? 'epic' : 'rare'
     const id = `poi_${el.type}_${el.id}`
     spawns.push({
@@ -165,86 +162,40 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
   return spawns
 }
 
-// ── Barvy dle rarity ──────────────────────────────────────────
 const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
   common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
   rare:   { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
   epic:   { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
 }
 
-// ── SVG silueta příšery (stejná pro všechny) ─────────────────
-const SILHOUETTE_SVG = `
-  <path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47
-           L28 55 C26 60 30 65 35 63 L38 61
-           C40 64 44 66 50 66 C56 66 60 64 62 61
-           L65 63 C70 65 74 60 72 55 L68 47
-           C73 43 75 38 75 32 C75 20 65 10 50 10 Z"
-        fill="currentColor"/>
-  <circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>
-  <circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>
-`
+const SILHOUETTE_SVG = `<path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47 L28 55 C26 60 30 65 35 63 L38 61 C40 64 44 66 50 66 C56 66 60 64 62 61 L65 63 C70 65 74 60 72 55 L68 47 C73 43 75 38 75 32 C75 20 65 10 50 10 Z" fill="currentColor"/><circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>`
 
-// ── Leaflet marker ikona ──────────────────────────────────────
 function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
   const outerSize = spawn.rarity === 'epic' ? 48 : spawn.rarity === 'rare' ? 42 : 36
   const innerR = 32
   const lockOverlay = isLocked
-    ? `<text x="50" y="58" text-anchor="middle" font-size="28" font-family="sans-serif" fill="#ef4444" opacity="0.9">🔒</text>`
-    : `<text x="50" y="60" text-anchor="middle" font-size="42" font-family="serif" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
-  const pulse = isNearby && !isLocked ? `
-    <circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7">
-      <animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.8;0.15;0.8" dur="1.2s" repeatCount="indefinite"/>
-    </circle>` : ''
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
-    <defs><filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-    ${pulse}
-    <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
-    ${lockOverlay}
-    <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
-    <text x="50" y="89" text-anchor="middle" font-size="13" font-family="monospace" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
-  </svg>`
-
-  return L.divIcon({
-    html: svg, className: '',
-    iconSize:   [outerSize, outerSize + 10],
-    iconAnchor: [outerSize / 2, outerSize / 2],
-  })
+    ? `<text x="50" y="58" text-anchor="middle" font-size="28" fill="#ef4444" opacity="0.9">🔒</text>`
+    : `<text x="50" y="60" text-anchor="middle" font-size="42" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
+  const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.15;0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115"><defs><filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${pulse}<circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>${lockOverlay}<rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/><text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text></svg>`
+  return L.divIcon({ html: svg, className: '', iconSize: [outerSize, outerSize + 10], iconAnchor: [outerSize / 2, outerSize / 2] })
 }
 
 function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
   const c = RARITY_COLORS[spawn.rarity]
   const locked = spawn.level > playerLevel
   const rarityLabel = spawn.rarity === 'epic' ? '🏰 Epická' : spawn.rarity === 'rare' ? '🏛 Vzácná' : '⚔️ Běžná'
-  return `
-    <div style="text-align:center;min-width:90px;">
-      <svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/>
-        <g style="color:${c.label}">${SILHOUETTE_SVG}</g>
-      </svg>
-      <div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div>
-      <div style="color:#64748b;font-size:10px;">${rarityLabel}</div>
-      ${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 Vyžaduje Lv.${spawn.level}</div>` : ''}
-    </div>`
+  const energyCost = calculateHPCost(spawn.level, spawn.rarity)
+  return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ENERGIE</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 Vyžaduje Lv.${spawn.level}</div>` : ''}</div>`
 }
 
 function makePlayerIcon(): L.DivIcon {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100">
-    <defs><filter id="pg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-    <circle cx="50" cy="50" r="44" fill="rgba(13,185,242,0.1)" stroke="#0db9f2" stroke-width="2">
-      <animate attributeName="r" values="38;46;38" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="50" cy="50" r="20" fill="#0db9f2" filter="url(#pg)"/>
-    <circle cx="50" cy="50" r="10" fill="white"/>
-  </svg>`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100"><defs><filter id="pg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="rgba(13,185,242,0.1)" stroke="#0db9f2" stroke-width="2"><animate attributeName="r" values="38;46;38" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/></circle><circle cx="50" cy="50" r="20" fill="#0db9f2" filter="url(#pg)"/><circle cx="50" cy="50" r="10" fill="white"/></svg>`
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
 }
 
-// ── Komponenta ────────────────────────────────────────────────
-export const WorldMap = ({ onCatch }: WorldMapProps) => {
+export const WorldMap = ({ onCatch, playerHP, onConsumeHP }: WorldMapProps) => {
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const mapRef           = useRef<L.Map | null>(null)
   const playerMarkerRef  = useRef<L.Marker | null>(null)
@@ -252,283 +203,153 @@ export const WorldMap = ({ onCatch }: WorldMapProps) => {
   const watchIdRef       = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef  = useRef<{ lat: number; lng: number } | null>(null)
-  // Cooldowns jako ref (pro použití uvnitř setState callbacků) + state (pro reaktivitu)
   const cooldownsRef     = useRef<Cooldowns>(loadCooldowns())
 
   const [playerPos, setPlayerPos]       = useState<[number, number] | null>(null)
-  const [playerLevel, setPlayerLevel]   = useState<number>(getPlayerLevel)
+  const [playerLevel, setPlayerLevel]   = useState<number>(getPlayerLevelFromStorage)
   const [spawns, setSpawns]             = useState<SpawnPoint[]>([])
   const [nearbySpawn, setNearbySpawn]   = useState<SpawnPoint | null>(null)
   const [levelBlocked, setLevelBlocked] = useState(false)
+  const [hpBlocked, setHpBlocked]       = useState(false)
   const [loadingPoi, setLoadingPoi]     = useState(false)
   const [statusMsg, setStatusMsg]       = useState('Hledám polohu…')
 
-  // ── Přepočítej "nearby" spawn ─────────────────────────────
+  const currentEnergyCost = useMemo(() => {
+    if (!nearbySpawn) return 0
+    return calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
+  }, [nearbySpawn])
+
   const recalcNearby = useCallback((lat: number, lng: number, currentSpawns: SpawnPoint[]) => {
+    if (!isFinite(lat) || !isFinite(lng)) return
     const nearby = currentSpawns
-      .filter(s => !s.caught)
+      .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng))
       .map(s => ({ s, dist: haversineM(lat, lng, s.lat, s.lng) }))
       .filter(({ dist }) => dist <= CATCH_RADIUS_M)
       .sort((a, b) => a.dist - b.dist)[0]
     setNearbySpawn(nearby?.s ?? null)
   }, [])
 
-  // ── Aktualizuj markery na mapě ────────────────────────────
-  const updateMarkers = useCallback((
-    map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number,
-  ) => {
+  const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number) => {
     const existing = markersRef.current
     for (const [id, marker] of existing) {
       const spawn = currentSpawns.find(s => s.id === id)
       if (!spawn || spawn.caught) { marker.remove(); existing.delete(id) }
     }
     for (const spawn of currentSpawns) {
-      if (spawn.caught) continue
-      const dist     = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
+      if (spawn.caught || !isFinite(spawn.lat) || !isFinite(spawn.lng)) continue
+      const dist = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
       const isNearby = dist <= CATCH_RADIUS_M
       const isLocked = spawn.level > pLevel
-
-      if (existing.has(spawn.id)) {
-        existing.get(spawn.id)!.setIcon(makeMarkerIcon(spawn, isNearby, isLocked))
-      } else {
-        const marker = L.marker([spawn.lat, spawn.lng], {
-          icon: makeMarkerIcon(spawn, isNearby, isLocked),
-          zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0,
-        })
-        marker.bindTooltip(makeTooltipHtml(spawn, pLevel), {
-          direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1,
-        })
-        marker.addTo(map)
-        existing.set(spawn.id, marker)
+      if (existing.has(spawn.id)) { existing.get(spawn.id)!.setIcon(makeMarkerIcon(spawn, isNearby, isLocked)) } else {
+        const marker = L.marker([spawn.lat, spawn.lng], { icon: makeMarkerIcon(spawn, isNearby, isLocked), zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0 })
+        marker.bindTooltip(makeTooltipHtml(spawn, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1 })
+        marker.addTo(map); existing.set(spawn.id, marker)
       }
     }
   }, [])
 
-  // ── Načti POI z Overpass (debounced) ─────────────────────
   const fetchPOI = useCallback(async (lat: number, lng: number) => {
+    if (!isFinite(lat) || !isFinite(lng)) return
     const last = lastPoiFetchRef.current
     if (last && haversineM(lat, lng, last.lat, last.lng) < 500) return
-    lastPoiFetchRef.current = { lat, lng }
-    setLoadingPoi(true)
+    lastPoiFetchRef.current = { lat, lng }; setLoadingPoi(true)
     try {
       const poiSpawns = await fetchPoiSpawns(lat, lng, cooldownsRef.current)
       setSpawns(prev => [...prev.filter(s => s.rarity === 'common'), ...poiSpawns])
-    } catch (e) {
-      console.warn('Overpass fetch failed:', e)
-    } finally {
-      setLoadingPoi(false)
-    }
+    } catch (e) { console.warn('Overpass fetch failed:', e) } finally { setLoadingPoi(false) }
   }, [])
 
-  // ── Inicializace mapy ─────────────────────────────────────
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
-
-    const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 15, zoomControl: false })
+    const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
-    L.control.zoom({ position: 'topright' }).addTo(map)
-    mapRef.current = map
-
+    L.control.zoom({ position: 'topright' }).addTo(map); mapRef.current = map
     if ('geolocation' in navigator) {
-      watchIdRef.current = navigator.geolocation.watchPosition(
-        (pos) => {
-          const { latitude: lat, longitude: lng } = pos.coords
-          setPlayerPos([lat, lng])
-          setStatusMsg('')
-
-          if (!playerMarkerRef.current) {
-            playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
-            map.setView([lat, lng], 16)
-          } else {
-            playerMarkerRef.current.setLatLng([lat, lng])
-          }
-
-          // Generuj common spawny deterministicky (cooldowns z ref)
-          setSpawns(prev => {
-            const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
-            const pois    = prev.filter(s => s.rarity !== 'common').map(s => ({
-              ...s,
-              caught: isOnCooldown(cooldownsRef.current, s.id),
-            }))
-            return [...commons, ...pois]
-          })
-
-          if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-          overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
-        },
-        (err) => {
-          console.warn('Geo error:', err.message)
-          setStatusMsg('Poloha nedostupná – zkontroluj oprávnění')
-        },
-        { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
-      )
-    } else {
-      setStatusMsg('Geolokace není dostupná')
-    }
-
+      watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords
+        if (!isFinite(lat) || !isFinite(lng)) return
+        setPlayerPos([lat, lng]); setStatusMsg('')
+        if (!playerMarkerRef.current) {
+          playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
+          map.setView([lat, lng], 16)
+        } else { playerMarkerRef.current.setLatLng([lat, lng]) }
+        setSpawns(prev => {
+          const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
+          const pois = prev.filter(s => s.rarity !== 'common').map(s => ({ ...s, caught: isOnCooldown(cooldownsRef.current, s.id) }))
+          return [...commons, ...pois]
+        })
+        if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
+        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
+      }, (err) => { setStatusMsg('Poloha nedostupná') }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 })
+    } else { setStatusMsg('Geolokace není dostupná') }
     return () => {
       if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-      map.remove()
-      mapRef.current = null
-      playerMarkerRef.current = null
-      markersRef.current.clear()
+      map.remove(); mapRef.current = null; playerMarkerRef.current = null; markersRef.current.clear()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Aktualizuj markery a nearby při změně spawns / playerPos ──
   useEffect(() => {
-    if (!playerPos) return
+    if (!playerPos || !isFinite(playerPos[0])) return
     recalcNearby(playerPos[0], playerPos[1], spawns)
-    if (mapRef.current) {
-      updateMarkers(mapRef.current, spawns, playerPos[0], playerPos[1], playerLevel)
-    }
+    if (mapRef.current) { updateMarkers(mapRef.current, spawns, playerPos[0], playerPos[1], playerLevel) }
   }, [spawns, playerPos, playerLevel, updateMarkers, recalcNearby])
 
-  // ── Center na hráče ───────────────────────────────────────
-  const handleCenter = () => {
-    if (playerMarkerRef.current && mapRef.current)
-      mapRef.current.setView(playerMarkerRef.current.getLatLng(), 16, { animate: true })
-  }
-
-  // ── Chytání ───────────────────────────────────────────────
   const handleCatch = () => {
     if (!nearbySpawn) return
-
-    // Level check
     if (nearbySpawn.level > playerLevel) {
-      setLevelBlocked(true)
-      setTimeout(() => setLevelBlocked(false), 2500)
-      return
+      setLevelBlocked(true); setTimeout(() => setLevelBlocked(false), 2500); return
     }
-
-    const dbMonster = monsterDB.find(m => m.id === nearbySpawn.monsterId)
-      ?? monsterDB[Math.floor(seededFloat(nearbySpawn.id) * monsterDB.length)]
-
-    const caught: Monster = {
-      ...dbMonster,
-      level: nearbySpawn.level,
-      image: `/monsters/${dbMonster.id}.png`,
+    const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
+    if (playerHP < cost) {
+      setHpBlocked(true); setTimeout(() => setHpBlocked(false), 2500); return
     }
-
-    // Nastav cooldown — spawn se vrátí za RESPAWN_COOLDOWN_MS
-    const newCooldowns: Cooldowns = {
-      ...cooldownsRef.current,
-      [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS,
-    }
-    cooldownsRef.current = newCooldowns
-    localStorage.setItem('map_cooldowns', JSON.stringify(newCooldowns))
-
-    // Dočasně označ spawn jako chycený (zmizí z mapy)
+    const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) ?? monsterDB[0]
+    const caught: Monster = { ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` }
+    const nC: Cooldowns = { ...cooldownsRef.current, [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS }
+    cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
     setSpawns(prev => prev.map(s => s.id === nearbySpawn.id ? { ...s, caught: true } : s))
-    setNearbySpawn(null)
-
-    // Předej do App → zobrazí NewMonsterModal (stejný efekt jako čárový kód)
-    onCatch(caught)
-
-    // Aktualizuj level hráče
-    setPlayerLevel(getPlayerLevel())
+    setNearbySpawn(null); onConsumeHP(cost); onCatch(caught)
+    setPlayerLevel(getPlayerLevelFromStorage())
   }
 
-  const c = nearbySpawn ? RARITY_COLORS[nearbySpawn.rarity] : null
-
-  // ── Render ────────────────────────────────────────────────
   return (
-    <motion.div
-      key="world-map"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.35 }}
-      className="relative w-full flex flex-col"
-      style={{ height: 'calc(100vh - 176px)', minHeight: 480 }}
-    >
-      {/* Info lišta */}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col" style={{ height: 'calc(100vh - 176px)', minHeight: 480 }}>
       <div className="px-4 pt-2 pb-2 flex items-center justify-between">
         <div>
           <p className="text-slate-400 text-xs uppercase tracking-widest font-bold">Průzkum světa</p>
-          <p className="text-slate-500 text-[10px] mt-0.5">
-            {loadingPoi ? '⏳ Načítám místní POI…'
-              : statusMsg || `${spawns.filter(s => !s.caught).length} příšer v okolí`}
-          </p>
+          <p className="text-slate-500 text-[10px] mt-0.5">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer v okolí`}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary text-[10px] font-black px-2.5 py-1 rounded-full">
-            ⚡ Lv.{playerLevel}
-          </div>
-          <button
-            onClick={handleCenter}
-            className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold px-3 py-1.5 rounded-full hover:border-primary/40 hover:text-primary transition-all active:scale-95"
-          >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
-            </svg>
-            Moje poloha
-          </button>
+           <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
+             <Heart size={10} className="text-red-500" fill="currentColor" />
+             <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
+           </div>
+          <div className="flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary text-[10px] font-black px-2.5 py-1 rounded-full">⚡ Lv.{playerLevel}</div>
+          <button onClick={() => mapRef.current && playerMarkerRef.current && mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17)} className="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-bold px-3 py-1.5 rounded-full">Poloha</button>
         </div>
       </div>
 
-      {/* Mapa */}
-      <div className="relative flex-1 mx-3 rounded-2xl overflow-hidden border border-slate-700/60 shadow-[0_0_30px_rgba(13,185,242,0.08)]">
+      <div className="relative flex-1 mx-3 rounded-2xl overflow-hidden border border-slate-700/60 shadow-[0_0_20px_rgba(0,0,0,0.5)] isolation-isolate">
         <div ref={mapContainerRef} className="w-full h-full" />
-        <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-primary/10" />
-        <div className="pointer-events-none absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2 border-primary/50 rounded-tl-lg" />
-        <div className="pointer-events-none absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2 border-primary/50 rounded-tr-lg" />
-        <div className="pointer-events-none absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2 border-primary/50 rounded-bl-lg" />
-        <div className="pointer-events-none absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2 border-primary/50 rounded-br-lg" />
-
-        {/* Legenda */}
-        <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/75 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block" />
-            <span className="text-[10px] text-slate-400">Běžná Lv.1–2</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block" />
-            <span className="text-[10px] text-purple-400">Vzácná Lv.3–6</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block" />
-            <span className="text-[10px] text-orange-400">Epická Lv.7–10</span>
-          </div>
+        <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/75 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-800 z-[400]">
+          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-slate-500" /><span className="text-[9px] text-slate-400">Běžná</span></div>
+          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500" /><span className="text-[9px] text-purple-400">Vzácná</span></div>
+          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-500" /><span className="text-[9px] text-orange-400">Epická</span></div>
         </div>
       </div>
 
-      {/* Tlačítko "Chytit" — z-[500] aby bylo nad Leaflet vrstvami */}
       <AnimatePresence>
         {nearbySpawn && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-            className="absolute bottom-4 left-4 right-4 z-[500]"
-          >
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="absolute bottom-4 left-4 right-4 z-[500]">
             {levelBlocked ? (
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                className="w-full py-4 rounded-2xl bg-red-950 border border-red-500/50 text-red-400 font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2"
-              >
-                🔒 Potřebuješ Lv.{nearbySpawn.level} — jsi Lv.{playerLevel}
-              </motion.div>
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-400 font-black text-sm text-center">🔒 Potřebuješ Lv.{nearbySpawn.level} (jsi {playerLevel})</div>
+            ) : hpBlocked ? (
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-400 font-black text-sm text-center">🔋 Málo energie! Vyžaduje {currentEnergyCost}%</div>
             ) : (
-              <button
-                onClick={handleCatch}
-                style={{
-                  background: nearbySpawn.rarity === 'epic'
-                    ? 'linear-gradient(135deg, #c2410c, #f97316)'
-                    : nearbySpawn.rarity === 'rare'
-                    ? 'linear-gradient(135deg, #7e22ce, #a855f7)'
-                    : 'linear-gradient(135deg, #0891b2, #0db9f2)',
-                  boxShadow: `0 8px 30px ${c?.glow}55`,
-                }}
-                className="w-full py-4 rounded-2xl font-black text-base text-white uppercase tracking-wide flex items-center justify-center gap-3 transition-all active:scale-95"
-              >
-                <span className="text-xl">⚡</span>
-                Chytit {nearbySpawn.rarity === 'epic' ? 'Epickou' : nearbySpawn.rarity === 'rare' ? 'Vzácnou' : ''} příšeru
-                <span className="text-sm opacity-75 font-bold normal-case">Lv.{nearbySpawn.level}</span>
+              <button onClick={handleCatch} style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-wide flex flex-col items-center justify-center transition-all active:scale-95 shadow-xl">
+                <div className="flex items-center gap-2"><span>⚡ Chytit</span><span className="text-xs opacity-80">Lv.{nearbySpawn.level}</span></div>
+                <div className="text-[10px] font-bold opacity-90 mt-0.5 flex items-center gap-1"><Heart size={8} fill="currentColor" /> Spotřeba: {currentEnergyCost}% energie</div>
               </button>
             )}
           </motion.div>
