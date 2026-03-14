@@ -33,6 +33,7 @@ interface WorldMapProps {
   onCatch: (monster: Monster) => void
   playerHP: number
   onConsumeHP: (amount: number) => void
+  onDistanceUpdate: (meters: number) => void
   isInteractionBlocked?: boolean
 }
 
@@ -209,7 +210,7 @@ function makePlayerIcon(): L.DivIcon {
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
 }
 
-export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked }: WorldMapProps) => {
+export const WorldMap = ({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked }: WorldMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -217,6 +218,7 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
   const watchIdRef = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
+  const lastPosRef = useRef<[number, number] | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
 
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
@@ -307,6 +309,18 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
       watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
         const { latitude: lat, longitude: lng } = pos.coords
         if (!isFinite(lat) || !isFinite(lng)) return
+
+        // Výpočet ušlé vzdálenosti
+        if (lastPosRef.current) {
+          const [lLat, lLng] = lastPosRef.current
+          const traveled = haversineM(lLat, lLng, lat, lng)
+          // Filtr proti GPS driftu a teleportaci (5m - 100m per tick)
+          if (traveled >= 5 && traveled <= 100) {
+            onDistanceUpdate(traveled)
+          }
+        }
+        lastPosRef.current = [lat, lng]
+
         setPlayerPos([lat, lng]); setStatusMsg('')
         if (!playerMarkerRef.current) {
           playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)

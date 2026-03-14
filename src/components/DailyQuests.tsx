@@ -5,7 +5,7 @@ import { cn } from '../utils';
 
 import { Monster } from '../types';
 
-export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) => {
+export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters: Monster[], dailyDistance: number }) => {
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
@@ -13,11 +13,11 @@ export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) =
       const now = new Date();
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
-      
+
       const diff = endOfDay.getTime() - now.getTime();
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      
+
       return `${hours}h ${minutes}m`;
     };
 
@@ -35,40 +35,40 @@ export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) =
 
   const monstersToday = caughtMonsters.filter(m => m.caughtAt && m.caughtAt >= todayTimestamp);
   const rareCount = monstersToday.filter(m => ['Vzácná', 'Epická', 'Legendární'].includes(m.rarity)).length;
-  
+
   const quests = [
-    { 
-      id: 1, 
-      title: 'Efektivní lovec', 
-      desc: 'Chyť 5 příšerek', 
-      progress: Math.min(monstersToday.length, 5), 
-      total: 5, 
-      icon: Target, 
-      color: 'text-green-500', 
+    {
+      id: 1,
+      title: 'Efektivní lovec',
+      desc: 'Chyť 5 příšerek',
+      progress: Math.min(monstersToday.length, 5),
+      total: 5,
+      icon: Target,
+      color: 'text-green-500',
       bg: 'bg-green-500/10',
       completed: monstersToday.length >= 5
     },
-    { 
-      id: 2, 
-      title: 'Lovec rarit', 
-      desc: 'Chyť 3 vzácné příšerky', 
-      progress: Math.min(rareCount, 3), 
-      total: 3, 
-      icon: Trophy, 
-      color: 'text-purple-500', 
+    {
+      id: 2,
+      title: 'Lovec rarit',
+      desc: 'Chyť 3 vzácné příšerky',
+      progress: Math.min(rareCount, 3),
+      total: 3,
+      icon: Trophy,
+      color: 'text-purple-500',
       bg: 'bg-purple-500/10',
       completed: rareCount >= 3
     },
-    { 
-      id: 3, 
-      title: 'Průzkum města', 
-      desc: 'Ujdi dnes 2.0 km', 
-      progress: 1.2, 
-      total: 2.0, 
-      icon: MapIcon, 
-      color: 'text-primary', 
+    {
+      id: 3,
+      title: 'Průzkum města',
+      desc: 'Ujdi dnes 2.0 km',
+      progress: Math.min(Number((dailyDistance / 1000).toFixed(1)), 2.0),
+      total: 2.0,
+      icon: MapIcon,
+      color: 'text-primary',
       bg: 'bg-primary/10',
-      completed: false
+      completed: (dailyDistance / 1000) >= 2.0
     },
   ]
 
@@ -83,7 +83,7 @@ export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) =
       </div>
       <div className="space-y-3">
         {quests.map((quest, idx) => (
-          <motion.div 
+          <motion.div
             key={quest.id}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -105,11 +105,13 @@ export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) =
                 <CheckCircle2 size={24} className="text-green-500" />
               ) : (
                 <>
-                  <p className={cn("text-xs font-black", quest.color)}>{quest.progress}/{quest.total}</p>
+                  <p className={cn("text-xs font-black", quest.color)}>
+                    {quest.id === 3 ? `${quest.progress.toFixed(1)}km` : `${quest.progress}/${quest.total}`}
+                  </p>
                   <div className="w-16 h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
-                    <div 
-                      className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))} 
-                      style={{ width: `${(quest.progress / quest.total) * 100}%` }} 
+                    <div
+                      className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))}
+                      style={{ width: `${(quest.progress / quest.total) * 100}%` }}
                     />
                   </div>
                 </>

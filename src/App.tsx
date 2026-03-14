@@ -32,6 +32,18 @@ function App() {
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
   
+  // Vzdálenost: metry nachozené dnes (s resetem o půlnoci)
+  const [dailyDistance, setDailyDistance] = useState(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_distance')
+      if (saved) {
+        const { dist, date } = JSON.parse(saved)
+        if (date === new Date().toDateString()) return dist
+      }
+    } catch (e) { console.error("Chyba při načítání vzdálenosti") }
+    return 0
+  })
+
   // HP systém: 100% za 4 hodiny (240 min)
   const [hpState, setHpState] = useState(() => {
     try {
@@ -69,6 +81,17 @@ function App() {
     setHpState(newState)
     setCurrentHP(newVal)
     localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
+  }
+
+  const handleMove = (meters: number) => {
+    setDailyDistance((prev: number) => {
+      const newVal = prev + meters
+      localStorage.setItem('monster_collector_distance', JSON.stringify({
+        dist: newVal,
+        date: new Date().toDateString()
+      }))
+      return newVal
+    })
   }
 
   // Load from LocalStorage
@@ -252,7 +275,10 @@ function App() {
                     onSelect={setSelectedMonster}
                     onSeeAll={() => setActiveTab('vault')}
                   />
-                  <DailyQuests caughtMonsters={caughtMonsters} />
+                  <DailyQuests 
+                    caughtMonsters={caughtMonsters} 
+                    dailyDistance={dailyDistance}
+                  />
                 </motion.div>
               )}
 
@@ -270,6 +296,7 @@ function App() {
                   onCatch={setNewMonster} 
                   playerHP={currentHP} 
                   onConsumeHP={consumeHP} 
+                  onDistanceUpdate={handleMove}
                   isInteractionBlocked={!!newMonster || !!selectedMonster}
                 />
               )}
