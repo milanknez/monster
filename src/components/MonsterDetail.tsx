@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 
@@ -12,6 +12,27 @@ export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const TypeIcon = () => {
+    switch (monster.type) {
+      case 'Ohnivá': return <Flame size={20} className="text-red-500" />;
+      case 'Vodní': return <Droplets size={20} className="text-blue-400" />;
+      case 'Přírodní': return <Leaf size={20} className="text-green-400" />;
+      case 'Elektrická': return <Zap size={20} className="text-yellow-400" />;
+      default: return <Bolt size={20} className="text-yellow-400" />;
+    }
+  };
+
+  const TypeIconLarge = () => {
+    const props = { size: 180, className: "opacity-[0.05] absolute -top-10 -right-10 rotate-12 pointer-events-none" };
+    switch (monster.type) {
+      case 'Ohnivá': return <Flame {...props} className={cn(props.className, "text-red-500")} />;
+      case 'Vodní': return <Droplets {...props} className={cn(props.className, "text-blue-500")} />;
+      case 'Přírodní': return <Leaf {...props} className={cn(props.className, "text-green-500")} />;
+      case 'Elektrická': return <Zap {...props} className={cn(props.className, "text-yellow-500")} />;
+      default: return <Bolt {...props} className={cn(props.className, "text-yellow-500")} />;
+    }
+  };
 
   return (
     <motion.div 
@@ -33,6 +54,9 @@ export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster
           <div className="absolute inset-0 w-[200%] h-full opacity-20 bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.6)_45%,rgba(255,255,255,0.6)_50%,transparent_55%)] animate-shimmer transform-gpu" />
         </div>
 
+        {/* Background Type Icon */}
+        <TypeIconLarge />
+
         {/* Card Content */}
         <div className="relative z-10 flex flex-col gap-3">
           
@@ -44,9 +68,12 @@ export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster
             >
               <ArrowLeft size={24} strokeWidth={3} />
             </button>
-            <h2 className="text-2xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate flex-1">
+            <h2 className="text-xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate flex-1">
               {monster.name}
             </h2>
+            <div className={cn("size-10 rounded-xl flex items-center justify-center border shadow-lg", colors.bg, colors.border)}>
+              <TypeIcon />
+            </div>
           </div>
 
           {/* Large Visual Area */}
