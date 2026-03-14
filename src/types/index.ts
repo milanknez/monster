@@ -7,4 +7,5 @@ export interface Monster {
   image: string;
   description: string;
   abilities?: { name: string; description: string; icon?: string }[];
+  caughtAt?: number;
 }

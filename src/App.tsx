@@ -101,7 +101,8 @@ function App() {
 
   // Save to LocalStorage – stackování povoleno (stejná příšera může být chycena vícekrát)
   const saveMonster = (monster: Monster) => {
-    const updated = [monster, ...caughtMonsters]
+    const enriched = { ...monster, caughtAt: monster.caughtAt || Date.now() }
+    const updated = [enriched, ...caughtMonsters]
     setCaughtMonsters(updated)
     localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
     setNewMonster(null)

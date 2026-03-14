@@ -24,24 +24,29 @@ export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) =
     setTimeLeft(calculateTimeLeft());
     const interval = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
-    }, 60000); // Každou minutu
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const rareCount = caughtMonsters.filter(m => ['Vzácná', 'Epická', 'Legendární'].includes(m.rarity)).length;
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayTimestamp = todayStart.getTime();
+
+  const monstersToday = caughtMonsters.filter(m => m.caughtAt && m.caughtAt >= todayTimestamp);
+  const rareCount = monstersToday.filter(m => ['Vzácná', 'Epická', 'Legendární'].includes(m.rarity)).length;
   
   const quests = [
     { 
       id: 1, 
       title: 'Efektivní lovec', 
       desc: 'Chyť 5 příšerek', 
-      progress: Math.min(caughtMonsters.length, 5), 
+      progress: Math.min(monstersToday.length, 5), 
       total: 5, 
       icon: Target, 
       color: 'text-green-500', 
       bg: 'bg-green-500/10',
-      completed: caughtMonsters.length >= 5
+      completed: monstersToday.length >= 5
     },
     { 
       id: 2, 
