@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -154,18 +154,24 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
 
 async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): Promise<SpawnPoint[]> {
   if (!isFinite(lat) || !isFinite(lng)) return []
-  const query = `[out:json][timeout:20];(node["historic"~"monument|memorial|archaeological_site|ruins|city_gate|fort|wayside_cross|wayside_shrine"](around:${OVERPASS_RADIUS_M},${lat},${lng});node["tourism"~"museum|attraction|artwork|viewpoint"](around:${OVERPASS_RADIUS_M},${lat},${lng});node["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["historic"="castle"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["historic"~"monument|memorial|archaeological_site|ruins"](around:${OVERPASS_RADIUS_M},${lat},${lng});way["tourism"~"museum|attraction"](around:${OVERPASS_RADIUS_M},${lat},${lng}););out center;`.trim()
+  // Použijeme nwr (node, way, relation) pro zachycení i velkých areálů
+  const query = `[out:json][timeout:30];(nwr["historic"~"castle|monastery|palace|fortress|monument|memorial|archaeological_site|ruins|city_gate|fort"](around:${OVERPASS_RADIUS_M},${lat},${lng});nwr["tourism"~"museum|attraction|artwork|viewpoint"](around:${OVERPASS_RADIUS_M},${lat},${lng}););out center;`.trim()
   const res = await fetch('https://overpass-api.de/api/interpreter', {
     method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   })
   const json = await res.json()
   const spawns: SpawnPoint[] = []
 
+  const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress']
+
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
-    const rarity: SpawnRarity = el.tags?.historic === 'castle' ? 'epic' : 'rare'
+    
+    // Strakonický hrad je 'castle', takže bude Epic
+    const rarity: SpawnRarity = EPIC_TAGS.includes(el.tags?.historic) ? 'epic' : 'rare'
+    
     const id = `poi_${el.type}_${el.id}`
     spawns.push({
       id, lat: elLat, lng: elLng, rarity,
@@ -210,7 +216,11 @@ function makePlayerIcon(): L.DivIcon {
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
 }
 
-export const WorldMap = ({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked }: WorldMapProps) => {
+export interface WorldMapHandle {
+  centerOnPlayer: () => void;
+}
+
+export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -229,6 +239,14 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isI
   const [hpBlocked, setHpBlocked] = useState(false)
   const [loadingPoi, setLoadingPoi] = useState(false)
   const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
+
+  useImperativeHandle(ref, () => ({
+    centerOnPlayer: () => {
+      if (mapRef.current && playerMarkerRef.current) {
+        mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17);
+      }
+    }
+  }));
 
   const currentEnergyCost = useMemo(() => {
     if (!nearbySpawn) return 0
@@ -397,7 +415,6 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isI
             <Heart size={10} className="text-red-500" fill="currentColor" />
             <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
           </div>
-          <button onClick={() => mapRef.current && playerMarkerRef.current && mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17)} className="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-black px-3 py-1.5 rounded-full active:scale-95 transition-transform">🛰️ POLOHA</button>
         </div>
       </div>
 
@@ -458,4 +475,4 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isI
       </AnimatePresence>
     </motion.div>
   )
-}
+})

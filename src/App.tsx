@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Radar, Map as MapIcon, ShoppingBag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
@@ -16,7 +16,7 @@ import { Bestiary } from './components/Bestiary'
 import { MonsterDetail } from './components/MonsterDetail'
 import { NavBar } from './components/NavBar'
 import { PlaceholderTab } from './components/PlaceholderTab'
-import { WorldMap } from './components/WorldMap'
+import { WorldMap, type WorldMapHandle } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
 import { TradeModal } from './components/TradeModal'
 import { TradeSelectionModal } from './components/TradeSelectionModal'
@@ -31,6 +31,7 @@ function App() {
   const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const worldMapRef = useRef<WorldMapHandle>(null)
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
@@ -245,6 +246,7 @@ function App() {
           avatarSeed={avatarSeed}
           onQrClick={activeTab === 'vault' ? () => setIsScannerOpen(true) : undefined}
           onSettingsClick={() => setIsSettingsOpen(true)}
+          onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
         />
       )}
       
@@ -299,6 +301,7 @@ function App() {
 
               {activeTab === 'world' && (
                 <WorldMap 
+                  ref={worldMapRef}
                   key="world" 
                   onCatch={setNewMonster} 
                   playerHP={currentHP} 

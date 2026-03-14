@@ -1,4 +1,4 @@
-import { ArrowLeft, Zap, Settings, QrCode } from 'lucide-react';
+import { ArrowLeft, Zap, Settings, QrCode, MapPin } from 'lucide-react';
 import { cn } from '../utils';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   avatarSeed?: string
   onQrClick?: () => void
   onSettingsClick?: () => void
+  onLocationClick?: () => void
 }
 
 export const Header = ({ 
@@ -20,7 +21,8 @@ export const Header = ({
   avatarStyle = "avataaars",
   avatarSeed = "seed",
   onQrClick,
-  onSettingsClick
+  onSettingsClick,
+  onLocationClick
 }: HeaderProps) => (
   <header className="flex items-center justify-between p-4 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
     <div className="flex items-center gap-3 flex-1">
@@ -49,6 +51,14 @@ export const Header = ({
       </div>
     </div>
     <div className="flex gap-2">
+      {onLocationClick && (
+        <button 
+          onClick={onLocationClick}
+          className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
+        >
+          <MapPin size={20} className="text-primary" />
+        </button>
+      )}
       {onQrClick && (
         <button 
           onClick={onQrClick}
