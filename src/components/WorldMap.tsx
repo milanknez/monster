@@ -37,17 +37,17 @@ interface WorldMapProps {
 }
 
 // ── Konfigurace (tvoje testovací hodnoty) ──────────────────────
-const CATCH_RADIUS_M      = 1500  // TESTOVACÍ HODNOTA
-const COMMON_GRID_M       = 100
+const CATCH_RADIUS_M = 15 // TESTOVACÍ HODNOTA
+const COMMON_GRID_M = 100
 const COMMON_RADIUS_CELLS = 8
-const OVERPASS_RADIUS_M   = 3000
+const OVERPASS_RADIUS_M = 3000
 const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000
 
 // ── Pomocné funkce pro HP cost ───────────────────────────────
 const calculateHPCost = (level: number, rarity: SpawnRarity) => {
   const base = 25
   const rarityBonus = rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
-  return base + (level * 2) + rarityBonus 
+  return base + (level * 2) + rarityBonus
 }
 
 // ── Cooldown helpers ──────────────────────────────────────────
@@ -96,14 +96,14 @@ function seededFloat(seed: string): number {
 function pickLevel(seed: string, rarity: SpawnRarity): number {
   const r = seededFloat(seed + '_lvl')
   if (rarity === 'common') return r < 0.40 ? 2 : 1
-  if (rarity === 'rare')   return 3 + Math.floor(r * 4)
+  if (rarity === 'rare') return 3 + Math.floor(r * 4)
   return 7 + Math.floor(r * 4)
 }
 
 function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
-    if (rarity === 'epic')  return m.rarity === 'Epická' || m.rarity === 'Legendární'
-    if (rarity === 'rare')  return m.rarity === 'Vzácná'
+    if (rarity === 'epic') return m.rarity === 'Epická' || m.rarity === 'Legendární'
+    if (rarity === 'rare') return m.rarity === 'Vzácná'
     return m.rarity === 'Běžná' || m.rarity === 'Neobvyklá'
   })
   const arr = pool.length ? pool : monsterDB
@@ -115,7 +115,7 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
   const spawns: SpawnPoint[] = []
   const latStep = metersToLatDeg(COMMON_GRID_M)
   const lngStep = metersToLngDeg(COMMON_GRID_M, playerLat)
-  
+
   const baseLat = Math.round(playerLat / latStep) * latStep
   const baseLng = Math.round(playerLng / lngStep) * lngStep
 
@@ -165,8 +165,8 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
 
 const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
   common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
-  rare:   { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
-  epic:   { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
+  rare: { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
+  epic: { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
 }
 
 const SILHOUETTE_SVG = `<path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47 L28 55 C26 60 30 65 35 63 L38 61 C40 64 44 66 50 66 C56 66 60 64 62 61 L65 63 C70 65 74 60 72 55 L68 47 C73 43 75 38 75 32 C75 20 65 10 50 10 Z" fill="currentColor"/><circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>`
@@ -197,23 +197,23 @@ function makePlayerIcon(): L.DivIcon {
 }
 
 export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked }: WorldMapProps) => {
-  const mapContainerRef  = useRef<HTMLDivElement>(null)
-  const mapRef           = useRef<L.Map | null>(null)
-  const playerMarkerRef  = useRef<L.Marker | null>(null)
-  const markersRef       = useRef<Map<string, L.Marker>>(new Map())
-  const watchIdRef       = useRef<number | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const playerMarkerRef = useRef<L.Marker | null>(null)
+  const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const watchIdRef = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastPoiFetchRef  = useRef<{ lat: number; lng: number } | null>(null)
-  const cooldownsRef     = useRef<Cooldowns>(loadCooldowns())
+  const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
+  const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
 
-  const [playerPos, setPlayerPos]       = useState<[number, number] | null>(null)
-  const [playerLevel, setPlayerLevel]   = useState<number>(getPlayerLevelFromStorage)
-  const [spawns, setSpawns]             = useState<SpawnPoint[]>([])
-  const [nearbySpawn, setNearbySpawn]   = useState<SpawnPoint | null>(null)
+  const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
+  const [playerLevel, setPlayerLevel] = useState<number>(getPlayerLevelFromStorage)
+  const [spawns, setSpawns] = useState<SpawnPoint[]>([])
+  const [nearbySpawn, setNearbySpawn] = useState<SpawnPoint | null>(null)
   const [levelBlocked, setLevelBlocked] = useState(false)
-  const [hpBlocked, setHpBlocked]       = useState(false)
-  const [loadingPoi, setLoadingPoi]     = useState(false)
-  const [statusMsg, setStatusMsg]       = useState('Hledám polohu…')
+  const [hpBlocked, setHpBlocked] = useState(false)
+  const [loadingPoi, setLoadingPoi] = useState(false)
+  const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
 
   const currentEnergyCost = useMemo(() => {
     if (!nearbySpawn) return 0
@@ -327,10 +327,10 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
           </p>
         </div>
         <div className="flex items-center gap-2">
-           <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
-             <Heart size={10} className="text-red-500" fill="currentColor" />
-             <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
-           </div>
+          <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
+            <Heart size={10} className="text-red-500" fill="currentColor" />
+            <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
+          </div>
           <button onClick={() => mapRef.current && playerMarkerRef.current && mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17)} className="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-black px-3 py-1.5 rounded-full active:scale-95 transition-transform">🛰️ POLOHA</button>
         </div>
       </div>
@@ -338,7 +338,7 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
       {/* Kontejner mapy */}
       <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl isolate">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
-        
+
         {/* Legenda (uvnitř mapy) */}
         <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 border border-white/5 z-40 pointer-events-none">
           <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Common</span></div>
@@ -357,10 +357,10 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
       {/* Tlačítko - teď mimo kontejner mapy pro jistotu z-indexu */}
       <AnimatePresence>
         {nearbySpawn && !isInteractionBlocked && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: 50 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
             className="absolute bottom-6 left-6 right-6 z-[1001]"
           >
             {levelBlocked ? (
@@ -368,14 +368,14 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
             ) : hpBlocked ? (
               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
             ) : (
-              <button 
-                onClick={handleCatch} 
-                style={{ 
-                  background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : 
-                              nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 
-                              'linear-gradient(135deg, #0891b2, #0db9f2)',
+              <button
+                onClick={handleCatch}
+                style={{
+                  background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' :
+                    nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' :
+                      'linear-gradient(135deg, #0891b2, #0db9f2)',
                   boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
-                }} 
+                }}
                 className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center transition-all active:scale-95 border-b-4 border-black/20"
               >
                 <div className="flex items-center gap-2">

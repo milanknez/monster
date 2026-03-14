@@ -19,12 +19,15 @@ import { PlaceholderTab } from './components/PlaceholderTab'
 import { WorldMap } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
 import { TradeModal } from './components/TradeModal'
+import { TradeSelectionModal } from './components/TradeSelectionModal'
 
 function App() {
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
   const [tradingMonster, setTradingMonster] = useState<Monster | null>(null)
+  const [tradeConfirmation, setTradeConfirmation] = useState<{ monster: Monster, received: { id: string, level: number, name: string } } | null>(null)
+  const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
   const [activeTab, setActiveTab] = useState('home')
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
@@ -104,10 +107,53 @@ function App() {
     setNewMonster(null)
   }
 
+  const removeMonster = (id: string, level: number) => {
+    const index = caughtMonsters.findIndex(m => m.id === id && m.level === level)
+    if (index !== -1) {
+      const updated = [...caughtMonsters]
+      updated.splice(index, 1)
+      setCaughtMonsters(updated)
+      localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
+    }
+  }
+
   const handleScan = (ean: string) => {
     if (!ean) return;
 
-    // Rozpoznání Trade kódu (formát: MSTR_TRD|id|level|name)
+    // --- REŽIM VÝMĚNY (HANDSHAKE) ---
+    
+    // 1. Přijetí nabídky (Hráč B skenuje Hráče A)
+    if (ean.startsWith('MSTR_OFF|')) {
+      const [, id, level] = ean.split('|');
+      const dbMonster = monsterDB.find(m => m.id === id);
+      if (dbMonster) {
+        setPendingOffer({ id, level: parseInt(level), name: dbMonster.name });
+        setIsScannerOpen(false);
+        return;
+      }
+    }
+
+    // 2. Potvrzení výměny (Hráč A skenuje Hráče B)
+    if (ean.startsWith('MSTR_CNF|')) {
+      const [, givenId, givenLvl, receivedId, receivedLvl] = ean.split('|');
+      
+      // Hráč A ověří, že to co Hráč B posílá jako "received" je opravdu to, co Hráč A nabízel
+      // Pro testování budeme důvěřovat a prostě provedeme swap
+      const dbGiven = monsterDB.find(m => m.id === givenId);
+      if (dbGiven) {
+        // 1. Odeber moji kartu, kterou jsem nabízel
+        removeMonster(receivedId, parseInt(receivedLvl));
+        // 2. Přidej kartu, kterou mi dává druhý hráč
+        saveMonster({ ...dbGiven, level: parseInt(givenLvl), image: `/monsters/${givenId}.png` });
+        
+        setIsScannerOpen(false);
+        alert(`Výměna dokončena! Získal jsi ${dbGiven.name} LVL ${givenLvl}.`);
+        return;
+      }
+    }
+
+    // --- KLASICKÉ SKENOVÁNÍ ---
+    // Rozpoznání Trade kódu (starý formát - pro zpětnou kompatibilitu)
     if (ean.startsWith('MSTR_TRD|')) {
       const parts = ean.split('|');
       const [, id, level] = parts;
@@ -167,6 +213,7 @@ function App() {
           showBack={activeTab !== 'home'} 
           onBack={() => setActiveTab('home')}
           playerName={playerName || 'Aether_Runner'}
+          onQrClick={activeTab === 'vault' ? () => setIsScannerOpen(true) : undefined}
         />
       )}
       
@@ -203,7 +250,11 @@ function App() {
               )}
 
               {activeTab === 'vault' && (
-                <Bestiary key="bestiary" caughtMonsters={caughtMonsters} onSelect={setSelectedMonster} />
+                <Bestiary 
+                  key="bestiary" 
+                  caughtMonsters={caughtMonsters} 
+                  onSelect={setSelectedMonster}
+                />
               )}
 
               {activeTab === 'world' && (
@@ -224,18 +275,9 @@ function App() {
         </AnimatePresence>
       </main>
 
-      {!selectedMonster && activeTab === 'home' && (
+      {activeTab === 'home' && false && (
         <div className="fixed bottom-[88px] left-0 right-0 p-4 px-6 z-40 max-w-md mx-auto">
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsScannerOpen(true)}
-            className="w-full bg-primary hover:bg-primary/90 text-background-dark font-black text-lg py-4 rounded-2xl shadow-[0_10px_30px_rgba(13,185,242,0.4)] flex items-center justify-center gap-3 transition-all relative overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-            <Radar size={24} className="animate-pulse" />
-            <span className="tracking-tight uppercase">Spustit skenování</span>
-          </motion.button>
+          {/* Tlačítko skeneru na dashboardu zrušeno, je teď v Bestiáři */}
         </div>
       )}
 
@@ -263,6 +305,38 @@ function App() {
           <TradeModal 
             monster={tradingMonster} 
             onClose={() => setTradingMonster(null)} 
+            mode="OFFER"
+          />
+        )}
+        {tradeConfirmation && (
+          <TradeModal 
+            monster={tradeConfirmation.monster} 
+            receivedMonster={tradeConfirmation.received}
+            onClose={() => setTradeConfirmation(null)} 
+            mode="CONFIRM"
+          />
+        )}
+        {pendingOffer && (
+          <TradeSelectionModal 
+            caughtMonsters={caughtMonsters}
+            offeringMonster={pendingOffer}
+            onClose={() => setPendingOffer(null)}
+            onSelect={(myMonster) => {
+              // Hráč B vybral svoji kartu:
+              // 1. Ulož kartu, kterou mu dával Hráč A
+              const offeredByA = monsterDB.find(m => m.id === pendingOffer.id);
+              if (offeredByA) {
+                saveMonster({ ...offeredByA, level: pendingOffer.level, image: `/monsters/${offeredByA.id}.png` });
+              }
+              // 2. Odeber svoji vybranou kartu
+              removeMonster(myMonster.id, myMonster.level);
+              // 3. Ukaž potvrzovací QR kód pro Hráče A
+              setTradeConfirmation({
+                monster: myMonster,
+                received: pendingOffer
+              });
+              setPendingOffer(null);
+            }}
           />
         )}
       </AnimatePresence>

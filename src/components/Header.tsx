@@ -1,9 +1,23 @@
-import { ArrowLeft, Zap, Settings } from 'lucide-react';
+import { ArrowLeft, Zap, Settings, QrCode } from 'lucide-react';
 import { cn } from '../utils';
 
-export const Header = ({ title = "Aether_Runner", showBack = false, onBack, playerName = "Runner" }: { title?: string, showBack?: boolean, onBack?: () => void, playerName?: string }) => (
+interface HeaderProps {
+  title?: string
+  showBack?: boolean
+  onBack?: () => void
+  playerName?: string
+  onQrClick?: () => void
+}
+
+export const Header = ({ 
+  title = "Aether_Runner", 
+  showBack = false, 
+  onBack, 
+  playerName = "Runner",
+  onQrClick 
+}: HeaderProps) => (
   <header className="flex items-center justify-between p-4 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 flex-1">
       {showBack ? (
         <button onClick={onBack} className="p-2 -ml-2 hover:bg-white/5 rounded-lg transition-colors">
           <ArrowLeft size={24} className="text-slate-100" />
@@ -16,8 +30,10 @@ export const Header = ({ title = "Aether_Runner", showBack = false, onBack, play
           />
         </div>
       )}
-      <div>
-        <h1 className={cn("font-black tracking-wider text-slate-100 uppercase", showBack ? "text-lg" : "text-sm text-primary")}>{title}</h1>
+      <div className="flex flex-col flex-1">
+        <h1 className={cn("font-black tracking-wider text-slate-100 uppercase", showBack ? "text-lg" : "text-sm text-primary")}>
+          {title}
+        </h1>
         {!showBack && (
           <div className="flex items-center gap-1">
             <Zap size={12} className="text-primary fill-primary" />
@@ -27,6 +43,14 @@ export const Header = ({ title = "Aether_Runner", showBack = false, onBack, play
       </div>
     </div>
     <div className="flex gap-2">
+      {onQrClick && (
+        <button 
+          onClick={onQrClick}
+          className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
+        >
+          <QrCode size={20} className="text-primary" />
+        </button>
+      )}
       {!showBack && (
         <button className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90">
           <Settings size={20} className="text-primary" />

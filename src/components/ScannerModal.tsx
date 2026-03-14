@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Radar, Zap } from 'lucide-react';
+import { Settings, Radar } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onClose: () => void; onScan: (ean: string) => void }) => {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [manualEan, setManualEan] = useState('')
   const [cameraError, setCameraError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -19,10 +17,10 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
         await html5QrCode.start(
           { facingMode: "environment" },
           {
-            fps: 2, // Sníženo pro Android WebView zamezení sekání
-            qrbox: { width: 250, height: 100 }, // Širší pro čárové kódy
+            fps: 5, 
+            qrbox: { width: 250, height: 250 }, 
             aspectRatio: 1.0, 
-            disableFlip: false // Může také šetřit paměť oproti pokusům o čtení zrcadlených
+            disableFlip: false 
           },
           (decodedText) => {
             if (isMounted) {
@@ -49,16 +47,6 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
       }
     }
   }, [isOpen, onScan, onClose])
-
-  const handleManualScan = () => {
-    setIsProcessing(true)
-    setTimeout(() => {
-      setIsProcessing(false)
-      onScan(manualEan)
-      onClose()
-      setManualEan('')
-    }, 1500)
-  }
 
   if (!isOpen) return null
 
@@ -87,7 +75,7 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
             </button>
           </div>
           
-          <div className="aspect-square relative rounded-2xl overflow-hidden bg-slate-950 border border-white/5 mb-6 group">
+          <div className="aspect-square relative rounded-2xl overflow-hidden bg-slate-950 border border-white/5 group">
             {/* Camera Viewport */}
             <div id="reader" className="w-full h-full object-cover [&>video]:object-cover" />
             
@@ -97,7 +85,7 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
                   <Radar size={32} className="text-red-500 opacity-50" />
                 </div>
                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{cameraError}</p>
-                <p className="text-[10px] text-slate-600 mt-2">Povolte přístup ke kameře v prohlížeči nebo použijte manuální zadání.</p>
+                <p className="text-[10px] text-slate-600 mt-2">Povolte přístup ke kameře v nastavení prohlížeče.</p>
               </div>
             )}
 
@@ -118,40 +106,10 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
           </div>
 
-          <div className="space-y-4">
-            <div className="relative">
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-[10px] font-black text-primary uppercase tracking-[0.2em] block">Senzor dat (Manuální EAN)</label>
-                {cameraError && <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest animate-pulse">Offline</span>}
-              </div>
-              <input 
-                type="text" 
-                placeholder="Zadejte kód..."
-                value={manualEan}
-                onChange={(e) => setManualEan(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-primary/50 transition-colors"
-                autoFocus
-                onKeyDown={(e) => e.key === 'Enter' && handleManualScan()}
-              />
-            </div>
-            
-            <button 
-              onClick={handleManualScan}
-              disabled={isProcessing || !manualEan}
-              className="w-full bg-primary hover:bg-primary/90 text-background-dark font-black py-4 rounded-xl shadow-[0_4px_15px_rgba(13,185,242,0.3)] flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="size-5 border-2 border-background-dark/30 border-t-background-dark rounded-full animate-spin" />
-                  <span className="uppercase font-black">Zpracování...</span>
-                </>
-              ) : (
-                <>
-                  <Zap size={20} className="fill-background-dark" />
-                  <span className="uppercase tracking-tight">Vynutit detekci kódu</span>
-                </>
-              )}
-            </button>
+          <div className="mt-6 text-center">
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+              Nasměrujte čočku na QR kód
+            </p>
           </div>
         </div>
       </motion.div>

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock } from 'lucide-react';
+import { Lock, QrCode } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 import { monsterDB } from '../data/monsters';
 
-export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster[], onSelect: (m: Monster) => void }) => {
+export const Bestiary = ({ caughtMonsters, onSelect }: { 
+  caughtMonsters: Monster[], 
+  onSelect: (m: Monster) => void
+}) => {
   const [filter, setFilter] = useState('Vše')
   const rarities = ['Vše', 'Běžná', 'Vzácná', 'Epická', 'Legendární']
 
@@ -26,19 +29,22 @@ export const Bestiary = ({ caughtMonsters, onSelect }: { caughtMonsters: Monster
       className="pb-32"
     >
       <div className="flex flex-col gap-3 p-6 bg-primary/5 border-b border-primary/10">
-        <div className="flex justify-between items-end">
+        <div className="flex justify-between items-start">
           <div className="flex flex-col">
             <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">Globální Hodnocení</p>
             <p className="text-slate-100 text-2xl font-black uppercase tracking-tighter">Sběratel Úr. {Math.floor(caughtMonsters.length / 5) + 1}</p>
           </div>
-          <div className="text-right">
-            <p className="text-slate-100 text-sm font-black uppercase">
-              {new Set(caughtMonsters.map(m => m.id)).size} / {monsterDB.length}
-              <span className="text-primary/60 ml-1">Druhů</span>
-            </p>
-            <p className="text-slate-500 text-[10px] font-black uppercase mt-0.5">
-              {caughtMonsters.length} celkem chyceno
-            </p>
+          
+          <div className="flex gap-2">
+            <div className="text-right flex flex-col items-end">
+              <p className="text-slate-100 text-sm font-black uppercase">
+                {new Set(caughtMonsters.map(m => m.id)).size} / {monsterDB.length}
+                <span className="text-primary/60 ml-1">Druhů</span>
+              </p>
+              <p className="text-slate-500 text-[10px] font-black uppercase mt-0.5">
+                {caughtMonsters.length} celkem chyceno
+              </p>
+            </div>
           </div>
         </div>
         <div className="relative h-3 w-full rounded-full bg-slate-800/50 border border-primary/20 p-0.5 overflow-hidden">
