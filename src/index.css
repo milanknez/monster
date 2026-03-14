@@ -23,6 +23,12 @@ body {
 }
 
 /* ── Leaflet dark-mode overrides ────────────────────────────── */
+
+/* Izoluj Leaflet stacking context — zabrání prolézání přes fixed modaly */
+.leaflet-container {
+  isolation: isolate;
+}
+
 .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.9);
 }

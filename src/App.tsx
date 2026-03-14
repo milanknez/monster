@@ -55,14 +55,11 @@ function App() {
     }
   }, [])
 
-  // Save to LocalStorage
+  // Save to LocalStorage – stackování povoleno (stejná příšera může být chycena vícekrát)
   const saveMonster = (monster: Monster) => {
-    const updated = [...caughtMonsters]
-    if (!updated.some(m => m.id === monster.id)) {
-      updated.unshift(monster)
-      setCaughtMonsters(updated)
-      localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
-    }
+    const updated = [monster, ...caughtMonsters]
+    setCaughtMonsters(updated)
+    localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
     setNewMonster(null)
   }
 
@@ -146,7 +143,7 @@ function App() {
               )}
 
               {activeTab === 'world' && (
-                <WorldMap key="world" />
+                <WorldMap key="world" onCatch={setNewMonster} />
               )}
 
               {activeTab === 'store' && (

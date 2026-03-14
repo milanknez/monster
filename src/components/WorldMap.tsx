@@ -22,30 +22,42 @@ interface SpawnPoint {
   lng: number
   rarity: SpawnRarity
   monsterId: string
-  level: number       // level příšery na tomto spawnu
-  caught: boolean
+  level: number
+  caught: boolean   // true = je na cooldownu, nezobrazuje se
+}
+
+interface WorldMapProps {
+  onCatch: (monster: Monster) => void
 }
 
 // ── Konfigurace ───────────────────────────────────────────────
-const CATCH_RADIUS_M      = 15    // max. vzdálenost pro chytání (m)
+const CATCH_RADIUS_M      = 305   // max. vzdálenost pro chytání (m) — TESTOVACÍ HODNOTA
 const COMMON_GRID_M       = 100   // krok mřížky pro common příšery (m)
 const COMMON_RADIUS_CELLS = 8     // počet buněk od hráče
 const OVERPASS_RADIUS_M   = 3000  // poloměr dotazu Overpass API (m)
+const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000   // 5 minut do respawnu
 
-// Výpočet úrovně hráče z počtu chycených příšer
-// 1 úroveň za každé 3 chycené (minimum 1)
+// ── Cooldown helpers ──────────────────────────────────────────
+type Cooldowns = Record<string, number>  // { [spawnId]: expiresAtTimestamp }
+
+function loadCooldowns(): Cooldowns {
+  try { return JSON.parse(localStorage.getItem('map_cooldowns') ?? '{}') }
+  catch { return {} }
+}
+
+function isOnCooldown(cooldowns: Cooldowns, id: string): boolean {
+  return Date.now() < (cooldowns[id] ?? 0)
+}
+
+// ── Player level ──────────────────────────────────────────────
 function getPlayerLevel(): number {
   try {
     const caught: Monster[] = JSON.parse(localStorage.getItem('monster_collector_caught') ?? '[]')
     return Math.max(1, Math.floor(caught.length / 3) + 1)
-  } catch {
-    return 1
-  }
+  } catch { return 1 }
 }
 
 // ── Pomocné funkce ────────────────────────────────────────────
-
-/** Haversine vzdálenost v metrech */
 function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6_371_000
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -60,7 +72,6 @@ function metersToLngDeg(m: number, lat: number) {
   return m / (111_320 * Math.cos(lat * Math.PI / 180))
 }
 
-/** Deterministický hash → číslo 0..1 */
 function seededFloat(seed: string): number {
   let h = 2166136261 >>> 0
   for (let i = 0; i < seed.length; i++) {
@@ -70,15 +81,13 @@ function seededFloat(seed: string): number {
   return (h >>> 0) / 0xFFFFFFFF
 }
 
-/** Vybere level příšery deterministicky – s realistickou distribucí */
 function pickLevel(seed: string, rarity: SpawnRarity): number {
   const r = seededFloat(seed + '_lvl')
-  if (rarity === 'common') return r < 0.40 ? 2 : 1   // 60 % Lv.1, 40 % Lv.2
-  if (rarity === 'rare')   return 3 + Math.floor(r * 4)  // Lv. 3–6 rovnoměrně
-  return 7 + Math.floor(r * 4)                         // Lv. 7–10 rovnoměrně (epic)
+  if (rarity === 'common') return r < 0.40 ? 2 : 1    // 60 % Lv.1, 40 % Lv.2
+  if (rarity === 'rare')   return 3 + Math.floor(r * 4) // Lv. 3–6
+  return 7 + Math.floor(r * 4)                          // Lv. 7–10
 }
 
-/** Vybere příšeru deterministicky z DB */
 function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
     if (rarity === 'epic')  return m.rarity === 'Epická' || m.rarity === 'Legendární'
@@ -89,8 +98,7 @@ function pickMonster(seed: string, rarity: SpawnRarity): string {
   return arr[Math.floor(seededFloat(seed) * arr.length)].id
 }
 
-/** Generuj common spawn body v mřížce kolem hráče */
-function generateCommonSpawns(playerLat: number, playerLng: number, caught: Set<string>): SpawnPoint[] {
+function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns): SpawnPoint[] {
   const spawns: SpawnPoint[] = []
   const latStep = metersToLatDeg(COMMON_GRID_M)
   const lngStep = metersToLngDeg(COMMON_GRID_M, playerLat)
@@ -101,23 +109,17 @@ function generateCommonSpawns(playerLat: number, playerLng: number, caught: Set<
     for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
       const lat = baseLat + dy * latStep
       const lng = baseLng + dx * lngStep
-
-      // 25% šance na prázdnou buňku
       if (seededFloat(`skip_${lat.toFixed(6)}_${lng.toFixed(6)}`) < 0.25) continue
 
-      // Jitter (každý je trochu posunutý, ne přesně na mřížce)
       const jLat = lat + (seededFloat(`jlat_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * latStep * 0.6
       const jLng = lng + (seededFloat(`jlng_${lat.toFixed(6)}_${lng.toFixed(6)}`) - 0.5) * lngStep * 0.6
 
       const id = `common_${lat.toFixed(6)}_${lng.toFixed(6)}`
       spawns.push({
-        id,
-        lat: jLat,
-        lng: jLng,
-        rarity: 'common',
+        id, lat: jLat, lng: jLng, rarity: 'common',
         monsterId: pickMonster(id, 'common'),
         level: pickLevel(id, 'common'),
-        caught: caught.has(id),
+        caught: isOnCooldown(cooldowns, id),
       })
     }
   }
@@ -125,7 +127,7 @@ function generateCommonSpawns(playerLat: number, playerLng: number, caught: Set<
 }
 
 // ── Overpass API ──────────────────────────────────────────────
-async function fetchPoiSpawns(lat: number, lng: number, caught: Set<string>): Promise<SpawnPoint[]> {
+async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): Promise<SpawnPoint[]> {
   const query = `
     [out:json][timeout:20];
     (
@@ -151,18 +153,23 @@ async function fetchPoiSpawns(lat: number, lng: number, caught: Set<string>): Pr
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (!elLat || !elLng) continue
-
-    const rarity: SpawnRarity = (el.tags?.historic === 'castle') ? 'epic' : 'rare'
+    const rarity: SpawnRarity = el.tags?.historic === 'castle' ? 'epic' : 'rare'
     const id = `poi_${el.type}_${el.id}`
-
     spawns.push({
       id, lat: elLat, lng: elLng, rarity,
       monsterId: pickMonster(id, rarity),
       level: pickLevel(id, rarity),
-      caught: caught.has(id),
+      caught: isOnCooldown(cooldowns, id),
     })
   }
   return spawns
+}
+
+// ── Barvy dle rarity ──────────────────────────────────────────
+const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
+  common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
+  rare:   { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
+  epic:   { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
 }
 
 // ── SVG silueta příšery (stejná pro všechny) ─────────────────
@@ -177,24 +184,14 @@ const SILHOUETTE_SVG = `
   <circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>
 `
 
-// ── Barvy dle rarity ──────────────────────────────────────────
-const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
-  common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
-  rare:   { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
-  epic:   { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
-}
-
 // ── Leaflet marker ikona ──────────────────────────────────────
 function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
   const outerSize = spawn.rarity === 'epic' ? 48 : spawn.rarity === 'rare' ? 42 : 36
   const innerR = 32
-  const lockOverlay = isLocked ? `
-    <text x="50" y="58" text-anchor="middle" font-size="28" font-family="sans-serif" fill="#ef4444" opacity="0.9">🔒</text>
-  ` : `
-    <text x="50" y="60" text-anchor="middle" font-size="42" font-family="serif" font-weight="bold"
-          fill="${c.label}" filter="url(#mg)">?</text>
-  `
+  const lockOverlay = isLocked
+    ? `<text x="50" y="58" text-anchor="middle" font-size="28" font-family="sans-serif" fill="#ef4444" opacity="0.9">🔒</text>`
+    : `<text x="50" y="60" text-anchor="middle" font-size="42" font-family="serif" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
   const pulse = isNearby && !isLocked ? `
     <circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7">
       <animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/>
@@ -202,26 +199,21 @@ function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean)
     </circle>` : ''
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
-    <defs>
-      <filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
+    <defs><filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
     ${pulse}
     <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
     ${lockOverlay}
-    <!-- Level badge -->
     <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
     <text x="50" y="89" text-anchor="middle" font-size="13" font-family="monospace" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
   </svg>`
 
   return L.divIcon({
-    html: svg,
-    className: '',
+    html: svg, className: '',
     iconSize:   [outerSize, outerSize + 10],
     iconAnchor: [outerSize / 2, outerSize / 2],
   })
 }
 
-// ── Tooltip HTML (silueta + level) ───────────────────────────
 function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
   const c = RARITY_COLORS[spawn.rarity]
   const locked = spawn.level > playerLevel
@@ -252,7 +244,7 @@ function makePlayerIcon(): L.DivIcon {
 }
 
 // ── Komponenta ────────────────────────────────────────────────
-export const WorldMap = () => {
+export const WorldMap = ({ onCatch }: WorldMapProps) => {
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const mapRef           = useRef<L.Map | null>(null)
   const playerMarkerRef  = useRef<L.Marker | null>(null)
@@ -260,16 +252,13 @@ export const WorldMap = () => {
   const watchIdRef       = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef  = useRef<{ lat: number; lng: number } | null>(null)
+  // Cooldowns jako ref (pro použití uvnitř setState callbacků) + state (pro reaktivitu)
+  const cooldownsRef     = useRef<Cooldowns>(loadCooldowns())
 
   const [playerPos, setPlayerPos]       = useState<[number, number] | null>(null)
   const [playerLevel, setPlayerLevel]   = useState<number>(getPlayerLevel)
   const [spawns, setSpawns]             = useState<SpawnPoint[]>([])
-  const [caughtIds, setCaughtIds]       = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('map_caught_ids') ?? '[]')) }
-    catch { return new Set() }
-  })
   const [nearbySpawn, setNearbySpawn]   = useState<SpawnPoint | null>(null)
-  const [catchResult, setCatchResult]   = useState<Monster | null>(null)
   const [levelBlocked, setLevelBlocked] = useState(false)
   const [loadingPoi, setLoadingPoi]     = useState(false)
   const [statusMsg, setStatusMsg]       = useState('Hledám polohu…')
@@ -286,19 +275,13 @@ export const WorldMap = () => {
 
   // ── Aktualizuj markery na mapě ────────────────────────────
   const updateMarkers = useCallback((
-    map: L.Map,
-    currentSpawns: SpawnPoint[],
-    playerLat: number,
-    playerLng: number,
-    pLevel: number,
+    map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number,
   ) => {
     const existing = markersRef.current
-
     for (const [id, marker] of existing) {
       const spawn = currentSpawns.find(s => s.id === id)
       if (!spawn || spawn.caught) { marker.remove(); existing.delete(id) }
     }
-
     for (const spawn of currentSpawns) {
       if (spawn.caught) continue
       const dist     = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
@@ -313,10 +296,7 @@ export const WorldMap = () => {
           zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0,
         })
         marker.bindTooltip(makeTooltipHtml(spawn, pLevel), {
-          direction: 'top',
-          offset: [0, -12],
-          className: 'monster-tooltip',
-          opacity: 1,
+          direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1,
         })
         marker.addTo(map)
         existing.set(spawn.id, marker)
@@ -325,13 +305,13 @@ export const WorldMap = () => {
   }, [])
 
   // ── Načti POI z Overpass (debounced) ─────────────────────
-  const fetchPOI = useCallback(async (lat: number, lng: number, currentCaught: Set<string>) => {
+  const fetchPOI = useCallback(async (lat: number, lng: number) => {
     const last = lastPoiFetchRef.current
     if (last && haversineM(lat, lng, last.lat, last.lng) < 500) return
     lastPoiFetchRef.current = { lat, lng }
     setLoadingPoi(true)
     try {
-      const poiSpawns = await fetchPoiSpawns(lat, lng, currentCaught)
+      const poiSpawns = await fetchPoiSpawns(lat, lng, cooldownsRef.current)
       setSpawns(prev => [...prev.filter(s => s.rarity === 'common'), ...poiSpawns])
     } catch (e) {
       console.warn('Overpass fetch failed:', e)
@@ -344,11 +324,7 @@ export const WorldMap = () => {
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
 
-    const map = L.map(mapContainerRef.current, {
-      center: [50.0755, 14.4378],
-      zoom: 15,
-      zoomControl: false,
-    })
+    const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 15, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     L.control.zoom({ position: 'topright' }).addTo(map)
     mapRef.current = map
@@ -367,22 +343,18 @@ export const WorldMap = () => {
             playerMarkerRef.current.setLatLng([lat, lng])
           }
 
+          // Generuj common spawny deterministicky (cooldowns z ref)
           setSpawns(prev => {
-            const caughtSet  = new Set(prev.filter(s => s.caught).map(s => s.id))
-            const commons    = generateCommonSpawns(lat, lng, caughtSet)
-            const pois       = prev.filter(s => s.rarity !== 'common')
-            const merged     = [...commons, ...pois].map(s => ({
+            const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
+            const pois    = prev.filter(s => s.rarity !== 'common').map(s => ({
               ...s,
-              caught: caughtSet.has(s.id) || prev.find(p => p.id === s.id)?.caught || false,
+              caught: isOnCooldown(cooldownsRef.current, s.id),
             }))
-            recalcNearby(lat, lng, merged)
-            return merged
+            return [...commons, ...pois]
           })
 
           if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-          overpassTimerRef.current = setTimeout(() => {
-            setCaughtIds(c => { fetchPOI(lat, lng, c); return c })
-          }, 2000)
+          overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
         },
         (err) => {
           console.warn('Geo error:', err.message)
@@ -405,11 +377,13 @@ export const WorldMap = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Aktualizuj markery při změně spawns / playerPos ──────
+  // ── Aktualizuj markery a nearby při změně spawns / playerPos ──
   useEffect(() => {
-    if (!mapRef.current || !playerPos) return
-    updateMarkers(mapRef.current, spawns, playerPos[0], playerPos[1], playerLevel)
+    if (!playerPos) return
     recalcNearby(playerPos[0], playerPos[1], spawns)
+    if (mapRef.current) {
+      updateMarkers(mapRef.current, spawns, playerPos[0], playerPos[1], playerLevel)
+    }
   }, [spawns, playerPos, playerLevel, updateMarkers, recalcNearby])
 
   // ── Center na hráče ───────────────────────────────────────
@@ -438,23 +412,22 @@ export const WorldMap = () => {
       image: `/monsters/${dbMonster.id}.png`,
     }
 
-    // Uložení do kolekce
-    const existing: Monster[] = JSON.parse(localStorage.getItem('monster_collector_caught') ?? '[]')
-    if (!existing.some(m => m.id === caught.id)) {
-      localStorage.setItem('monster_collector_caught', JSON.stringify([caught, ...existing]))
+    // Nastav cooldown — spawn se vrátí za RESPAWN_COOLDOWN_MS
+    const newCooldowns: Cooldowns = {
+      ...cooldownsRef.current,
+      [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS,
     }
+    cooldownsRef.current = newCooldowns
+    localStorage.setItem('map_cooldowns', JSON.stringify(newCooldowns))
 
-    // Označ jako chycená
-    const newCaught = new Set(caughtIds)
-    newCaught.add(nearbySpawn.id)
-    setCaughtIds(newCaught)
-    localStorage.setItem('map_caught_ids', JSON.stringify([...newCaught]))
-
+    // Dočasně označ spawn jako chycený (zmizí z mapy)
     setSpawns(prev => prev.map(s => s.id === nearbySpawn.id ? { ...s, caught: true } : s))
     setNearbySpawn(null)
-    setCatchResult(caught)
 
-    // Přepočítej level hráče po chycení
+    // Předej do App → zobrazí NewMonsterModal (stejný efekt jako čárový kód)
+    onCatch(caught)
+
+    // Aktualizuj level hráče
     setPlayerLevel(getPlayerLevel())
   }
 
@@ -481,7 +454,6 @@ export const WorldMap = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Hráčský level badge */}
           <div className="flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary text-[10px] font-black px-2.5 py-1 rounded-full">
             ⚡ Lv.{playerLevel}
           </div>
@@ -523,7 +495,7 @@ export const WorldMap = () => {
         </div>
       </div>
 
-      {/* Tlačítko "Chytit" */}
+      {/* Tlačítko "Chytit" — z-[500] aby bylo nad Leaflet vrstvami */}
       <AnimatePresence>
         {nearbySpawn && (
           <motion.div
@@ -531,7 +503,7 @@ export const WorldMap = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-            className="absolute bottom-4 left-4 right-4"
+            className="absolute bottom-4 left-4 right-4 z-[500]"
           >
             {levelBlocked ? (
               <motion.div
@@ -556,52 +528,9 @@ export const WorldMap = () => {
               >
                 <span className="text-xl">⚡</span>
                 Chytit {nearbySpawn.rarity === 'epic' ? 'Epickou' : nearbySpawn.rarity === 'rare' ? 'Vzácnou' : ''} příšeru
-                <span className="text-sm opacity-75 font-bold normal-case">
-                  Lv.{nearbySpawn.level}
-                </span>
+                <span className="text-sm opacity-75 font-bold normal-case">Lv.{nearbySpawn.level}</span>
               </button>
             )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal: výsledek chytání */}
-      <AnimatePresence>
-        {catchResult && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50 rounded-2xl mx-3"
-          >
-            <motion.div
-              initial={{ scale: 0.7, y: 40 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.7, y: 40 }}
-              transition={{ type: 'spring', stiffness: 360, damping: 26 }}
-              className="bg-background-dark border border-primary/30 rounded-3xl p-6 mx-4 max-w-xs w-full text-center shadow-[0_0_60px_rgba(13,185,242,0.3)]"
-            >
-              <div className="text-5xl mb-3">🎉</div>
-              <p className="text-primary font-black text-lg uppercase tracking-wider mb-1">Chyceno!</p>
-              <img
-                src={catchResult.image}
-                alt={catchResult.name}
-                className="w-28 h-28 object-contain mx-auto my-3 drop-shadow-lg"
-                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-              <p className="text-white font-bold text-xl">{catchResult.name}</p>
-              <p className="text-slate-400 text-xs mt-1">{catchResult.type} · Lv. {catchResult.level}</p>
-              <p className="text-slate-500 text-xs mt-2 line-clamp-3">{catchResult.description}</p>
-              <div className="mt-3 text-primary/80 text-xs font-bold">
-                ⚡ Tvůj level: {playerLevel}
-              </div>
-              <button
-                onClick={() => setCatchResult(null)}
-                className="mt-4 w-full py-3 rounded-xl bg-primary text-background-dark font-black uppercase tracking-wide hover:bg-primary/80 transition-all active:scale-95"
-              >
-                Pokračovat v průzkumu
-              </button>
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
