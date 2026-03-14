@@ -22,6 +22,57 @@ body {
   text-shadow: 0 0 10px rgba(13,185,242,0.5);
 }
 
+/* ── Leaflet dark-mode overrides ────────────────────────────── */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.9);
+}
+
+/* Neon popup */
+.monster-popup .leaflet-popup-content-wrapper {
+  background: rgba(10, 15, 30, 0.95);
+  border: 1px solid rgba(13, 185, 242, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(13, 185, 242, 0.25);
+  color: #e2e8f0;
+}
+
+.monster-popup .leaflet-popup-tip {
+  background: rgba(10, 15, 30, 0.95);
+}
+
+/* Zoom tlačítka */
+.leaflet-control-zoom a {
+  background-color: rgba(10, 15, 30, 0.9) !important;
+  border-color: rgba(13, 185, 242, 0.3) !important;
+  color: #0db9f2 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: rgba(13, 185, 242, 0.15) !important;
+}
+
+.leaflet-control-attribution {
+  display: none;
+}
+
+/* Tooltip příšer na mapě */
+.monster-tooltip {
+  background: rgba(10, 15, 30, 0.92) !important;
+  border: 1px solid rgba(13, 185, 242, 0.35) !important;
+  border-radius: 8px !important;
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 4px 10px !important;
+  box-shadow: 0 0 12px rgba(13, 185, 242, 0.2) !important;
+  white-space: nowrap;
+}
+
+.monster-tooltip::before {
+  border-top-color: rgba(13, 185, 242, 0.35) !important;
+}
+/* ─────────────────────────────────────────────────────────── */
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

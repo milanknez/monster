@@ -16,6 +16,7 @@ import { Bestiary } from './components/Bestiary'
 import { MonsterDetail } from './components/MonsterDetail'
 import { NavBar } from './components/NavBar'
 import { PlaceholderTab } from './components/PlaceholderTab'
+import { WorldMap } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
 
 function App() {
@@ -145,7 +146,7 @@ function App() {
               )}
 
               {activeTab === 'world' && (
-                <PlaceholderTab key="world" name="Svět" icon={MapIcon} />
+                <WorldMap key="world" />
               )}
 
               {activeTab === 'store' && (
