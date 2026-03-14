@@ -278,13 +278,27 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
           const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
           const pois = prev.filter(s => s.rarity !== 'common').map(s => ({ ...s, caught: isOnCooldown(cooldownsRef.current, s.id) }))
           const merged = [...commons, ...pois]
-          recalcNearby(lat, lng, merged) // OKAMŽITÝ PŘEPOČET PŘI POHYBU
+          recalcNearby(lat, lng, merged) 
           return merged
         })
         if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
         overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
-      }, (err) => { setStatusMsg(err.code === 1 ? 'Povol GPS polohu' : 'Poloha nedostupná') }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 })
-    } else { setStatusMsg('Geolokace není dostupná') }
+      }, (err) => { 
+        if (err.code === 1) {
+          setStatusMsg('GPS zamítnuto. Povol v prohlížeči.')
+        } else if (err.code === 3) {
+          setStatusMsg('Hledám signál GPS…')
+        } else {
+          setStatusMsg('GPS signál nenalezen.')
+        }
+      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 })
+    } else { 
+      if (!window.isSecureContext) {
+        setStatusMsg('GPS vyžaduje HTTPS připojení!')
+      } else {
+        setStatusMsg('Geolokace není podporována.')
+      }
+    }
     return () => {
       if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
