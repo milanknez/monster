@@ -1,7 +1,7 @@
 {
   "id": "005",
-  "name": "Magma Core",
-  "description": "Těžkopádný obr z roztavené horniny. Tam, kde stane, země hoří.",
+  "name": "Lávojed Bumkác",
+  "description": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
   "type": "Ohnivá",
   "rarity": "Epická",
   "stats": {
@@ -10,7 +10,13 @@
     "defense": 100
   },
   "abilities": [
-    { "name": "Erupce", "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele." },
-    { "name": "Ztuhlá láva", "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu." }
+    {
+      "name": "Erupce",
+      "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele."
+    },
+    {
+      "name": "Ztuhlá láva",
+      "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu."
+    }
   ]
 }

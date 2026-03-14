@@ -1,7 +1,7 @@
 {
   "id": "002",
-  "name": "Aqua Spirit",
-  "description": "Průzračná bytost žijící v horských pramenech. Dokáže ovládat proudy vody a léčit zranění.",
+  "name": "Cákal Vodomil",
+  "description": "Usměvavá kapka s neposednýma očičkama. Strašně rád cáká na všechny okolo.",
   "type": "Vodní",
   "rarity": "Běžná",
   "stats": {
@@ -10,7 +10,13 @@
     "defense": 70
   },
   "abilities": [
-    { "name": "Vodní puls", "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást." },
-    { "name": "Léčivá pramen", "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví." }
+    {
+      "name": "Vodní puls",
+      "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást."
+    },
+    {
+      "name": "Léčivá pramen",
+      "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví."
+    }
   ]
 }

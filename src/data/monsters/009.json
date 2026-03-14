@@ -1,7 +1,7 @@
 {
   "id": "009",
-  "name": "Umpahlodník",
-  "description": "Malý, ale neuvěřitelně houževnatý tvor z mechových lesů. Miluje dřevo a živí se prastarými kořeny stromů, ze kterých získává sílu. Často se skrývá v pařezech a napadá vetřelce nečekaně.",
+  "name": "Zoubko Hlodavec",
+  "description": "Tenhle chlupatý rarášek umí během vteřiny rozkousat celou hůl. Nejradši spí ve vyhlodaných dírách v kmenu.",
   "type": "Přírodní",
   "rarity": "rare",
   "stats": {

@@ -1,0 +1,22 @@
+{
+  "id": "010",
+  "name": "Mňoukožár Divoký",
+  "description": "Malé kotě neznámého původu s obrovskýma svítícíma oranžovýma očima. Toulá se začarovaným lesem a miluje lovení jiskřiček v táboráku.",
+  "type": "Ohnivá",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 60,
+    "attack": 125,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Zářivý prskanec",
+      "description": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí."
+    },
+    {
+      "name": "Nabití baterek",
+      "description": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet."
+    }
+  ]
+}

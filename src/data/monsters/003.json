@@ -1,7 +1,7 @@
 {
   "id": "003",
-  "name": "Terra Root",
-  "description": "Prastará rostlinná bytost, která čerpá sílu přímo ze země. Její kořeny jsou neuvěřitelně pevné.",
+  "name": "Pařezík Větvoslav",
+  "description": "Oživlý kus starého dřeva, na kterém roste pravý mech. Je strašně pomalý, ale milý.",
   "type": "Přírodní",
   "rarity": "Běžná",
   "stats": {
@@ -10,7 +10,13 @@
     "defense": 90
   },
   "abilities": [
-    { "name": "Kořenové vězení", "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo." },
-    { "name": "Fotosyntéza", "description": "Využívá sluneční světlo k postupné regeneraci zdraví." }
+    {
+      "name": "Kořenové vězení",
+      "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo."
+    },
+    {
+      "name": "Fotosyntéza",
+      "description": "Využívá sluneční světlo k postupné regeneraci zdraví."
+    }
   ]
 }

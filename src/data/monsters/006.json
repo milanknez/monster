@@ -1,7 +1,7 @@
 {
   "id": "006",
-  "name": "Leaf Blade",
-  "description": "Elegantní lovec skrytý v korunách stromů. Jeho čepele jsou ostré jako břitva a tiché jako vítr.",
+  "name": "Listoočko Šustivé",
+  "description": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
   "type": "Přírodní",
   "rarity": "Vzácná",
   "stats": {
@@ -10,7 +10,13 @@
     "defense": 60
   },
   "abilities": [
-    { "name": "Listová břitva", "description": "Vysílá ostré listy, které proříznou i brnění." },
-    { "name": "Tanec ve větru", "description": "Zvýší mrštnost a šanci na vyhnutí se útoku." }
+    {
+      "name": "Listová břitva",
+      "description": "Vysílá ostré listy, které proříznou i brnění."
+    },
+    {
+      "name": "Tanec ve větru",
+      "description": "Zvýší mrštnost a šanci na vyhnutí se útoku."
+    }
   ]
 }

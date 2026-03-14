@@ -1,0 +1,22 @@
+{
+  "id": "011",
+  "name": "Lávový Dráček",
+  "description": "Usměvavý modrý drak s oranžovým krunýřkem, který si hoví na čerstvých sopkách. Občas chrlí malinké plamínky na zahřátí.",
+  "type": "Ohnivá",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 95,
+    "attack": 45,
+    "defense": 110
+  },
+  "abilities": [
+    {
+      "name": "Bublinový úkryt",
+      "description": "Schová se do obří bubliny, která pohltí jeden cizí útok."
+    },
+    {
+      "name": "Hod oblázkem",
+      "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat."
+    }
+  ]
+}

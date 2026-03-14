@@ -1,0 +1,22 @@
+{
+  "id": "014",
+  "name": "Bahňáček Lísohlav",
+  "description": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 200,
+    "attack": 65,
+    "defense": 80
+  },
+  "abilities": [
+    {
+      "name": "Uplakaná sprška",
+      "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí."
+    },
+    {
+      "name": "Tichá bouře",
+      "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí."
+    }
+  ]
+}

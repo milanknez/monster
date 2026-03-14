@@ -1,0 +1,22 @@
+{
+  "id": "012",
+  "name": "Čertík Šestiplamen",
+  "description": "Zlobivý malý uličník až z podzemí. Má rovnou tři veliké oči a šest hbitých rukou, do kterých chytá žhavé uhlíky ze země.",
+  "type": "Ohnivá",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 70,
+    "attack": 85,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Hřejivé obětí",
+      "description": "Zahřeje svého spojence a dodá mu trochu ztracené odvahy (a zdraví)."
+    },
+    {
+      "name": "Jiskřivý poskok",
+      "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek."
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "id": "008",
-  "name": "Lesní žleb",
-  "description": "Tajemná bytost z hlubokých horských lesů. Vznikla prý tam, kde se po staletí setkává voda, kořeny stromů a stará magie. Stráží prameny a dokáže probudit samotný les k životu.",
+  "name": "Kořenda Zemitý",
+  "description": "Takový starý moudrý dědeček z větviček, který pořád něco bručí o houbách a jehličí.",
   "type": "Přírodní",
   "rarity": "Legendární",
   "stats": {

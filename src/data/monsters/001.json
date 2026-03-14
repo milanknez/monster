@@ -1,7 +1,7 @@
 {
   "id": "001",
-  "name": "Ignis Dracon",
-  "description": "Malý drak, který se zrodil v hlubinách sopek. Jeho dech dokáže roztavit i nejtvrdší ocel.",
+  "name": "Plamínek Horkobřich",
+  "description": "Malý oživlý uhlík, který se snadno rozzlobí. Má pořád hlad a polyká žhavé kameny.",
   "type": "Ohnivá",
   "rarity": "Vzácná",
   "stats": {
@@ -10,7 +10,13 @@
     "defense": 45
   },
   "abilities": [
-    { "name": "Plamenný dech", "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny." },
-    { "name": "Lávová aura", "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka." }
+    {
+      "name": "Plamenný dech",
+      "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny."
+    },
+    {
+      "name": "Lávová aura",
+      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka."
+    }
   ]
 }

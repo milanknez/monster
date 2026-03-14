@@ -1,0 +1,22 @@
+{
+  "id": "013",
+  "name": "Mechový Žhavibřich",
+  "description": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 130,
+    "attack": 40,
+    "defense": 100
+  },
+  "abilities": [
+    {
+      "name": "Medové pohlazení",
+      "description": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit."
+    },
+    {
+      "name": "Bodnutí včelky",
+      "description": "Z tajné kapsičky vypustí rozzlobenou včelu, která rychle zažene nepřátele."
+    }
+  ]
+}
