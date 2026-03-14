@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 
-export const MonsterDetail = ({ monster, onBack, onUpgrade }: { monster: Monster; onBack: () => void; onUpgrade?: () => void }) => {
+export const MonsterDetail = ({ monster, onBack, onTrade, onUpgrade }: { monster: Monster; onBack: () => void; onTrade?: () => void; onUpgrade?: () => void }) => {
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
   
   // Při otevření detailu nascrollovat nahoru
@@ -41,7 +41,7 @@ export const MonsterDetail = ({ monster, onBack, onUpgrade }: { monster: Monster
             >
               <ArrowLeft size={24} strokeWidth={3} />
             </button>
-            <h2 className="text-2xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate">
+            <h2 className="text-2xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate flex-1">
               {monster.name}
             </h2>
           </div>
@@ -133,14 +133,42 @@ export const MonsterDetail = ({ monster, onBack, onUpgrade }: { monster: Monster
         </div>
       </div>
 
-      {/* Back Button */}
-      <button 
-        onClick={onBack}
-        className="w-full mt-6 py-5 bg-white/5 border border-white/10 rounded-[1.5rem] text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center gap-3"
-      >
-        <ArrowLeft size={18} />
-        Zasunout kartu do balíčku
-      </button>
+      {/* Footer Actions */}
+      <div className="px-4 mt-10 mb-8 flex gap-4">
+        <button 
+          onClick={onBack}
+          className={cn(
+            "group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95 border border-white/10",
+            onTrade ? "flex-[0.8]" : "w-full"
+          )}
+        >
+          {/* Dark Glass Background */}
+          <div className="absolute inset-0 bg-white/5 backdrop-blur-md group-hover:bg-white/10" />
+          
+          <div className="relative z-10 flex items-center justify-center gap-2">
+            <ArrowLeft size={18} className="text-slate-400 group-hover:text-slate-100 transition-colors" />
+            <span className="text-sm font-black text-slate-400 group-hover:text-slate-100 uppercase tracking-wider transition-colors">Zavřít</span>
+          </div>
+        </button>
+
+        {onTrade && (
+          <button 
+            onClick={onTrade}
+            className="flex-1 group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95"
+          >
+            {/* Glossy Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-blue-700 shadow-[0_8px_20px_rgba(13,185,242,0.3)]" />
+            
+            {/* Animated Shine Effect */}
+            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+            
+            <div className="relative z-10 flex items-center justify-center gap-2">
+              <RefreshCw size={18} className="text-background-dark animate-spin-slow" />
+              <span className="text-sm font-black text-background-dark uppercase tracking-wider">Vyměnit</span>
+            </div>
+          </button>
+        )}
+      </div>
 
     </motion.div>
   )

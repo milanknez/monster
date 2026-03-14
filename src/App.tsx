@@ -18,11 +18,13 @@ import { NavBar } from './components/NavBar'
 import { PlaceholderTab } from './components/PlaceholderTab'
 import { WorldMap } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
+import { TradeModal } from './components/TradeModal'
 
 function App() {
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
+  const [tradingMonster, setTradingMonster] = useState<Monster | null>(null)
   const [activeTab, setActiveTab] = useState('home')
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
@@ -105,6 +107,21 @@ function App() {
   const handleScan = (ean: string) => {
     if (!ean) return;
 
+    // Rozpoznání Trade kódu (formát: MSTR_TRD|id|level|name)
+    if (ean.startsWith('MSTR_TRD|')) {
+      const parts = ean.split('|');
+      const [, id, level] = parts;
+      const dbMonster = monsterDB.find(m => m.id === id);
+      if (dbMonster) {
+        setNewMonster({
+          ...dbMonster,
+          level: parseInt(level) || 1,
+          image: `/monsters/${id}.png`
+        });
+        return;
+      }
+    }
+
     // Deterministic seed from EAN string
     let hash = 0;
     for (let i = 0; i < ean.length; i++) {
@@ -160,6 +177,10 @@ function App() {
               key="detail" 
               monster={selectedMonster} 
               onBack={() => setSelectedMonster(null)} 
+              onTrade={() => {
+                setTradingMonster(selectedMonster)
+                setSelectedMonster(null)
+              }}
             />
           ) : (
             <>
@@ -236,6 +257,12 @@ function App() {
             monster={newMonster} 
             onClose={() => setNewMonster(null)} 
             onAdd={saveMonster}
+          />
+        )}
+        {tradingMonster && (
+          <TradeModal 
+            monster={tradingMonster} 
+            onClose={() => setTradingMonster(null)} 
           />
         )}
       </AnimatePresence>
