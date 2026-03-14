@@ -1,12 +1,70 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer } from 'lucide-react';
 import { cn } from '../utils';
 
-export const DailyQuests = () => {
+import { Monster } from '../types';
+
+export const DailyQuests = ({ caughtMonsters }: { caughtMonsters: Monster[] }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      return `${hours}h ${minutes}m`;
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 60000); // Každou minutu
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const rareCount = caughtMonsters.filter(m => ['Vzácná', 'Epická', 'Legendární'].includes(m.rarity)).length;
+  
   const quests = [
-    { id: 1, title: 'Průzkum města', desc: 'Ujdi dnes 2.0 km', progress: 1.2, total: 2.0, icon: MapIcon, color: 'text-primary', bg: 'bg-primary/10' },
-    { id: 2, title: 'Efektivní lovec', desc: 'Chyť 5 příšerek', progress: 5, total: 5, icon: Target, color: 'text-green-500', bg: 'bg-green-500/10', completed: true },
-    { id: 3, title: 'Datové spojení', desc: 'Navštiv 3 signální věže', progress: 0, total: 3, icon: Trophy, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { 
+      id: 1, 
+      title: 'Efektivní lovec', 
+      desc: 'Chyť 5 příšerek', 
+      progress: Math.min(caughtMonsters.length, 5), 
+      total: 5, 
+      icon: Target, 
+      color: 'text-green-500', 
+      bg: 'bg-green-500/10',
+      completed: caughtMonsters.length >= 5
+    },
+    { 
+      id: 2, 
+      title: 'Lovec rarit', 
+      desc: 'Chyť 3 vzácné příšerky', 
+      progress: Math.min(rareCount, 3), 
+      total: 3, 
+      icon: Trophy, 
+      color: 'text-purple-500', 
+      bg: 'bg-purple-500/10',
+      completed: rareCount >= 3
+    },
+    { 
+      id: 3, 
+      title: 'Průzkum města', 
+      desc: 'Ujdi dnes 2.0 km', 
+      progress: 1.2, 
+      total: 2.0, 
+      icon: MapIcon, 
+      color: 'text-primary', 
+      bg: 'bg-primary/10',
+      completed: false
+    },
   ]
 
   return (
@@ -15,7 +73,7 @@ export const DailyQuests = () => {
         <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Denní protokoly</h3>
         <div className="flex items-center gap-1 text-[10px] text-primary font-black uppercase">
           <Timer size={12} />
-          <span>RESETOVÁNÍ ZA 04:12:09</span>
+          <span>RESETOVÁNÍ ZA {timeLeft}</span>
         </div>
       </div>
       <div className="space-y-3">

@@ -245,7 +245,7 @@ function App() {
                     onSelect={setSelectedMonster}
                     onSeeAll={() => setActiveTab('vault')}
                   />
-                  <DailyQuests />
+                  <DailyQuests caughtMonsters={caughtMonsters} />
                 </motion.div>
               )}
 

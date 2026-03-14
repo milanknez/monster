@@ -341,9 +341,9 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked 
 
         {/* Legenda (uvnitř mapy) */}
         <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 border border-white/5 z-40 pointer-events-none">
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Common</span></div>
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /><span className="text-[8px] font-bold text-purple-400 uppercase">Rare</span></div>
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /><span className="text-[8px] font-bold text-orange-400 uppercase">Epic</span></div>
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Běžná</span></div>
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /><span className="text-[8px] font-bold text-purple-400 uppercase">Vzácná</span></div>
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /><span className="text-[8px] font-bold text-orange-400 uppercase">Epická</span></div>
         </div>
 
         {/* Debug info - jen pro testování radiusu */}
