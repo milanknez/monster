@@ -10,7 +10,13 @@
     "defense": 110
   },
   "abilities": [
-    { "name": "Gigantická tsunamy", "description": "Vyvolá obrovskou vlnu, která smete vše v cestě." },
-    { "name": "Mořský hněv", "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví." }
+    {
+      "name": "Gigantická tsunamy",
+      "description": "Vyvolá obrovskou vlnu, která smete vše v cestě."
+    },
+    {
+      "name": "Mořský hněv",
+      "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví."
+    }
   ]
 }

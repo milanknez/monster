@@ -1,0 +1,17 @@
+{
+  "name": "Monster Collector",
+  "short_name": "Monster",
+  "description": "Monster Collector - Sběratelská hra s monstry",
+  "start_url": "/monster/",
+  "scope": "/monster/",
+  "display": "standalone",
+  "background_color": "#101e22",
+  "theme_color": "#101e22",
+  "icons": [
+    {
+      "src": "vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
