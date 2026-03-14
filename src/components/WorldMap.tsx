@@ -4,7 +4,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { monsterDB } from '../data/monsters'
 import type { Monster } from '../types'
-import { Heart } from 'lucide-react'
+import { Heart, MapPin } from 'lucide-react'
 
 // ── Leaflet default icon fix ──────────────────────────────────
 if (typeof window !== 'undefined') {
@@ -33,10 +33,11 @@ interface WorldMapProps {
   onCatch: (monster: Monster) => void
   playerHP: number
   onConsumeHP: (amount: number) => void
+  isInteractionBlocked?: boolean
 }
 
-// ── Konfigurace ───────────────────────────────────────────────
-const CATCH_RADIUS_M      = 15
+// ── Konfigurace (tvoje testovací hodnoty) ──────────────────────
+const CATCH_RADIUS_M      = 1500  // TESTOVACÍ HODNOTA
 const COMMON_GRID_M       = 100
 const COMMON_RADIUS_CELLS = 8
 const OVERPASS_RADIUS_M   = 3000
@@ -195,7 +196,7 @@ function makePlayerIcon(): L.DivIcon {
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
 }
 
-export const WorldMap = ({ onCatch, playerHP, onConsumeHP }: WorldMapProps) => {
+export const WorldMap = ({ onCatch, playerHP, onConsumeHP, isInteractionBlocked }: WorldMapProps) => {
   const mapContainerRef  = useRef<HTMLDivElement>(null)
   const mapRef           = useRef<L.Map | null>(null)
   const playerMarkerRef  = useRef<L.Marker | null>(null)
@@ -276,18 +277,20 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP }: WorldMapProps) => {
         setSpawns(prev => {
           const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
           const pois = prev.filter(s => s.rarity !== 'common').map(s => ({ ...s, caught: isOnCooldown(cooldownsRef.current, s.id) }))
-          return [...commons, ...pois]
+          const merged = [...commons, ...pois]
+          recalcNearby(lat, lng, merged) // OKAMŽITÝ PŘEPOČET PŘI POHYBU
+          return merged
         })
         if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
         overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
-      }, (err) => { setStatusMsg('Poloha nedostupná') }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 })
+      }, (err) => { setStatusMsg(err.code === 1 ? 'Povol GPS polohu' : 'Poloha nedostupná') }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 })
     } else { setStatusMsg('Geolokace není dostupná') }
     return () => {
       if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
       map.remove(); mapRef.current = null; playerMarkerRef.current = null; markersRef.current.clear()
     }
-  }, [])
+  }, [recalcNearby, fetchPOI])
 
   useEffect(() => {
     if (!playerPos || !isFinite(playerPos[0])) return
@@ -314,42 +317,74 @@ export const WorldMap = ({ onCatch, playerHP, onConsumeHP }: WorldMapProps) => {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col" style={{ height: 'calc(100vh - 176px)', minHeight: 480 }}>
-      <div className="px-4 pt-2 pb-2 flex items-center justify-between">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full h-full flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 176px)' }}>
+      {/* Info lišta */}
+      <div className="px-4 py-2 flex items-center justify-between shrink-0 bg-background-dark/50 backdrop-blur-sm z-50">
         <div>
-          <p className="text-slate-400 text-xs uppercase tracking-widest font-bold">Průzkum světa</p>
-          <p className="text-slate-500 text-[10px] mt-0.5">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer v okolí`}</p>
+          <p className="text-slate-400 text-[10px] uppercase tracking-widest font-black">Průzkum světa</p>
+          <p className="text-slate-500 text-[9px] font-bold">
+            {statusMsg || `${spawns.filter(s => !s.caught).length} příšer v sektoru`}
+          </p>
         </div>
         <div className="flex items-center gap-2">
            <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
              <Heart size={10} className="text-red-500" fill="currentColor" />
              <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
            </div>
-          <div className="flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary text-[10px] font-black px-2.5 py-1 rounded-full">⚡ Lv.{playerLevel}</div>
-          <button onClick={() => mapRef.current && playerMarkerRef.current && mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17)} className="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-bold px-3 py-1.5 rounded-full">Poloha</button>
+          <button onClick={() => mapRef.current && playerMarkerRef.current && mapRef.current.setView(playerMarkerRef.current.getLatLng(), 17)} className="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-black px-3 py-1.5 rounded-full active:scale-95 transition-transform">🛰️ POLOHA</button>
         </div>
       </div>
 
-      <div className="relative flex-1 mx-3 rounded-2xl overflow-hidden border border-slate-700/60 shadow-[0_0_20px_rgba(0,0,0,0.5)] isolation-isolate">
-        <div ref={mapContainerRef} className="w-full h-full" />
-        <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/75 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-800 z-[400]">
-          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-slate-500" /><span className="text-[9px] text-slate-400">Běžná</span></div>
-          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500" /><span className="text-[9px] text-purple-400">Vzácná</span></div>
-          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-500" /><span className="text-[9px] text-orange-400">Epická</span></div>
+      {/* Kontejner mapy */}
+      <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl isolate">
+        <div ref={mapContainerRef} className="w-full h-full z-0" />
+        
+        {/* Legenda (uvnitř mapy) */}
+        <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 border border-white/5 z-40 pointer-events-none">
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Common</span></div>
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /><span className="text-[8px] font-bold text-purple-400 uppercase">Rare</span></div>
+          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /><span className="text-[8px] font-bold text-orange-400 uppercase">Epic</span></div>
         </div>
+
+        {/* Debug info - jen pro testování radiusu */}
+        {CATCH_RADIUS_M > 100 && (
+          <div className="absolute top-2 left-2 bg-primary/20 backdrop-blur-sm border border-primary/30 rounded px-2 py-1 text-[8px] font-black text-primary z-40 pointer-events-none uppercase">
+            Radius: {CATCH_RADIUS_M}m | {nearbySpawn ? 'Máš cíl!' : 'Hledám...'}
+          </div>
+        )}
       </div>
 
+      {/* Tlačítko - teď mimo kontejner mapy pro jistotu z-indexu */}
       <AnimatePresence>
-        {nearbySpawn && (
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} className="absolute bottom-4 left-4 right-4 z-[500]">
+        {nearbySpawn && !isInteractionBlocked && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: 50 }} 
+            className="absolute bottom-6 left-6 right-6 z-[1001]"
+          >
             {levelBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-400 font-black text-sm text-center">🔒 Potřebuješ Lv.{nearbySpawn.level} (jsi {playerLevel})</div>
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl">🔒 POTŘEBUJEŠ ÚROVEŇ {nearbySpawn.level}</div>
             ) : hpBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-400 font-black text-sm text-center">🔋 Málo energie! Vyžaduje {currentEnergyCost}%</div>
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
             ) : (
-              <button onClick={handleCatch} style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-wide flex flex-col items-center justify-center transition-all active:scale-95 shadow-xl">
-                <div className="flex items-center gap-2"><span>⚡ Chytit</span><span className="text-xs opacity-80">Lv.{nearbySpawn.level}</span></div>
-                <div className="text-[10px] font-bold opacity-90 mt-0.5 flex items-center gap-1"><Heart size={8} fill="currentColor" /> Spotřeba: {currentEnergyCost}% energie</div>
+              <button 
+                onClick={handleCatch} 
+                style={{ 
+                  background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : 
+                              nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 
+                              'linear-gradient(135deg, #0891b2, #0db9f2)',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
+                }} 
+                className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center transition-all active:scale-95 border-b-4 border-black/20"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin size={14} className="animate-bounce" />
+                  <span className="text-sm">DETEKCE: LEVEL {nearbySpawn.level}</span>
+                </div>
+                <div className="text-[9px] font-bold opacity-90 mt-1 flex items-center gap-1">
+                  <Heart size={8} fill="currentColor" /> SPOTŘEBA {currentEnergyCost}% ENERGIE
+                </div>
               </button>
             )}
           </motion.div>

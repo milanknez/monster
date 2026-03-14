@@ -41,8 +41,8 @@ function App() {
     return { val: 100, time: Date.now() }
   })
 
-  // Výpočet aktuálního HP s regenerací
-  const REGEN_RATE_PER_MS = 100 / (4 * 60 * 60 * 1000) // 100% za 4h
+  // Výpočet aktuálního HP s regenerací (TEST: 100% za 10 minut)
+  const REGEN_RATE_PER_MS = 100 / (10 * 60 * 1000) 
   const getCurrentHP = () => {
     const elapsed = Date.now() - hpState.time
     const bonus = elapsed * REGEN_RATE_PER_MS
@@ -51,9 +51,9 @@ function App() {
 
   const [currentHP, setCurrentHP] = useState(getCurrentHP())
 
-  // Timer pro plynulý update progress baru (každých 10s pro úsporu, ale pro UI stačí)
+  // Timer pro plynulý update progress baru (každou vteřinu)
   useEffect(() => {
-    const timer = setInterval(() => setCurrentHP(getCurrentHP()), 10000)
+    const timer = setInterval(() => setCurrentHP(getCurrentHP()), 1000)
     return () => clearInterval(timer)
   }, [hpState])
 
@@ -186,7 +186,13 @@ function App() {
               )}
 
               {activeTab === 'world' && (
-                <WorldMap key="world" onCatch={setNewMonster} playerHP={currentHP} onConsumeHP={consumeHP} />
+                <WorldMap 
+                  key="world" 
+                  onCatch={setNewMonster} 
+                  playerHP={currentHP} 
+                  onConsumeHP={consumeHP} 
+                  isInteractionBlocked={!!newMonster || !!selectedMonster}
+                />
               )}
 
               {activeTab === 'store' && (

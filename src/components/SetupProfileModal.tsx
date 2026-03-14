@@ -13,7 +13,7 @@ export const SetupProfileModal = ({ onComplete }: { onComplete: (name: string) =
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-background-dark/95 backdrop-blur-xl">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-background-dark/95 backdrop-blur-xl">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}

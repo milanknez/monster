@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Bolt, Zap, LayoutGrid } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
@@ -6,6 +7,11 @@ import type { Monster } from '../types';
 export const MonsterDetail = ({ monster, onBack, onUpgrade }: { monster: Monster; onBack: () => void; onUpgrade?: () => void }) => {
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
   
+  // Při otevření detailu nascrollovat nahoru
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}

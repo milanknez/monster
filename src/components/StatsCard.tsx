@@ -14,6 +14,22 @@ export const StatsCard = ({ caughtCount, playerHP }: { caughtCount: number, play
   // Display blocks (1-5)
   const fullBlocks = Math.floor(progressPercentage / 20);
 
+  // Výpočet času do 100% (TEST: 10 minut = 600 sekund)
+  const SECONDS_FOR_100_PERCENT = 10 * 60;
+  const remainingPercent = 100 - playerHP;
+  const remainingSeconds = Math.max(0, Math.ceil((remainingPercent / 100) * SECONDS_FOR_100_PERCENT));
+  
+  const formatRemainingTime = (totalSeconds: number) => {
+    if (totalSeconds <= 0) return "PLNĚ NABITO";
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    
+    if (h > 0) return `${h}h ${m}m do konce`;
+    if (m > 0) return `${m}m ${s}s do konce`;
+    return `${s}s do konce`;
+  };
+
   return (
     <section className="p-4 flex flex-col gap-3">
       {/* XP Card */}
@@ -51,7 +67,7 @@ export const StatsCard = ({ caughtCount, playerHP }: { caughtCount: number, play
         </div>
       </motion.div>
 
-      {/* HP Bar - Zjednodušený elegantní pruh se srdcem */}
+      {/* HP Bar - S odpočtem času */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,11 +96,16 @@ export const StatsCard = ({ caughtCount, playerHP }: { caughtCount: number, play
           />
         </div>
         <div className="flex justify-between items-center">
-             <p className="text-[9px] text-slate-500 font-bold uppercase italic">
-               {playerHP < 100 ? "⚡ Probíhá regenerace..." : "✅ Plná energie"}
-             </p>
-             <p className="text-[9px] text-slate-500 font-bold uppercase italic tabular-nums">
-               {playerHP < 20 ? "⚠️ Vyčerpání!" : ""}
+             <div className="flex items-center gap-1.5">
+               {playerHP < 100 && (
+                 <div className="size-1.5 bg-red-500 rounded-full animate-pulse" />
+               )}
+               <p className="text-[9px] text-slate-500 font-bold uppercase italic tabular-nums">
+                 {playerHP < 100 ? `Regenerace: ${formatRemainingTime(remainingSeconds)}` : "✅ Energie na maximu"}
+               </p>
+             </div>
+             <p className="text-[9px] text-red-500/80 font-black uppercase tracking-tighter">
+               {playerHP < 20 ? "⚠️ KRITICKÝ STAV" : ""}
              </p>
         </div>
       </motion.div>
