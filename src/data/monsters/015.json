@@ -1,0 +1,26 @@
+{
+  "id": "015",
+  "name": "Donutová Bába",
+  "description": "Strašidelná a nevyzpytatelná bába z cukrárny, která vláčí obří donuty jako zbraně. Nikdy neodmítne sladkou odměnu, ale když se rozzlobí, její donutové útoky jsou ničivé.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 145,
+    "attack": 140,
+    "defense": 150
+  },
+  "abilities": [
+    {
+      "name": "Donutový vír",
+      "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození."
+    },
+    {
+      "name": "Cukrová past",
+      "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí."
+    },
+    {
+      "name": "Bonbonový štít",
+      "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok."
+    }
+  ]
+}

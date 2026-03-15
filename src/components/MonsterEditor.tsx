@@ -5,7 +5,7 @@ import { monsterDB } from '../data/monsters'
 import { cn, TYPE_COLORS } from '../utils'
 import type { Monster } from '../types'
 
-const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická', 'Temná', 'Světelná']
+const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
 const MONSTER_RARITIES = ['Běžná', 'Vzácná', 'Epická', 'Legendární']
 const RARITY_COLORS: Record<string, string> = {
   'Běžná': 'text-slate-400',
@@ -18,9 +18,7 @@ const TYPE_ICONS: Record<string, any> = {
   'Ohnivá': Flame,
   'Vodní': Droplets,
   'Přírodní': Leaf,
-  'Elektrická': Zap,
-  'Temná': Moon,
-  'Světelná': Sun
+  'Elektrická': Zap
 }
 
 const TYPE_EMOJIS: Record<string, string> = {
@@ -28,8 +26,6 @@ const TYPE_EMOJIS: Record<string, string> = {
   'Vodní': '💧',
   'Přírodní': '🌿',
   'Elektrická': '⚡',
-  'Temná': '🌙',
-  'Světelná': '☀️',
   'Default': '👾'
 }
 
@@ -53,6 +49,8 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
   const [passInput, setPassInput] = useState('')
   const [isTypeSelectOpen, setIsTypeSelectOpen] = useState(false)
   const [isRaritySelectOpen, setIsRaritySelectOpen] = useState(false)
+  const [isJsonModalOpen, setIsJsonModalOpen] = useState(false)
+  const [jsonInput, setJsonInput] = useState('')
   const [sidebarFilter, setSidebarFilter] = useState('Vše')
   const [elementFilter, setElementFilter] = useState('Vše')
   const [searchQuery, setSearchQuery] = useState('')
@@ -151,14 +149,50 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
     downloadAnchorNode.remove()
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
+    if (file && formData.id) {
+      // 1. Show immediate preview
       const url = URL.createObjectURL(file)
       setTempImageUrl(url)
       setImgError(false)
+
+      // 2. Persist to disk
+      try {
+        const response = await fetch(`/api/save-monster-image?id=${formData.id}`, {
+          method: 'POST',
+          body: file
+        });
+
+        if (response.ok) {
+          alert('Obrázek byl úspěšně uložen do složky public/monsters!');
+          // Refresh the preview URL to the newly saved file after a short delay
+          // so we don't rely only on the blob URL
+          setTimeout(() => setTempImageUrl(`/monsters/${formData.id}.png?v=${Date.now()}`), 500);
+        } else {
+          alert('Chyba při ukládání obrázku na server.');
+        }
+      } catch (error) {
+        console.error('Image upload error:', error);
+        alert('Nepovedlo se spojit s ukládacím serverem pro obrázky.');
+      }
     }
   }
+
+  const openJsonEditor = () => {
+    setJsonInput(JSON.stringify(formData, null, 2));
+    setIsJsonModalOpen(true);
+  };
+
+  const applyJsonChanges = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      setFormData(parsed);
+      setIsJsonModalOpen(false);
+    } catch (e) {
+      alert('Neplatný formát JSON!');
+    }
+  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(JSON.stringify(formData, null, 2))
@@ -360,8 +394,11 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
             <button onClick={handleSaveToState} className="flex items-center gap-2 px-5 py-3 bg-emerald-600 border border-emerald-500/30 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-500/10">
               <Save size={16} /> Uložit změny
             </button>
+            <button onClick={openJsonEditor} className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+              <Plus size={16} className="rotate-45" /> RAW JSON
+            </button>
             <button onClick={copyToClipboard} className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-              <Copy size={16} /> JSON
+              <Copy size={16} /> Kopírovat
             </button>
             <button onClick={downloadJson} className="flex items-center gap-2 px-5 py-3 bg-primary text-slate-950 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:brightness-110 active:scale-95 shadow-lg shadow-primary/20">
               <Download size={16} /> Stáhnout JSON
@@ -625,6 +662,62 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
           </div>
         </div>
       </main>
+
+      {/* JSON Editor Modal */}
+      <AnimatePresence>
+        {isJsonModalOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
+            >
+              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-800/50">
+                <div className="flex items-center gap-3">
+                  <div className="size-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+                    <Copy size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white uppercase tracking-tight">RAW JSON Editor</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Přímá editace datové struktury</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsJsonModalOpen(false)}
+                  className="size-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <Plus size={24} className="rotate-45 text-slate-400" />
+                </button>
+              </div>
+              
+              <div className="flex-1 p-6 relative bg-black/40">
+                <textarea 
+                  value={jsonInput}
+                  onChange={(e) => setJsonInput(e.target.value)}
+                  className="w-full h-full min-h-[400px] bg-transparent text-emerald-400 font-mono text-xs leading-relaxed outline-none resize-none border-none p-4 custom-scrollbar"
+                  spellCheck={false}
+                />
+              </div>
+
+              <div className="p-6 border-t border-white/5 bg-slate-900/50 flex gap-3 justify-end">
+                <button 
+                  onClick={() => setIsJsonModalOpen(false)}
+                  className="px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                >
+                  Zrušit
+                </button>
+                <button 
+                  onClick={applyJsonChanges}
+                  className="px-8 py-3 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/10"
+                >
+                  Použít změny
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
