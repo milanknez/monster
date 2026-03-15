@@ -3,7 +3,7 @@
   "name": "Listoočko Šustivé",
   "description": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
   "type": "Přírodní",
-  "rarity": "Vzácná",
+  "rarity": "Běžná",
   "stats": {
     "hp": 70,
     "attack": 120,

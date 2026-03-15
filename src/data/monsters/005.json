@@ -3,7 +3,7 @@
   "name": "Lávojed Bumkác",
   "description": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
   "type": "Ohnivá",
-  "rarity": "Epická",
+  "rarity": "Běžná",
   "stats": {
     "hp": 120,
     "attack": 110,
