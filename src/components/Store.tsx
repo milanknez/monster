@@ -134,6 +134,14 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                 </div>
               </div>
 
+              {/* Centrální Vizualizace - Jednotný styl s ikonou */}
+              <div className="relative flex-1 flex items-center justify-center p-4">
+                <div className={cn("absolute inset-0 m-auto size-24 blur-2xl opacity-20 rounded-full", item.colorClass.replace('text', 'bg'))} />
+                <div className={cn("relative z-10 size-20 rounded-3xl border border-white/10 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:border-white/20 transition-colors", item.colorClass)}>
+                  <item.icon size={40} strokeWidth={1.5} className="drop-shadow-[0_0_10px_currentColor] opacity-80" />
+                </div>
+              </div>
+
               {/* Obsah dole */}
               <div className="relative z-10 mt-auto p-4 space-y-1">
                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{item.subtitle}</p>
