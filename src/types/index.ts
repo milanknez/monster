@@ -9,3 +9,9 @@ export interface Monster {
   abilities?: { name: string; description: string; icon?: string }[];
   caughtAt?: number;
 }
+
+export interface Boost {
+  type: 'hp_regen' | 'xp_boost';
+  multiplier: number;
+  expiresAt: number;
+}

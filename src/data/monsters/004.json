@@ -3,7 +3,7 @@
   "name": "Bleskomýš Jiskrná",
   "description": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
   "type": "Elektrická",
-  "rarity": "Rare",
+  "rarity": "Vzácná",
   "stats": {
     "hp": 50,
     "attack": 95,

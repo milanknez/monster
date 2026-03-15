@@ -35,6 +35,7 @@ interface WorldMapProps {
   onConsumeHP: (amount: number) => void
   onDistanceUpdate: (meters: number) => void
   isInteractionBlocked?: boolean
+  caughtMonsters: Monster[]
 }
 
 // ── Konfigurace (tvoje testovací hodnoty) ──────────────────────
@@ -94,21 +95,29 @@ function seededFloat(seed: string): number {
   return (h >>> 0) / 0xFFFFFFFF
 }
 
-function pickLevel(seed: string, rarity: SpawnRarity): number {
-  const r = seededFloat(seed + '_lvl')
-  if (rarity === 'common') return r < 0.40 ? 2 : 1
-  if (rarity === 'rare') return 3 + Math.floor(r * 4)
-  return 7 + Math.floor(r * 4)
-}
-
 function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
-    if (rarity === 'epic') return m.rarity === 'Epická' || m.rarity === 'Legendární'
-    if (rarity === 'rare') return m.rarity === 'Vzácná'
-    return m.rarity === 'Běžná' || m.rarity === 'Neobvyklá'
+    const r = (m.rarity || '').toLowerCase()
+    if (rarity === 'epic') return r === 'epická' || r === 'legendární' || r === 'epic' || r === 'legendary'
+    if (rarity === 'rare') return r === 'vzácná' || r === 'rare'
+    return r === 'běžná' || r === 'neobvyklá' || r === 'common' || r === 'uncommon'
   })
   const arr = pool.length ? pool : monsterDB
-  return arr[Math.floor(seededFloat(seed) * arr.length)].id
+  
+  // Přidáme sůl k seedu pro větší variabilitu mezi monstrem a levelem
+  const mSeed = seed + '_species'
+  const index = Math.floor(seededFloat(mSeed) * arr.length)
+  return arr[index].id
+}
+
+function pickLevel(seed: string, rarity: SpawnRarity): number {
+  const r = seededFloat(seed + '_lvl')
+  if (rarity === 'common') {
+    if (r < 0.10) return 3 // Malá šance na vyšší level u běžných
+    return r < 0.45 ? 2 : 1
+  }
+  if (rarity === 'rare') return 3 + Math.floor(r * 4) // 3-6
+  return 7 + Math.floor(r * 4) // 7-10
 }
 
 // Stabilní grid konstanty
@@ -161,6 +170,7 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
   })
   const json = await res.json()
   const spawns: SpawnPoint[] = []
+  const seenPos = new Set<string>()
 
   const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress']
 
@@ -169,6 +179,11 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
     
+    // De-duplikace dle souřadnic (proti překryvům node vs way u stejného objektu)
+    const posKey = `${elLat.toFixed(5)}_${elLng.toFixed(5)}`
+    if (seenPos.has(posKey)) continue
+    seenPos.add(posKey)
+
     // Strakonický hrad je 'castle', takže bude Epic
     const rarity: SpawnRarity = EPIC_TAGS.includes(el.tags?.historic) ? 'epic' : 'rare'
     
@@ -220,7 +235,7 @@ export interface WorldMapHandle {
   centerOnPlayer: () => void;
 }
 
-export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked }, ref) => {
+export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, caughtMonsters }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -447,9 +462,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, pl
             className="absolute bottom-6 left-6 right-6 z-[1001]"
           >
             {levelBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl">🔒 POTŘEBUJEŠ ÚROVEŇ {nearbySpawn.level}</div>
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔒 POTŘEBUJEŠ ÚROVEŇ {nearbySpawn.level}</div>
             ) : hpBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
+              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
             ) : (
               <button
                 onClick={handleCatch}

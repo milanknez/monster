@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 
-export const NewMonsterModal = ({ monster, onClose, onAdd }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void }) => {
+export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; isStackFull?: boolean }) => {
   if (!monster) return null
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
 
@@ -34,9 +34,16 @@ export const NewMonsterModal = ({ monster, onClose, onAdd }: { monster: Monster 
             <img src={monster.image} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
           </motion.div>
 
-          <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 inline-block", colors.bg, colors.text)}>
-            NOVÝ EXEMPLÁŘ ZAJIŠTĚN
-          </span>
+          <div className="flex flex-col items-center gap-1 mb-2">
+            <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest", colors.bg, colors.text)}>
+              NOVÝ EXEMPLÁŘ ZAJIŠTĚN
+            </span>
+            {isXPBoosted && (
+              <span className="bg-blue-500 text-white px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter animate-pulse border border-blue-400/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                ⚡ +100% XP BOOST AKTIVNÍ
+              </span>
+            )}
+          </div>
           <h2 className="text-4xl font-black text-slate-100 tracking-tighter mb-2">{monster.name}</h2>
           <p className="text-xs text-slate-400 mb-6 px-4 line-clamp-2">{monster.description}</p>
           
@@ -53,11 +60,26 @@ export const NewMonsterModal = ({ monster, onClose, onAdd }: { monster: Monster 
           </div>
 
           <button 
+            disabled={isStackFull}
             onClick={() => onAdd(monster)}
-            className="w-full bg-slate-100 hover:bg-white text-background-dark font-black py-4 rounded-2xl transition-all active:scale-95 shadow-xl uppercase tracking-tighter"
+            className={cn(
+              "w-full py-4 rounded-2xl transition-all active:scale-95 shadow-xl uppercase tracking-tighter font-black",
+              isStackFull 
+                ? "bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed" 
+                : "bg-slate-100 hover:bg-white text-background-dark"
+            )}
           >
-            Přidat do sbírky
+            {isStackFull ? "Kapacita druhu (3/3) plná" : "Přidat do sbírky"}
           </button>
+          
+          {isStackFull && (
+            <button 
+              onClick={onClose}
+              className="w-full mt-4 py-2 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-slate-300 transition-colors"
+            >
+              Propustit do divočiny
+            </button>
+          )}
         </div>
       </motion.div>
     </div>

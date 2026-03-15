@@ -21,6 +21,9 @@ import { SetupProfileModal } from './components/SetupProfileModal'
 import { TradeModal } from './components/TradeModal'
 import { TradeSelectionModal } from './components/TradeSelectionModal'
 import { SettingsModal } from './components/SettingsModal'
+import { Store } from './components/Store'
+import { MonsterEditor } from './components/MonsterEditor'
+import type { Boost } from './types'
 
 function App() {
   const [isScannerOpen, setIsScannerOpen] = useState(false)
@@ -37,6 +40,20 @@ function App() {
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
   const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
   
+  // Režim editoru (vstup přes ?editor=1)
+  const [isEditorMode, setIsEditorMode] = useState(() => {
+    return new URLSearchParams(window.location.search).get('editor') === '1'
+  })
+  // Aktivní boosty
+  const [activeBoosts, setActiveBoosts] = useState<Boost[]>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_boosts')
+      if (saved) {
+        return (JSON.parse(saved) as Boost[]).filter(b => b.expiresAt > Date.now())
+      }
+    } catch { return [] }
+    return []
+  })
   // Vzdálenost: metry nachozené dnes (s resetem o půlnoci)
   const [dailyDistance, setDailyDistance] = useState(() => {
     try {
@@ -63,21 +80,44 @@ function App() {
     return { val: 100, time: Date.now() }
   })
 
-  // Výpočet aktuálního HP s regenerací (TEST: 100% za 10 minut)
-  const REGEN_RATE_PER_MS = 100 / (10 * 60 * 1000) 
+  // Výpočet aktuálního HP s regenerací (TEST: 100% za 10 minut základ)
+  const BASE_REGEN_RATE = 100 / (10 * 60 * 1000) 
+  
   const getCurrentHP = () => {
+    // Najdeme nejvyšší HP boost
+    const hpBoost = activeBoosts
+      .filter(b => b.type === 'hp_regen' && b.expiresAt > Date.now())
+      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+
     const elapsed = Date.now() - hpState.time
-    const bonus = elapsed * REGEN_RATE_PER_MS
+    const bonus = elapsed * (BASE_REGEN_RATE * hpBoost)
     return Math.min(100, Math.max(0, hpState.val + bonus))
   }
 
   const [currentHP, setCurrentHP] = useState(getCurrentHP())
 
+  // Uložení aktuálního stavu HP (checkpoint) před změnou parametrů
+  const checkpointHP = () => {
+    const freshHP = getCurrentHP()
+    const newState = { val: freshHP, time: Date.now() }
+    setHpState(newState)
+    setCurrentHP(freshHP)
+    localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
+    return freshHP
+  }
+
+  const activateBoost = (boost: Boost) => {
+    checkpointHP() // Důležité: uložit HP s aktuálním rate než se změní na nový
+    const updated = [boost, ...activeBoosts.filter(b => b.type !== boost.type || b.multiplier !== boost.multiplier)]
+    setActiveBoosts(updated)
+    localStorage.setItem('monster_collector_boosts', JSON.stringify(updated))
+  }
+
   // Timer pro plynulý update progress baru (každou vteřinu)
   useEffect(() => {
     const timer = setInterval(() => setCurrentHP(getCurrentHP()), 1000)
     return () => clearInterval(timer)
-  }, [hpState])
+  }, [hpState, activeBoosts])
 
   const consumeHP = (amount: number) => {
     const freshHP = getCurrentHP()
@@ -127,8 +167,14 @@ function App() {
     }
   }, [])
 
-  // Save to LocalStorage – stackování povoleno (stejná příšera může být chycena vícekrát)
+  // Save to LocalStorage – limit 3x stejný druh
   const saveMonster = (monster: Monster) => {
+    const existingCount = caughtMonsters.filter(m => m.id === monster.id).length
+    if (existingCount >= 3) {
+      alert(`Už máš 3x tento druh (${monster.name}). Více jich neuneseš!`)
+      setNewMonster(null)
+      return
+    }
     const enriched = { ...monster, caughtAt: monster.caughtAt || Date.now() }
     const updated = [enriched, ...caughtMonsters]
     setCaughtMonsters(updated)
@@ -225,6 +271,17 @@ function App() {
 
   const lastCaught = caughtMonsters[0] || null
 
+  if (isEditorMode) {
+    return (
+      <MonsterEditor onBack={() => {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('editor')
+        window.history.pushState({}, '', url)
+        setIsEditorMode(false)
+      }} />
+    )
+  }
+
   return (
     <div className="min-h-screen font-display pb-32">
       {!playerName && (
@@ -277,7 +334,12 @@ function App() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                 >
-                  <StatsCard caughtCount={caughtMonsters.length} playerHP={currentHP} />
+                  <StatsCard 
+                    caughtCount={caughtMonsters.length} 
+                    playerHP={currentHP} 
+                    isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+                    isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
+                  />
                   <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
                   <RecentActivity 
                     caughtMonsters={caughtMonsters} 
@@ -308,11 +370,16 @@ function App() {
                   onConsumeHP={consumeHP} 
                   onDistanceUpdate={handleMove}
                   isInteractionBlocked={!!newMonster || !!selectedMonster}
+                  caughtMonsters={caughtMonsters}
                 />
               )}
 
               {activeTab === 'store' && (
-                <PlaceholderTab key="store" name="Obchod" icon={ShoppingBag} />
+                <Store 
+                  key="store" 
+                  onActivateBoost={activateBoost} 
+                  activeBoosts={activeBoosts} 
+                />
               )}
             </motion.div>
           )}
@@ -343,6 +410,8 @@ function App() {
             monster={newMonster} 
             onClose={() => setNewMonster(null)} 
             onAdd={saveMonster}
+            isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+            isStackFull={caughtMonsters.filter(m => m.id === newMonster.id).length >= 3}
           />
         )}
         {tradingMonster && (
@@ -399,6 +468,7 @@ function App() {
               localStorage.removeItem('monster_collector_player_name')
               localStorage.removeItem('monster_collector_avatar_style')
               localStorage.removeItem('monster_collector_avatar_seed')
+              localStorage.removeItem('monster_collector_boosts')
               window.location.reload()
             }}
             avatarStyle={avatarStyle}

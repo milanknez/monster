@@ -10,5 +10,7 @@ export const TYPE_COLORS: Record<string, { text: string, bg: string, border: str
   'Vodní': { text: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
   'Přírodní': { text: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30' },
   'Elektrická': { text: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' },
+  'Temná': { text: 'text-purple-600', bg: 'bg-purple-900/20', border: 'border-purple-500/30' },
+  'Světelná': { text: 'text-cyan-400', bg: 'bg-cyan-100/10', border: 'border-cyan-400/30' },
   'Default': { text: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' }
 }
