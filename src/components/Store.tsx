@@ -117,7 +117,7 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                 expiresAt: Date.now() + 24 * 60 * 60 * 1000
               })}
               className={cn(
-                "group relative aspect-[4/5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
+                "group relative aspect-[4/4.5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
                 isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
               )}
             >
@@ -125,9 +125,9 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
               <div className={cn("absolute inset-0 z-0 bg-gradient-to-br opacity-40 group-hover:opacity-60 transition-opacity", item.gradient)} />
               
               {/* Ikona a Badge nahoře */}
-              <div className="relative z-10 p-4 flex justify-between items-start">
-                <div className={cn("p-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/5", item.colorClass)}>
-                  <item.icon size={20} />
+              <div className="relative z-10 p-3 flex justify-between items-start">
+                <div className={cn("p-1.5 rounded-xl bg-black/40 backdrop-blur-md border border-white/5", item.colorClass)}>
+                  <item.icon size={18} />
                 </div>
                 <div className={cn("px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase tracking-tighter", item.colorClass)}>
                   {item.badge}
@@ -135,26 +135,26 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
               </div>
 
               {/* Centrální Vizualizace - Jednotný styl s ikonou */}
-              <div className="relative flex-1 flex items-center justify-center p-4">
-                <div className={cn("absolute inset-0 m-auto size-24 blur-2xl opacity-20 rounded-full", item.colorClass.replace('text', 'bg'))} />
-                <div className={cn("relative z-10 size-20 rounded-3xl border border-white/10 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:border-white/20 transition-colors", item.colorClass)}>
-                  <item.icon size={40} strokeWidth={1.5} className="drop-shadow-[0_0_10px_currentColor] opacity-80" />
+              <div className="relative flex-1 flex items-center justify-center p-2 min-h-0">
+                <div className={cn("absolute inset-0 m-auto size-16 blur-2xl opacity-20 rounded-full", item.colorClass.replace('text', 'bg'))} />
+                <div className={cn("relative z-10 size-14 rounded-2xl border border-white/10 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:border-white/20 transition-colors", item.colorClass)}>
+                  <item.icon size={32} strokeWidth={1.5} className="drop-shadow-[0_0_10px_currentColor] opacity-80" />
                 </div>
               </div>
 
               {/* Obsah dole */}
-              <div className="relative z-10 mt-auto p-4 space-y-1">
+              <div className="relative z-10 mt-auto p-3 pt-0 space-y-0.5">
                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{item.subtitle}</p>
-                <h3 className="text-white text-sm font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">{item.title}</h3>
-                <p className="text-[9px] text-slate-500 font-medium leading-tight line-clamp-2 mt-1">
+                <h3 className="text-white text-[13px] font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">{item.title}</h3>
+                <p className="text-[9px] text-slate-500 font-medium leading-[1.1] line-clamp-2">
                   {item.description}
                 </p>
 
                 {/* Status / Tlačítko */}
-                <div className="pt-3">
+                <div className="pt-2">
                   {isActive ? (
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center text-[8px] font-black uppercase">
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center text-[7px] font-black uppercase">
                         <span className="text-primary italic">Aktivní modul</span>
                         <span className="text-slate-500">24h</span>
                       </div>
@@ -167,8 +167,8 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full py-1.5 rounded-lg bg-white/[0.03] border border-white/10 text-center group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950 transition-all">
-                      <span className="text-[9px] font-black uppercase tracking-widest">Aktivovat</span>
+                    <div className="w-full py-1 rounded-lg bg-white/[0.03] border border-white/10 text-center group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950 transition-all">
+                      <span className="text-[8px] font-black uppercase tracking-[0.15em]">Aktivovat</span>
                     </div>
                   )}
                 </div>
