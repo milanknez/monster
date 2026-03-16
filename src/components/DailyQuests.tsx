@@ -5,8 +5,35 @@ import { cn } from '../utils';
 
 import { Monster } from '../types';
 
-export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters: Monster[], dailyDistance: number }) => {
+export const DailyQuests = ({ 
+  caughtMonsters, 
+  dailyDistance,
+  onClaimReward,
+  isXPBoosted
+}: { 
+  caughtMonsters: Monster[], 
+  dailyDistance: number,
+  onClaimReward: (xp: number) => void,
+  isXPBoosted: boolean 
+}) => {
   const [timeLeft, setTimeLeft] = useState('');
+  const [claimedQuests, setClaimedQuests] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_claimed_quests');
+      if (saved) {
+        const { date, ids } = JSON.parse(saved);
+        if (date === new Date().toDateString()) return ids;
+      }
+    } catch { return []; }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('monster_collector_claimed_quests', JSON.stringify({
+      date: new Date().toDateString(),
+      ids: claimedQuests
+    }));
+  }, [claimedQuests]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -46,7 +73,8 @@ export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters:
       icon: Target,
       color: 'text-green-500',
       bg: 'bg-green-500/10',
-      completed: monstersToday.length >= 5
+      completed: monstersToday.length >= 5,
+      reward: 500
     },
     {
       id: 2,
@@ -57,7 +85,8 @@ export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters:
       icon: Trophy,
       color: 'text-purple-500',
       bg: 'bg-purple-500/10',
-      completed: rareCount >= 3
+      completed: rareCount >= 3,
+      reward: 1000
     },
     {
       id: 3,
@@ -68,9 +97,15 @@ export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters:
       icon: MapIcon,
       color: 'text-primary',
       bg: 'bg-primary/10',
-      completed: (dailyDistance / 1000) >= 2.0
+      completed: (dailyDistance / 1000) >= 2.0,
+      reward: 750
     },
   ]
+
+  const handleClaim = (questId: number, xp: number) => {
+    setClaimedQuests(prev => [...prev, questId]);
+    onClaimReward(xp);
+  };
 
   return (
     <section className="p-4 mb-32">
@@ -82,43 +117,53 @@ export const DailyQuests = ({ caughtMonsters, dailyDistance }: { caughtMonsters:
         </div>
       </div>
       <div className="space-y-3">
-        {quests.map((quest, idx) => (
-          <motion.div
-            key={quest.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 + idx * 0.1 }}
-            className={cn(
-              "flex items-center p-4 bg-slate-900/40 border border-slate-800 rounded-2xl transition-all hover:bg-slate-900/60",
-              quest.completed && "border-green-500/30 bg-green-500/5"
-            )}
-          >
-            <div className={cn("p-2.5 rounded-xl mr-4", quest.bg)}>
-              <quest.icon size={20} className={quest.color} />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-slate-100">{quest.title}</p>
-              <p className="text-[11px] text-slate-500 font-medium">{quest.desc}</p>
-            </div>
-            <div className="text-right">
-              {quest.completed ? (
-                <CheckCircle2 size={24} className="text-green-500" />
-              ) : (
-                <>
-                  <p className={cn("text-xs font-black", quest.color)}>
-                    {quest.id === 3 ? `${quest.progress.toFixed(1)}km` : `${quest.progress}/${quest.total}`}
-                  </p>
-                  <div className="w-16 h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
-                    <div
-                      className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))}
-                      style={{ width: `${(quest.progress / quest.total) * 100}%` }}
-                    />
-                  </div>
-                </>
+        {quests.map((quest, idx) => {
+          const Icon = quest.icon;
+          return (
+            <motion.div
+              key={quest.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + idx * 0.1 }}
+              className={cn(
+                "flex items-center p-4 bg-slate-900/40 border border-slate-800 rounded-2xl transition-all hover:bg-slate-900/60",
+                quest.completed && "border-green-500/30 bg-green-500/5"
               )}
-            </div>
-          </motion.div>
-        ))}
+            >
+              <div className={cn("p-2.5 rounded-xl mr-4", quest.bg)}>
+                <Icon size={20} className={quest.color} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-slate-100">{quest.title}</p>
+                <p className="text-[11px] text-slate-500 font-medium">{quest.desc}</p>
+              </div>
+              <div className="text-right flex flex-col items-end">
+                {claimedQuests.includes(quest.id) ? (
+                  <CheckCircle2 size={24} className="text-green-500" />
+                ) : quest.completed ? (
+                  <button 
+                    onClick={() => handleClaim(quest.id, quest.reward)}
+                    className="bg-green-500 hover:bg-green-400 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-tighter transition-all active:scale-95 shadow-lg shadow-green-500/20"
+                  >
+                    Získat {isXPBoosted ? `+${quest.reward * 2}` : `+${quest.reward}`} XP
+                  </button>
+                ) : (
+                  <>
+                    <p className={cn("text-xs font-black", quest.color)}>
+                      {quest.id === 3 ? `${quest.progress.toFixed(1)}km` : `${quest.progress}/${quest.total}`}
+                    </p>
+                    <div className="w-16 h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                      <div
+                        className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))}
+                        style={{ width: `${(quest.progress / quest.total) * 100}%` }}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   )

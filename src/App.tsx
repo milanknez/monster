@@ -24,6 +24,7 @@ import { SettingsModal } from './components/SettingsModal'
 import { Store } from './components/Store'
 import { MonsterEditor } from './components/MonsterEditor'
 import { GooglePayModal } from './components/GooglePayModal'
+import { ToastContainer, type ToastMessage } from './components/Toast'
 import type { Boost } from './types'
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
   const [tradeConfirmation, setTradeConfirmation] = useState<{ monster: Monster, received: { id: string, level: number, name: string } } | null>(null)
   const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const worldMapRef = useRef<WorldMapHandle>(null)
@@ -65,6 +67,16 @@ function App() {
         if (date === new Date().toDateString()) return dist
       }
     } catch (e) { console.error("Chyba při načítání vzdálenosti") }
+    return 0
+  })
+  // XP state s migrací
+  const [totalXP, setTotalXP] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_xp')
+      if (saved !== null) return parseInt(saved)
+      const caught = localStorage.getItem('monster_collector_caught')
+      if (caught) return JSON.parse(caught).length * 250
+    } catch { return 0 }
     return 0
   })
 
@@ -136,6 +148,11 @@ function App() {
     localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
   }
 
+  const addToast = (toast: Omit<ToastMessage, 'id'>) => {
+    const id = Math.random().toString(36).substring(2, 9)
+    setToasts(prev => [...prev, { ...toast, id }])
+  }
+
   const handleMove = (meters: number) => {
     setDailyDistance((prev: number) => {
       const newVal = prev + meters
@@ -144,6 +161,24 @@ function App() {
         date: new Date().toDateString()
       }))
       return newVal
+    })
+  }
+
+  const handleClaimReward = (xp: number) => {
+    // Aplikujeme boost i na odměny z úkolů
+    const xpBoost = activeBoosts
+      .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
+      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+    
+    const xpGained = Math.round(xp * xpBoost)
+    const newTotalXP = totalXP + xpGained
+    setTotalXP(newTotalXP)
+    localStorage.setItem('monster_collector_xp', newTotalXP.toString())
+
+    addToast({
+      title: 'Odměna získána',
+      message: `Získal jsi +${xpGained} XP za splnění úkolu.`,
+      type: 'xp'
     })
   }
 
@@ -187,6 +222,23 @@ function App() {
     const updated = [enriched, ...caughtMonsters]
     setCaughtMonsters(updated)
     localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
+    
+    // XP Boost výpočet
+    const xpBoost = activeBoosts
+      .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
+      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+    
+    const xpGained = Math.round(250 * xpBoost)
+    const newTotalXP = totalXP + xpGained
+    setTotalXP(newTotalXP)
+    localStorage.setItem('monster_collector_xp', newTotalXP.toString())
+
+    addToast({
+      title: 'Monstrum chyceno',
+      message: `${monster.name} chycen! +${xpGained} XP`,
+      type: 'xp'
+    })
+
     setNewMonster(null)
   }
 
@@ -345,6 +397,7 @@ function App() {
                   <StatsCard 
                     caughtCount={caughtMonsters.length} 
                     playerHP={currentHP} 
+                    playerXP={totalXP}
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                     isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
                   />
@@ -357,6 +410,8 @@ function App() {
                   <DailyQuests 
                     caughtMonsters={caughtMonsters} 
                     dailyDistance={dailyDistance}
+                    onClaimReward={handleClaimReward}
+                    isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                   />
                 </motion.div>
               )}
@@ -477,6 +532,7 @@ function App() {
               localStorage.removeItem('monster_collector_avatar_style')
               localStorage.removeItem('monster_collector_avatar_seed')
               localStorage.removeItem('monster_collector_boosts')
+              localStorage.removeItem('monster_collector_xp')
               window.location.reload()
             }}
             avatarStyle={avatarStyle}
@@ -504,6 +560,11 @@ function App() {
           title: payingItem?.title || '',
           price: payingItem?.price || ''
         }}
+      />
+
+      <ToastContainer 
+        toasts={toasts} 
+        onRemove={(id) => setToasts(prev => prev.filter(t => t.id !== id))} 
       />
     </div>
   )

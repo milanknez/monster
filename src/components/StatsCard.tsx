@@ -5,19 +5,18 @@ import { cn } from '../utils';
 export const StatsCard = ({ 
   caughtCount, 
   playerHP, 
+  playerXP,
   isXPBoosted, 
   isHPBoosted 
 }: { 
   caughtCount: number, 
   playerHP: number,
+  playerXP: number,
   isXPBoosted?: boolean,
   isHPBoosted?: boolean
 }) => {
-  // Simple logic for leveling: each monster gives 250 XP
-  // 1000 XP per level.
-  const totalXp = caughtCount * 250;
-  const currentLevel = Math.floor(totalXp / 1000) + 1;
-  const xpInCurrentLevel = totalXp % 1000;
+  const currentLevel = Math.floor(playerXP / 1000) + 1;
+  const xpInCurrentLevel = playerXP % 1000;
   const totalXpRequiredForNextLevel = 1000;
   const progressPercentage = (xpInCurrentLevel / totalXpRequiredForNextLevel) * 100;
   
