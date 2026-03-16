@@ -15,10 +15,32 @@ export const StatsCard = ({
   isXPBoosted?: boolean,
   isHPBoosted?: boolean
 }) => {
-  const currentLevel = Math.floor(playerXP / 1000) + 1;
-  const xpInCurrentLevel = playerXP % 1000;
-  const totalXpRequiredForNextLevel = 1000;
-  const progressPercentage = (xpInCurrentLevel / totalXpRequiredForNextLevel) * 100;
+  // Progressive leveling logic:
+  // Base increment is 250 XP per level.
+  // Level 1 -> 2: 1000 XP
+  // Level 2 -> 3: 1250 XP
+  // Formula for total XP needed to reach next level: 125*n^2 + 875*n
+  
+  const calculateLevel = (xp: number) => {
+    if (xp <= 0) return 1;
+    // Solving 125n^2 + 875n - xp = 0 for n
+    const n = (-875 + Math.sqrt(875 * 875 + 4 * 125 * xp)) / (2 * 125);
+    return Math.floor(n) + 1;
+  };
+
+  const currentLevel = calculateLevel(playerXP);
+  
+  const getTotalXPForLevel = (lvl: number) => {
+    if (lvl <= 1) return 0;
+    const n = lvl - 1;
+    return 125 * n * n + 875 * n;
+  };
+
+  const xpAtStartOfLevel = getTotalXPForLevel(currentLevel);
+  const xpAtEndOfLevel = getTotalXPForLevel(currentLevel + 1);
+  const xpInCurrentLevel = playerXP - xpAtStartOfLevel;
+  const xpRequiredForNextLevel = xpAtEndOfLevel - xpAtStartOfLevel;
+  const progressPercentage = (xpInCurrentLevel / xpRequiredForNextLevel) * 100;
   
   // Výpočet času do 100% (TEST: 10 minut = 600 sekund)
   const SECONDS_FOR_100_PERCENT = 10 * 60;
@@ -75,7 +97,7 @@ export const StatsCard = ({
           <div className="space-y-2">
             <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider items-center">
               <span className="text-primary/90">XP k úrovni {currentLevel + 1}</span>
-              <span className="text-slate-400">{xpInCurrentLevel} / {totalXpRequiredForNextLevel}</span>
+              <span className="text-slate-400">{Math.round(xpInCurrentLevel)} / {Math.round(xpRequiredForNextLevel)}</span>
             </div>
             <div className="h-2 w-full bg-slate-950/50 rounded-full overflow-hidden border border-white/5 p-0.5 relative">
               <motion.div 
