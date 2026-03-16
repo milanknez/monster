@@ -1,0 +1,22 @@
+{
+  "id": "016",
+  "name": "Šupindoslav vodní",
+  "description": "Mutantní kapr s obrovskou ploutví, který se rád plazí mezi korály. Má podivně lesklé šupiny a děsí ostatní ryby, ale není zlý.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 71,
+    "attack": 73,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Vodní náraz",
+      "description": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti."
+    },
+    {
+      "name": "Lesklé šupiny",
+      "description": "Odráží část poškození zpět na útočníka."
+    }
+  ]
+}

@@ -3,9 +3,9 @@
   "name": "Mechový Žhavibřich",
   "description": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
   "type": "Přírodní",
-  "rarity": "Epická",
+  "rarity": "Vzácná",
   "stats": {
-    "hp": 130,
+    "hp": 121,
     "attack": 40,
     "defense": 100
   },

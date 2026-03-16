@@ -1,0 +1,22 @@
+{
+  "id": "026",
+  "name": "Fekálník Blátivý",
+  "description": "Blátivá, hnusná, ale legrační příšera. Pohybuje se pomalu, zanechává za sebou špinavé stopy a dokáže překvapit nepřátele svým bahnitým útokem.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 30,
+    "attack": 70,
+    "defense": 80
+  },
+  "abilities": [
+    {
+      "name": "Bahnitý šleh",
+      "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost."
+    },
+    {
+      "name": "Blátivá obrana",
+      "description": "Na jedno kolo se zablátí a sníží přijaté poškození."
+    }
+  ]
+}

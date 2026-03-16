@@ -1,0 +1,22 @@
+{
+  "id": "017",
+  "name": "Prdovous rex",
+  "description": "Obrovský lesní tvor z větví a mechu, který při chůzi zanechává za sebou obláčky prdového dýmu. Strašidelný, ale legrační, dokáže nepřátele rozesmát i paralyzovat smíchem.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 77,
+    "attack": 67,
+    "defense": 46
+  },
+  "abilities": [
+    {
+      "name": "Smradlavý výbuch",
+      "description": "Vyvolá oblaka zápachu za sebou, snižuje sílu a rychlost nepřátel na jedno kolo."
+    },
+    {
+      "name": "Kořenový náraz",
+      "description": "Z kořenů vyrazí rychlý útok na jednoho nepřítele."
+    }
+  ]
+}

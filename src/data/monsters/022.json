@@ -1,0 +1,22 @@
+{
+  "id": "022",
+  "name": "Žouža Drapák",
+  "description": "Mutantní žížala s dlouhými paznechty s drápy na konci, které dokážou chňapnout po nepřátelích. Strašidelná i legrační zároveň, ideální na překvapení nepřátel ve hře.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 80,
+    "attack": 90,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Chapadlový útok",
+      "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození."
+    },
+    {
+      "name": "Plazivá obrana",
+      "description": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození."
+    }
+  ]
+}

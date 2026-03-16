@@ -1,0 +1,22 @@
+{
+  "id": "018",
+  "name": "Pan Energyhaďák",
+  "description": "Hadí elektrická příšerka s ostny, ze kterých tryskají blesky. Rychlá a neposedná, dokáže zastrašit nepřátele i rozsvítit celý boj.",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 75,
+    "attack": 55,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Ohnivý blesk",
+      "description": "Vystřelí elektrický výboj ze svých ostnů na všechny nepřátele v okolí."
+    },
+    {
+      "name": "Elektrický štít",
+      "description": "Na jedno kolo zvyšuje obranu a odráží část poškození zpět útočníkovi."
+    }
+  ]
+}

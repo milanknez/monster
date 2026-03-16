@@ -1,0 +1,22 @@
+{
+  "id": "025",
+  "name": "Král Pařezoplam",
+  "description": "Ohnivý pařez, který slouží jako živý plamenomet. Dokáže vypálit oblaka ohně na nepřátele, strašidelný a impozantní, ale stále trochu legrační a epický.",
+  "type": "Ohnivá",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 165,
+    "attack": 140,
+    "defense": 90
+  },
+  "abilities": [
+    {
+      "name": "Plamenomet",
+      "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu."
+    },
+    {
+      "name": "Ohnivý štít",
+      "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli."
+    }
+  ]
+}

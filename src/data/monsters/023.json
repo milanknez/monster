@@ -1,0 +1,22 @@
+{
+  "id": "023",
+  "name": "Slizohad",
+  "description": "Vodní příšera pokrytá jedovatou slizovinou. Pohybuje se plovoucím klouzavým způsobem a může zasáhnout nepřátele jedem. Strašidelná a nebezpečná, ale stále trochu legrační.",
+  "type": "Vodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 100,
+    "attack": 90,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Jedovatý dotek",
+      "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol."
+    },
+    {
+      "name": "Klouzavý útěk",
+      "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "019",
+  "name": "Bleskokvět dvojhlavý",
+  "description": "Elektrická masožravá květina s dvěma hlavami, které chňapou po všem kolem. Když se rozčílí, mezi květy prskají jiskry a vydávají malé elektrické výboje.",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 75,
+    "attack": 100,
+    "defense": 80
+  },
+  "abilities": [
+    {
+      "name": "Jiskrový chňapák",
+      "description": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli."
+    },
+    {
+      "name": "Elektrické výboje",
+      "description": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu."
+    }
+  ]
+}

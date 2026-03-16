@@ -1,0 +1,22 @@
+{
+  "id": "021",
+  "name": "Kraboshell skála",
+  "description": "Mocná želva s pevnou skořápkou a moudrým výrazem. Pomalejší pohyb, ale těžko ji zraníš. Milá a spolehlivá, dokáže chránit své přátele.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 81,
+    "attack": 60,
+    "defense": 140
+  },
+  "abilities": [
+    {
+      "name": "Skořápkový náraz",
+      "description": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením."
+    },
+    {
+      "name": "Ochranný pancíř",
+      "description": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel."
+    }
+  ]
+}

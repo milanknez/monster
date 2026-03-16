@@ -1,0 +1,22 @@
+{
+  "id": "027",
+  "name": "Láskožrout Měkký",
+  "description": "Měkká, roztomilá příšerka, která dokáže pohltit nepřátele svým objímacím tělem. Strašidelná jen trošku, ale hlavně legrační a mazlivá.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 90,
+    "attack": 60,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Mazlivý sev",
+      "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo."
+    },
+    {
+      "name": "Plyšový štít",
+      "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět."
+    }
+  ]
+}

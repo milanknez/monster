@@ -1,0 +1,22 @@
+{
+  "id": "028",
+  "name": "Mazlík Hegeš",
+  "description": "Malá, nenápadná myší příšerka s velkýma očima a rychlými tlapkami. Vypadá roztomile, ale dokáže překvapit rychlými útoky a zmatením nepřátel.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 70,
+    "attack": 65,
+    "defense": 40
+  },
+  "abilities": [
+    {
+      "name": "Rychlé kousnutí",
+      "description": "Mazlík Hegeš rychle zaútočí a způsobí menší poškození."
+    },
+    {
+      "name": "Zmatený úprk",
+      "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout."
+    }
+  ]
+}
