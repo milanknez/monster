@@ -23,6 +23,7 @@ import { TradeSelectionModal } from './components/TradeSelectionModal'
 import { SettingsModal } from './components/SettingsModal'
 import { Store } from './components/Store'
 import { MonsterEditor } from './components/MonsterEditor'
+import { GooglePayModal } from './components/GooglePayModal'
 import type { Boost } from './types'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
   const [tradingMonster, setTradingMonster] = useState<Monster | null>(null)
   const [tradeConfirmation, setTradeConfirmation] = useState<{ monster: Monster, received: { id: string, level: number, name: string } } | null>(null)
   const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
+  const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const worldMapRef = useRef<WorldMapHandle>(null)
@@ -106,7 +108,13 @@ function App() {
     return freshHP
   }
 
-  const activateBoost = (boost: Boost) => {
+  const activateBoost = (boost: Boost, item?: any) => {
+    // Pokud je položka placená a ještě jsme ji "nezaplatili" (v této transakci)
+    if (item?.price && !payingItem) {
+      setPayingItem({ boost, title: item.title, price: item.price })
+      return
+    }
+
     checkpointHP() // Důležité: uložit HP s aktuálním rate než se změní na nový
     const updated = [boost, ...activeBoosts.filter(b => b.type !== boost.type || b.multiplier !== boost.multiplier)]
     setActiveBoosts(updated)
@@ -482,6 +490,21 @@ function App() {
           />
         )}
       </AnimatePresence>
+
+      <GooglePayModal 
+        isOpen={!!payingItem}
+        onClose={() => setPayingItem(null)}
+        onConfirm={() => {
+          if (payingItem) {
+            activateBoost(payingItem.boost)
+            setPayingItem(null)
+          }
+        }}
+        item={{
+          title: payingItem?.title || '',
+          price: payingItem?.price || ''
+        }}
+      />
     </div>
   )
 }

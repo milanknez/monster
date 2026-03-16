@@ -4,7 +4,7 @@ import { cn } from '../utils'
 import type { Boost } from '../types'
 
 interface StoreProps {
-  onActivateBoost: (boost: Boost) => void
+  onActivateBoost: (boost: Boost, item?: any) => void
   activeBoosts: Boost[]
 }
 
@@ -21,7 +21,8 @@ const STORE_ITEMS = [
     colorClass: 'text-blue-500',
     bgClass: 'bg-blue-500/10',
     borderClass: 'border-blue-500/20',
-    gradient: 'from-blue-600/20 to-cyan-500/0'
+    gradient: 'from-blue-600/20 to-cyan-500/0',
+    price: null
   },
   {
     id: 'hp_50',
@@ -35,7 +36,8 @@ const STORE_ITEMS = [
     colorClass: 'text-emerald-500',
     bgClass: 'bg-emerald-500/10',
     borderClass: 'border-emerald-500/20',
-    gradient: 'from-emerald-600/20 to-teal-500/0'
+    gradient: 'from-emerald-600/20 to-teal-500/0',
+    price: null
   },
   {
     id: 'hp_100',
@@ -49,7 +51,8 @@ const STORE_ITEMS = [
     colorClass: 'text-purple-500',
     bgClass: 'bg-purple-500/10',
     borderClass: 'border-purple-500/20',
-    gradient: 'from-purple-600/20 to-fuchsia-500/0'
+    gradient: 'from-purple-600/20 to-fuchsia-500/0',
+    price: null
   },
   {
     id: 'hp_300',
@@ -63,7 +66,23 @@ const STORE_ITEMS = [
     colorClass: 'text-orange-500',
     bgClass: 'bg-orange-500/10',
     borderClass: 'border-orange-500/20',
-    gradient: 'from-orange-600/20 to-red-500/0'
+    gradient: 'from-orange-600/20 to-red-500/0',
+    price: null
+  },
+  {
+    id: 'premium_ultra',
+    title: 'ULTRA CORE',
+    subtitle: 'PREMIUM MODUL',
+    description: 'Ultimátní balíček všech vylepšení v jednom.',
+    badge: 'ULTRA',
+    icon: Shield,
+    type: 'xp_boost',
+    multiplier: 5,
+    colorClass: 'text-yellow-400',
+    bgClass: 'bg-yellow-400/10',
+    borderClass: 'border-yellow-400/20',
+    gradient: 'from-yellow-600/20 to-amber-500/0',
+    price: '1 Kč'
   }
 ]
 
@@ -115,7 +134,7 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                 type: item.type as any,
                 multiplier: item.multiplier,
                 expiresAt: Date.now() + 24 * 60 * 60 * 1000
-              })}
+              }, item)}
               className={cn(
                 "group relative aspect-[4/4.5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
                 isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
@@ -167,8 +186,15 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full py-1 rounded-lg bg-white/[0.03] border border-white/10 text-center group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950 transition-all">
-                      <span className="text-[8px] font-black uppercase tracking-[0.15em]">Aktivovat</span>
+                    <div className={cn(
+                      "w-full py-1 rounded-lg border text-center transition-all flex items-center justify-center gap-2",
+                      item.price 
+                        ? "bg-yellow-400/10 border-yellow-400/30 group-hover:bg-yellow-400 group-hover:border-yellow-400 group-hover:text-slate-950" 
+                        : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
+                    )}>
+                      <span className="text-[8px] font-black uppercase tracking-[0.15em]">
+                        {item.price ? `Koupit za ${item.price}` : 'Aktivovat'}
+                      </span>
                     </div>
                   )}
                 </div>
