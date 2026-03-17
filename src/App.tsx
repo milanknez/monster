@@ -425,16 +425,17 @@ function App() {
               )}
 
               {activeTab === 'world' && (
-                <WorldMap 
-                  ref={worldMapRef}
-                  key="world" 
-                  onCatch={setNewMonster} 
-                  playerHP={currentHP} 
-                  onConsumeHP={consumeHP} 
-                  onDistanceUpdate={handleMove}
-                  isInteractionBlocked={!!newMonster || !!selectedMonster}
-                  caughtMonsters={caughtMonsters}
-                />
+                  <WorldMap 
+                    ref={worldMapRef}
+                    key="world" 
+                    onCatch={setNewMonster} 
+                    onStartTrade={() => setIsScannerOpen(true)}
+                    playerHP={currentHP} 
+                    onConsumeHP={consumeHP} 
+                    onDistanceUpdate={handleMove}
+                    isInteractionBlocked={!!newMonster || !!selectedMonster}
+                    caughtMonsters={caughtMonsters}
+                  />
               )}
 
               {activeTab === 'store' && (

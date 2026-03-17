@@ -52,7 +52,8 @@ const STORE_ITEMS = [
     bgClass: 'bg-purple-500/10',
     borderClass: 'border-purple-500/20',
     gradient: 'from-purple-600/20 to-fuchsia-500/0',
-    price: null
+    price: null,
+    disabled: true
   },
   {
     id: 'hp_300',
@@ -67,7 +68,8 @@ const STORE_ITEMS = [
     bgClass: 'bg-orange-500/10',
     borderClass: 'border-orange-500/20',
     gradient: 'from-orange-600/20 to-red-500/0',
-    price: null
+    price: null,
+    disabled: true
   },
   {
     id: 'premium_ultra',
@@ -82,7 +84,8 @@ const STORE_ITEMS = [
     bgClass: 'bg-yellow-400/10',
     borderClass: 'border-yellow-400/20',
     gradient: 'from-yellow-600/20 to-amber-500/0',
-    price: '1 Kč'
+    price: '1 Kč',
+    disabled: true
   }
 ]
 
@@ -130,43 +133,45 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              onClick={() => !isActive && onActivateBoost({
+              onClick={() => !isActive && !item.disabled && onActivateBoost({
                 type: item.type as any,
                 multiplier: item.multiplier,
                 expiresAt: Date.now() + 24 * 60 * 60 * 1000
               }, item)}
               className={cn(
                 "group relative aspect-[4/4.5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
-                isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
+                isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : 
+                item.disabled ? "border-slate-800 bg-slate-900/20 opacity-50 grayscale cursor-not-allowed" :
+                "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
               )}
             >
               {/* Gradientní pozadí */}
-              <div className={cn("absolute inset-0 z-0 bg-gradient-to-br opacity-40 group-hover:opacity-60 transition-opacity", item.gradient)} />
+              <div className={cn("absolute inset-0 z-0 bg-gradient-to-br opacity-40 group-hover:opacity-60 transition-opacity", !item.disabled && item.gradient)} />
               
               {/* Ikona a Badge nahoře */}
               <div className="relative z-10 p-3 flex justify-between items-start">
-                <div className={cn("p-1.5 rounded-xl bg-black/40 backdrop-blur-md border border-white/5", item.colorClass)}>
+                <div className={cn("p-1.5 rounded-xl bg-black/40 backdrop-blur-md border border-white/5", item.disabled ? "text-slate-600" : item.colorClass)}>
                   <item.icon size={18} />
                 </div>
-                <div className={cn("px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase tracking-tighter", item.colorClass)}>
-                  {item.badge}
+                <div className={cn("px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase tracking-tighter", item.disabled ? "text-slate-600" : item.colorClass)}>
+                  {item.disabled ? 'LOCK' : item.badge}
                 </div>
               </div>
 
               {/* Centrální Vizualizace - Jednotný styl s ikonou */}
               <div className="relative flex-1 flex items-center justify-center p-2 min-h-0">
-                <div className={cn("absolute inset-0 m-auto size-16 blur-2xl opacity-20 rounded-full", item.colorClass.replace('text', 'bg'))} />
-                <div className={cn("relative z-10 size-14 rounded-2xl border border-white/10 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:border-white/20 transition-colors", item.colorClass)}>
-                  <item.icon size={32} strokeWidth={1.5} className="drop-shadow-[0_0_10px_currentColor] opacity-80" />
+                {!item.disabled && <div className={cn("absolute inset-0 m-auto size-16 blur-2xl opacity-20 rounded-full", item.colorClass.replace('text', 'bg'))} />}
+                <div className={cn("relative z-10 size-14 rounded-2xl border border-white/10 bg-black/40 flex items-center justify-center backdrop-blur-sm transition-colors", !item.disabled && "group-hover:border-white/20", item.disabled ? "text-slate-700" : item.colorClass)}>
+                  <item.icon size={32} strokeWidth={1.5} className={cn("opacity-80", !item.disabled && "drop-shadow-[0_0_10px_currentColor]")} />
                 </div>
               </div>
 
               {/* Obsah dole */}
               <div className="relative z-10 mt-auto p-3 pt-0 space-y-0.5">
                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{item.subtitle}</p>
-                <h3 className="text-white text-[13px] font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">{item.title}</h3>
+                <h3 className={cn("text-[13px] font-black uppercase tracking-tight leading-none transition-colors", item.disabled ? "text-slate-600" : "text-white group-hover:text-primary")}>{item.title}</h3>
                 <p className="text-[9px] text-slate-500 font-medium leading-[1.1] line-clamp-2">
-                  {item.description}
+                  {item.disabled ? 'Modul je dočasně odpojen z důvodu kalibrace systémů.' : item.description}
                 </p>
 
                 {/* Status / Tlačítko */}
@@ -188,12 +193,13 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                   ) : (
                     <div className={cn(
                       "w-full py-1 rounded-lg border text-center transition-all flex items-center justify-center gap-2",
+                      item.disabled ? "bg-slate-900 border-slate-800 text-slate-700" :
                       item.price 
                         ? "bg-yellow-400/10 border-yellow-400/30 group-hover:bg-yellow-400 group-hover:border-yellow-400 group-hover:text-slate-950" 
                         : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
                     )}>
                       <span className="text-[8px] font-black uppercase tracking-[0.15em]">
-                        {item.price ? `Koupit za ${item.price}` : 'Aktivovat'}
+                        {item.disabled ? 'Mimo provoz' : item.price ? `Koupit za ${item.price}` : 'Aktivovat'}
                       </span>
                     </div>
                   )}
@@ -201,7 +207,7 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
               </div>
 
               {/* Animovaný glint efekt */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+              {!item.disabled && <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />}
             </motion.div>
           )
         })}

@@ -9,7 +9,7 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [mode, setMode] = useState<'QR' | 'BT'>('QR');
   const [isScanningBT, setIsScanningBT] = useState(false);
-  const [foundDevices, setFoundDevices] = useState<{name: string, data: string}[]>([]);
+  const [foundDevices, setFoundDevices] = useState<{name: string, id: string, data: string}[]>([]);
 
   // QR Scanner Effect
   useEffect(() => {
@@ -58,25 +58,40 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
   useEffect(() => {
     if (!isOpen || mode !== 'BT') return;
 
+    let isScanning = false;
     let isMounted = true;
+
     const startBTDiscovery = async () => {
       try {
         setIsScanningBT(true);
         await BleClient.initialize();
+        isScanning = true;
         
-        // Na webu simulujeme, na mobilu reálně skenujeme
-        // V reálu bychom použili BleClient.requestLEScan nebo startLEScan
-        console.log("BLE Scan started...");
+        console.log("BLE Scan started in Modal...");
         
-        // Simulace nalezení pro testování (odstranit v produkci)
-        setTimeout(() => {
-          if (isMounted && foundDevices.length === 0) {
-             // setFoundDevices([{ name: "Runner_Alpha", data: "MSTR_OFF|004|15" }]);
-          }
-        }, 3000);
+        await BleClient.requestLEScan({}, (result) => {
+          if (!isMounted) return;
+          
+          const deviceName = result.localName || result.device.name || 'Neznámý_Puls';
+          const deviceId = result.device.deviceId;
+          
+          setFoundDevices(prev => {
+            // Pokud už zařízení máme, nepřidáváme znova
+            if (prev.some(d => d.id === deviceId)) return prev;
+            
+            // ZDE: V budoucnu můžeme parsovat result.manufacturerData pro MSTR_OFF|...
+            // Pro teď vytvoříme mock data, aby se dalo kliknout na zařízení a "zkusit" trade
+            // V reálu by to zařízení muselo vysílat svůj profil
+            return [...prev, { 
+              name: deviceName, 
+              id: deviceId,
+              data: `MSTR_OFF|001|10` // Default fake data pro testování propletení
+            }];
+          });
+        });
 
       } catch (e) {
-        console.error("BLE Error", e);
+        console.error("BLE Error in Modal:", e);
         setIsScanningBT(false);
       }
     };
@@ -85,6 +100,9 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
 
     return () => {
       isMounted = false;
+      if (isScanning) {
+        BleClient.stopLEScan().catch(e => console.error("Chyba při stopování BT:", e));
+      }
       setIsScanningBT(false);
     };
   }, [isOpen, mode]);
