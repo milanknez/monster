@@ -52,6 +52,7 @@ interface WorldMapProps {
   caughtMonsters: Monster[]
   playerName: string
   avatarStyle: string
+  playerLevel: number
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -78,12 +79,6 @@ function isOnCooldown(cooldowns: Cooldowns, id: string): boolean {
   return Date.now() < (cooldowns[id] ?? 0)
 }
 
-function getPlayerLevelFromStorage(): number {
-  try {
-    const caught: Monster[] = JSON.parse(localStorage.getItem('monster_collector_caught') ?? '[]')
-    return Math.max(1, Math.floor(caught.length / 3) + 1)
-  } catch { return 1 }
-}
 
 function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): number {
   if (!isFinite(lat1) || !isFinite(lng1) || !isFinite(lat2) || !isFinite(lng2)) return 999999
@@ -243,7 +238,7 @@ export interface WorldMapHandle {
   centerOnPlayer: () => void;
 }
 
-export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, onStartTrade, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle }, ref) => {
+export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, onStartTrade, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, playerLevel }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -257,9 +252,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
   const playerPosRef = useRef<[number, number] | null>(null)
   const lastPosTimeRef = useRef<number | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
-
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
-  const [playerLevel, setPlayerLevel] = useState<number>(getPlayerLevelFromStorage)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
   const [nearbySpawn, setNearbySpawn] = useState<SpawnPoint | null>(null)
   const [levelBlocked, setLevelBlocked] = useState(false)
@@ -552,7 +545,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
     cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
     setSpawns(prev => prev.map(s => s.id === nearbySpawn.id ? { ...s, caught: true } : s))
     setNearbySpawn(null); onConsumeHP(cost); onCatch(caught)
-    setPlayerLevel(getPlayerLevelFromStorage())
   }
 
   return (

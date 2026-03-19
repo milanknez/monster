@@ -469,6 +469,7 @@ function App() {
                     caughtMonsters={caughtMonsters}
                     playerName={playerName || 'Aether_Runner'}
                     avatarStyle={avatarStyle}
+                    playerLevel={calculateLevel(totalXP)}
                   />
               )}
 
