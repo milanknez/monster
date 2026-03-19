@@ -97,10 +97,45 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                 onSelect(caughtData);
               }}
               className={cn(
-                "group relative aspect-square rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer",
-                isCaught ? colors.border : "border-slate-800 bg-slate-900/40 grayscale"
+                "group relative aspect-square rounded-2xl overflow-hidden border transition-all duration-500 cursor-pointer shadow-lg",
+                isCaught 
+                  ? m.rarity === 'Vzácná' 
+                    ? "border-purple-500/40 bg-purple-500/5 shadow-purple-500/20" 
+                    : m.rarity === 'Epická'
+                      ? "border-orange-500/40 bg-orange-500/5 shadow-orange-500/20"
+                      : colors.border
+                  : "border-slate-800 bg-slate-900/40 grayscale"
               )}
             >
+              {/* Decorative Frame for Rare/Epic */}
+              {isCaught && (m.rarity === 'Vzácná' || m.rarity === 'Epická') && (
+                <>
+                  <div className={cn(
+                    "absolute inset-0 pointer-events-none border-2 rounded-2xl z-30 opacity-60",
+                    m.rarity === 'Vzácná' ? "border-purple-500/30" : "border-orange-500/30"
+                  )} />
+                  <div className="absolute inset-0 pointer-events-none z-30">
+                    {/* Corners */}
+                    {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => (
+                      <div key={corner} className={cn(
+                        "absolute size-4 border-2 pointer-events-none",
+                        corner.includes('top') ? "top-0" : "bottom-0",
+                        corner.includes('left') ? "left-0" : "right-0",
+                        m.rarity === 'Vzácná' ? "border-purple-400" : "border-orange-400",
+                        corner === 'top-left' && "border-r-0 border-b-0 rounded-tl-xl",
+                        corner === 'top-right' && "border-l-0 border-b-0 rounded-tr-xl",
+                        corner === 'bottom-left' && "border-r-0 border-t-0 rounded-bl-xl",
+                        corner === 'bottom-right' && "border-l-0 border-t-0 rounded-br-xl"
+                      )} />
+                    ))}
+                  </div>
+                  {/* Glowing background */}
+                  <div className={cn(
+                    "absolute -inset-2 blur-2xl opacity-20 z-0",
+                    m.rarity === 'Vzácná' ? "bg-purple-500" : "bg-orange-500"
+                  )} />
+                </>
+              )}
               {/* Overlay gradient - pointer-events-none ensures clicks always reach the card */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 pointer-events-none" />
               

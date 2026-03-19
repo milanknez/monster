@@ -31,7 +31,7 @@ export const ToastContainer = ({ toasts, onRemove }: ToastProps) => {
 const ToastItem = forwardRef<HTMLDivElement, { toast: ToastMessage, onRemove: (id: string) => void }>(
   ({ toast, onRemove }, ref) => {
     useEffect(() => {
-      const timer = setTimeout(() => onRemove(toast.id), toast.duration || 3000)
+      const timer = setTimeout(() => onRemove(toast.id), toast.duration || 5000)
       return () => clearTimeout(timer)
     }, [toast, onRemove])
 

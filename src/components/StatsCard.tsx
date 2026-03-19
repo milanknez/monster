@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Heart, Zap, ArrowUp } from 'lucide-react';
-import { cn } from '../utils';
+import { cn, calculateLevel, getTotalXPForLevel } from '../utils';
 
 export const StatsCard = ({ 
   caughtCount, 
@@ -15,26 +15,7 @@ export const StatsCard = ({
   isXPBoosted?: boolean,
   isHPBoosted?: boolean
 }) => {
-  // Progressive leveling logic:
-  // Base increment is 250 XP per level.
-  // Level 1 -> 2: 1000 XP
-  // Level 2 -> 3: 1250 XP
-  // Formula for total XP needed to reach next level: 125*n^2 + 875*n
-  
-  const calculateLevel = (xp: number) => {
-    if (xp <= 0) return 1;
-    // Solving 125n^2 + 875n - xp = 0 for n
-    const n = (-875 + Math.sqrt(875 * 875 + 4 * 125 * xp)) / (2 * 125);
-    return Math.floor(n) + 1;
-  };
-
   const currentLevel = calculateLevel(playerXP);
-  
-  const getTotalXPForLevel = (lvl: number) => {
-    if (lvl <= 1) return 0;
-    const n = lvl - 1;
-    return 125 * n * n + 875 * n;
-  };
 
   const xpAtStartOfLevel = getTotalXPForLevel(currentLevel);
   const xpAtEndOfLevel = getTotalXPForLevel(currentLevel + 1);

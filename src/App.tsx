@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Radar, Map as MapIcon, ShoppingBag } from 'lucide-react'
+import { Radar, Map as MapIcon, ShoppingBag, Sparkles, Trophy } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
 import type { Monster } from './types'
-import { cn } from './utils'
+import { cn, calculateLevel } from './utils'
 
 import { Header } from './components/Header'
 import { StatsCard } from './components/StatsCard'
@@ -79,6 +79,31 @@ function App() {
     } catch { return 0 }
     return 0
   })
+
+  const [showLevelUp, setShowLevelUp] = useState<number | null>(null)
+  const lastLevelRef = useRef<number>(calculateLevel(totalXP))
+
+  // Sledování level upu
+  useEffect(() => {
+    const currentLevel = calculateLevel(totalXP)
+    if (currentLevel > lastLevelRef.current) {
+      setShowLevelUp(currentLevel)
+      addToast({
+        title: 'LEVEL UP!',
+        message: `Dosáhl jsi úrovně ${currentLevel}!`,
+        type: 'boost'
+      })
+    }
+    lastLevelRef.current = currentLevel
+  }, [totalXP])
+
+  // Exponování pro testování přes konzoli
+  useEffect(() => {
+    (window as any).triggerLevelUp = (lvl?: number) => {
+      setShowLevelUp(lvl || calculateLevel(totalXP) + 1)
+    };
+    return () => { delete (window as any).triggerLevelUp };
+  }, [totalXP])
 
   // HP systém: 100% za 4 hodiny (240 min)
   const [hpState, setHpState] = useState(() => {
@@ -576,6 +601,150 @@ function App() {
         toasts={toasts} 
         onRemove={(id) => setToasts(prev => prev.filter(t => t.id !== id))} 
       />
+
+      <AnimatePresence>
+        {showLevelUp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-background-dark/80 backdrop-blur-xl p-6"
+            onClick={() => setShowLevelUp(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.5, y: 50, rotate: -10 }}
+              animate={{ scale: 1, y: 0, rotate: 0 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              className="relative w-full max-w-sm bg-gradient-to-b from-primary/20 to-primary/5 border border-primary/30 rounded-[40px] p-8 text-center overflow-hidden"
+            >
+              {/* Animated background elements */}
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 90, 180, 270, 360],
+                  opacity: [0.1, 0.3, 0.1]
+                }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 size-full flex items-center justify-center"
+              >
+                <div className="w-[150%] aspect-square bg-primary/20 blur-[100px] rounded-full" />
+              </motion.div>
+
+              <div className="relative z-10 flex flex-col items-center">
+                <motion.div
+                  initial={{ rotate: -20, scale: 0 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2 }}
+                  className="size-24 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_#0db9f2] mb-6"
+                >
+                  <Trophy size={48} className="text-background-dark" />
+                </motion.div>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-primary font-black uppercase tracking-[0.4em] text-xs mb-2"
+                >
+                  Nová Úroveň Dosažena
+                </motion.p>
+                
+                <motion.h2
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5, type: "spring" }}
+                  className="text-7xl font-black text-white tracking-tighter mb-4"
+                >
+                  LVL {showLevelUp}
+                </motion.h2>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="flex gap-2 mb-8"
+                >
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    >
+                      <Sparkles className="text-yellow-400" size={20} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full py-4 bg-white text-background-dark font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-white/10"
+                  onClick={() => setShowLevelUp(null)}
+                >
+                  Pokračovat
+                </motion.button>
+              </div>
+
+              {/* Confetti Effect */}
+              {[...Array(30)].map((_, i) => (
+                <motion.div
+                  key={`confetti-${i}`}
+                  initial={{ 
+                    x: 0, 
+                    y: 0, 
+                    scale: 0,
+                    rotate: 0,
+                    opacity: 1 
+                  }}
+                  animate={{ 
+                    x: (Math.random() - 0.5) * 600, 
+                    y: (Math.random() - 0.5) * 600,
+                    scale: Math.random() * 1.5 + 0.5,
+                    rotate: Math.random() * 360,
+                    opacity: 0
+                  }}
+                  transition={{ 
+                    duration: 2 + Math.random() * 2, 
+                    delay: 0.5 + Math.random() * 0.2,
+                    ease: "easeOut"
+                  }}
+                  className="absolute left-1/2 top-1/2 w-2 h-2 pointer-events-none"
+                  style={{ 
+                    backgroundColor: ['#0db9f2', '#facc15', '#f87171', '#4ade80', '#a78bfa'][Math.floor(Math.random() * 5)],
+                    borderRadius: Math.random() > 0.5 ? '50%' : '2px'
+                  }}
+                />
+              ))}
+
+              {/* Particle effects simplified with framer motion */}
+              {[...Array(12)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ 
+                    x: 0, 
+                    y: 0, 
+                    scale: 0,
+                    opacity: 1 
+                  }}
+                  animate={{ 
+                    x: (Math.random() - 0.5) * 400, 
+                    y: (Math.random() - 0.5) * 400,
+                    scale: Math.random() * 2,
+                    opacity: 0
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    delay: 0.5 + Math.random() * 0.5,
+                    repeat: Infinity,
+                    repeatDelay: 1
+                  }}
+                  className="absolute left-1/2 top-1/3 size-2 bg-primary rounded-full blur-[1px] pointer-events-none"
+                />
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

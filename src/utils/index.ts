@@ -14,3 +14,17 @@ export const TYPE_COLORS: Record<string, { text: string, bg: string, border: str
   'Světelná': { text: 'text-cyan-400', bg: 'bg-cyan-100/10', border: 'border-cyan-400/30' },
   'Default': { text: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' }
 }
+
+export const calculateLevel = (xp: number) => {
+  if (xp <= 0) return 1;
+  // Solving 125n^2 + 875n - xp = 0 for n
+  // n is how many levels above 1 we have
+  const n = (-875 + Math.sqrt(875 * 875 + 4 * 125 * xp)) / (2 * 125);
+  return Math.floor(n) + 1;
+};
+
+export const getTotalXPForLevel = (lvl: number) => {
+  if (lvl <= 1) return 0;
+  const n = lvl - 1;
+  return 125 * n * n + 875 * n;
+};
