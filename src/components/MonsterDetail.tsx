@@ -1,8 +1,15 @@
 import { useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
+
+const RARITY_COLORS: Record<string, string> = {
+  'Běžná': 'text-slate-400',
+  'Vzácná': 'text-purple-400',
+  'Epická': 'text-orange-400',
+  'Legendární': 'text-amber-400'
+}
 
 export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onTrade?: () => void; onUpgrade?: () => void }>(
   ({ monster, onBack, onTrade, onUpgrade }, ref) => {
@@ -20,6 +27,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         case 'Vodní': return <Droplets size={20} className="text-blue-400" />;
         case 'Přírodní': return <Leaf size={20} className="text-green-400" />;
         case 'Elektrická': return <Zap size={20} className="text-yellow-400" />;
+        case 'Temná': return <Moon size={20} className="text-purple-500" />;
+        case 'Světelná': return <Sun size={20} className="text-cyan-400" />;
         default: return <Bolt size={20} className="text-yellow-400" />;
       }
     };
@@ -31,6 +40,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         case 'Vodní': return <Droplets {...props} className={cn(props.className, "text-blue-500")} />;
         case 'Přírodní': return <Leaf {...props} className={cn(props.className, "text-green-500")} />;
         case 'Elektrická': return <Zap {...props} className={cn(props.className, "text-yellow-500")} />;
+        case 'Temná': return <Moon {...props} className={cn(props.className, "text-purple-500")} />;
+        case 'Světelná': return <Sun {...props} className={cn(props.className, "text-cyan-500")} />;
         default: return <Bolt {...props} className={cn(props.className, "text-yellow-500")} />;
       }
     };
@@ -96,8 +107,28 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
             {/* Type/Level Bar */}
             <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 flex justify-between items-center">
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Typ příšerky</span>
-                <span className="text-sm font-black text-slate-200 uppercase">{monster.type} // {monster.rarity}</span>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Typ a Vzácnost</span>
+                <div className="flex items-center gap-1.5 mt-1">
+                   <div className="size-5 rounded-md bg-white/5 flex items-center justify-center">
+                      {(() => {
+                        const Icon = () => {
+                          switch (monster.type) {
+                            case 'Ohnivá': return <Flame size={12} className="text-red-500" />;
+                            case 'Vodní': return <Droplets size={12} className="text-blue-400" />;
+                            case 'Přírodní': return <Leaf size={12} className="text-green-400" />;
+                            case 'Elektrická': return <Zap size={12} className="text-yellow-400" />;
+                            case 'Temná': return <Moon size={12} className="text-purple-500" />;
+                            case 'Světelná': return <Sun size={12} className="text-cyan-400" />;
+                            default: return <Bolt size={12} className="text-yellow-400" />;
+                          }
+                        };
+                        return <Icon />;
+                      })()}
+                   </div>
+                   <span className="text-xs font-black text-slate-200 uppercase tracking-tight">{monster.type}</span>
+                   <span className="text-slate-700 font-bold px-0.5">//</span>
+                   <span className={cn("text-xs font-black uppercase tracking-tight", RARITY_COLORS[monster.rarity])}>{monster.rarity}</span>
+                </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Úroveň</span>

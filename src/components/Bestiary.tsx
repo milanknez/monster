@@ -1,9 +1,25 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, QrCode } from 'lucide-react';
+import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../utils';
 import type { Monster } from '../types';
 import { monsterDB } from '../data/monsters';
+
+const TYPE_ICONS: Record<string, any> = {
+  'Ohnivá': Flame,
+  'Vodní': Droplets,
+  'Přírodní': Leaf,
+  'Elektrická': Zap,
+  'Temná': Moon,
+  'Světelná': Sun
+}
+
+const RARITY_COLORS: Record<string, string> = {
+  'Běžná': 'text-slate-400',
+  'Vzácná': 'text-purple-400',
+  'Epická': 'text-orange-400',
+  'Legendární': 'text-amber-400'
+}
 
 export const Bestiary = ({ caughtMonsters, onSelect }: { 
   caughtMonsters: Monster[], 
@@ -141,8 +157,11 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               
               {isCaught ? (
                 <>
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20 pointer-events-none">
-                    <span className={cn("text-[9px] font-black uppercase", colors.text)}>{m.type}</span>
+                  <div className="absolute top-2 left-2 p-1.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20 pointer-events-none flex items-center">
+                    {(() => {
+                      const Icon = TYPE_ICONS[m.type];
+                      return Icon ? <Icon size={12} className={colors.text} /> : null;
+                    })()}
                   </div>
                   {/* Stack badge */}
                   {stackCount > 1 && (
@@ -156,6 +175,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   />
                   <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none">
                     <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{m.name}</p>
+                    <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", RARITY_COLORS[m.rarity])}>{m.rarity}</p>
                     <div className="flex gap-1 mt-1.5">
                       <div className={cn("h-1 w-8 rounded-full", colors.bg.replace('/10', ''))}></div>
                       <div className="h-1 w-4 rounded-full bg-white/20"></div>
