@@ -24,7 +24,7 @@ export const Header = ({
   onSettingsClick,
   onLocationClick
 }: HeaderProps) => (
-  <header className="flex items-center justify-between p-4 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+  <header className="flex items-center justify-between p-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
     <div className="flex items-center gap-3 flex-1">
       {showBack ? (
         <button onClick={onBack} className="p-2 -ml-2 hover:bg-white/5 rounded-lg transition-colors">

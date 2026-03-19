@@ -1,0 +1,22 @@
+{
+  "id": "029",
+  "name": "Drápek žhavík",
+  "description": "Zmutovaná šelma s rozpálenými drápy a žhnoucíma očima. Každý jeho pohyb zanechává stopy popela.",
+  "type": "Ohnivá",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 59,
+    "attack": 90,
+    "defense": 45
+  },
+  "abilities": [
+    {
+      "name": "Žhavý sek",
+      "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození."
+    },
+    {
+      "name": "Popelavý výbuch",
+      "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu."
+    }
+  ]
+}

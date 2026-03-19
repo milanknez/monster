@@ -11,7 +11,7 @@ export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-slate-800/50 bg-background-dark/95 backdrop-blur-xl px-4 pb-8 pt-3 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 border-t border-slate-800/50 bg-background-dark/95 backdrop-blur-xl px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 z-50">
       <div className="flex justify-between items-center max-w-md mx-auto px-4">
         {navItems.map((item) => (
           <button 

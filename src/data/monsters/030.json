@@ -1,0 +1,22 @@
+{
+  "id": "030",
+  "name": "Slizák Krup",
+  "description": "Podivný mutantní tvor složený z hustého zeleného slizu. Neustále mění tvar a pohlcuje vše, co se k němu přiblíží.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 85,
+    "attack": 50,
+    "defense": 70
+  },
+  "abilities": [
+    {
+      "name": "Slizové obalení",
+      "description": "Krup se obalí slizem a na jedno kolo výrazně zvýší obranu."
+    },
+    {
+      "name": "Pohlcení",
+      "description": "Zasáhne nepřítele slizem a postupně mu ubírá životy po dobu 2 kol."
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Radar, Map as MapIcon, ShoppingBag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
@@ -97,7 +97,7 @@ function App() {
   // Výpočet aktuálního HP s regenerací (TEST: 100% za 10 minut základ)
   const BASE_REGEN_RATE = 100 / (10 * 60 * 1000) 
   
-  const getCurrentHP = () => {
+  const getCurrentHP = useCallback(() => {
     // Najdeme nejvyšší HP boost
     const hpBoost = activeBoosts
       .filter(b => b.type === 'hp_regen' && b.expiresAt > Date.now())
@@ -106,7 +106,7 @@ function App() {
     const elapsed = Date.now() - hpState.time
     const bonus = elapsed * (BASE_REGEN_RATE * hpBoost)
     return Math.min(100, Math.max(0, hpState.val + bonus))
-  }
+  }, [hpState, activeBoosts])
 
   const [currentHP, setCurrentHP] = useState(getCurrentHP())
 
@@ -139,21 +139,21 @@ function App() {
     return () => clearInterval(timer)
   }, [hpState, activeBoosts])
 
-  const consumeHP = (amount: number) => {
+  const consumeHP = useCallback((amount: number) => {
     const freshHP = getCurrentHP()
     const newVal = Math.max(0, freshHP - amount)
     const newState = { val: newVal, time: Date.now() }
     setHpState(newState)
     setCurrentHP(newVal)
     localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
-  }
+  }, [getCurrentHP])
 
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
     const id = Math.random().toString(36).substring(2, 9)
     setToasts(prev => [...prev, { ...toast, id }])
   }
 
-  const handleMove = (meters: number) => {
+  const handleMove = useCallback((meters: number) => {
     setDailyDistance((prev: number) => {
       const newVal = prev + meters
       localStorage.setItem('monster_collector_distance', JSON.stringify({
@@ -162,7 +162,7 @@ function App() {
       }))
       return newVal
     })
-  }
+  }, [])
 
   const handleClaimReward = (xp: number) => {
     // Aplikujeme boost i na odměny z úkolů
@@ -212,16 +212,18 @@ function App() {
 
   // Save to LocalStorage – limit 3x stejný druh
   const saveMonster = (monster: Monster) => {
-    const existingCount = caughtMonsters.filter(m => m.id === monster.id).length
-    if (existingCount >= 3) {
-      alert(`Už máš 3x tento druh (${monster.name}). Více jich neuneseš!`)
-      setNewMonster(null)
-      return
-    }
-    const enriched = { ...monster, caughtAt: monster.caughtAt || Date.now() }
-    const updated = [enriched, ...caughtMonsters]
-    setCaughtMonsters(updated)
-    localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
+    setCaughtMonsters(prev => {
+      const existingCount = prev.filter(m => m.id === monster.id).length
+      if (existingCount >= 3) {
+        alert(`Už máš 3x tento druh (${monster.name}). Více jich neuneseš!`)
+        setNewMonster(null)
+        return prev
+      }
+      const enriched = { ...monster, caughtAt: monster.caughtAt || Date.now() }
+      const updated = [enriched, ...prev]
+      localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
+      return updated
+    })
     
     // XP Boost výpočet
     const xpBoost = activeBoosts
@@ -229,9 +231,11 @@ function App() {
       .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
     
     const xpGained = Math.round(250 * xpBoost)
-    const newTotalXP = totalXP + xpGained
-    setTotalXP(newTotalXP)
-    localStorage.setItem('monster_collector_xp', newTotalXP.toString())
+    setTotalXP(prev => {
+      const newTotal = prev + xpGained
+      localStorage.setItem('monster_collector_xp', newTotal.toString())
+      return newTotal
+    })
 
     addToast({
       title: 'Monstrum chyceno',
@@ -243,13 +247,16 @@ function App() {
   }
 
   const removeMonster = (id: string, level: number) => {
-    const index = caughtMonsters.findIndex(m => m.id === id && m.level === level)
-    if (index !== -1) {
-      const updated = [...caughtMonsters]
-      updated.splice(index, 1)
-      setCaughtMonsters(updated)
-      localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
-    }
+    setCaughtMonsters(prev => {
+      const index = prev.findIndex(m => m.id === id && m.level === level)
+      if (index !== -1) {
+        const updated = [...prev]
+        updated.splice(index, 1)
+        localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
+        return updated
+      }
+      return prev
+    })
   }
 
   const handleScan = (ean: string) => {
@@ -435,6 +442,8 @@ function App() {
                     onDistanceUpdate={handleMove}
                     isInteractionBlocked={!!newMonster || !!selectedMonster}
                     caughtMonsters={caughtMonsters}
+                    playerName={playerName || 'Aether_Runner'}
+                    avatarStyle={avatarStyle}
                   />
               )}
 

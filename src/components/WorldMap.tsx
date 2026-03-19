@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bluetooth, Heart, MapPin, RefreshCw, Radio } from 'lucide-react'
+import { Bluetooth, Heart, MapPin, RefreshCw } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { BleClient, type ScanResult } from '@capacitor-community/bluetooth-le'
+import { BluetoothLowEnergy, type DeviceScannedEvent } from '@capgo/capacitor-bluetooth-low-energy'
 import { monsterDB } from '../data/monsters'
 import type { Monster } from '../types'
 import { cn } from '../utils'
@@ -38,8 +38,8 @@ interface NearbyPlayer {
   lng: number
   lastSeen: number
   level: number
-  isBot?: boolean
   avatarSeed?: string
+  avatarStyle?: string
 }
 
 interface WorldMapProps {
@@ -50,23 +50,23 @@ interface WorldMapProps {
   onDistanceUpdate: (meters: number) => void
   isInteractionBlocked?: boolean
   caughtMonsters: Monster[]
+  playerName: string
+  avatarStyle: string
 }
 
-// ── Konfigurace (tvoje testovací hodnoty) ──────────────────────
-const CATCH_RADIUS_M = 15 // TESTOVACÍ HODNOTA
+// ── Konfigurace ──────────────────────────────────────────────
+const CATCH_RADIUS_M = 15
 const COMMON_GRID_M = 100
 const COMMON_RADIUS_CELLS = 8
 const OVERPASS_RADIUS_M = 3000
 const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000
 
-// ── Pomocné funkce pro HP cost ───────────────────────────────
 const calculateHPCost = (level: number, rarity: SpawnRarity) => {
   const base = 25
   const rarityBonus = rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
   return base + (level * 2) + rarityBonus
 }
 
-// ── Cooldown helpers ──────────────────────────────────────────
 type Cooldowns = Record<string, number>
 
 function loadCooldowns(): Cooldowns {
@@ -117,8 +117,6 @@ function pickMonster(seed: string, rarity: SpawnRarity): string {
     return r === 'běžná' || r === 'neobvyklá' || r === 'common' || r === 'uncommon'
   })
   const arr = pool.length ? pool : monsterDB
-  
-  // Přidáme sůl k seedu pro větší variabilitu mezi monstrem a levelem
   const mSeed = seed + '_species'
   const index = Math.floor(seededFloat(mSeed) * arr.length)
   return arr[index].id
@@ -127,43 +125,32 @@ function pickMonster(seed: string, rarity: SpawnRarity): string {
 function pickLevel(seed: string, rarity: SpawnRarity): number {
   const r = seededFloat(seed + '_lvl')
   if (rarity === 'common') {
-    if (r < 0.10) return 3 // Malá šance na vyšší level u běžných
+    if (r < 0.10) return 3
     return r < 0.45 ? 2 : 1
   }
-  if (rarity === 'rare') return 3 + Math.floor(r * 4) // 3-6
-  return 7 + Math.floor(r * 4) // 7-10
+  if (rarity === 'rare') return 3 + Math.floor(r * 4)
+  return 7 + Math.floor(r * 4)
 }
 
-// Stabilní grid konstanty
-const REF_LAT = 50.0 // Referenční šířka pro fixní měřítko délky
+const REF_LAT = 50.0
 const LAT_STEP = metersToLatDeg(COMMON_GRID_M)
 const LNG_STEP = metersToLngDeg(COMMON_GRID_M, REF_LAT)
 
 function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns): SpawnPoint[] {
   if (!isFinite(playerLat) || !isFinite(playerLng)) return []
   const spawns: SpawnPoint[] = []
-
-  // Celočíselné indexy buněk gridu nezávislé na pohybu v rámci buňky
   const centerIX = Math.floor(playerLat / LAT_STEP)
   const centerIY = Math.floor(playerLng / LNG_STEP)
-
   for (let dy = -COMMON_RADIUS_CELLS; dy <= COMMON_RADIUS_CELLS; dy++) {
     for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
       const ix = centerIX + dy
       const iy = centerIY + dx
-      
       const gridLat = ix * LAT_STEP
       const gridLng = iy * LNG_STEP
-      
-      // Unikátní a stabilní ID založené na statickém gridu
       const id = `grid_${ix}_${iy}`
-      
       if (seededFloat(`skip_${id}`) < 0.25) continue
-      
-      // Jitter (náhodný posun) je nyní vázán na ID, ne na plovoucí souřadnice
       const jLat = gridLat + (seededFloat(`jlat_${id}`) - 0.5) * LAT_STEP * 0.7
       const jLng = gridLng + (seededFloat(`jlng_${id}`) - 0.5) * LNG_STEP * 0.7
-      
       spawns.push({
         id, lat: jLat, lng: jLng, rarity: 'common',
         monsterId: pickMonster(id, 'common'),
@@ -177,7 +164,6 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
 
 async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): Promise<SpawnPoint[]> {
   if (!isFinite(lat) || !isFinite(lng)) return []
-  // Rozšířené kategorie pro bohatší svět
   const query = `[out:json][timeout:30];(nwr["historic"~"castle|monastery|palace|fortress|monument|memorial|archaeological_site|ruins|city_gate|fort|tower|fountain"](around:${OVERPASS_RADIUS_M},${lat},${lng});nwr["tourism"~"museum|attraction|artwork|viewpoint|zoo|theme_park"](around:${OVERPASS_RADIUS_M},${lat},${lng}););out center;`.trim()
   const res = await fetch('https://overpass-api.de/api/interpreter', {
     method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -185,22 +171,15 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
   const json = await res.json()
   const spawns: SpawnPoint[] = []
   const seenPos = new Set<string>()
-
   const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress']
-
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
-    
-    // De-duplikace dle souřadnic (proti překryvům node vs way u stejného objektu)
     const posKey = `${elLat.toFixed(5)}_${elLng.toFixed(5)}`
     if (seenPos.has(posKey)) continue
     seenPos.add(posKey)
-
-    // Strakonický hrad je 'castle', takže bude Epic
     const rarity: SpawnRarity = EPIC_TAGS.includes(el.tags?.historic) ? 'epic' : 'rare'
-    
     const id = `poi_${el.type}_${el.id}`
     spawns.push({
       id, lat: elLat, lng: elLng, rarity,
@@ -245,13 +224,12 @@ function makePlayerIcon(): L.DivIcon {
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
 }
 
-function makeOtherPlayerIcon(name: string, seed: string): L.DivIcon {
-  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed || name}`;
+function makeOtherPlayerIcon(name: string, seed: string, style?: string): L.DivIcon {
   const svg = `
     <div style="position:relative; width:30px; height:30px;">
       <div style="position:absolute; inset:-3px; background:rgba(168,85,247,0.2); border-radius:50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
       <div style="position:relative; width:30px; height:30px; background:#1e1b4b; border:2px solid #a855f7; border-radius:8px; overflow:hidden; box-shadow:0 0 10px rgba(168,85,247,0.4);">
-        <img src="${avatarUrl}" style="width:100%; height:100%; object-fit:cover;" />
+        <img src="https://api.dicebear.com/7.x/${style || 'avataaars'}/svg?seed=${seed || name}" style="width:100%; height:100%; object-fit:cover;" />
       </div>
       <div style="position:absolute; top:-15px; left:50%; translate:-50% 0; background:rgba(0,0,0,0.8); padding:1px 4px; border-radius:3px; border:1px solid rgba(168,85,247,0.3); white-space:nowrap;">
         <span style="color:#e9d5ff; font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.04em;">${name}</span>
@@ -265,16 +243,19 @@ export interface WorldMapHandle {
   centerOnPlayer: () => void;
 }
 
-export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, onStartTrade, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, caughtMonsters }, ref) => {
+export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, onStartTrade, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
   const otherPlayersMarkersRef = useRef<Map<string, L.Marker>>(new Map())
   const watchIdRef = useRef<number | null>(null)
+  const bleListenerRef = useRef<any>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
   const lastPosRef = useRef<[number, number] | null>(null)
+  const playerPosRef = useRef<[number, number] | null>(null)
+  const lastPosTimeRef = useRef<number | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
 
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
@@ -288,10 +269,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [foundBleDevices, setFoundBleDevices] = useState<Map<string, NearbyPlayer>>(new Map())
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
-  const [showBots, setShowBots] = useState(() => {
-    const saved = localStorage.getItem('monster_show_bots');
-    return saved === null ? true : saved === 'true';
-  })
 
   useImperativeHandle(ref, () => ({
     centerOnPlayer: () => {
@@ -318,24 +295,17 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
 
   const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number) => {
     const existing = markersRef.current
-    
-    // 1. Odstranění starých
     for (const [id, marker] of existing) {
       const spawn = currentSpawns.find(s => s.id === id)
       if (!spawn || spawn.caught) { marker.remove(); existing.delete(id) }
     }
-
-    // 2. Přidání nebo update
     for (const spawn of currentSpawns) {
       if (spawn.caught || !isFinite(spawn.lat) || !isFinite(spawn.lng)) continue
       const dist = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
       const isNearby = dist <= CATCH_RADIUS_M
       const isLocked = spawn.level > pLevel
-      
       const marker = existing.get(spawn.id)
       if (marker) {
-        // OPTIMALIZACE: Aktualizujeme ikonu jen když se změní stav "v dosahu"
-        // (to zabrání poskakování při každém GPS tiku na mobilu)
         const prevNearby = (marker as any)._isNearby
         if (prevNearby !== isNearby) {
           marker.setIcon(makeMarkerIcon(spawn, isNearby, isLocked))
@@ -348,10 +318,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
           zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0 
         })
         newMarker.bindTooltip(makeTooltipHtml(spawn, pLevel), { 
-          direction: 'top', 
-          offset: [0, -12], 
-          className: 'monster-tooltip', 
-          opacity: 1 
+          direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1 
         })
         newMarker.addTo(map)
         ;(newMarker as any)._isNearby = isNearby
@@ -362,28 +329,19 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
 
   const updateOtherPlayers = useCallback((map: L.Map, players: NearbyPlayer[]) => {
     const existing = otherPlayersMarkersRef.current
-    
-    // 1. Odstranění neaktivních
     const activeIds = new Set(players.map(p => p.id))
     for (const [id, marker] of existing) {
-      if (!activeIds.has(id)) {
-        marker.remove()
-        existing.delete(id)
-      }
+      if (!activeIds.has(id)) { marker.remove(); existing.delete(id) }
     }
-
-    // 2. Update nebo Add
     for (const p of players) {
       const marker = existing.get(p.id)
       if (marker) {
         marker.setLatLng([p.lat, p.lng])
       } else {
         const newMarker = L.marker([p.lat, p.lng], { 
-          icon: makeOtherPlayerIcon(p.name, p.avatarSeed || p.name) 
+          icon: makeOtherPlayerIcon(p.name, p.avatarSeed || p.name, p.avatarStyle) 
         })
-        .on('click', () => {
-          setSelectedOtherPlayer(p)
-        })
+        .on('click', () => { setSelectedOtherPlayer(p) })
         .addTo(map)
         existing.set(p.id, newMarker)
       }
@@ -393,63 +351,43 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
   const fetchPOI = useCallback(async (lat: number, lng: number) => {
     if (!isFinite(lat) || !isFinite(lng)) return
     const last = lastPoiFetchRef.current
-    
-    // Práh pro refresh snížen na 200m pro lepší odezvu
     if (last && haversineM(lat, lng, last.lat, last.lng) < 200) return
     lastPoiFetchRef.current = { lat, lng }
-
-    // 1. Zkusíme načíst z cache pro okamžitou odezvu
     const cacheKey = `poi_cache_${Math.round(lat*100)}_${Math.round(lng*100)}`
     const cachedData = localStorage.getItem(cacheKey)
     if (cachedData) {
       try {
         const { timestamp, data } = JSON.parse(cachedData)
-        // Pokud je cache mladší než 24h, použijeme ji okamžitě jako základ
         if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
           setSpawns(prev => {
             const commons = prev.filter(s => s.rarity === 'common')
-            // De-duplikace při spojování s existujícími spawny
             const existingIds = new Set(commons.map(c => c.id))
             const newPois = (data as SpawnPoint[]).filter(d => !existingIds.has(d.id))
             return [...commons, ...newPois]
           })
-          // Pokud je cache ještě hodně čerstvá (např. < 1h), nemusíme ani stahovat
           if (Date.now() - timestamp < 60 * 60 * 1000) return
         }
-      } catch (e) { console.error("Chyba při parsování POI cache") }
+      } catch (e) { console.error("Cache error", e) }
     }
-
     setLoadingPoi(true)
     try {
       const poiSpawns = await fetchPoiSpawns(lat, lng, cooldownsRef.current)
-      
-      // 2. Uložíme do cache pro příště
-      localStorage.setItem(cacheKey, JSON.stringify({
-        timestamp: Date.now(),
-        data: poiSpawns
-      }))
-
+      localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: poiSpawns }))
       setSpawns(prev => {
         const commons = prev.filter(s => s.rarity === 'common')
-        // Sloučíme tak, abychom neztratili body z jiných blízkých cache sektorů
         const poiMap = new Map<string, SpawnPoint>()
         prev.filter(s => s.rarity !== 'common').forEach(s => poiMap.set(s.id, s))
         poiSpawns.forEach(s => poiMap.set(s.id, s))
         return [...commons, ...Array.from(poiMap.values())]
       })
-    } catch (e) { 
-      console.warn('Overpass fetch failed, using cache fallback:', e)
-      // Selhání API – pokud máme aspoň nějaká stará data v cache, necháme je tam
-    } finally { 
-      setLoadingPoi(false) 
-    }
+    } catch (e) { console.warn('Overpass failed', e) }
+    finally { setLoadingPoi(false) }
   }, [])
 
   const forceRefreshPOI = useCallback(() => {
     if (!playerPos) return
     const [lat, lng] = playerPos
-    const cacheKey = `poi_cache_${Math.round(lat*100)}_${Math.round(lng*100)}`
-    localStorage.removeItem(cacheKey)
+    localStorage.removeItem(`poi_cache_${Math.round(lat*100)}_${Math.round(lng*100)}`)
     lastPoiFetchRef.current = null
     fetchPOI(lat, lng)
   }, [playerPos, fetchPOI])
@@ -458,23 +396,25 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
     if (mapRef.current || !mapContainerRef.current) return
     const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
-    L.control.zoom({ position: 'topright' }).addTo(map); mapRef.current = map
+    L.control.zoom({ position: 'topright' }).addTo(map)
+    mapRef.current = map
     if ('geolocation' in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
         const { latitude: lat, longitude: lng } = pos.coords
         if (!isFinite(lat) || !isFinite(lng)) return
-
-        // Výpočet ušlé vzdálenosti
-        if (lastPosRef.current) {
+        const now = Date.now()
+        if (lastPosRef.current && lastPosTimeRef.current) {
           const [lLat, lLng] = lastPosRef.current
+          const dt = (now - lastPosTimeRef.current) / 1000
           const traveled = haversineM(lLat, lLng, lat, lng)
-          // Filtr proti GPS driftu a teleportaci (5m - 100m per tick)
-          if (traveled >= 5 && traveled <= 100) {
-            onDistanceUpdate(traveled)
+          if (dt > 0) {
+            const speedKmh = (traveled / dt) * 3.6
+            if (traveled >= 4 && traveled <= 150 && speedKmh < 15) { onDistanceUpdate(traveled) }
           }
         }
         lastPosRef.current = [lat, lng]
-
+        playerPosRef.current = [lat, lng]
+        lastPosTimeRef.current = now
         setPlayerPos([lat, lng]); setStatusMsg('')
         if (!playerMarkerRef.current) {
           playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
@@ -489,28 +429,20 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
         })
         if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
         overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
-      }, (err) => { 
-        if (err.code === 1) {
-          setStatusMsg('GPS zamítnuto. Povol v prohlížeči.')
-        } else if (err.code === 3) {
-          setStatusMsg('Hledám signál GPS…')
-        } else {
-          setStatusMsg('GPS signál nenalezen.')
-        }
-      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 })
-    } else { 
-      if (!window.isSecureContext) {
-        setStatusMsg('GPS vyžaduje HTTPS připojení!')
-      } else {
-        setStatusMsg('Geolokace není podporována.')
-      }
+      }, () => { setStatusMsg('GPS signál nenalezen.') }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 })
     }
     return () => {
       if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-      map.remove(); mapRef.current = null; playerMarkerRef.current = null; markersRef.current.clear()
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+      playerMarkerRef.current = null
+      markersRef.current.clear()
+      otherPlayersMarkersRef.current.clear() // Vyčištění markerů ostatních hráčů
     }
-  }, [recalcNearby, fetchPOI])
+  }, [recalcNearby, fetchPOI, onDistanceUpdate])
 
   useEffect(() => {
     if (!playerPos || !isFinite(playerPos[0])) return
@@ -521,125 +453,89 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
     }
   }, [spawns, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, recalcNearby])
 
-  // Simulace botů a Bluetooth skenování
+  // Bluetooth skenování (pouze reální hráči)
   useEffect(() => {
     let isScanning = false;
-    
     const startBleScanning = async () => {
-      if (!playerPos || !showBots) {
-        setNearbyPlayers([])
-        setFoundBleDevices(new Map())
-        return
-      }
-
+      if (!playerPos) { setNearbyPlayers([]); setFoundBleDevices(new Map()); return }
       try {
-        await BleClient.initialize();
+        // Inicializace BLE (pokud možno najednou, nebo v pořadí)
+        await BluetoothLowEnergy.initialize({ mode: 'central' });
         isScanning = true;
         
-        await BleClient.requestLEScan({}, (result: ScanResult) => {
-          const deviceName = result.localName || result.device.name || 'Neznámý_Signál';
-          const deviceId = result.device.deviceId;
-          
-          // Ignorujeme vlastní zařízení (pokud bychom ho poznali, ale obvykle se nevidíme)
-          
+        try {
+          const shortStyle = avatarStyle.substring(0, 3);
+          // Některé platformy vyžadují peripheral mode pro advertising
+          // Ale zkusíme začít scanovat a pak inzerovat
+          await BluetoothLowEnergy.startAdvertising({ 
+            name: `MSTR:${playerName}:${playerLevel}:${shortStyle}` 
+          });
+        } catch (e) { 
+          console.warn("BLE Adv failed (expected on some devices/browsers)", e);
+        }
+        const listener = await BluetoothLowEnergy.addListener('deviceScanned', (event: DeviceScannedEvent) => {
+          const result = event.device;
+          const rawName = result.name || '';
+          if (!rawName.startsWith('MSTR:')) return;
+          const deviceId = result.deviceId;
+          const parts = rawName.split(':');
+          const remoteName = parts[1] || 'Průzkumník';
+          const remoteLevel = parseInt(parts[2]) || 1;
+          const remoteShortStyle = parts[3] || 'ava';
+          const styleMap: Record<string, string> = {
+            'ava': 'avataaars', 'bot': 'bottts', 'pix': 'pixel-art', 
+            'lor': 'lorelei', 'not': 'notionists', 'adv': 'adventurer'
+          };
+          const remoteStyle = styleMap[remoteShortStyle] || 'avataaars';
           setFoundBleDevices(prev => {
             const next = new Map(prev);
-            
-            // Pokud už zařízení známe, jen aktualizujeme čas
             if (next.has(deviceId)) {
-              const existing = next.get(deviceId)!;
-              next.set(deviceId, { ...existing, lastSeen: Date.now() });
-              return next;
+              next.get(deviceId)!.lastSeen = Date.now();
+              return new Map(next);
             }
-            
-            // Nové zařízení - vypočítáme "falešnou" pozici v blízkosti hráče
-            // RSSI se pohybuje od -100 (daleko) do -30 (blízko)
             const rssi = result.rssi || -70;
-            const distanceFactor = Math.abs(rssi + 30) / 70; // 0.0 (blízko) až 1.0 (daleko)
-            const metersAway = 10 + (distanceFactor * 40); // 10m až 50m
-            
-            // Náhodný úhel
+            const dist = 10 + (Math.abs(rssi + 30) / 70 * 40);
             const angle = Math.random() * Math.PI * 2;
-            const dLat = (metersAway / 111320) * Math.cos(angle);
-            const dLng = (metersAway / (111320 * Math.cos(playerPos[0] * Math.PI / 180))) * Math.sin(angle);
-            
+            const dLat = (dist / 111320) * Math.cos(angle);
+            const currentPos = playerPosRef.current || [50, 14];
+            const dLng = (dist / (111320 * Math.cos(currentPos[0] * Math.PI / 180))) * Math.sin(angle);
             next.set(deviceId, {
-              id: deviceId,
-              name: deviceName,
-              level: Math.floor(Math.random() * 20) + 1, // Pokud nemáme jak přenést level, dáme random
-              lat: playerPos[0] + dLat,
-              lng: playerPos[1] + dLng,
-              lastSeen: Date.now(),
-              avatarSeed: deviceName,
-              isBot: false
+              id: deviceId, name: remoteName, level: remoteLevel,
+              lat: currentPos[0] + dLat, lng: currentPos[1] + dLng,
+              lastSeen: Date.now(), avatarSeed: remoteName, avatarStyle: remoteStyle
             });
-            return next;
+            return new Map(next);
           });
         });
-
-      } catch (e) {
-        console.error("BLE Error in Map:", e);
-      }
+        await BluetoothLowEnergy.startScan();
+        bleListenerRef.current = listener;
+      } catch (e) { console.error("BLE error", e) }
     };
-
     startBleScanning();
-
-    // Mock boti pro vyplnění světa, pokud je radar ON
-    const mockBots: NearbyPlayer[] = showBots ? [
-      { 
-        id: 'bot_1', 
-        name: 'Neon_Stalker', 
-        level: 12,
-        lat: playerPos?.[0] ? playerPos[0] + 0.0003 : 50.0755, 
-        lng: playerPos?.[1] ? playerPos[1] + 0.0002 : 14.4378, 
-        lastSeen: Date.now(), 
-        isBot: true,
-        avatarSeed: 'neon'
-      }
-    ] : [];
-
-    // Timer pro úklid starých BLE zařízení (zmizí po 30s bez signálu)
     const cleanup = setInterval(() => {
       setFoundBleDevices(prev => {
         const next = new Map(prev);
         let changed = false;
         const now = Date.now();
         for (const [id, dev] of next.entries()) {
-          if (now - dev.lastSeen > 30000) {
-            next.delete(id);
-            changed = true;
-          }
+          if (now - dev.lastSeen > 30000) { next.delete(id); changed = true; }
         }
-        return changed ? next : prev;
+        return changed ? new Map(next) : prev;
       });
     }, 5000);
-
     return () => {
       clearInterval(cleanup);
       if (isScanning) {
-        BleClient.stopLEScan().catch(console.error);
+        if (bleListenerRef.current) { bleListenerRef.current.remove(); bleListenerRef.current = null; }
+        BluetoothLowEnergy.stopScan().catch(() => {});
+        BluetoothLowEnergy.stopAdvertising().catch(() => {});
       }
     };
-  }, [playerPos, showBots])
+  }, [playerName, playerLevel, avatarStyle])
 
-  // Sloučení botů a reálných BLE zařízení
   useEffect(() => {
-    const blePlayers = Array.from(foundBleDevices.values());
-    const mockBots: NearbyPlayer[] = showBots && playerPos ? [
-      { 
-        id: 'bot_1', 
-        name: 'Neon_Stalker', 
-        level: 12,
-        lat: playerPos[0] + 0.0003, 
-        lng: playerPos[1] + 0.0002, 
-        lastSeen: Date.now(), 
-        isBot: true,
-        avatarSeed: 'neon'
-      }
-    ] : [];
-    
-    setNearbyPlayers([...mockBots, ...blePlayers]);
-  }, [foundBleDevices, showBots, playerPos]);
+    setNearbyPlayers(Array.from(foundBleDevices.values()));
+  }, [foundBleDevices]);
 
   const handleCatch = () => {
     if (!nearbySpawn) return
@@ -660,14 +556,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full h-full flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 176px)' }}>
-      {/* Info lišta */}
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} 
+      className="relative w-full h-full flex flex-col overflow-hidden" 
+      style={{ height: 'calc(100vh - 176px - env(safe-area-inset-top) - env(safe-area-inset-bottom))' }}
+    >
       <div className="px-4 py-2 flex items-center justify-between shrink-0 bg-background-dark/50 backdrop-blur-sm z-50">
         <div>
           <p className="text-slate-400 text-[10px] uppercase tracking-widest font-black">Průzkum světa</p>
-          <p className="text-slate-500 text-[9px] font-bold">
-            {statusMsg || `${spawns.filter(s => !s.caught).length} příšer v sektoru`}
-          </p>
+          <p className="text-slate-500 text-[9px] font-bold">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer v sektoru`}</p>
         </div>
         <div className="flex items-center gap-2">
           {loadingPoi && (
@@ -676,23 +573,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
                <span className="text-[8px] font-black text-blue-500 uppercase tracking-tighter">Skenování...</span>
             </div>
           )}
-          <button 
-            onClick={forceRefreshPOI}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 group"
-            title="Vynutit refresh bodů"
-          >
+          <button onClick={forceRefreshPOI} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 group">
             <RefreshCw size={14} className={cn("group-hover:text-primary transition-colors", loadingPoi && "animate-spin")} />
-          </button>
-          <button 
-            onClick={() => {
-              const newVal = !showBots
-              setShowBots(newVal)
-              localStorage.setItem('monster_show_bots', String(newVal))
-            }}
-            className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-1 ${showBots ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}
-          >
-            <Bluetooth size={10} className={showBots ? "animate-pulse" : ""} />
-            {showBots ? "Radar_Aktivní" : "Radar_Vypnutý"}
           </button>
           <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
             <Heart size={10} className="text-red-500" fill="currentColor" />
@@ -701,116 +583,59 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
         </div>
       </div>
 
-      {/* Kontejner mapy */}
       <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl isolate">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
-
-        {/* Legenda (uvnitř mapy) */}
         <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 border border-white/5 z-40 pointer-events-none">
           <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Běžná</span></div>
           <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /><span className="text-[8px] font-bold text-purple-400 uppercase">Vzácná</span></div>
           <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /><span className="text-[8px] font-bold text-orange-400 uppercase">Epická</span></div>
         </div>
-
-        {/* Debug info - jen pro testování radiusu */}
-        {CATCH_RADIUS_M > 100 && (
-          <div className="absolute top-2 left-2 bg-primary/20 backdrop-blur-sm border border-primary/30 rounded px-2 py-1 text-[8px] font-black text-primary z-40 pointer-events-none uppercase">
-            Radius: {CATCH_RADIUS_M}m | {nearbySpawn ? 'Máš cíl!' : 'Hledám...'}
-          </div>
-        )}
       </div>
 
-      {/* Tlačítko - teď mimo kontejner mapy pro jistotu z-indexu */}
       <AnimatePresence>
         {nearbySpawn && !isInteractionBlocked && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="absolute bottom-6 left-6 right-6 z-[1001]"
-          >
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
             {levelBlocked ? (
               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔒 POTŘEBUJEŠ ÚROVEŇ {nearbySpawn.level}</div>
             ) : hpBlocked ? (
               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
             ) : (
-              <button
-                onClick={handleCatch}
-                style={{
-                  background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' :
-                    nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' :
-                      'linear-gradient(135deg, #0891b2, #0db9f2)',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
-                }}
-                className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center transition-all active:scale-95 border-b-4 border-black/20"
-              >
-                <div className="flex items-center gap-2">
-                  <MapPin size={14} className="animate-bounce" />
-                  <span className="text-sm">DETEKCE: LEVEL {nearbySpawn.level}</span>
-                </div>
-                <div className="text-[9px] font-bold opacity-90 mt-1 flex items-center gap-1">
-                  <Heart size={8} fill="currentColor" /> SPOTŘEBA {currentEnergyCost}% ENERGIE
-                </div>
+              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center transition-all active:scale-95 border-b-4 border-black/20" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)', boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}>
+                <div className="flex items-center gap-2"><MapPin size={14} className="animate-bounce" /><span className="text-sm">DETEKCE: LEVEL {nearbySpawn.level}</span></div>
+                <div className="text-[9px] font-bold opacity-90 mt-1 flex items-center gap-1"><Heart size={8} fill="currentColor" /> SPOTŘEBA {currentEnergyCost}% ENERGIE</div>
               </button>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Detail jiného hráče / Interakce */}
       <AnimatePresence>
         {selectedOtherPlayer && (
           <div className="absolute inset-0 z-[2000] flex items-end justify-center p-6 bg-black/20 backdrop-blur-[2px]">
-             <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               onClick={() => setSelectedOtherPlayer(null)}
-               className="absolute inset-0"
-             />
-             <motion.div 
-               initial={{ y: 100, opacity: 0 }}
-               animate={{ y: 0, opacity: 1 }}
-               exit={{ y: 100, opacity: 0 }}
-               className="relative w-full max-w-sm bg-slate-900 border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(168,85,247,0.2)] overflow-hidden"
-             >
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedOtherPlayer(null)} className="absolute inset-0" />
+             <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="relative w-full max-w-sm bg-slate-900 border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(168,85,247,0.2)] overflow-hidden">
                 <div className="flex flex-col items-center text-center">
-                  <div className="size-24 rounded-3xl bg-slate-800 border-2 border-purple-500 p-2 mb-4 shadow-lg">
-                    <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} 
-                      className="w-full h-full object-cover" 
-                      alt="Avatar"
-                    />
-                  </div>
-                  
-                  <div className="mb-6">
-                    <p className="text-[10px] font-black text-purple-400 uppercase tracking-[0.3em] mb-1">Aether_Runner</p>
-                    <h3 className="text-2xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
-                    <div className="mt-2 inline-flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
-                       <span className="text-xs font-black text-purple-300">LEVEL {selectedOtherPlayer.level}</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 w-full">
-                    <button 
-                      onClick={() => {
-                        setSelectedOtherPlayer(null)
-                        onStartTrade()
-                      }}
-                      className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest shadow-lg"
-                    >
-                      <RefreshCw size={14} className="animate-spin-slow" /> Vyměnit
-                    </button>
-                    <button 
-                      onClick={() => setSelectedOtherPlayer(null)}
-                      className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest"
-                    >
-                      Zavřít
-                    </button>
-                  </div>
+                   <div className="size-24 rounded-3xl bg-slate-800 border-2 border-purple-500 p-2 mb-4 shadow-lg">
+                      <img src={`https://api.dicebear.com/7.x/${selectedOtherPlayer.avatarStyle || 'avataaars'}/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} className="w-full h-full object-cover" alt="Avatar" />
+                   </div>
+                   <div className="mb-6">
+                     <p className="text-[10px] font-black text-purple-400 uppercase tracking-[0.3em] mb-1">Aether_Runner</p>
+                     <h3 className="text-2xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
+                     <div className="mt-2 flex flex-col items-center gap-2">
+                        <div className="inline-flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
+                           <span className="text-xs font-black text-purple-300">LEVEL {selectedOtherPlayer.level}</span>
+                        </div>
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-2 gap-3 w-full">
+                     <button onClick={() => { setSelectedOtherPlayer(null); onStartTrade() }} className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest shadow-lg">
+                       <RefreshCw size={14} className="animate-spin-slow" /> Vyměnit
+                     </button>
+                     <button onClick={() => setSelectedOtherPlayer(null)} className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest">
+                       Zavřít
+                     </button>
+                   </div>
                 </div>
-
-                {/* Dekorace */}
                 <div className="absolute -top-10 -right-10 size-32 bg-purple-500/10 rounded-full blur-3xl" />
              </motion.div>
           </div>

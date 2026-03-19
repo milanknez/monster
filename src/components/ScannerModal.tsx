@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Settings, Radar, QrCode, Bluetooth, SignalHigh } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { BleClient } from '@capacitor-community/bluetooth-le';
+import { BluetoothLowEnergy, type DeviceScannedEvent } from '@capgo/capacitor-bluetooth-low-energy';
 import { cn } from '../utils';
 
 export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onClose: () => void; onScan: (ean: string) => void }) => {
@@ -64,31 +64,33 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
     const startBTDiscovery = async () => {
       try {
         setIsScanningBT(true);
-        await BleClient.initialize();
+        await BluetoothLowEnergy.initialize({ mode: 'central' });
         isScanning = true;
         
         console.log("BLE Scan started in Modal...");
         
-        await BleClient.requestLEScan({}, (result) => {
+        const listener = await BluetoothLowEnergy.addListener('deviceScanned', (event: DeviceScannedEvent) => {
           if (!isMounted) return;
-          
-          const deviceName = result.localName || result.device.name || 'Neznámý_Puls';
-          const deviceId = result.device.deviceId;
+          const result = event.device;
+          const deviceName = result.name || 'Neznámý_Puls';
+          const deviceId = result.deviceId;
           
           setFoundDevices(prev => {
-            // Pokud už zařízení máme, nepřidáváme znova
             if (prev.some(d => d.id === deviceId)) return prev;
-            
-            // ZDE: V budoucnu můžeme parsovat result.manufacturerData pro MSTR_OFF|...
-            // Pro teď vytvoříme mock data, aby se dalo kliknout na zařízení a "zkusit" trade
-            // V reálu by to zařízení muselo vysílat svůj profil
             return [...prev, { 
               name: deviceName, 
               id: deviceId,
-              data: `MSTR_OFF|001|10` // Default fake data pro testování propletení
+              data: `MSTR_OFF|001|10`
             }];
           });
         });
+
+        await BluetoothLowEnergy.startScan();
+
+        return () => {
+          listener.remove();
+          BluetoothLowEnergy.stopScan().catch(e => console.error("Chyba při stopování BT:", e));
+        };
 
       } catch (e) {
         console.error("BLE Error in Modal:", e);
@@ -100,9 +102,6 @@ export const ScannerModal = ({ isOpen, onClose, onScan }: { isOpen: boolean; onC
 
     return () => {
       isMounted = false;
-      if (isScanning) {
-        BleClient.stopLEScan().catch(e => console.error("Chyba při stopování BT:", e));
-      }
       setIsScanningBT(false);
     };
   }, [isOpen, mode]);

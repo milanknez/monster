@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { X, Share2, RefreshCw, CheckCircle2, Bluetooth, QrCode, Signal } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
+import { BluetoothLowEnergy } from '@capgo/capacitor-bluetooth-low-energy';
 import type { Monster } from '../types';
 
 type TradeMode = 'OFFER' | 'CONFIRM';
@@ -40,18 +40,21 @@ export const TradeModal = ({
   const startBluetoothOffer = async () => {
     try {
       setIsAdvertising(true);
-      await BleClient.initialize();
-      // Poznámka: Standardní BLE plugin neumí Advertise ve všech verzích, 
-      // budeme simulovat/připravovat pro full implementaci.
+      await BluetoothLowEnergy.initialize({ mode: 'peripheral' });
+      await BluetoothLowEnergy.startAdvertising({
+        name: tradeDataValue
+      });
       console.log("BLE Advertising started with data:", tradeDataValue);
     } catch (e) {
-      setBtError("Bluetooth není k dispozici");
+      console.error("BLE Advertising error:", e);
+      setBtError("Bluetooth vysílání selhalo");
       setIsAdvertising(false);
     }
   };
 
   const stopBluetoothOffer = async () => {
     setIsAdvertising(false);
+    await BluetoothLowEnergy.stopAdvertising().catch(() => {});
     console.log("BLE Advertising stopped");
   };
 
