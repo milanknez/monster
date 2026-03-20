@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Bluetooth, Heart, MapPin, RefreshCw } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { BluetoothLowEnergy, type DeviceScannedEvent } from '@capgo/capacitor-bluetooth-low-energy'
+
 import { monsterDB } from '../data/monsters'
 import type { Monster } from '../types'
 import { cn } from '../utils'
+import { syncPlayerToFirebase, watchNearbyPlayers } from '../lib/firebase'
 
 // ── Leaflet default icon fix ──────────────────────────────────
 if (typeof window !== 'undefined') {
@@ -44,7 +45,9 @@ interface NearbyPlayer {
 
 interface WorldMapProps {
   onCatch: (monster: Monster) => void
-  onStartTrade: () => void
+  onStartTrade: (targetPlayerName?: string, targetUid?: string) => void
+  tradeSignal?: string | null
+  onBleSignal?: (type: string, targetName: string, fromName: string, data: string) => void
   playerHP: number
   onConsumeHP: (amount: number) => void
   onDistanceUpdate: (meters: number) => void
@@ -52,6 +55,7 @@ interface WorldMapProps {
   caughtMonsters: Monster[]
   playerName: string
   avatarStyle: string
+  avatarSeed: string
   playerLevel: number
 }
 
@@ -238,7 +242,13 @@ export interface WorldMapHandle {
   centerOnPlayer: () => void;
 }
 
-export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, onStartTrade, playerHP, onConsumeHP, onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, playerLevel }, ref) => {
+export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ 
+  onCatch, 
+  onStartTrade,
+  tradeSignal,
+  onBleSignal,
+  playerHP, 
+  onConsumeHP,  onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, avatarSeed, playerLevel, caughtMonsters }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -255,11 +265,13 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
   const [nearbySpawn, setNearbySpawn] = useState<SpawnPoint | null>(null)
+  const [mockPlayers, setMockPlayers] = useState<NearbyPlayer[]>([])
   const [levelBlocked, setLevelBlocked] = useState(false)
   const [hpBlocked, setHpBlocked] = useState(false)
   const [loadingPoi, setLoadingPoi] = useState(false)
   const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
+  const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [foundBleDevices, setFoundBleDevices] = useState<Map<string, NearbyPlayer>>(new Map())
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
 
@@ -446,89 +458,113 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
     }
   }, [spawns, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, recalcNearby])
 
-  // Bluetooth skenování (pouze reální hráči)
+  // Simulation Controller
   useEffect(() => {
-    let isScanning = false;
-    const startBleScanning = async () => {
-      if (!playerPos) { setNearbyPlayers([]); setFoundBleDevices(new Map()); return }
-      try {
-        // Inicializace BLE (pokud možno najednou, nebo v pořadí)
-        await BluetoothLowEnergy.initialize({ mode: 'central' });
-        isScanning = true;
-        
-        try {
-          const shortStyle = avatarStyle.substring(0, 3);
-          // Některé platformy vyžadují peripheral mode pro advertising
-          // Ale zkusíme začít scanovat a pak inzerovat
-          await BluetoothLowEnergy.startAdvertising({ 
-            name: `MSTR:${playerName}:${playerLevel}:${shortStyle}` 
-          });
-        } catch (e) { 
-          console.warn("BLE Adv failed (expected on some devices/browsers)", e);
-        }
-        const listener = await BluetoothLowEnergy.addListener('deviceScanned', (event: DeviceScannedEvent) => {
-          const result = event.device;
-          const rawName = result.name || '';
-          if (!rawName.startsWith('MSTR:')) return;
-          const deviceId = result.deviceId;
-          const parts = rawName.split(':');
-          const remoteName = parts[1] || 'Průzkumník';
-          const remoteLevel = parseInt(parts[2]) || 1;
-          const remoteShortStyle = parts[3] || 'ava';
-          const styleMap: Record<string, string> = {
-            'ava': 'avataaars', 'bot': 'bottts', 'pix': 'pixel-art', 
-            'lor': 'lorelei', 'not': 'notionists', 'adv': 'adventurer'
-          };
-          const remoteStyle = styleMap[remoteShortStyle] || 'avataaars';
-          setFoundBleDevices(prev => {
-            const next = new Map(prev);
-            if (next.has(deviceId)) {
-              next.get(deviceId)!.lastSeen = Date.now();
-              return new Map(next);
-            }
-            const rssi = result.rssi || -70;
-            const dist = 10 + (Math.abs(rssi + 30) / 70 * 40);
-            const angle = Math.random() * Math.PI * 2;
-            const dLat = (dist / 111320) * Math.cos(angle);
-            const currentPos = playerPosRef.current || [50, 14];
-            const dLng = (dist / (111320 * Math.cos(currentPos[0] * Math.PI / 180))) * Math.sin(angle);
-            next.set(deviceId, {
-              id: deviceId, name: remoteName, level: remoteLevel,
-              lat: currentPos[0] + dLat, lng: currentPos[1] + dLng,
-              lastSeen: Date.now(), avatarSeed: remoteName, avatarStyle: remoteStyle
-            });
-            return new Map(next);
-          });
-        });
-        await BluetoothLowEnergy.startScan();
-        bleListenerRef.current = listener;
-      } catch (e) { console.error("BLE error", e) }
-    };
-    startBleScanning();
-    const cleanup = setInterval(() => {
-      setFoundBleDevices(prev => {
-        const next = new Map(prev);
-        let changed = false;
-        const now = Date.now();
-        for (const [id, dev] of next.entries()) {
-          if (now - dev.lastSeen > 30000) { next.delete(id); changed = true; }
-        }
-        return changed ? new Map(next) : prev;
-      });
-    }, 5000);
-    return () => {
-      clearInterval(cleanup);
-      if (isScanning) {
-        if (bleListenerRef.current) { bleListenerRef.current.remove(); bleListenerRef.current = null; }
-        BluetoothLowEnergy.stopScan().catch(() => {});
-        BluetoothLowEnergy.stopAdvertising().catch(() => {});
+    (window as any).worldMap_spawnMockPlayers = (count: number = 3) => {
+      if (!playerPos) {
+        console.warn("GPS poloha není známa, nemohu spawnovat hráče.");
+        return;
       }
+      const newMock: NearbyPlayer[] = [];
+      for (let i = 0; i < count; i++) {
+        const dist = 30 + Math.random() * 50;
+        const angle = Math.random() * Math.PI * 2;
+        const dLat = (dist / 111320) * Math.cos(angle);
+        const dLng = (dist / (111320 * Math.cos(playerPos[0] * Math.PI / 180))) * Math.sin(angle);
+        const name = ['Aether_Ghost', 'Neon_Stalker', 'Cyber_Wraith', 'Void_Runner'][Math.floor(Math.random() * 4)] + `_${Math.floor(Math.random() * 999)}`;
+        const avatarStyle = ['avataaars', 'bottts', 'pixel-art', 'lorelei'][Math.floor(Math.random() * 4)];
+        
+        newMock.push({
+          id: `mock_${Date.now()}_${i}`,
+          name,
+          level: Math.floor(Math.random() * 15) + 1,
+          lat: playerPos[0] + dLat,
+          lng: playerPos[1] + dLng,
+          lastSeen: Date.now(),
+          avatarSeed: name,
+          avatarStyle
+        });
+      }
+      setMockPlayers(prev => [...prev, ...newMock]);
+      console.log(`Nasimulováno ${count} hráčů v okolí.`);
     };
-  }, [playerName, playerLevel, avatarStyle])
+
+    (window as any).worldMap_clearMockPlayers = () => setMockPlayers([]);
+
+    // Auto-spawn on localhost for dev
+    if (window.location.hostname === 'localhost' && playerPos && mockPlayers.length === 0) {
+      (window as any).worldMap_spawnMockPlayers(3);
+    }
+  }, [playerPos, mockPlayers.length]);
+
+  // Bluetooth skenování odstraněno pro stabilitu (vše běží přes Firebase)
+
+  // --- FIREBASE SYNC & WATCH ---
+  useEffect(() => {
+    if (!playerPos || !playerName) return;
+
+    // Sync naši polohu každých 10 vteřin do Firebase
+    const syncInterval = setInterval(() => {
+      syncPlayerToFirebase({
+        name: playerName,
+        level: playerLevel,
+        monsterCount: caughtMonsters.length,
+        lat: playerPos[0],
+        lng: playerPos[1],
+        avatarStyle,
+        avatarSeed
+      });
+    }, 10000);
+
+    // Také synchronizujeme okamžitě při změně pozice
+    syncPlayerToFirebase({
+      name: playerName,
+      level: playerLevel,
+      monsterCount: caughtMonsters.length,
+      lat: playerPos[0],
+      lng: playerPos[1],
+      avatarStyle,
+      avatarSeed
+    });
+
+    // Sledování ostatních hráčů z Firebase
+    const unsubscribe = watchNearbyPlayers((others) => {
+      const mappedOthers = others
+        .filter(p => {
+           // Zobrazíme jen ty, kteří byli aktivní v posledních 5 minutách a jsou v rozumném dosahu
+           const isRecent = (Date.now() - p.lastActive) < 5 * 60 * 1000;
+           if (!isRecent) return false;
+           const dist = haversineM(playerPos[0], playerPos[1], p.lat, p.lng);
+           return dist < 2000; // Okruh 2km na mapě
+        })
+        .map(p => ({
+          ...p,
+          id: p.id || `fb_${p.name}`
+        }));
+      setFirebasePlayers(mappedOthers);
+    });
+
+    return () => {
+      clearInterval(syncInterval);
+      // Unsubscribe není explicitně v helperu, ale onValue ve Firebase ho vrací 
+      // (Pro zjednodušení teď necháme takto, Realtime DB Listener se uvolní při unmountu pokud ho ulovíme)
+    };
+  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed]);
 
   useEffect(() => {
-    setNearbyPlayers(Array.from(foundBleDevices.values()));
-  }, [foundBleDevices]);
+    // Sloučení všech zdrojů hráčů: BLE + Firebase + Mock
+    const bleArray = Array.from(foundBleDevices.values());
+    
+    // Použijeme Mapu k zajištění unikátnosti (pokud je někdo vidět přes BLE i Firebase)
+    const allPlayersMap = new Map<string, NearbyPlayer>();
+    
+    // Priorita: BLE (přímý signál) > Firebase > Mock
+    mockPlayers.forEach(p => allPlayersMap.set(p.name, p));
+    firebasePlayers.forEach(p => allPlayersMap.set(p.name, p));
+    bleArray.forEach(p => allPlayersMap.set(p.name, p));
+
+    setNearbyPlayers(Array.from(allPlayersMap.values()));
+  }, [foundBleDevices, firebasePlayers, mockPlayers]);
 
   const handleCatch = () => {
     if (!nearbySpawn) return
@@ -620,7 +656,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ onCatch, on
                      </div>
                    </div>
                    <div className="grid grid-cols-2 gap-3 w-full">
-                     <button onClick={() => { setSelectedOtherPlayer(null); onStartTrade() }} className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest shadow-lg">
+                     <button onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null); }} className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest shadow-lg">
                        <RefreshCw size={14} className="animate-spin-slow" /> Vyměnit
                      </button>
                      <button onClick={() => setSelectedOtherPlayer(null)} className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest">

@@ -11,8 +11,8 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onTrade?: () => void; onUpgrade?: () => void }>(
-  ({ monster, onBack, onTrade, onUpgrade }, ref) => {
+export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void }>(
+  ({ monster, onBack, onUpgrade }, ref) => {
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
     
@@ -49,9 +49,18 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
     return (
       <motion.div 
         ref={ref}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 1.05 }}
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 50 }}
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0, right: 0.5 }}
+        onDragEnd={(_, info) => {
+          if (info.offset.x > 100 || info.velocity.x > 500) {
+            onBack();
+          }
+        }}
         className="w-full min-h-screen bg-background-dark pb-32"
       >
         {/* Magic Card Layout - Full Width */}
@@ -197,13 +206,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 mt-10 mb-8 flex gap-4">
+        <div className="px-4 mt-10 mb-8">
           <button 
             onClick={onBack}
-            className={cn(
-              "group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95 border border-white/10",
-              onTrade ? "flex-[0.8]" : "w-full"
-            )}
+            className="w-full group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95 border border-white/10"
           >
             {/* Dark Glass Background */}
             <div className="absolute inset-0 bg-white/5 backdrop-blur-md group-hover:bg-white/10" />
@@ -213,24 +219,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               <span className="text-sm font-black text-slate-400 group-hover:text-slate-100 uppercase tracking-wider transition-colors">Zavřít</span>
             </div>
           </button>
-
-          {onTrade && (
-            <button 
-              onClick={onTrade}
-              className="flex-1 group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95"
-            >
-              {/* Glossy Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-blue-700 shadow-[0_8px_20px_rgba(13,185,242,0.3)]" />
-              
-              {/* Animated Shine Effect */}
-              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
-              
-              <div className="relative z-10 flex items-center justify-center gap-2">
-                <RefreshCw size={18} className="text-background-dark animate-spin-slow" />
-                <span className="text-sm font-black text-background-dark uppercase tracking-wider">Vyměnit</span>
-              </div>
-            </button>
-          )}
         </div>
 
       </motion.div>

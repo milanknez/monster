@@ -12,16 +12,18 @@ export const TradeSelectionModal = ({
   caughtMonsters: Monster[], 
   onSelect: (m: Monster) => void, 
   onClose: () => void,
-  offeringMonster: { id: string, name: string, level: number }
+  offeringMonster?: { id: string, name: string, level: number }
 }) => {
   return (
     <div className="fixed inset-0 z-[2100] flex flex-col bg-background-dark">
       <div className="p-6 border-b border-primary/20 flex justify-between items-center">
         <div>
           <h3 className="text-xl font-black text-slate-100 uppercase tracking-tighter">Vyber k výměně</h3>
-          <p className="text-[10px] text-primary font-bold uppercase tracking-widest">
-            Za {offeringMonster.name} LVL {offeringMonster.level}
-          </p>
+          {offeringMonster && (
+            <p className="text-[10px] text-primary font-bold uppercase tracking-widest">
+              Za {offeringMonster.name} LVL {offeringMonster.level}
+            </p>
+          )}
         </div>
         <button onClick={onClose} className="p-2 bg-slate-800 rounded-xl text-slate-400">
           <X size={24} />

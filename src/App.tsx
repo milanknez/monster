@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Radar, Map as MapIcon, ShoppingBag, Sparkles, Trophy } from 'lucide-react'
+import { Radar, Map as MapIcon, ShoppingBag, Sparkles, Trophy, Bluetooth, SignalHigh, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
 import type { Monster } from './types'
@@ -10,7 +10,6 @@ import { StatsCard } from './components/StatsCard'
 import { LatestDetection } from './components/LatestDetection'
 import { RecentActivity } from './components/RecentActivity'
 import { DailyQuests } from './components/DailyQuests'
-import { ScannerModal } from './components/ScannerModal'
 import { NewMonsterModal } from './components/NewMonsterModal'
 import { Bestiary } from './components/Bestiary'
 import { MonsterDetail } from './components/MonsterDetail'
@@ -18,7 +17,6 @@ import { NavBar } from './components/NavBar'
 import { PlaceholderTab } from './components/PlaceholderTab'
 import { WorldMap, type WorldMapHandle } from './components/WorldMap'
 import { SetupProfileModal } from './components/SetupProfileModal'
-import { TradeModal } from './components/TradeModal'
 import { TradeSelectionModal } from './components/TradeSelectionModal'
 import { SettingsModal } from './components/SettingsModal'
 import { Store } from './components/Store'
@@ -26,20 +24,23 @@ import { MonsterEditor } from './components/MonsterEditor'
 import { GooglePayModal } from './components/GooglePayModal'
 import { ToastContainer, type ToastMessage } from './components/Toast'
 import type { Boost } from './types'
+import { sendTradeSignal, watchTradeSignals, clearTradeSignal, PLAYER_UID } from './lib/firebase'
 
 function App() {
-  const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
-  const [tradingMonster, setTradingMonster] = useState<Monster | null>(null)
-  const [tradeConfirmation, setTradeConfirmation] = useState<{ monster: Monster, received: { id: string, level: number, name: string } } | null>(null)
-  const [pendingOffer, setPendingOffer] = useState<{ id: string, level: number, name: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
+
   const [toasts, setToasts] = useState<ToastMessage[]>([])
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const worldMapRef = useRef<WorldMapHandle>(null)
-  const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>([])
+  const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_caught')
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
   const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
@@ -102,8 +103,59 @@ function App() {
     (window as any).triggerLevelUp = (lvl?: number) => {
       setShowLevelUp(lvl || calculateLevel(totalXP) + 1)
     };
-    return () => { delete (window as any).triggerLevelUp };
+
+    // Nové simulační funkce pro P2P Trade Modaly:
+    (window as any).simulateP2P_IncomingRequest = (fromName = 'Tester') => {
+      setP2pTrade({ step: 'INCOMING_REQ', partnerName: fromName });
+      console.log(`[P2P TEST] Příchozí trade request od ${fromName}`);
+    };
+    
+    (window as any).simulateP2P_PartnerAccepted = () => {
+      setP2pTrade(prev => prev ? { ...prev, step: 'SELECTING' } : null);
+      console.log(`[P2P TEST] Partner přijal žádost, vybíráme příšery.`);
+    };
+
+    (window as any).simulateP2P_PartnerOffered = (monId = '001', level = 5) => {
+      const dbM = monsterDB.find(m => m.id === monId) || monsterDB[0];
+      setP2pTrade(prev => prev ? { 
+         ...prev, 
+         theirMonster: { id: monId, level, name: dbM.name },
+         step: prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
+      } : null);
+      console.log(`[P2P TEST] Partner nabízí: ${dbM.name} (LVL ${level})`);
+    };
+
+    (window as any).simulateP2P_PartnerConfirmed = () => {
+      setP2pTrade(prev => prev ? { ...prev, confirmedByThem: true } : null);
+      console.log(`[P2P TEST] Partner potvrdil výměnu!`);
+    };
+
+    (window as any).addTestMonster = (id = '001', level = 5) => {
+      const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
+      saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` });
+      console.log(`[TEST] Přidáno: ${dbM.name} (LVL ${level})`);
+    };
+
+    return () => { 
+      delete (window as any).triggerLevelUp;
+      delete (window as any).simulateTradeOffer;
+      delete (window as any).simulateP2P_IncomingRequest;
+      delete (window as any).simulateP2P_PartnerAccepted;
+      delete (window as any).simulateP2P_PartnerOffered;
+      delete (window as any).simulateP2P_PartnerConfirmed;
+    };
   }, [totalXP])
+
+  type P2PTradeState = {
+    step: 'REQUESTING' | 'INCOMING_REQ' | 'SELECTING' | 'WAITING_OFFER' | 'CONFIRMING';
+    partnerName: string;
+    partnerUid?: string;
+    myMonster?: Monster;
+    theirMonster?: { id: string, level: number, name: string };
+    confirmedByMe?: boolean;
+    confirmedByThem?: boolean;
+  };
+  const [p2pTrade, setP2pTrade] = useState<P2PTradeState | null>(null);
 
   // HP systém: 100% za 4 hodiny (240 min)
   const [hpState, setHpState] = useState(() => {
@@ -236,7 +288,7 @@ function App() {
   }, [])
 
   // Save to LocalStorage – limit 3x stejný druh
-  const saveMonster = (monster: Monster) => {
+  const saveMonster = (monster: Monster, shouldGiveXP = true) => {
     setCaughtMonsters(prev => {
       const existingCount = prev.filter(m => m.id === monster.id).length
       if (existingCount >= 3) {
@@ -250,23 +302,24 @@ function App() {
       return updated
     })
     
-    // XP Boost výpočet
-    const xpBoost = activeBoosts
-      .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
-      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
-    
-    const xpGained = Math.round(250 * xpBoost)
-    setTotalXP(prev => {
-      const newTotal = prev + xpGained
-      localStorage.setItem('monster_collector_xp', newTotal.toString())
-      return newTotal
-    })
+    if (shouldGiveXP) {
+      const xpBoost = activeBoosts
+        .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
+        .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+      
+      const xpGained = Math.round(250 * xpBoost)
+      setTotalXP(prev => {
+        const newTotal = prev + xpGained
+        localStorage.setItem('monster_collector_xp', newTotal.toString())
+        return newTotal
+      })
 
-    addToast({
-      title: 'Monstrum chyceno',
-      message: `${monster.name} chycen! +${xpGained} XP`,
-      type: 'xp'
-    })
+      addToast({
+        title: 'Monstrum chyceno',
+        message: `${monster.name} chycen! +${xpGained} XP`,
+        type: 'xp'
+      })
+    }
 
     setNewMonster(null)
   }
@@ -283,83 +336,109 @@ function App() {
       return prev
     })
   }
+  
+  // --- FIREBASE P2P TRADE BRIDGE ---
+  useEffect(() => {
+    if (!playerName) return;
 
-  const handleScan = (ean: string) => {
-    if (!ean) return;
-
-    // --- REŽIM VÝMĚNY (HANDSHAKE) ---
-    
-    // 1. Přijetí nabídky (Hráč B skenuje Hráče A)
-    if (ean.startsWith('MSTR_OFF|')) {
-      const [, id, level] = ean.split('|');
-      const dbMonster = monsterDB.find(m => m.id === id);
-      if (dbMonster) {
-        setPendingOffer({ id, level: parseInt(level), name: dbMonster.name });
-        setIsScannerOpen(false);
-        return;
-      }
-    }
-
-    // 2. Potvrzení výměny (Hráč A skenuje Hráče B)
-    if (ean.startsWith('MSTR_CNF|')) {
-      const [, givenId, givenLvl, receivedId, receivedLvl] = ean.split('|');
+    // Sledování příchozích signálů
+    const unsubscribe = watchTradeSignals((signal) => {
+      const { type, fromUid, fromName, data } = signal;
       
-      // Hráč A ověří, že to co Hráč B posílá jako "received" je opravdu to, co Hráč A nabízel
-      // Pro testování budeme důvěřovat a prostě provedeme swap
-      const dbGiven = monsterDB.find(m => m.id === givenId);
-      if (dbGiven) {
-        // 1. Odeber moji kartu, kterou jsem nabízel
-        removeMonster(receivedId, parseInt(receivedLvl));
-        // 2. Přidej kartu, kterou mi dává druhý hráč
-        saveMonster({ ...dbGiven, level: parseInt(givenLvl), image: `/monsters/${givenId}.png` });
-        
-        setIsScannerOpen(false);
-        alert(`Výměna dokončena! Získal jsi ${dbGiven.name} LVL ${givenLvl}.`);
-        return;
-      }
-    }
+      setP2pTrade(prev => {
+        // 1. Žádost o výměnu (Milan -> Ghost)
+        if (type === 'TRQ') {
+           if (prev && prev.step !== 'INCOMING_REQ') return prev; // Už v něčem jsme
+           return { step: 'INCOMING_REQ', partnerName: fromName, partnerUid: fromUid };
+        }
 
-    // --- KLASICKÉ SKENOVÁNÍ ---
-    // Rozpoznání Trade kódu (starý formát - pro zpětnou kompatibilitu)
-    if (ean.startsWith('MSTR_TRD|')) {
-      const parts = ean.split('|');
-      const [, id, level] = parts;
-      const dbMonster = monsterDB.find(m => m.id === id);
-      if (dbMonster) {
-        setNewMonster({
-          ...dbMonster,
-          level: parseInt(level) || 1,
-          image: `/monsters/${id}.png`
-        });
-        return;
-      }
-    }
+        if (!prev || prev.partnerUid !== fromUid) return prev;
 
-    // Deterministic seed from EAN string
-    let hash = 0;
-    for (let i = 0; i < ean.length; i++) {
-        const char = ean.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0; // Convert to 32bit integer
-    }
-    const seed = Math.abs(hash);
-    
-    const monsterId = ean.padStart(3, '0');
-    let foundMonster = monsterDB.find(m => m.id === monsterId);
-    
-    if (!foundMonster) {
-      const monsterIndex = seed % monsterDB.length;
-      foundMonster = monsterDB[monsterIndex];
-    }
-    
-    const level = (seed % 25) + 1;
-    
-    setNewMonster({
-      ...foundMonster,
-      level,
-      image: `/monsters/${foundMonster.id}.png`
+        // 2. Přijetí žádosti (Ghost -> Milan)
+        if (type === 'TAC' && prev.step === 'REQUESTING') {
+           return { ...prev, step: 'SELECTING' };
+        }
+
+        // 3. Nabídka příšery (Ghost -> Milan / Milan -> Ghost)
+        if (type === 'TOF' && (prev.step === 'WAITING_OFFER' || prev.step === 'SELECTING' || prev.step === 'REQUESTING')) {
+           const [monId, monLvl] = data.split(':');
+           const dbM = monsterDB.find(m => m.id === monId) || monsterDB[0];
+           const newState: P2PTradeState = { 
+              ...prev, 
+              theirMonster: { id: monId, level: parseInt(monLvl), name: dbM.name } 
+           };
+           // Pokud JÁ už mám vybráno, jdeme na potvrzení. 
+           // Pokud JÁ ještě nemám vybráno, zůstávám v SELECTING (abych mohl vybrat).
+           if (newState.myMonster) newState.step = 'CONFIRMING';
+           else newState.step = 'SELECTING';
+           return newState;
+        }
+
+        // 4. Potvrzení (Finální stisknutí tlačítka)
+        if (type === 'TCF' && prev.step === 'CONFIRMING') {
+           return { ...prev, confirmedByThem: true };
+        }
+
+        // 5. Zrušení
+        if (type === 'CNL') {
+           addToast({ title: 'Výměna zrušena', message: `${fromName} zrušil proces.`, type: 'xp' });
+           return null;
+        }
+
+        return prev;
+      });
     });
-  }
+
+    return () => { if (unsubscribe) unsubscribe(); };
+  }, [playerName]);
+
+  // Odesílání signálů při změně lokálního stavu
+  useEffect(() => {
+    if (!p2pTrade || !p2pTrade.partnerUid) return;
+
+    const signalType = 
+      p2pTrade.step === 'REQUESTING' ? 'TRQ' :
+      p2pTrade.step === 'SELECTING' ? 'TAC' :
+      ((p2pTrade.step === 'CONFIRMING' || p2pTrade.step === 'WAITING_OFFER') && p2pTrade.myMonster && !p2pTrade.confirmedByMe) ? 'TOF' : 
+      p2pTrade.confirmedByMe ? 'TCF' : null;
+
+    if (signalType) {
+       let data = '';
+       if (signalType === 'TOF' && p2pTrade.myMonster) {
+          data = `${p2pTrade.myMonster.id}:${p2pTrade.myMonster.level}`;
+       }
+       
+       sendTradeSignal(p2pTrade.partnerUid, {
+          type: signalType,
+          fromName: playerName,
+          data
+       });
+    }
+  }, [p2pTrade?.step, p2pTrade?.myMonster, p2pTrade?.confirmedByMe]);
+
+  useEffect(() => {
+    if (!p2pTrade) {
+       // Pokud jsme manuálně zavřeli okno, můžeme poslat signál zrušení (volitelné)
+       // clearTradeSignal(); // Vyčistíme naši schránku
+       return;
+    }
+    if (p2pTrade.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
+      const { myMonster, theirMonster } = p2pTrade;
+      if (myMonster && theirMonster) {
+        const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
+        saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` }, false);
+        removeMonster(myMonster.id, myMonster.level);
+        addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'boost' });
+        // Počkej chvíli a vymaž signály
+        setTimeout(() => {
+          clearTradeSignal();
+          setP2pTrade(null);
+        }, 1500);
+      }
+    }
+  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem]);
+
+
 
   const lastCaught = caughtMonsters[0] || null
 
@@ -393,7 +472,6 @@ function App() {
           playerName={playerName || 'Aether_Runner'}
           avatarStyle={avatarStyle}
           avatarSeed={avatarSeed}
-          onQrClick={activeTab === 'vault' ? () => setIsScannerOpen(true) : undefined}
           onSettingsClick={() => setIsSettingsOpen(true)}
           onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
         />
@@ -406,10 +484,6 @@ function App() {
               key="detail" 
               monster={selectedMonster} 
               onBack={() => setSelectedMonster(null)} 
-              onTrade={() => {
-                setTradingMonster(selectedMonster)
-                setSelectedMonster(null)
-              }}
             />
           ) : (
             <motion.div
@@ -456,12 +530,16 @@ function App() {
                 />
               )}
 
-              {activeTab === 'world' && (
+               {activeTab === 'world' && (
                   <WorldMap 
                     ref={worldMapRef}
                     key="world" 
                     onCatch={setNewMonster} 
-                    onStartTrade={() => setIsScannerOpen(true)}
+                    onStartTrade={(name, uid) => {
+                      if (uid) {
+                        setP2pTrade({ step: 'REQUESTING', partnerName: name || 'Hráč', partnerUid: uid });
+                      }
+                    }}
                     playerHP={currentHP} 
                     onConsumeHP={consumeHP} 
                     onDistanceUpdate={handleMove}
@@ -469,6 +547,7 @@ function App() {
                     caughtMonsters={caughtMonsters}
                     playerName={playerName || 'Aether_Runner'}
                     avatarStyle={avatarStyle}
+                    avatarSeed={avatarSeed}
                     playerLevel={calculateLevel(totalXP)}
                   />
               )}
@@ -497,60 +576,7 @@ function App() {
       }} />
       
       <AnimatePresence>
-        {isScannerOpen && (
-          <ScannerModal 
-            isOpen={isScannerOpen} 
-            onClose={() => setIsScannerOpen(false)} 
-            onScan={handleScan}
-          />
-        )}
-        {newMonster && (
-          <NewMonsterModal 
-            monster={newMonster} 
-            onClose={() => setNewMonster(null)} 
-            onAdd={saveMonster}
-            isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
-            isStackFull={caughtMonsters.filter(m => m.id === newMonster.id).length >= 3}
-          />
-        )}
-        {tradingMonster && (
-          <TradeModal 
-            monster={tradingMonster} 
-            onClose={() => setTradingMonster(null)} 
-            mode="OFFER"
-          />
-        )}
-        {tradeConfirmation && (
-          <TradeModal 
-            monster={tradeConfirmation.monster} 
-            receivedMonster={tradeConfirmation.received}
-            onClose={() => setTradeConfirmation(null)} 
-            mode="CONFIRM"
-          />
-        )}
-        {pendingOffer && (
-          <TradeSelectionModal 
-            caughtMonsters={caughtMonsters}
-            offeringMonster={pendingOffer}
-            onClose={() => setPendingOffer(null)}
-            onSelect={(myMonster) => {
-              // Hráč B vybral svoji kartu:
-              // 1. Ulož kartu, kterou mu dával Hráč A
-              const offeredByA = monsterDB.find(m => m.id === pendingOffer.id);
-              if (offeredByA) {
-                saveMonster({ ...offeredByA, level: pendingOffer.level, image: `/monsters/${offeredByA.id}.png` });
-              }
-              // 2. Odeber svoji vybranou kartu
-              removeMonster(myMonster.id, myMonster.level);
-              // 3. Ukaž potvrzovací QR kód pro Hráče A
-              setTradeConfirmation({
-                monster: myMonster,
-                received: pendingOffer
-              });
-              setPendingOffer(null);
-            }}
-          />
-        )}
+
         {isSettingsOpen && (
           <SettingsModal 
             isOpen={isSettingsOpen}
@@ -581,6 +607,92 @@ function App() {
             }}
           />
         )}
+
+        {/* P2P Trade Modals */}
+        {p2pTrade && (
+          <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-background-dark/95 backdrop-blur-md" />
+            
+            {p2pTrade.step === 'REQUESTING' && (
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
+                <Bluetooth size={48} className="text-blue-500 animate-pulse mx-auto mb-4" />
+                <h3 className="text-xl font-black text-white uppercase mb-2">Žádost odesána</h3>
+                <p className="text-sm text-slate-400">Čekám na přijetí od hráče <strong className="text-blue-400">{p2pTrade.partnerName}</strong>...</p>
+                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">Zrušit</button>
+              </motion.div>
+            )}
+
+            {p2pTrade.step === 'INCOMING_REQ' && (
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-purple-500/30 rounded-3xl p-8 text-center shadow-2xl">
+                <SignalHigh size={48} className="text-purple-500 animate-bounce mx-auto mb-4" />
+                <h3 className="text-xl font-black text-white uppercase mb-2">Výměna</h3>
+                <p className="text-sm text-slate-400">Hráč <strong className="text-purple-400">{p2pTrade.partnerName}</strong> ti nabízí výměnu příšer!</p>
+                <div className="grid grid-cols-2 gap-3 mt-8">
+                  <button onClick={() => setP2pTrade({ ...p2pTrade, step: 'SELECTING' })} className="px-4 py-3 rounded-xl bg-purple-600 text-white font-black uppercase shadow-lg">Přijmout</button>
+                  <button onClick={() => setP2pTrade(null)} className="px-4 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase">Odmítnout</button>
+                </div>
+              </motion.div>
+            )}
+
+            {p2pTrade.step === 'WAITING_OFFER' && (
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
+                <RefreshCw size={48} className="text-blue-500 animate-spin mx-auto mb-4" />
+                <h3 className="text-xl font-black text-white uppercase mb-2">Čekání na nabídku</h3>
+                <p className="text-sm text-slate-400">Hráč <strong className="text-blue-400">{p2pTrade.partnerName}</strong> vybírá příšeru...</p>
+                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">Zrušit</button>
+              </motion.div>
+            )}
+
+            {p2pTrade.step === 'CONFIRMING' && p2pTrade.myMonster && p2pTrade.theirMonster && (
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
+                <h3 className="text-xl font-black text-center text-white uppercase mb-6">Potvrdit Výměnu</h3>
+                <div className="flex items-center justify-between gap-4 mb-8">
+                  <div className="flex-1 text-center bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
+                    <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-2">Dáváš</p>
+                    <img src={`/monsters/${p2pTrade.myMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
+                    <p className="text-xs font-bold text-white uppercase">{p2pTrade.myMonster.name}</p>
+                    <p className="text-[10px] text-slate-400">LVL {p2pTrade.myMonster.level}</p>
+                  </div>
+                  <RefreshCw size={24} className="text-slate-500 shrink-0" />
+                  <div className="flex-1 text-center bg-green-500/10 p-4 rounded-2xl border border-green-500/20">
+                    <p className="text-[9px] font-black text-green-500 uppercase tracking-widest mb-2">Dostaneš</p>
+                    <img src={`/monsters/${p2pTrade.theirMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
+                    <p className="text-xs font-bold text-white uppercase">{p2pTrade.theirMonster.name}</p>
+                    <p className="text-[10px] text-slate-400">LVL {p2pTrade.theirMonster.level}</p>
+                  </div>
+                </div>
+                
+                {p2pTrade.confirmedByMe ? (
+                  <div className="w-full text-center py-4 rounded-xl bg-orange-500/20 border border-orange-500/30">
+                    <p className="text-xs font-black text-orange-400 uppercase tracking-widest animate-pulse">Čekání na druhého hráče...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => setP2pTrade({ ...p2pTrade, confirmedByMe: true })} className="px-4 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">Dokončit</button>
+                    <button onClick={() => setP2pTrade(null)} className="px-4 py-4 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase transition-transform active:scale-95">Zrušit</button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {p2pTrade.step === 'SELECTING' && (
+              <div className="relative w-full max-w-lg z-50">
+                <TradeSelectionModal 
+                  caughtMonsters={caughtMonsters}
+                  onClose={() => setP2pTrade(null)}
+                  onSelect={(myMonster) => {
+                    setP2pTrade({
+                       ...p2pTrade,
+                       step: p2pTrade.theirMonster ? 'CONFIRMING' : 'WAITING_OFFER',
+                       myMonster
+                    });
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
       </AnimatePresence>
 
       <GooglePayModal 
