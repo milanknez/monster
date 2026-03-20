@@ -8,6 +8,13 @@ export const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; gl
   epic: { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
 }
 
+export const RESOURCE_CONFIG: Record<string, { color: string; label: string; icon: string }> = {
+  crystal: { color: '#0db9f2', label: 'Krystal', icon: '💎' },
+  herb: { color: '#10b981', label: 'Bylinka', icon: '🌿' },
+  energy: { color: '#f59e0b', label: 'Energie', icon: '⚡' },
+  mineral: { color: '#64748b', label: 'Minerál', icon: '🪨' },
+}
+
 export const SILHOUETTE_SVG = `<path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47 L28 55 C26 60 30 65 35 63 L38 61 C40 64 44 66 50 66 C56 66 60 64 62 61 L65 63 C70 65 74 60 72 55 L68 47 C73 43 75 38 75 32 C75 20 65 10 50 10 Z" fill="currentColor"/><circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>`
 
 export function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -73,6 +80,19 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.15;0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115"><defs><filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${pulse}<circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>${lockOverlay}<rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/><text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text></svg>`
   return L.divIcon({ html: svg, className: '', iconSize: [outerSize, outerSize + 10], iconAnchor: [outerSize / 2, outerSize / 2] })
+}
+
+export function makeResourceIcon(type: string, isNearby: boolean): L.DivIcon {
+  const conf = RESOURCE_CONFIG[type] || RESOURCE_CONFIG.crystal
+  const size = 32
+  const pulse = isNearby ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${conf.color}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="32;50;32" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/></circle>` : ''
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">${pulse}<circle cx="50" cy="50" r="30" fill="rgba(0,0,0,0.6)" stroke="${conf.color}" stroke-width="2"/><text x="50" y="65" text-anchor="middle" font-size="45">${conf.icon}</text></svg>`
+  return L.divIcon({ html: svg, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
+}
+
+export function makeResourceTooltipHtml(type: string, amount: number): string {
+  const conf = RESOURCE_CONFIG[type] || RESOURCE_CONFIG.crystal
+  return `<div style="text-align:center;min-width:80px;"><div style="font-size:24px;margin-bottom:2px;">${conf.icon}</div><div style="color:${conf.color};font-size:12px;font-weight:900;text-transform:uppercase;">${conf.label}</div><div style="color:#94a3b8;font-size:10px;font-weight:bold;">Množství: ${amount}</div></div>`
 }
 
 export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {

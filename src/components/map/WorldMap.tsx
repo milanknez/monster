@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MapPin, RefreshCw } from 'lucide-react'
+import { Heart, MapPin, RefreshCw, Package } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { monsterDB } from '../../data/monsters'
-import type { Monster, SpawnPoint, SpawnRarity } from '../../types'
+import type { Monster, SpawnPoint, SpawnRarity, ResourceType, ResourceSpawn } from '../../types'
 import { cn } from '../../utils'
 import { syncPlayerToFirebase, watchNearbyPlayers } from '../../lib/firebase'
 
@@ -20,7 +20,10 @@ import {
   makeMarkerIcon,
   makeTooltipHtml,
   makePlayerIcon,
-  makeOtherPlayerIcon
+  makeOtherPlayerIcon,
+  makeResourceIcon,
+  makeResourceTooltipHtml,
+  RESOURCE_CONFIG
 } from './mapUtils'
 
 // ── Leaflet default icon fix ──────────────────────────────────
@@ -59,6 +62,7 @@ export interface WorldMapProps {
   avatarStyle: string
   avatarSeed: string
   playerLevel: number
+  onGather: (type: ResourceType, amount: number) => void
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -109,33 +113,109 @@ function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: C
   return spawns
 }
 
-async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): Promise<SpawnPoint[]> {
-  if (!isFinite(lat) || !isFinite(lng)) return []
-  const query = `[out:json][timeout:30];(nwr["historic"~"castle|monastery|palace|fortress|monument|memorial|archaeological_site|ruins|city_gate|fort|tower|fountain"](around:${OVERPASS_RADIUS_M},${lat},${lng});nwr["tourism"~"museum|attraction|artwork|viewpoint|zoo|theme_park"](around:${OVERPASS_RADIUS_M},${lat},${lng}););out center;`.trim()
+function generateResources(playerLat: number, playerLng: number, cooldowns: Cooldowns): ResourceSpawn[] {
+  if (!isFinite(playerLat) || !isFinite(playerLng)) return []
+  const spawns: ResourceSpawn[] = []
+  const centerIX = Math.floor(playerLat / LAT_STEP)
+  const centerIY = Math.floor(playerLng / LNG_STEP)
+  const resourceTypes: ResourceType[] = ['crystal', 'herb', 'energy', 'mineral']
+
+  for (let dy = -COMMON_RADIUS_CELLS; dy <= COMMON_RADIUS_CELLS; dy++) {
+    for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
+      const ix = centerIX + dy
+      const iy = centerIY + dx
+      const gridLat = ix * LAT_STEP
+      const gridLng = iy * LNG_STEP
+      const id = `resource_${ix}_${iy}`
+      if (seededFloat(`r_skip_${id}`) < 0.8) continue 
+      const rType = resourceTypes[Math.floor(seededFloat(`rtype_${id}`) * resourceTypes.length)]
+      const jLat = gridLat + (seededFloat(`rjlat_${id}`) - 0.5) * LAT_STEP * 0.9
+      const jLng = gridLng + (seededFloat(`rjlng_${id}`) - 0.5) * LNG_STEP * 0.9
+      spawns.push({
+        id, lat: jLat, lng: jLng, type: rType,
+        amount: Math.floor(seededFloat(`ramount_${id}`) * 2) + 1,
+        isCollected: isOnCooldown(cooldowns, id)
+      })
+    }
+  }
+  return spawns
+}
+
+async function fetchPoiData(lat: number, lng: number, cooldowns: Cooldowns): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[] }> {
+  if (!isFinite(lat) || !isFinite(lng)) return { monsters: [], resources: [] }
+  
+  const query = `[out:json][timeout:30];
+(
+  // Monsters POIs
+  nwr["historic"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["tourism"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  
+  // Resources POIs (Logic-based)
+  nwr["leisure"~"park|garden|nature_reserve"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["power"~"substation|line|tower"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["amenity"~"university|research_institute|library"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["natural"~"rock|stone|peak|cave_entrance|cliff"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["highway"~"path|track|living_street"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["landuse"~"quarry|industrial|construction"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+);
+out center;`.trim()
+
   const res = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    method: 'POST', 
+    body: 'data=' + encodeURIComponent(query), 
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   })
+  
   const json = await res.json()
-  const spawns: SpawnPoint[] = []
+  const monsters: SpawnPoint[] = []
+  const resources: ResourceSpawn[] = []
   const seenPos = new Set<string>()
   const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress']
+  
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
+    
     const posKey = `${elLat.toFixed(5)}_${elLng.toFixed(5)}`
     if (seenPos.has(posKey)) continue
     seenPos.add(posKey)
-    const rarity: SpawnRarity = EPIC_TAGS.includes(el.tags?.historic) ? 'epic' : 'rare'
+    
+    const tags = el.tags || {}
     const id = `poi_${el.type}_${el.id}`
-    spawns.push({
-      id, lat: elLat, lng: elLng, rarity,
-      monsterId: pickMonster(id, rarity),
-      level: pickLevel(id, rarity),
-      caught: isOnCooldown(cooldowns, id),
-    })
+    const isCollected = isOnCooldown(cooldowns, id)
+
+    if (tags.historic || tags.tourism) {
+      const rarity: SpawnRarity = EPIC_TAGS.includes(tags.historic) ? 'epic' : 'rare'
+      monsters.push({
+        id, lat: elLat, lng: elLng, rarity,
+        monsterId: pickMonster(id, rarity),
+        level: pickLevel(id, rarity),
+        caught: isCollected,
+      })
+    } else {
+      let type: ResourceType = 'crystal'
+      let amount = Math.floor(seededFloat(id + '_amt') * 3) + 2
+
+      if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard') {
+        type = 'herb'
+      } else if (tags.power || tags.amenity === 'university' || tags.amenity === 'research_institute') {
+        type = 'energy'
+      } else if (tags.natural === 'rock' || tags.landuse === 'quarry' || tags.natural === 'peak') {
+        type = 'mineral'
+      } else if (tags.highway === 'path' || tags.highway === 'track') {
+        type = 'crystal'
+      }
+
+      resources.push({
+        id, lat: elLat, lng: elLng, 
+        type, amount,
+        isCollected
+      })
+    }
   }
-  return spawns
+  return { monsters, resources }
 }
 
 export interface WorldMapHandle {
@@ -145,23 +225,36 @@ export interface WorldMapHandle {
 export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ 
   onCatch, 
   onStartTrade,
-  onConsumeHP,  onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, avatarSeed, playerLevel, caughtMonsters, playerHP }, ref) => {
+  onConsumeHP,  
+  onDistanceUpdate, 
+  isInteractionBlocked, 
+  playerName, 
+  avatarStyle, 
+  avatarSeed, 
+  playerLevel, 
+  caughtMonsters, 
+  playerHP,
+  onGather
+}, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const resourceMarkersRef = useRef<Map<string, L.Marker>>(new Map())
   const otherPlayersMarkersRef = useRef<Map<string, L.Marker>>(new Map())
   const watchIdRef = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
   const lastPosRef = useRef<[number, number] | null>(null)
-  const playerPosRef = useRef<[number, number] | null>(null)
   const lastPosTimeRef = useRef<number | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
+  
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
+  const [resources, setResources] = useState<ResourceSpawn[]>([])
   const [nearbySpawn, setNearbySpawn] = useState<SpawnPoint | null>(null)
-  const [mockPlayers, setMockPlayers] = useState<NearbyPlayer[]>([])
+  const [nearbyResource, setNearbyResource] = useState<ResourceSpawn | null>(null)
+  
   const [levelBlocked, setLevelBlocked] = useState(false)
   const [hpBlocked, setHpBlocked] = useState(false)
   const [loadingPoi, setLoadingPoi] = useState(false)
@@ -178,51 +271,65 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     }
   }));
 
-  const currentEnergyCost = useMemo(() => {
-    if (!nearbySpawn) return 0
-    return calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
-  }, [nearbySpawn])
-
-  const recalcNearby = useCallback((lat: number, lng: number, currentSpawns: SpawnPoint[]) => {
+  const recalcNearby = useCallback((lat: number, lng: number, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[]) => {
     if (!isFinite(lat) || !isFinite(lng)) return
-    const nearby = currentSpawns
+    const nearbySp = currentSpawns
       .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng))
       .map(s => ({ s, dist: haversineM(lat, lng, s.lat, s.lng) }))
       .filter(({ dist }) => dist <= CATCH_RADIUS_M)
       .sort((a, b) => a.dist - b.dist)[0]
-    setNearbySpawn(nearby?.s ?? null)
+    setNearbySpawn(nearbySp?.s ?? null)
+
+    const nearbyRes = currentResources
+      .filter(r => !r.isCollected && isFinite(r.lat) && isFinite(r.lng))
+      .map(r => ({ r, dist: haversineM(lat, lng, r.lat, r.lng) }))
+      .filter(({ dist }) => dist <= CATCH_RADIUS_M)
+      .sort((a, b) => a.dist - b.dist)[0]
+    setNearbyResource(nearbyRes?.r ?? null)
   }, [])
 
-  const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], playerLat: number, playerLng: number, pLevel: number) => {
+  const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[], playerLat: number, playerLng: number, pLevel: number) => {
+    // Monsters
     const existing = markersRef.current
     for (const [id, marker] of existing) {
-      const spawn = currentSpawns.find(s => s.id === id)
-      if (!spawn || spawn.caught) { marker.remove(); existing.delete(id) }
+      if (!currentSpawns.find(s => s.id === id && !s.caught)) { marker.remove(); existing.delete(id) }
     }
-    for (const spawn of currentSpawns) {
-      if (spawn.caught || !isFinite(spawn.lat) || !isFinite(spawn.lng)) continue
-      const dist = haversineM(playerLat, playerLng, spawn.lat, spawn.lng)
+    for (const s of currentSpawns) {
+      if (s.caught) continue
+      const dist = haversineM(playerLat, playerLng, s.lat, s.lng)
       const isNearby = dist <= CATCH_RADIUS_M
-      const isLocked = spawn.level > pLevel
-      const marker = existing.get(spawn.id)
+      const marker = existing.get(s.id)
       if (marker) {
-        const prevNearby = (marker as any)._isNearby
-        if (prevNearby !== isNearby) {
-          marker.setIcon(makeMarkerIcon(spawn, isNearby, isLocked))
-          marker.setTooltipContent(makeTooltipHtml(spawn, pLevel))
+        if ((marker as any)._isNearby !== isNearby) {
+          marker.setIcon(makeMarkerIcon(s, isNearby, s.level > pLevel))
           ;(marker as any)._isNearby = isNearby
         }
       } else {
-        const newMarker = L.marker([spawn.lat, spawn.lng], { 
-          icon: makeMarkerIcon(spawn, isNearby, isLocked), 
-          zIndexOffset: spawn.rarity === 'epic' ? 200 : spawn.rarity === 'rare' ? 100 : 0 
-        })
-        newMarker.bindTooltip(makeTooltipHtml(spawn, pLevel), { 
-          direction: 'top', offset: [0, -12], className: 'monster-tooltip', opacity: 1 
-        })
-        newMarker.addTo(map)
-        ;(newMarker as any)._isNearby = isNearby
-        existing.set(spawn.id, newMarker)
+        const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, s.level > pLevel) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
+        ;(m as any)._isNearby = isNearby
+        existing.set(s.id, m)
+      }
+    }
+
+    // Resources
+    const rExisting = resourceMarkersRef.current
+    for (const [id, marker] of rExisting) {
+      if (!currentResources.find(r => r.id === id && !r.isCollected)) { marker.remove(); rExisting.delete(id) }
+    }
+    for (const r of currentResources) {
+      if (r.isCollected) continue
+      const dist = haversineM(playerLat, playerLng, r.lat, r.lng)
+      const isNearby = dist <= CATCH_RADIUS_M
+      const marker = rExisting.get(r.id)
+      if (marker) {
+        if ((marker as any)._isNearby !== isNearby) {
+          marker.setIcon(makeResourceIcon(r.type, isNearby))
+          ;(marker as any)._isNearby = isNearby
+        }
+      } else {
+        const m = L.marker([r.lat, r.lng], { icon: makeResourceIcon(r.type, isNearby) }).bindTooltip(makeResourceTooltipHtml(r.type, r.amount), { direction: 'top', offset: [0, -5], className: 'resource-tooltip' }).addTo(map)
+        ;(m as any)._isNearby = isNearby
+        rExisting.set(r.id, m)
       }
     }
   }, [])
@@ -238,11 +345,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       if (marker) {
         marker.setLatLng([p.lat, p.lng])
       } else {
-        const newMarker = L.marker([p.lat, p.lng], { 
-          icon: makeOtherPlayerIcon(p.name, p.avatarSeed || p.name, p.avatarStyle) 
-        })
-        .on('click', () => { setSelectedOtherPlayer(p) })
-        .addTo(map)
+        const newMarker = L.marker([p.lat, p.lng], { icon: makeOtherPlayerIcon(p.name, p.avatarSeed || p.name, p.avatarStyle) }).on('click', () => { setSelectedOtherPlayer(p) }).addTo(map)
         existing.set(p.id, newMarker)
       }
     }
@@ -253,235 +356,126 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const last = lastPoiFetchRef.current
     if (last && haversineM(lat, lng, last.lat, last.lng) < 200) return
     lastPoiFetchRef.current = { lat, lng }
-    const cacheKey = `poi_cache_${Math.round(lat*100)}_${Math.round(lng*100)}`
-    const cachedData = localStorage.getItem(cacheKey)
-    if (cachedData) {
-      try {
-        const { timestamp, data } = JSON.parse(cachedData)
-        if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-          setSpawns(prev => {
-            const commons = prev.filter(s => s.rarity === 'common')
-            const existingIds = new Set(commons.map(c => c.id))
-            const newPois = (data as SpawnPoint[]).filter(d => !existingIds.has(d.id))
-            return [...commons, ...newPois]
-          })
-          if (Date.now() - timestamp < 60 * 60 * 1000) return
-        }
-      } catch (e) { console.error("Cache error", e) }
-    }
     setLoadingPoi(true)
     try {
-      const poiSpawns = await fetchPoiSpawns(lat, lng, cooldownsRef.current)
-      localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: poiSpawns }))
+      const { monsters: poiMonsters, resources: poiResources } = await fetchPoiData(lat, lng, cooldownsRef.current)
+      
       setSpawns(prev => {
-        const commons = prev.filter(s => s.rarity === 'common')
+        const commons = prev.filter(p => p.rarity === 'common')
         const poiMap = new Map<string, SpawnPoint>()
-        prev.filter(s => s.rarity !== 'common').forEach(s => poiMap.set(s.id, s))
-        poiSpawns.forEach(s => poiMap.set(s.id, s))
+        prev.filter(p => p.rarity !== 'common').forEach(p => poiMap.set(p.id, p))
+        poiMonsters.forEach(p => poiMap.set(p.id, p))
         return [...commons, ...Array.from(poiMap.values())]
       })
-    } catch (e) { console.warn('Overpass failed', e) }
+
+      setResources(prev => {
+        const randoms = prev.filter(r => !r.id.startsWith('poi_'))
+        const poiMap = new Map<string, ResourceSpawn>()
+        prev.filter(r => r.id.startsWith('poi_')).forEach(r => poiMap.set(r.id, r))
+        poiResources.forEach(r => poiMap.set(r.id, r))
+        return [...randoms, ...Array.from(poiMap.values())]
+      })
+
+    } catch (e) { console.error("POI Fetch Error:", e) }
     finally { setLoadingPoi(false) }
   }, [])
-
-  const forceRefreshPOI = useCallback(() => {
-    if (!playerPos) return
-    const [lat, lng] = playerPos
-    localStorage.removeItem(`poi_cache_${Math.round(lat*100)}_${Math.round(lng*100)}`)
-    lastPoiFetchRef.current = null
-    fetchPOI(lat, lng)
-  }, [playerPos, fetchPOI])
 
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
     const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
-    L.control.zoom({ position: 'topright' }).addTo(map)
     mapRef.current = map
+    
     if ('geolocation' in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
         const { latitude: lat, longitude: lng } = pos.coords
         if (!isFinite(lat) || !isFinite(lng)) return
         const now = Date.now()
         if (lastPosRef.current && lastPosTimeRef.current) {
-          const [lLat, lLng] = lastPosRef.current
-          const dt = (now - lastPosTimeRef.current) / 1000
-          const traveled = haversineM(lLat, lLng, lat, lng)
-          if (dt > 0) {
-            const speedKmh = (traveled / dt) * 3.6
-            if (traveled >= 4 && traveled <= 150 && speedKmh < 15) { onDistanceUpdate(traveled) }
-          }
+          const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
+          if (traveled >= 4 && traveled <= 150) onDistanceUpdate(traveled)
         }
         lastPosRef.current = [lat, lng]
-        playerPosRef.current = [lat, lng]
         lastPosTimeRef.current = now
         setPlayerPos([lat, lng]); setStatusMsg('')
+        
         if (!playerMarkerRef.current) {
           playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
-          map.setView([lat, lng], 16)
+          map.setView([lat, lng], 17)
         } else { playerMarkerRef.current.setLatLng([lat, lng]) }
-        setSpawns(prev => {
-          const commons = generateCommonSpawns(lat, lng, cooldownsRef.current)
-          const pois = prev.filter(s => s.rarity !== 'common').map(s => ({ ...s, caught: isOnCooldown(cooldownsRef.current, s.id) }))
-          const merged = [...commons, ...pois]
-          recalcNearby(lat, lng, merged) 
-          return merged
-        })
-        if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 2000)
-      }, () => { setStatusMsg('GPS signál nenalezen.') }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 })
-    }
-    return () => {
-      if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
-      if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-      if (mapRef.current) {
-        mapRef.current.remove()
-        mapRef.current = null
-      }
-      playerMarkerRef.current = null
-      markersRef.current.clear()
-      otherPlayersMarkersRef.current.clear()
-    }
-  }, [recalcNearby, fetchPOI, onDistanceUpdate])
-
-  useEffect(() => {
-    if (!playerPos || !isFinite(playerPos[0])) return
-    recalcNearby(playerPos[0], playerPos[1], spawns)
-    if (mapRef.current) { 
-      updateMarkers(mapRef.current, spawns, playerPos[0], playerPos[1], playerLevel)
-      updateOtherPlayers(mapRef.current, nearbyPlayers)
-    }
-  }, [spawns, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, recalcNearby])
-
-  // Simulation Controller
-  useEffect(() => {
-    (window as any).worldMap_spawnMockPlayers = (count: number = 3) => {
-      if (!playerPos) {
-        console.warn("GPS poloha není známa, nemohu spawnovat hráče.");
-        return;
-      }
-      const newMock: NearbyPlayer[] = [];
-      for (let i = 0; i < count; i++) {
-        const dist = 30 + Math.random() * 50;
-        const angle = Math.random() * Math.PI * 2;
-        const dLat = (dist / 111320) * Math.cos(angle);
-        const dLng = (dist / (111320 * Math.cos(playerPos[0] * Math.PI / 180))) * Math.sin(angle);
-        const name = ['Aether_Ghost', 'Neon_Stalker', 'Cyber_Wraith', 'Void_Runner'][Math.floor(Math.random() * 4)] + `_${Math.floor(Math.random() * 999)}`;
-        const avatarStyleChoice = ['avataaars', 'bottts', 'pixel-art', 'lorelei'][Math.floor(Math.random() * 4)];
         
-        newMock.push({
-          id: `mock_${Date.now()}_${i}`,
-          name,
-          level: Math.floor(Math.random() * 15) + 1,
-          lat: playerPos[0] + dLat,
-          lng: playerPos[1] + dLng,
-          lastSeen: Date.now(),
-          avatarSeed: name,
-          avatarStyle: avatarStyleChoice
-        });
-      }
-      setMockPlayers(prev => [...prev, ...newMock]);
-      console.log(`Nasimulováno ${count} hráčů v okolí.`);
-    };
-
-    (window as any).worldMap_clearMockPlayers = () => setMockPlayers([]);
-
-    if (window.location.hostname === 'localhost' && playerPos && mockPlayers.length === 0) {
-      (window as any).worldMap_spawnMockPlayers(3);
-    }
-  }, [playerPos, mockPlayers.length]);
-
-  // --- FIREBASE SYNC & WATCH ---
-  useEffect(() => {
-    if (!playerPos || !playerName) return;
-
-    const syncInterval = setInterval(() => {
-      syncPlayerToFirebase({
-        name: playerName,
-        level: playerLevel,
-        monsterCount: caughtMonsters.length,
-        lat: playerPos[0],
-        lng: playerPos[1],
-        avatarStyle,
-        avatarSeed
-      });
-    }, 10000);
-
-    syncPlayerToFirebase({
-      name: playerName,
-      level: playerLevel,
-      monsterCount: caughtMonsters.length,
-      lat: playerPos[0],
-      lng: playerPos[1],
-      avatarStyle,
-      avatarSeed
-    });
-
-    const unsubscribe = watchNearbyPlayers((others) => {
-      const mappedOthers = others
-        .filter(p => {
-           const isRecent = (Date.now() - p.lastActive) < 5 * 60 * 1000;
-           if (!isRecent) return false;
-           const dist = haversineM(playerPos[0], playerPos[1], p.lat, p.lng);
-           return dist < 2000;
+        const cooldowns = loadCooldowns()
+        const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
+        const commonRes = generateResources(lat, lng, cooldowns)
+        
+        setSpawns(prev => {
+          const pois = prev.filter(p => p.rarity !== 'common').map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
+          return [...commonMonsters, ...pois]
         })
-        .map(p => ({
-          ...p,
-          id: p.id || `fb_${p.name}`
-        }));
-      setFirebasePlayers(mappedOthers);
-    });
+        
+        setResources(prev => {
+          const pois = prev.filter(r => r.id.startsWith('poi_')).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
+          return [...commonRes, ...pois]
+        })
 
-    return () => {
-      clearInterval(syncInterval);
-    };
-  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed]);
+        if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
+        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 1500)
+      }, () => setStatusMsg('GPS nedostupná'), { enableHighAccuracy: true })
+    }
+  }, [onDistanceUpdate])
 
   useEffect(() => {
-    const allPlayersMap = new Map<string, NearbyPlayer>();
-    mockPlayers.forEach(p => allPlayersMap.set(p.name, p));
-    firebasePlayers.forEach(p => allPlayersMap.set(p.name, p));
-    setNearbyPlayers(Array.from(allPlayersMap.values()));
-  }, [firebasePlayers, mockPlayers]);
+    if (!playerPos || !mapRef.current) return
+    updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel)
+    updateOtherPlayers(mapRef.current, nearbyPlayers)
+  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers])
 
   const handleCatch = () => {
     if (!nearbySpawn) return
-    if (nearbySpawn.level > playerLevel) {
-      setLevelBlocked(true); setTimeout(() => setLevelBlocked(false), 2500); return
-    }
+    if (nearbySpawn.level > playerLevel) { setLevelBlocked(true); setTimeout(() => setLevelBlocked(false), 2000); return }
     const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
-    if (playerHP < cost) {
-      setHpBlocked(true); setTimeout(() => setHpBlocked(false), 2500); return
-    }
-    const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) ?? monsterDB[0]
-    const caught: Monster = { ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` }
-    const nC: Cooldowns = { ...cooldownsRef.current, [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS }
+    if (playerHP < cost) { setHpBlocked(true); setTimeout(() => setHpBlocked(false), 2000); return }
+    const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
+    onConsumeHP(cost)
+    onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster)
+    const nC = { ...cooldownsRef.current, [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS }
     cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
     setSpawns(prev => prev.map(s => s.id === nearbySpawn.id ? { ...s, caught: true } : s))
-    setNearbySpawn(null); onConsumeHP(cost); onCatch(caught)
+    setNearbySpawn(null)
   }
 
+  const handleGather = () => {
+    if (!nearbyResource) return
+    onGather(nearbyResource.type, nearbyResource.amount)
+    const nC = { ...cooldownsRef.current, [nearbyResource.id]: Date.now() + RESPAWN_COOLDOWN_MS }
+    cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
+    setResources(prev => prev.map(r => r.id === nearbyResource.id ? { ...r, isCollected: true } : r))
+    setNearbyResource(null)
+  }
+
+  useEffect(() => {
+    if (!playerPos || !playerName) return
+    const unsubscribe = watchNearbyPlayers((others) => {
+      setFirebasePlayers(others.filter(p => (Date.now() - p.lastActive) < 300000 && haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000).map(p => ({ ...p, id: p.id || `fb_${p.name}` })))
+    });
+    return () => unsubscribe();
+  }, [playerPos, playerName])
+
+  useEffect(() => {
+    const all = new Map<string, NearbyPlayer>()
+    firebasePlayers.forEach(p => all.set(p.name, p))
+    setNearbyPlayers(Array.from(all.values()))
+  }, [firebasePlayers])
+
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} 
-      className="relative w-full h-full flex flex-col overflow-hidden" 
-      style={{ height: 'calc(100vh - 176px - env(safe-area-inset-top) - env(safe-area-inset-bottom))' }}
-    >
-      <div className="px-4 py-2 flex items-center justify-between shrink-0 bg-background-dark/50 backdrop-blur-sm z-50">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full h-full flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 176px)' }}>
+      <div className="px-4 py-2 flex items-center justify-between bg-background-dark/50 backdrop-blur-sm z-50">
         <div>
-          <p className="text-slate-400 text-[10px] uppercase tracking-widest font-black">Průzkum světa</p>
-          <p className="text-slate-500 text-[9px] font-bold">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer v sektoru`}</p>
+          <p className="text-slate-400 text-[10px] uppercase font-black tracking-widest">Průzkum Sektoru</p>
+          <p className="text-slate-500 text-[9px] font-bold">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer & ${resources.filter(r => !r.isCollected).length} surovin`}</p>
         </div>
         <div className="flex items-center gap-2">
-          {loadingPoi && (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
-               <RefreshCw size={10} className="text-blue-500 animate-spin" />
-               <span className="text-[8px] font-black text-blue-500 uppercase tracking-tighter">Skenování...</span>
-            </div>
-          )}
-          <button onClick={forceRefreshPOI} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 group">
-            <RefreshCw size={14} className={cn("group-hover:text-primary transition-colors", loadingPoi && "animate-spin")} />
-          </button>
+          {loadingPoi && <RefreshCw size={12} className="text-blue-500 animate-spin" />}
           <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
             <Heart size={10} className="text-red-500" fill="currentColor" />
             <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
@@ -489,60 +483,48 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         </div>
       </div>
 
-      <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl isolate">
+      <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
-        <div className="absolute bottom-3 left-3 flex flex-col gap-1 bg-black/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 border border-white/5 z-40 pointer-events-none">
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" /><span className="text-[8px] font-bold text-slate-400 uppercase">Běžná</span></div>
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /><span className="text-[8px] font-bold text-purple-400 uppercase">Vzácná</span></div>
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /><span className="text-[8px] font-bold text-orange-400 uppercase">Epická</span></div>
-        </div>
       </div>
 
       <AnimatePresence>
+        {nearbyResource && !nearbySpawn && !isInteractionBlocked && (
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
+            <button onClick={handleGather} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-500 border-b-4 border-black/20 shadow-2xl transition-all active:scale-95">
+              <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30"><Package size={16} /><span>SEBRAT: {RESOURCE_CONFIG[nearbyResource.type]?.label || 'Surovinu'}</span></div>
+              <div className="text-[10px] opacity-80 mt-1">ZÍSKÁŠ {nearbyResource.amount}ks MATERIÁLU</div>
+            </button>
+          </motion.div>
+        )}
         {nearbySpawn && !isInteractionBlocked && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
-            {levelBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔒 POTŘEBUJEŠ ÚROVEŇ {nearbySpawn.level}</div>
-            ) : hpBlocked ? (
-              <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-extrabold text-xs text-center shadow-2xl uppercase">🔋 VYČERPÁNÍ! ({currentEnergyCost}% ENERGIE)</div>
-            ) : (
-              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center transition-all active:scale-95 border-b-4 border-black/20" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)', boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}>
-                <div className="flex items-center gap-2"><MapPin size={14} className="animate-bounce" /><span className="text-sm">DETEKCE: LEVEL {nearbySpawn.level}</span></div>
-                <div className="text-[9px] font-bold opacity-90 mt-1 flex items-center gap-1"><Heart size={8} fill="currentColor" /> SPOTŘEBA {currentEnergyCost}% ENERGIE</div>
-              </button>
-            )}
+             {levelBlocked ? (
+               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-black text-center uppercase text-xs">🔒 VYŽADUJE ÚROVEŇ {nearbySpawn.level}</div>
+             ) : hpBlocked ? (
+               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-black text-center uppercase text-xs">🔋 ENERGIE PŘÍLIŠ NÍZKÁ</div>
+             ) : (
+               <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }}>
+                  <div className="flex items-center gap-2"><MapPin size={14} className="animate-bounce" /><span>CHYTIT: LEVEL {nearbySpawn.level}</span></div>
+                  <div className="text-[10px] opacity-80 mt-1">SPOTŘEBUJE {calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% HP</div>
+               </button>
+             )}
           </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {selectedOtherPlayer && (
-          <div className="absolute inset-0 z-[2000] flex items-end justify-center p-6 bg-black/20 backdrop-blur-[2px]">
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedOtherPlayer(null)} className="absolute inset-0" />
-             <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="relative w-full max-w-sm bg-slate-900 border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(168,85,247,0.2)] overflow-hidden">
-                <div className="flex flex-col items-center text-center">
-                   <div className="size-24 rounded-3xl bg-slate-800 border-2 border-purple-500 p-2 mb-4 shadow-lg">
-                      <img src={`https://api.dicebear.com/7.x/${selectedOtherPlayer.avatarStyle || 'avataaars'}/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} className="w-full h-full object-cover" alt="Avatar" />
-                   </div>
-                   <div className="mb-6">
-                     <p className="text-[10px] font-black text-purple-400 uppercase tracking-[0.3em] mb-1">Aether_Runner</p>
-                     <h3 className="text-2xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
-                     <div className="mt-2 flex flex-col items-center gap-2">
-                        <div className="inline-flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
-                           <span className="text-xs font-black text-purple-300">LEVEL {selectedOtherPlayer.level}</span>
-                        </div>
-                     </div>
-                   </div>
+          <div className="absolute inset-0 z-[2000] flex items-end justify-center p-6 bg-black/40 backdrop-blur-sm">
+             <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} className="w-full max-w-sm bg-slate-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl">
+                <div className="flex flex-col items-center">
+                   <img src={`https://api.dicebear.com/7.x/${selectedOtherPlayer.avatarStyle || 'avataaars'}/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} className="size-20 bg-slate-800 rounded-2xl mb-4 border border-purple-500/30" alt="" />
+                   <h3 className="text-xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
+                   <p className="text-purple-400 text-xs font-black uppercase mb-6 tracking-widest">Aeternum Runner (LVL {selectedOtherPlayer.level})</p>
                    <div className="grid grid-cols-2 gap-3 w-full">
-                     <button onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null); }} className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest shadow-lg">
-                       <RefreshCw size={14} className="animate-spin-slow" /> Vyměnit
-                     </button>
-                     <button onClick={() => setSelectedOtherPlayer(null)} className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase text-[10px] tracking-widest">
-                       Zavřít
-                     </button>
+                      <button onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }} className="bg-purple-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter">Vyměnit</button>
+                      <button onClick={() => setSelectedOtherPlayer(null)} className="bg-slate-800 text-slate-400 font-bold py-4 rounded-xl uppercase text-xs">Zavřít</button>
                    </div>
                 </div>
-                <div className="absolute -top-10 -right-10 size-32 bg-purple-500/10 rounded-full blur-3xl" />
              </motion.div>
           </div>
         )}

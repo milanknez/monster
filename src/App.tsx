@@ -32,6 +32,7 @@ import { usePlayerXP } from './hooks/usePlayerXP'
 import { usePlayerHP } from './hooks/usePlayerHP'
 import { useMonsters } from './hooks/useMonsters'
 import { useP2PTrade } from './hooks/useP2PTrade'
+import { useInventory } from './hooks/useInventory'
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
@@ -53,6 +54,7 @@ function App() {
   // --- HOOKS ---
   const { toasts, addToast, removeToast } = useToasts()
   const { activeBoosts, activateBoost: baseActivateBoost } = useBoosts()
+  const { inventory, addResource } = useInventory()
   
   const { 
     totalXP, 
@@ -131,7 +133,7 @@ function App() {
   useEffect(() => {
     handleCompleteTrade((myMonster, theirMonster) => {
       const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
-      saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` }, (xp) => addXP(xp), false);
+      saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
       removeMonster(myMonster.id, myMonster.level);
       addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'boost' });
     });
@@ -152,7 +154,7 @@ function App() {
     (window as any).simulateP2P_PartnerConfirmed = () => setP2pTrade(prev => prev ? { ...prev, confirmedByThem: true } : null);
     (window as any).addTestMonster = (id = '001', level = 5) => {
       const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
-      saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` }, (xp) => addXP(xp));
+      saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp));
     };
 
     return () => { 
@@ -199,6 +201,15 @@ function App() {
         setIsEditorMode(false)
       }} />
     )
+  }
+
+  const handleGather = (type: any, amount: number) => {
+    addResource(type, amount)
+    addToast({
+      title: 'Surovina získána',
+      message: `${amount}x ${type} přidáno do inventáře`,
+      type: 'boost'
+    })
   }
 
   return (
@@ -283,6 +294,7 @@ function App() {
                 <Inventory 
                   key="inventory" 
                   activeBoosts={activeBoosts}
+                  inventory={inventory}
                 />
               )}
 
@@ -309,6 +321,7 @@ function App() {
                     avatarStyle={avatarStyle}
                     avatarSeed={avatarSeed}
                     playerLevel={currentLevel}
+                    onGather={handleGather}
                   />
               )}
 

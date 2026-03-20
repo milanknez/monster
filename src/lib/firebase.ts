@@ -63,7 +63,7 @@ export const syncPlayerToFirebase = (data: {
  */
 export const watchNearbyPlayers = (callback: (players: any[]) => void) => {
     const playersRef = ref(db, 'players');
-    onValue(playersRef, (snapshot) => {
+    return onValue(playersRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) {
             callback([]);
