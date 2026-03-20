@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert, Flame, Droplets, Leaf, Zap, Moon, Sun } from 'lucide-react'
-import { monsterDB } from '../data/monsters'
-import { cn, TYPE_COLORS } from '../utils'
-import type { Monster } from '../types'
+import { monsterDB } from '../../data/monsters'
+import { cn, TYPE_COLORS } from '../../utils'
+import type { Monster } from '../../types'
 
 const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
 const MONSTER_RARITIES = ['Běžná', 'Vzácná', 'Epická', 'Legendární']

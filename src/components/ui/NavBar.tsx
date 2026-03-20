@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
-import { LayoutGrid, BookOpen, Map as MapIcon, ShoppingBag } from 'lucide-react';
-import { cn } from '../utils';
+import { LayoutGrid, BookOpen, Map as MapIcon, Package } from 'lucide-react';
+import { cn } from '../../utils';
 
 export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (id: string) => void }) => {
   const navItems = [
     { id: 'home', label: 'Domů', icon: LayoutGrid },
     { id: 'vault', label: 'Bestiář', icon: BookOpen },
+    { id: 'inventory', label: 'Inventář', icon: Package },
     { id: 'world', label: 'Svět', icon: MapIcon },
-    { id: 'store', label: 'Obchod', icon: ShoppingBag },
   ]
 
   return (

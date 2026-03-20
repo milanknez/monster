@@ -1,8 +1,8 @@
 import { useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../utils';
-import type { Monster } from '../types';
+import { cn, TYPE_COLORS } from '../../utils';
+import type { Monster } from '../../types';
 
 const RARITY_COLORS: Record<string, string> = {
   'Běžná': 'text-slate-400',

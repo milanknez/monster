@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Heart, Zap, ArrowUp } from 'lucide-react';
-import { cn, calculateLevel, getTotalXPForLevel } from '../utils';
+import { cn, calculateLevel, getTotalXPForLevel } from '../../utils';
 
 export const StatsCard = ({ 
   caughtCount, 

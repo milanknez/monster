@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer } from 'lucide-react';
-import { cn } from '../utils';
+import { cn } from '../../utils';
 
-import { Monster } from '../types';
+import { Monster } from '../../types';
 
 export const DailyQuests = ({ 
   caughtMonsters, 

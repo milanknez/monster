@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { cn } from '../utils';
+import { cn } from '../../utils';
 
 interface SettingsModalProps {
   isOpen: boolean;

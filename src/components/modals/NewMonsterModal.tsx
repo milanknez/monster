@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { cn, TYPE_COLORS } from '../utils';
-import type { Monster } from '../types';
+import { cn, TYPE_COLORS } from '../../utils';
+import type { Monster } from '../../types';
 
 export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; isStackFull?: boolean }) => {
   if (!monster) return null

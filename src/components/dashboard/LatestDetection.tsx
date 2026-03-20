@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Activity, Bolt } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../utils';
-import type { Monster } from '../types';
+import { cn, TYPE_COLORS } from '../../utils';
+import type { Monster } from '../../types';
 
 export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster | null, onSelect: (m: Monster) => void }) => (
   <section className="px-4 py-2">

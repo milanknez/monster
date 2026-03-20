@@ -1,5 +1,5 @@
 import { ArrowLeft, Zap, Settings, MapPin } from 'lucide-react';
-import { cn } from '../utils';
+import { cn } from '../../utils';
 
 interface HeaderProps {
   title?: string

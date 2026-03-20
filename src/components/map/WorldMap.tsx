@@ -1,13 +1,27 @@
 import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bluetooth, Heart, MapPin, RefreshCw } from 'lucide-react'
+import { Heart, MapPin, RefreshCw } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-import { monsterDB } from '../data/monsters'
-import type { Monster } from '../types'
-import { cn } from '../utils'
-import { syncPlayerToFirebase, watchNearbyPlayers } from '../lib/firebase'
+import { monsterDB } from '../../data/monsters'
+import type { Monster, SpawnPoint, SpawnRarity } from '../../types'
+import { cn } from '../../utils'
+import { syncPlayerToFirebase, watchNearbyPlayers } from '../../lib/firebase'
+
+import {
+  haversineM,
+  metersToLatDeg,
+  metersToLngDeg,
+  seededFloat,
+  pickMonster,
+  pickLevel,
+  calculateHPCost,
+  makeMarkerIcon,
+  makeTooltipHtml,
+  makePlayerIcon,
+  makeOtherPlayerIcon
+} from './mapUtils'
 
 // ── Leaflet default icon fix ──────────────────────────────────
 if (typeof window !== 'undefined') {
@@ -20,19 +34,7 @@ if (typeof window !== 'undefined') {
 }
 
 // ── Typy ─────────────────────────────────────────────────────
-type SpawnRarity = 'common' | 'rare' | 'epic'
-
-interface SpawnPoint {
-  id: string
-  lat: number
-  lng: number
-  rarity: SpawnRarity
-  monsterId: string
-  level: number
-  caught: boolean
-}
-
-interface NearbyPlayer {
+export interface NearbyPlayer {
   id: string
   name: string
   lat: number
@@ -43,7 +45,7 @@ interface NearbyPlayer {
   avatarStyle?: string
 }
 
-interface WorldMapProps {
+export interface WorldMapProps {
   onCatch: (monster: Monster) => void
   onStartTrade: (targetPlayerName?: string, targetUid?: string) => void
   tradeSignal?: string | null
@@ -66,12 +68,6 @@ const COMMON_RADIUS_CELLS = 8
 const OVERPASS_RADIUS_M = 3000
 const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000
 
-const calculateHPCost = (level: number, rarity: SpawnRarity) => {
-  const base = 25
-  const rarityBonus = rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
-  return base + (level * 2) + rarityBonus
-}
-
 type Cooldowns = Record<string, number>
 
 function loadCooldowns(): Cooldowns {
@@ -81,54 +77,6 @@ function loadCooldowns(): Cooldowns {
 
 function isOnCooldown(cooldowns: Cooldowns, id: string): boolean {
   return Date.now() < (cooldowns[id] ?? 0)
-}
-
-
-function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  if (!isFinite(lat1) || !isFinite(lng1) || !isFinite(lat2) || !isFinite(lng2)) return 999999
-  const R = 6_371_000
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a = Math.sin(dLat / 2) ** 2
-    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
-
-function metersToLatDeg(m: number) { return m / 111_320 }
-function metersToLngDeg(m: number, lat: number) {
-  const cosLat = Math.cos(lat * Math.PI / 180)
-  return m / (111_320 * (Math.abs(cosLat) < 0.00001 ? 0.00001 : cosLat))
-}
-
-function seededFloat(seed: string): number {
-  let h = 2166136261 >>> 0
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0
-  }
-  return (h >>> 0) / 0xFFFFFFFF
-}
-
-function pickMonster(seed: string, rarity: SpawnRarity): string {
-  const pool = monsterDB.filter(m => {
-    const r = (m.rarity || '').toLowerCase()
-    if (rarity === 'epic') return r === 'epická' || r === 'legendární' || r === 'epic' || r === 'legendary'
-    if (rarity === 'rare') return r === 'vzácná' || r === 'rare'
-    return r === 'běžná' || r === 'neobvyklá' || r === 'common' || r === 'uncommon'
-  })
-  const arr = pool.length ? pool : monsterDB
-  const mSeed = seed + '_species'
-  const index = Math.floor(seededFloat(mSeed) * arr.length)
-  return arr[index].id
-}
-
-function pickLevel(seed: string, rarity: SpawnRarity): number {
-  const r = seededFloat(seed + '_lvl')
-  if (rarity === 'common') {
-    if (r < 0.10) return 3
-    return r < 0.45 ? 2 : 1
-  }
-  if (rarity === 'rare') return 3 + Math.floor(r * 4)
-  return 7 + Math.floor(r * 4)
 }
 
 const REF_LAT = 50.0
@@ -190,54 +138,6 @@ async function fetchPoiSpawns(lat: number, lng: number, cooldowns: Cooldowns): P
   return spawns
 }
 
-const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
-  common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
-  rare: { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
-  epic: { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
-}
-
-const SILHOUETTE_SVG = `<path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47 L28 55 C26 60 30 65 35 63 L38 61 C40 64 44 66 50 66 C56 66 60 64 62 61 L65 63 C70 65 74 60 72 55 L68 47 C73 43 75 38 75 32 C75 20 65 10 50 10 Z" fill="currentColor"/><circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>`
-
-function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean): L.DivIcon {
-  const c = RARITY_COLORS[spawn.rarity]
-  const outerSize = spawn.rarity === 'epic' ? 48 : spawn.rarity === 'rare' ? 42 : 36
-  const innerR = 32
-  const lockOverlay = isLocked
-    ? `<text x="50" y="58" text-anchor="middle" font-size="28" fill="#ef4444" opacity="0.9">🔒</text>`
-    : `<text x="50" y="60" text-anchor="middle" font-size="42" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
-  const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.15;0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115"><defs><filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${pulse}<circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>${lockOverlay}<rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/><text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text></svg>`
-  return L.divIcon({ html: svg, className: '', iconSize: [outerSize, outerSize + 10], iconAnchor: [outerSize / 2, outerSize / 2] })
-}
-
-function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
-  const c = RARITY_COLORS[spawn.rarity]
-  const locked = spawn.level > playerLevel
-  const rarityLabel = spawn.rarity === 'epic' ? '🏰 Epická' : spawn.rarity === 'rare' ? '🏛 Vzácná' : '⚔️ Běžná'
-  const energyCost = calculateHPCost(spawn.level, spawn.rarity)
-  return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ENERGIE</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 Vyžaduje Lv.${spawn.level}</div>` : ''}</div>`
-}
-
-function makePlayerIcon(): L.DivIcon {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100"><defs><filter id="pg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="50" cy="50" r="44" fill="rgba(13,185,242,0.1)" stroke="#0db9f2" stroke-width="2"><animate attributeName="r" values="38;46;38" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/></circle><circle cx="50" cy="50" r="20" fill="#0db9f2" filter="url(#pg)"/><circle cx="50" cy="50" r="10" fill="white"/></svg>`
-  return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
-}
-
-function makeOtherPlayerIcon(name: string, seed: string, style?: string): L.DivIcon {
-  const svg = `
-    <div style="position:relative; width:30px; height:30px;">
-      <div style="position:absolute; inset:-3px; background:rgba(168,85,247,0.2); border-radius:50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-      <div style="position:relative; width:30px; height:30px; background:#1e1b4b; border:2px solid #a855f7; border-radius:8px; overflow:hidden; box-shadow:0 0 10px rgba(168,85,247,0.4);">
-        <img src="https://api.dicebear.com/7.x/${style || 'avataaars'}/svg?seed=${seed || name}" style="width:100%; height:100%; object-fit:cover;" />
-      </div>
-      <div style="position:absolute; top:-15px; left:50%; translate:-50% 0; background:rgba(0,0,0,0.8); padding:1px 4px; border-radius:3px; border:1px solid rgba(168,85,247,0.3); white-space:nowrap;">
-        <span style="color:#e9d5ff; font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.04em;">${name}</span>
-      </div>
-    </div>
-  `;
-  return L.divIcon({ html: svg, className: '', iconSize: [30, 30], iconAnchor: [15, 15] })
-}
-
 export interface WorldMapHandle {
   centerOnPlayer: () => void;
 }
@@ -245,17 +145,13 @@ export interface WorldMapHandle {
 export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({ 
   onCatch, 
   onStartTrade,
-  tradeSignal,
-  onBleSignal,
-  playerHP, 
-  onConsumeHP,  onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, avatarSeed, playerLevel, caughtMonsters }, ref) => {
+  onConsumeHP,  onDistanceUpdate, isInteractionBlocked, playerName, avatarStyle, avatarSeed, playerLevel, caughtMonsters, playerHP }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
   const otherPlayersMarkersRef = useRef<Map<string, L.Marker>>(new Map())
   const watchIdRef = useRef<number | null>(null)
-  const bleListenerRef = useRef<any>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
   const lastPosRef = useRef<[number, number] | null>(null)
@@ -272,7 +168,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
-  const [foundBleDevices, setFoundBleDevices] = useState<Map<string, NearbyPlayer>>(new Map())
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
 
   useImperativeHandle(ref, () => ({
@@ -445,7 +340,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       }
       playerMarkerRef.current = null
       markersRef.current.clear()
-      otherPlayersMarkersRef.current.clear() // Vyčištění markerů ostatních hráčů
+      otherPlayersMarkersRef.current.clear()
     }
   }, [recalcNearby, fetchPOI, onDistanceUpdate])
 
@@ -472,7 +367,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         const dLat = (dist / 111320) * Math.cos(angle);
         const dLng = (dist / (111320 * Math.cos(playerPos[0] * Math.PI / 180))) * Math.sin(angle);
         const name = ['Aether_Ghost', 'Neon_Stalker', 'Cyber_Wraith', 'Void_Runner'][Math.floor(Math.random() * 4)] + `_${Math.floor(Math.random() * 999)}`;
-        const avatarStyle = ['avataaars', 'bottts', 'pixel-art', 'lorelei'][Math.floor(Math.random() * 4)];
+        const avatarStyleChoice = ['avataaars', 'bottts', 'pixel-art', 'lorelei'][Math.floor(Math.random() * 4)];
         
         newMock.push({
           id: `mock_${Date.now()}_${i}`,
@@ -482,7 +377,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           lng: playerPos[1] + dLng,
           lastSeen: Date.now(),
           avatarSeed: name,
-          avatarStyle
+          avatarStyle: avatarStyleChoice
         });
       }
       setMockPlayers(prev => [...prev, ...newMock]);
@@ -491,19 +386,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
     (window as any).worldMap_clearMockPlayers = () => setMockPlayers([]);
 
-    // Auto-spawn on localhost for dev
     if (window.location.hostname === 'localhost' && playerPos && mockPlayers.length === 0) {
       (window as any).worldMap_spawnMockPlayers(3);
     }
   }, [playerPos, mockPlayers.length]);
 
-  // Bluetooth skenování odstraněno pro stabilitu (vše běží přes Firebase)
-
   // --- FIREBASE SYNC & WATCH ---
   useEffect(() => {
     if (!playerPos || !playerName) return;
 
-    // Sync naši polohu každých 10 vteřin do Firebase
     const syncInterval = setInterval(() => {
       syncPlayerToFirebase({
         name: playerName,
@@ -516,7 +407,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       });
     }, 10000);
 
-    // Také synchronizujeme okamžitě při změně pozice
     syncPlayerToFirebase({
       name: playerName,
       level: playerLevel,
@@ -527,15 +417,13 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       avatarSeed
     });
 
-    // Sledování ostatních hráčů z Firebase
     const unsubscribe = watchNearbyPlayers((others) => {
       const mappedOthers = others
         .filter(p => {
-           // Zobrazíme jen ty, kteří byli aktivní v posledních 5 minutách a jsou v rozumném dosahu
            const isRecent = (Date.now() - p.lastActive) < 5 * 60 * 1000;
            if (!isRecent) return false;
            const dist = haversineM(playerPos[0], playerPos[1], p.lat, p.lng);
-           return dist < 2000; // Okruh 2km na mapě
+           return dist < 2000;
         })
         .map(p => ({
           ...p,
@@ -546,25 +434,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
     return () => {
       clearInterval(syncInterval);
-      // Unsubscribe není explicitně v helperu, ale onValue ve Firebase ho vrací 
-      // (Pro zjednodušení teď necháme takto, Realtime DB Listener se uvolní při unmountu pokud ho ulovíme)
     };
   }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed]);
 
   useEffect(() => {
-    // Sloučení všech zdrojů hráčů: BLE + Firebase + Mock
-    const bleArray = Array.from(foundBleDevices.values());
-    
-    // Použijeme Mapu k zajištění unikátnosti (pokud je někdo vidět přes BLE i Firebase)
     const allPlayersMap = new Map<string, NearbyPlayer>();
-    
-    // Priorita: BLE (přímý signál) > Firebase > Mock
     mockPlayers.forEach(p => allPlayersMap.set(p.name, p));
     firebasePlayers.forEach(p => allPlayersMap.set(p.name, p));
-    bleArray.forEach(p => allPlayersMap.set(p.name, p));
-
     setNearbyPlayers(Array.from(allPlayersMap.values()));
-  }, [foundBleDevices, firebasePlayers, mockPlayers]);
+  }, [firebasePlayers, mockPlayers]);
 
   const handleCatch = () => {
     if (!nearbySpawn) return
@@ -672,3 +550,5 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     </motion.div>
   )
 })
+
+export default WorldMap

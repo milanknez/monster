@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import { cn } from '../utils';
-import type { Monster } from '../types';
-import { monsterDB } from '../data/monsters';
+import { cn } from '../../utils';
+import type { Monster } from '../../types';
+import { monsterDB } from '../../data/monsters';
 
 export const RecentActivity = ({ caughtMonsters, onSelect, onSeeAll }: { caughtMonsters: Monster[], onSelect: (m: Monster) => void, onSeeAll: () => void }) => {
   // If no caught monsters, show some "placeholder" tiles to satisfy "historie a dlaždice"

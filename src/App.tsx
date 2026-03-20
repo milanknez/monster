@@ -1,65 +1,110 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Radar, Map as MapIcon, ShoppingBag, Sparkles, Trophy, Bluetooth, SignalHigh, RefreshCw } from 'lucide-react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
-import type { Monster } from './types'
-import { cn, calculateLevel } from './utils'
+import type { Monster, Boost } from './types'
+import { cn } from './utils'
 
-import { Header } from './components/Header'
-import { StatsCard } from './components/StatsCard'
-import { LatestDetection } from './components/LatestDetection'
-import { RecentActivity } from './components/RecentActivity'
-import { DailyQuests } from './components/DailyQuests'
-import { NewMonsterModal } from './components/NewMonsterModal'
-import { Bestiary } from './components/Bestiary'
-import { MonsterDetail } from './components/MonsterDetail'
-import { NavBar } from './components/NavBar'
-import { PlaceholderTab } from './components/PlaceholderTab'
-import { WorldMap, type WorldMapHandle } from './components/WorldMap'
-import { SetupProfileModal } from './components/SetupProfileModal'
-import { TradeSelectionModal } from './components/TradeSelectionModal'
-import { SettingsModal } from './components/SettingsModal'
-import { Store } from './components/Store'
-import { MonsterEditor } from './components/MonsterEditor'
-import { GooglePayModal } from './components/GooglePayModal'
-import { ToastContainer, type ToastMessage } from './components/Toast'
-import type { Boost } from './types'
-import { sendTradeSignal, watchTradeSignals, clearTradeSignal, PLAYER_UID } from './lib/firebase'
+import { Header } from './components/ui/Header'
+import { StatsCard } from './components/ui/StatsCard'
+import { LatestDetection } from './components/dashboard/LatestDetection'
+import { RecentActivity } from './components/dashboard/RecentActivity'
+import { DailyQuests } from './components/dashboard/DailyQuests'
+import { NewMonsterModal } from './components/modals/NewMonsterModal'
+import { Bestiary } from './components/bestiary/Bestiary'
+import { Inventory } from './components/inventory/Inventory'
+import { MonsterDetail } from './components/bestiary/MonsterDetail'
+import { NavBar } from './components/ui/NavBar'
+import { PlaceholderTab } from './components/ui/PlaceholderTab'
+import { WorldMap, type WorldMapHandle } from './components/map/WorldMap'
+import { SetupProfileModal } from './components/modals/SetupProfileModal'
+import { TradeSelectionModal } from './components/modals/TradeSelectionModal'
+import { SettingsModal } from './components/modals/SettingsModal'
+import { Store } from './components/bestiary/Store'
+import { MonsterEditor } from './components/bestiary/MonsterEditor'
+import { GooglePayModal } from './components/modals/GooglePayModal'
+import { ToastContainer } from './components/ui/Toast'
+
+// Hooks
+import { useToasts } from './hooks/useToasts'
+import { useBoosts } from './hooks/useBoosts'
+import { usePlayerXP } from './hooks/usePlayerXP'
+import { usePlayerHP } from './hooks/usePlayerHP'
+import { useMonsters } from './hooks/useMonsters'
+import { useP2PTrade } from './hooks/useP2PTrade'
 
 function App() {
+  const [activeTab, setActiveTab] = useState('home')
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const worldMapRef = useRef<WorldMapHandle>(null)
+  
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
 
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const [activeTab, setActiveTab] = useState('home')
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const worldMapRef = useRef<WorldMapHandle>(null)
-  const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
-    try {
-      const saved = localStorage.getItem('monster_collector_caught')
-      return saved ? JSON.parse(saved) : []
-    } catch { return [] }
-  })
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
   const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
   
-  // Režim editoru (vstup přes ?editor=1)
   const [isEditorMode, setIsEditorMode] = useState(() => {
     return new URLSearchParams(window.location.search).get('editor') === '1'
   })
-  // Aktivní boosty
-  const [activeBoosts, setActiveBoosts] = useState<Boost[]>(() => {
-    try {
-      const saved = localStorage.getItem('monster_collector_boosts')
-      if (saved) {
-        return (JSON.parse(saved) as Boost[]).filter(b => b.expiresAt > Date.now())
-      }
-    } catch { return [] }
-    return []
-  })
-  // Vzdálenost: metry nachozené dnes (s resetem o půlnoci)
+
+  // --- HOOKS ---
+  const { toasts, addToast, removeToast } = useToasts()
+  const { activeBoosts, activateBoost: baseActivateBoost } = useBoosts()
+  
+  const { 
+    totalXP, 
+    showLevelUp, 
+    setShowLevelUp, 
+    addXP, 
+    handleClaimReward, 
+    currentLevel 
+  } = usePlayerXP(
+    (() => {
+      try {
+        const saved = localStorage.getItem('monster_collector_xp')
+        if (saved !== null) return parseInt(saved)
+        const caught = localStorage.getItem('monster_collector_caught')
+        if (caught) return JSON.parse(caught).length * 250
+      } catch { return 0 }
+      return 0
+    })(),
+    addToast
+  )
+
+  const { 
+    currentHP, 
+    consumeHP, 
+    checkpointHP 
+  } = usePlayerHP(
+    (() => {
+      try {
+        const saved = localStorage.getItem('monster_collector_hp')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (typeof parsed.val === 'number' && typeof parsed.time === 'number' && !isNaN(parsed.val)) {
+            return parsed
+          }
+        }
+      } catch (e) { }
+      return { val: 100, time: Date.now() }
+    })(),
+    activeBoosts
+  )
+
+  const { caughtMonsters, saveMonster, removeMonster } = useMonsters(addToast)
+  const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast)
+
+  const activateBoost = (boost: Boost, item?: any) => {
+    if (item?.price && !payingItem) {
+      setPayingItem({ boost, title: item.title, price: item.price })
+      return
+    }
+    baseActivateBoost(boost, checkpointHP)
+  }
+
   const [dailyDistance, setDailyDistance] = useState(() => {
     try {
       const saved = localStorage.getItem('monster_collector_distance')
@@ -67,168 +112,9 @@ function App() {
         const { dist, date } = JSON.parse(saved)
         if (date === new Date().toDateString()) return dist
       }
-    } catch (e) { console.error("Chyba při načítání vzdálenosti") }
+    } catch { }
     return 0
   })
-  // XP state s migrací
-  const [totalXP, setTotalXP] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('monster_collector_xp')
-      if (saved !== null) return parseInt(saved)
-      const caught = localStorage.getItem('monster_collector_caught')
-      if (caught) return JSON.parse(caught).length * 250
-    } catch { return 0 }
-    return 0
-  })
-
-  const [showLevelUp, setShowLevelUp] = useState<number | null>(null)
-  const lastLevelRef = useRef<number>(calculateLevel(totalXP))
-
-  // Sledování level upu
-  useEffect(() => {
-    const currentLevel = calculateLevel(totalXP)
-    if (currentLevel > lastLevelRef.current) {
-      setShowLevelUp(currentLevel)
-      addToast({
-        title: 'LEVEL UP!',
-        message: `Dosáhl jsi úrovně ${currentLevel}!`,
-        type: 'boost'
-      })
-    }
-    lastLevelRef.current = currentLevel
-  }, [totalXP])
-
-  // Exponování pro testování přes konzoli
-  useEffect(() => {
-    (window as any).triggerLevelUp = (lvl?: number) => {
-      setShowLevelUp(lvl || calculateLevel(totalXP) + 1)
-    };
-
-    // Nové simulační funkce pro P2P Trade Modaly:
-    (window as any).simulateP2P_IncomingRequest = (fromName = 'Tester') => {
-      setP2pTrade({ step: 'INCOMING_REQ', partnerName: fromName });
-      console.log(`[P2P TEST] Příchozí trade request od ${fromName}`);
-    };
-    
-    (window as any).simulateP2P_PartnerAccepted = () => {
-      setP2pTrade(prev => prev ? { ...prev, step: 'SELECTING' } : null);
-      console.log(`[P2P TEST] Partner přijal žádost, vybíráme příšery.`);
-    };
-
-    (window as any).simulateP2P_PartnerOffered = (monId = '001', level = 5) => {
-      const dbM = monsterDB.find(m => m.id === monId) || monsterDB[0];
-      setP2pTrade(prev => prev ? { 
-         ...prev, 
-         theirMonster: { id: monId, level, name: dbM.name },
-         step: prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
-      } : null);
-      console.log(`[P2P TEST] Partner nabízí: ${dbM.name} (LVL ${level})`);
-    };
-
-    (window as any).simulateP2P_PartnerConfirmed = () => {
-      setP2pTrade(prev => prev ? { ...prev, confirmedByThem: true } : null);
-      console.log(`[P2P TEST] Partner potvrdil výměnu!`);
-    };
-
-    (window as any).addTestMonster = (id = '001', level = 5) => {
-      const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
-      saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` });
-      console.log(`[TEST] Přidáno: ${dbM.name} (LVL ${level})`);
-    };
-
-    return () => { 
-      delete (window as any).triggerLevelUp;
-      delete (window as any).simulateTradeOffer;
-      delete (window as any).simulateP2P_IncomingRequest;
-      delete (window as any).simulateP2P_PartnerAccepted;
-      delete (window as any).simulateP2P_PartnerOffered;
-      delete (window as any).simulateP2P_PartnerConfirmed;
-    };
-  }, [totalXP])
-
-  type P2PTradeState = {
-    step: 'REQUESTING' | 'INCOMING_REQ' | 'SELECTING' | 'WAITING_OFFER' | 'CONFIRMING';
-    partnerName: string;
-    partnerUid?: string;
-    myMonster?: Monster;
-    theirMonster?: { id: string, level: number, name: string };
-    confirmedByMe?: boolean;
-    confirmedByThem?: boolean;
-  };
-  const [p2pTrade, setP2pTrade] = useState<P2PTradeState | null>(null);
-
-  // HP systém: 100% za 4 hodiny (240 min)
-  const [hpState, setHpState] = useState(() => {
-    try {
-      const saved = localStorage.getItem('monster_collector_hp')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (typeof parsed.val === 'number' && typeof parsed.time === 'number' && !isNaN(parsed.val)) {
-          return parsed
-        }
-      }
-    } catch (e) { console.warn("Poškozený HP state v localStorage") }
-    return { val: 100, time: Date.now() }
-  })
-
-  // Výpočet aktuálního HP s regenerací (TEST: 100% za 10 minut základ)
-  const BASE_REGEN_RATE = 100 / (10 * 60 * 1000) 
-  
-  const getCurrentHP = useCallback(() => {
-    // Najdeme nejvyšší HP boost
-    const hpBoost = activeBoosts
-      .filter(b => b.type === 'hp_regen' && b.expiresAt > Date.now())
-      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
-
-    const elapsed = Date.now() - hpState.time
-    const bonus = elapsed * (BASE_REGEN_RATE * hpBoost)
-    return Math.min(100, Math.max(0, hpState.val + bonus))
-  }, [hpState, activeBoosts])
-
-  const [currentHP, setCurrentHP] = useState(getCurrentHP())
-
-  // Uložení aktuálního stavu HP (checkpoint) před změnou parametrů
-  const checkpointHP = () => {
-    const freshHP = getCurrentHP()
-    const newState = { val: freshHP, time: Date.now() }
-    setHpState(newState)
-    setCurrentHP(freshHP)
-    localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
-    return freshHP
-  }
-
-  const activateBoost = (boost: Boost, item?: any) => {
-    // Pokud je položka placená a ještě jsme ji "nezaplatili" (v této transakci)
-    if (item?.price && !payingItem) {
-      setPayingItem({ boost, title: item.title, price: item.price })
-      return
-    }
-
-    checkpointHP() // Důležité: uložit HP s aktuálním rate než se změní na nový
-    const updated = [boost, ...activeBoosts.filter(b => b.type !== boost.type || b.multiplier !== boost.multiplier)]
-    setActiveBoosts(updated)
-    localStorage.setItem('monster_collector_boosts', JSON.stringify(updated))
-  }
-
-  // Timer pro plynulý update progress baru (každou vteřinu)
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentHP(getCurrentHP()), 1000)
-    return () => clearInterval(timer)
-  }, [hpState, activeBoosts])
-
-  const consumeHP = useCallback((amount: number) => {
-    const freshHP = getCurrentHP()
-    const newVal = Math.max(0, freshHP - amount)
-    const newState = { val: newVal, time: Date.now() }
-    setHpState(newState)
-    setCurrentHP(newVal)
-    localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
-  }, [getCurrentHP])
-
-  const addToast = (toast: Omit<ToastMessage, 'id'>) => {
-    const id = Math.random().toString(36).substring(2, 9)
-    setToasts(prev => [...prev, { ...toast, id }])
-  }
 
   const handleMove = useCallback((meters: number) => {
     setDailyDistance((prev: number) => {
@@ -241,206 +127,68 @@ function App() {
     })
   }, [])
 
-  const handleClaimReward = (xp: number) => {
-    // Aplikujeme boost i na odměny z úkolů
-    const xpBoost = activeBoosts
-      .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
-      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
-    
-    const xpGained = Math.round(xp * xpBoost)
-    const newTotalXP = totalXP + xpGained
-    setTotalXP(newTotalXP)
-    localStorage.setItem('monster_collector_xp', newTotalXP.toString())
-
-    addToast({
-      title: 'Odměna získána',
-      message: `Získal jsi +${xpGained} XP za splnění úkolu.`,
-      type: 'xp'
-    })
-  }
-
-  // Load from LocalStorage
+  // --- SIDE EFFECTS ---
   useEffect(() => {
-    const saved = localStorage.getItem('monster_collector_caught')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as Monster[]
-        // Enrich with current DB data to reflect changes in JSONs
-        const enriched = parsed.map(caught => {
-          const dbData = monsterDB.find(m => m.id === caught.id)
-          if (dbData) {
-            return {
-              ...caught,
-              name: dbData.name,
-              description: dbData.description,
-              abilities: (dbData as any).abilities,
-              type: dbData.type,
-              rarity: dbData.rarity
-            }
-          }
-          return caught
-        })
-        setCaughtMonsters(enriched)
-      } catch (e) {
-        console.error("Failed to parse caught monsters", e)
-      }
-    }
-  }, [])
-
-  // Save to LocalStorage – limit 3x stejný druh
-  const saveMonster = (monster: Monster, shouldGiveXP = true) => {
-    setCaughtMonsters(prev => {
-      const existingCount = prev.filter(m => m.id === monster.id).length
-      if (existingCount >= 3) {
-        alert(`Už máš 3x tento druh (${monster.name}). Více jich neuneseš!`)
-        setNewMonster(null)
-        return prev
-      }
-      const enriched = { ...monster, caughtAt: monster.caughtAt || Date.now() }
-      const updated = [enriched, ...prev]
-      localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
-      return updated
-    })
-    
-    if (shouldGiveXP) {
-      const xpBoost = activeBoosts
-        .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
-        .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
-      
-      const xpGained = Math.round(250 * xpBoost)
-      setTotalXP(prev => {
-        const newTotal = prev + xpGained
-        localStorage.setItem('monster_collector_xp', newTotal.toString())
-        return newTotal
-      })
-
-      addToast({
-        title: 'Monstrum chyceno',
-        message: `${monster.name} chycen! +${xpGained} XP`,
-        type: 'xp'
-      })
-    }
-
-    setNewMonster(null)
-  }
-
-  const removeMonster = (id: string, level: number) => {
-    setCaughtMonsters(prev => {
-      const index = prev.findIndex(m => m.id === id && m.level === level)
-      if (index !== -1) {
-        const updated = [...prev]
-        updated.splice(index, 1)
-        localStorage.setItem('monster_collector_caught', JSON.stringify(updated))
-        return updated
-      }
-      return prev
-    })
-  }
-  
-  // --- FIREBASE P2P TRADE BRIDGE ---
-  useEffect(() => {
-    if (!playerName) return;
-
-    // Sledování příchozích signálů
-    const unsubscribe = watchTradeSignals((signal) => {
-      const { type, fromUid, fromName, data } = signal;
-      
-      setP2pTrade(prev => {
-        // 1. Žádost o výměnu (Milan -> Ghost)
-        if (type === 'TRQ') {
-           if (prev && prev.step !== 'INCOMING_REQ') return prev; // Už v něčem jsme
-           return { step: 'INCOMING_REQ', partnerName: fromName, partnerUid: fromUid };
-        }
-
-        if (!prev || prev.partnerUid !== fromUid) return prev;
-
-        // 2. Přijetí žádosti (Ghost -> Milan)
-        if (type === 'TAC' && prev.step === 'REQUESTING') {
-           return { ...prev, step: 'SELECTING' };
-        }
-
-        // 3. Nabídka příšery (Ghost -> Milan / Milan -> Ghost)
-        if (type === 'TOF' && (prev.step === 'WAITING_OFFER' || prev.step === 'SELECTING' || prev.step === 'REQUESTING')) {
-           const [monId, monLvl] = data.split(':');
-           const dbM = monsterDB.find(m => m.id === monId) || monsterDB[0];
-           const newState: P2PTradeState = { 
-              ...prev, 
-              theirMonster: { id: monId, level: parseInt(monLvl), name: dbM.name } 
-           };
-           // Pokud JÁ už mám vybráno, jdeme na potvrzení. 
-           // Pokud JÁ ještě nemám vybráno, zůstávám v SELECTING (abych mohl vybrat).
-           if (newState.myMonster) newState.step = 'CONFIRMING';
-           else newState.step = 'SELECTING';
-           return newState;
-        }
-
-        // 4. Potvrzení (Finální stisknutí tlačítka)
-        if (type === 'TCF' && prev.step === 'CONFIRMING') {
-           return { ...prev, confirmedByThem: true };
-        }
-
-        // 5. Zrušení
-        if (type === 'CNL') {
-           addToast({ title: 'Výměna zrušena', message: `${fromName} zrušil proces.`, type: 'xp' });
-           return null;
-        }
-
-        return prev;
-      });
+    handleCompleteTrade((myMonster, theirMonster) => {
+      const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
+      saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` }, (xp) => addXP(xp), false);
+      removeMonster(myMonster.id, myMonster.level);
+      addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'boost' });
     });
-
-    return () => { if (unsubscribe) unsubscribe(); };
-  }, [playerName]);
-
-  // Odesílání signálů při změně lokálního stavu
-  useEffect(() => {
-    if (!p2pTrade || !p2pTrade.partnerUid) return;
-
-    const signalType = 
-      p2pTrade.step === 'REQUESTING' ? 'TRQ' :
-      p2pTrade.step === 'SELECTING' ? 'TAC' :
-      ((p2pTrade.step === 'CONFIRMING' || p2pTrade.step === 'WAITING_OFFER') && p2pTrade.myMonster && !p2pTrade.confirmedByMe) ? 'TOF' : 
-      p2pTrade.confirmedByMe ? 'TCF' : null;
-
-    if (signalType) {
-       let data = '';
-       if (signalType === 'TOF' && p2pTrade.myMonster) {
-          data = `${p2pTrade.myMonster.id}:${p2pTrade.myMonster.level}`;
-       }
-       
-       sendTradeSignal(p2pTrade.partnerUid, {
-          type: signalType,
-          fromName: playerName,
-          data
-       });
-    }
-  }, [p2pTrade?.step, p2pTrade?.myMonster, p2pTrade?.confirmedByMe]);
+  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast]);
 
   useEffect(() => {
-    if (!p2pTrade) {
-       // Pokud jsme manuálně zavřeli okno, můžeme poslat signál zrušení (volitelné)
-       // clearTradeSignal(); // Vyčistíme naši schránku
-       return;
-    }
-    if (p2pTrade.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
-      const { myMonster, theirMonster } = p2pTrade;
-      if (myMonster && theirMonster) {
-        const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
-        saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` }, false);
-        removeMonster(myMonster.id, myMonster.level);
-        addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'boost' });
-        // Počkej chvíli a vymaž signály
-        setTimeout(() => {
-          clearTradeSignal();
-          setP2pTrade(null);
-        }, 1500);
-      }
-    }
-  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem]);
+    (window as any).triggerLevelUp = (lvl?: number) => setShowLevelUp(lvl || currentLevel + 1);
+    (window as any).simulateP2P_IncomingRequest = (name = 'Tester') => setP2pTrade({ step: 'INCOMING_REQ', partnerName: name });
+    (window as any).simulateP2P_PartnerAccepted = () => setP2pTrade(prev => prev ? { ...prev, step: 'SELECTING' } : null);
+    (window as any).simulateP2P_PartnerOffered = (id = '001', lvl = 5) => {
+      const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
+      setP2pTrade(prev => prev ? { 
+         ...prev, 
+         theirMonster: { id, level: lvl, name: dbM.name },
+         step: prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
+      } : null);
+    };
+    (window as any).simulateP2P_PartnerConfirmed = () => setP2pTrade(prev => prev ? { ...prev, confirmedByThem: true } : null);
+    (window as any).addTestMonster = (id = '001', level = 5) => {
+      const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
+      saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` }, (xp) => addXP(xp));
+    };
 
-
+    return () => { 
+      delete (window as any).triggerLevelUp;
+      delete (window as any).simulateP2P_IncomingRequest;
+      delete (window as any).simulateP2P_PartnerAccepted;
+      delete (window as any).simulateP2P_PartnerOffered;
+      delete (window as any).simulateP2P_PartnerConfirmed;
+      delete (window as any).addTestMonster;
+    };
+  }, [currentLevel, setP2pTrade, saveMonster, addXP, setShowLevelUp]);
 
   const lastCaught = caughtMonsters[0] || null
+
+  const StoreButton = () => (
+    <motion.button
+      whileHover={{ scale: 1.02, translateY: -2 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => setActiveTab('store')}
+      className="mx-4 mb-6 p-4 bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/20 rounded-2xl flex items-center justify-between group relative overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+      <div className="flex items-center gap-4 relative z-10">
+        <div className="size-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary shadow-[0_0_15px_rgba(13,185,242,0.2)]">
+          <ShoppingBag size={24} />
+        </div>
+        <div className="text-left">
+          <p className="text-[10px] font-black text-primary uppercase tracking-widest opacity-80">Sektorový Obchod</p>
+          <h3 className="text-lg font-black text-white uppercase italic leading-tight">Získat Boosty</h3>
+        </div>
+      </div>
+      <div className="size-8 bg-white/5 rounded-full flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors relative z-10">
+        <Sparkles size={16} className="group-hover:animate-spin-slow" />
+      </div>
+    </motion.button>
+  )
 
   if (isEditorMode) {
     return (
@@ -466,7 +214,7 @@ function App() {
       
       {!selectedMonster && (
         <Header 
-          title={activeTab === 'vault' ? "Bestiář" : activeTab === 'world' ? "Mapa světa" : activeTab === 'store' ? "Sektorový Obchod" : playerName || "Aether_Runner"} 
+          title={activeTab === 'vault' ? "Bestiář" : activeTab === 'inventory' ? "Inventář" : activeTab === 'world' ? "Mapa světa" : activeTab === 'store' ? "Sektorový Obchod" : playerName || "Aether_Runner"} 
           showBack={activeTab !== 'home'} 
           onBack={() => setActiveTab('home')}
           playerName={playerName || 'Aether_Runner'}
@@ -507,6 +255,7 @@ function App() {
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                     isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
                   />
+                  <StoreButton />
                   <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
                   <RecentActivity 
                     caughtMonsters={caughtMonsters} 
@@ -516,7 +265,7 @@ function App() {
                   <DailyQuests 
                     caughtMonsters={caughtMonsters} 
                     dailyDistance={dailyDistance}
-                    onClaimReward={handleClaimReward}
+                    onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                   />
                 </motion.div>
@@ -530,11 +279,22 @@ function App() {
                 />
               )}
 
+              {activeTab === 'inventory' && (
+                <Inventory 
+                  key="inventory" 
+                  activeBoosts={activeBoosts}
+                />
+              )}
+
                {activeTab === 'world' && (
                   <WorldMap 
                     ref={worldMapRef}
                     key="world" 
-                    onCatch={setNewMonster} 
+                    onCatch={(m) => {
+                      if (saveMonster(m, (xp) => addXP(xp))) {
+                        setNewMonster(null)
+                      }
+                    }} 
                     onStartTrade={(name, uid) => {
                       if (uid) {
                         setP2pTrade({ step: 'REQUESTING', partnerName: name || 'Hráč', partnerUid: uid });
@@ -548,7 +308,7 @@ function App() {
                     playerName={playerName || 'Aether_Runner'}
                     avatarStyle={avatarStyle}
                     avatarSeed={avatarSeed}
-                    playerLevel={calculateLevel(totalXP)}
+                    playerLevel={currentLevel}
                   />
               )}
 
@@ -564,19 +324,12 @@ function App() {
         </AnimatePresence>
       </main>
 
-      {activeTab === 'home' && false && (
-        <div className="fixed bottom-[88px] left-0 right-0 p-4 px-6 z-40 max-w-md mx-auto">
-          {/* Tlačítko skeneru na dashboardu zrušeno, je teď v Bestiáři */}
-        </div>
-      )}
-
       <NavBar active={activeTab} onTabChange={(tab) => {
         setSelectedMonster(null)
         setActiveTab(tab)
       }} />
       
       <AnimatePresence>
-
         {isSettingsOpen && (
           <SettingsModal 
             isOpen={isSettingsOpen}
@@ -587,14 +340,7 @@ function App() {
               localStorage.setItem('monster_collector_player_name', name)
             }}
             onResetProgress={() => {
-              localStorage.removeItem('monster_collector_caught')
-              localStorage.removeItem('monster_collector_distance')
-              localStorage.removeItem('monster_collector_hp')
-              localStorage.removeItem('monster_collector_player_name')
-              localStorage.removeItem('monster_collector_avatar_style')
-              localStorage.removeItem('monster_collector_avatar_seed')
-              localStorage.removeItem('monster_collector_boosts')
-              localStorage.removeItem('monster_collector_xp')
+              localStorage.clear();
               window.location.reload()
             }}
             avatarStyle={avatarStyle}
@@ -614,7 +360,7 @@ function App() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-background-dark/95 backdrop-blur-md" />
             
             {p2pTrade.step === 'REQUESTING' && (
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <Bluetooth size={48} className="text-blue-500 animate-pulse mx-auto mb-4" />
                 <h3 className="text-xl font-black text-white uppercase mb-2">Žádost odesána</h3>
                 <p className="text-sm text-slate-400">Čekám na přijetí od hráče <strong className="text-blue-400">{p2pTrade.partnerName}</strong>...</p>
@@ -623,7 +369,7 @@ function App() {
             )}
 
             {p2pTrade.step === 'INCOMING_REQ' && (
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-purple-500/30 rounded-3xl p-8 text-center shadow-2xl">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-purple-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <SignalHigh size={48} className="text-purple-500 animate-bounce mx-auto mb-4" />
                 <h3 className="text-xl font-black text-white uppercase mb-2">Výměna</h3>
                 <p className="text-sm text-slate-400">Hráč <strong className="text-purple-400">{p2pTrade.partnerName}</strong> ti nabízí výměnu příšer!</p>
@@ -635,7 +381,7 @@ function App() {
             )}
 
             {p2pTrade.step === 'WAITING_OFFER' && (
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <RefreshCw size={48} className="text-blue-500 animate-spin mx-auto mb-4" />
                 <h3 className="text-xl font-black text-white uppercase mb-2">Čekání na nabídku</h3>
                 <p className="text-sm text-slate-400">Hráč <strong className="text-blue-400">{p2pTrade.partnerName}</strong> vybírá příšeru...</p>
@@ -644,7 +390,7 @@ function App() {
             )}
 
             {p2pTrade.step === 'CONFIRMING' && p2pTrade.myMonster && p2pTrade.theirMonster && (
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
                 <h3 className="text-xl font-black text-center text-white uppercase mb-6">Potvrdit Výměnu</h3>
                 <div className="flex items-center justify-between gap-4 mb-8">
                   <div className="flex-1 text-center bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
@@ -712,7 +458,7 @@ function App() {
 
       <ToastContainer 
         toasts={toasts} 
-        onRemove={(id) => setToasts(prev => prev.filter(t => t.id !== id))} 
+        onRemove={removeToast} 
       />
 
       <AnimatePresence>
@@ -730,19 +476,6 @@ function App() {
               exit={{ scale: 1.5, opacity: 0 }}
               className="relative w-full max-w-sm bg-gradient-to-b from-primary/20 to-primary/5 border border-primary/30 rounded-[40px] p-8 text-center overflow-hidden"
             >
-              {/* Animated background elements */}
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 90, 180, 270, 360],
-                  opacity: [0.1, 0.3, 0.1]
-                }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 size-full flex items-center justify-center"
-              >
-                <div className="w-[150%] aspect-square bg-primary/20 blur-[100px] rounded-full" />
-              </motion.div>
-
               <div className="relative z-10 flex flex-col items-center">
                 <motion.div
                   initial={{ rotate: -20, scale: 0 }}
@@ -771,23 +504,6 @@ function App() {
                   LVL {showLevelUp}
                 </motion.h2>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="flex gap-2 mb-8"
-                >
-                  {[...Array(3)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                    >
-                      <Sparkles className="text-yellow-400" size={20} />
-                    </motion.div>
-                  ))}
-                </motion.div>
-
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -797,66 +513,10 @@ function App() {
                   Pokračovat
                 </motion.button>
               </div>
-
-              {/* Confetti Effect */}
-              {[...Array(30)].map((_, i) => (
-                <motion.div
-                  key={`confetti-${i}`}
-                  initial={{ 
-                    x: 0, 
-                    y: 0, 
-                    scale: 0,
-                    rotate: 0,
-                    opacity: 1 
-                  }}
-                  animate={{ 
-                    x: (Math.random() - 0.5) * 600, 
-                    y: (Math.random() - 0.5) * 600,
-                    scale: Math.random() * 1.5 + 0.5,
-                    rotate: Math.random() * 360,
-                    opacity: 0
-                  }}
-                  transition={{ 
-                    duration: 2 + Math.random() * 2, 
-                    delay: 0.5 + Math.random() * 0.2,
-                    ease: "easeOut"
-                  }}
-                  className="absolute left-1/2 top-1/2 w-2 h-2 pointer-events-none"
-                  style={{ 
-                    backgroundColor: ['#0db9f2', '#facc15', '#f87171', '#4ade80', '#a78bfa'][Math.floor(Math.random() * 5)],
-                    borderRadius: Math.random() > 0.5 ? '50%' : '2px'
-                  }}
-                />
-              ))}
-
-              {/* Particle effects simplified with framer motion */}
-              {[...Array(12)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ 
-                    x: 0, 
-                    y: 0, 
-                    scale: 0,
-                    opacity: 1 
-                  }}
-                  animate={{ 
-                    x: (Math.random() - 0.5) * 400, 
-                    y: (Math.random() - 0.5) * 400,
-                    scale: Math.random() * 2,
-                    opacity: 0
-                  }}
-                  transition={{ 
-                    duration: 1.5, 
-                    delay: 0.5 + Math.random() * 0.5,
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  }}
-                  className="absolute left-1/2 top-1/3 size-2 bg-primary rounded-full blur-[1px] pointer-events-none"
-                />
-              ))}
             </motion.div>
           </motion.div>
         )}
+
       </AnimatePresence>
     </div>
   )

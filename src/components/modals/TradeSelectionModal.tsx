@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { X, ArrowLeftRight } from 'lucide-react';
-import { cn } from '../utils';
-import type { Monster } from '../types';
+import { cn } from '../../utils';
+import type { Monster } from '../../types';
 
 export const TradeSelectionModal = ({ 
   caughtMonsters, 

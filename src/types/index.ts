@@ -15,3 +15,15 @@ export interface Boost {
   multiplier: number;
   expiresAt: number;
 }
+
+export type SpawnRarity = 'common' | 'rare' | 'epic'
+
+export interface SpawnPoint {
+  id: string
+  lat: number
+  lng: number
+  rarity: SpawnRarity
+  monsterId: string
+  level: number
+  caught: boolean
+}

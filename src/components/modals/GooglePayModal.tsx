@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, X, CreditCard, ShieldCheck, Fingerprint } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '../utils'
+import { cn } from '../../utils'
 
 interface GooglePayModalProps {
   isOpen: boolean

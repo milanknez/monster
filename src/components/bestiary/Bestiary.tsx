@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../utils';
-import type { Monster } from '../types';
-import { monsterDB } from '../data/monsters';
+import { cn, TYPE_COLORS } from '../../utils';
+import type { Monster } from '../../types';
+import { monsterDB } from '../../data/monsters';
 
 const TYPE_ICONS: Record<string, any> = {
   'Ohnivá': Flame,

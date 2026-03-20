@@ -1,7 +1,7 @@
 import { Zap, Heart, Shield, Sparkles, Clock, CheckCircle2, TrendingUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '../utils'
-import type { Boost } from '../types'
+import { cn } from '../../utils'
+import type { Boost } from '../../types'
 
 interface StoreProps {
   onActivateBoost: (boost: Boost, item?: any) => void
