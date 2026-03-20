@@ -1,22 +1,38 @@
-import { motion } from 'framer-motion';
-import { Package, Clock, Star, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Package, Clock, Star, Zap, Hammer, Sparkles, Wand2 } from 'lucide-react';
 import type { Boost, InventoryItem } from '../../types';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { cn } from '../../utils';
 
 export const Inventory = ({
   activeBoosts,
-  inventory
+  inventory,
+  onOpenCodex,
+  onSwap,
+  onUseItem
 }: {
   activeBoosts: Boost[],
-  inventory: InventoryItem[]
+  inventory: (InventoryItem | null)[],
+  onOpenCodex: () => void,
+  onSwap: (from: number, to: number) => void,
+  onUseItem: (type: string) => void
 }) => {
-  // Fixní grid (např. 16 slotů)
-  const SLOTS = 16;
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
-  // Fill array with items up to 16, then fill the rest with null
-  const gridItems = [...inventory];
-  while (gridItems.length < SLOTS) {
-    gridItems.push(null as any);
+  const handleDragStart = (idx: number) => {
+    setDraggedIdx(idx);
+  };
+
+  const handleDrop = (toIdx: number) => {
+    if (draggedIdx !== null && draggedIdx !== toIdx) {
+      onSwap(draggedIdx, toIdx);
+    }
+    setDraggedIdx(null);
+  };
+
+  const isConsumable = (type: string) => {
+    return ['xp_booster', 'hp_potion', 'energy_drink'].includes(type);
   }
 
   return (
@@ -26,19 +42,31 @@ export const Inventory = ({
       className="pb-32"
     >
       {/* Header Info */}
-      <div className="p-6 bg-slate-900/40 border-b border-white/5 mb-6">
+      <div className="p-6 pb-2 relative">
         <div className="flex items-center gap-3 mb-1">
           <Package size={16} className="text-emerald-500" />
           <p className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.3em]">Můj Inventář</p>
         </div>
-        <h2 className="text-2xl font-black text-white uppercase italic">Batoh s předměty</h2>
-        <p className="text-slate-500 text-xs font-bold mt-1">Sbírej materiály a speciální vybavení (brzy).</p>
+        <h2 className="text-3xl font-black text-white uppercase italic">Batoh</h2>
+        
+        {/* Simple Top-Right Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onOpenCodex}
+          className="absolute top-6 right-6 size-12 bg-slate-900 border border-secondary/30 rounded-2xl flex items-center justify-center text-secondary shadow-lg shadow-secondary/5 group transition-all"
+        >
+          <Hammer size={24} className="group-hover:rotate-12 transition-transform" />
+          <div className="absolute -top-1 -right-1 size-2 bg-secondary rounded-full animate-pulse" />
+        </motion.button>
       </div>
 
-      {/* Active Boosts / Temporary Items Section */}
+      <div className="h-4" />
+
+      {/* Active Boosts Section */}
       {activeBoosts.length > 0 && (
         <section className="px-6 mb-8">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Právě využíváš</h3>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Aktivní Efekty</h3>
           <div className="grid grid-cols-1 gap-3">
             {activeBoosts.map((boost, idx) => (
               <motion.div
@@ -49,7 +77,7 @@ export const Inventory = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="size-10 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-500">
-                    {boost.type === 'xp_boost' ? <Star size={20} fill="currentColor" /> : <Zap size={20} fill="currentColor" />}
+                    {boost.type === 'xp_boost' ? <Star size={24} fill="currentColor" /> : <Zap size={24} fill="currentColor" />}
                   </div>
                   <div>
                     <p className="text-xs font-black text-white uppercase">{boost.type === 'xp_boost' ? 'XP Elixír' : 'Energetický Nápoj'}</p>
@@ -68,46 +96,70 @@ export const Inventory = ({
         </section>
       )}
 
-      {/* Slots Grid */}
+      {/* Slots Grid (4x5) */}
       <section className="px-6">
-        <div className="flex justify-between items-end mb-4">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kapacita ({inventory.reduce((acc, i) => acc + (i.count > 0 ? 1 : 0), 0)} / {SLOTS})</h3>
+        <div className="flex justify-between items-end mb-4 pr-1">
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kapacita ({inventory.filter(i => i).length} / 20)</h3>
+          <p className="text-[9px] font-bold text-slate-600 uppercase">Max stack: 20x</p>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
-          {gridItems.map((item, idx) => {
+        <div className="grid grid-cols-4 gap-3 bg-slate-900/20 p-4 rounded-[2.5rem] border border-white/5">
+          {inventory.map((item, idx) => {
             const config = item ? RESOURCE_CONFIG[item.type] : null;
+            const usable = item && isConsumable(item.type);
 
             return (
-              <motion.div
+              <div 
                 key={idx}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: (idx % 4) * 0.05 + Math.floor(idx / 4) * 0.05 }}
-                className="aspect-square rounded-xl bg-slate-900/40 border border-slate-800/60 shadow-inner flex flex-col items-center justify-center group relative overflow-hidden"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleDrop(idx)}
+                className="relative"
               >
-                {item ? (
-                  <div className="flex flex-col items-center justify-center relative z-10">
-                    <span className="text-2xl mb-1">{config?.icon}</span>
-                    <span className="text-[10px] font-black text-white bg-black/40 px-1.5 rounded-md min-w-[20px] text-center">{item.count}</span>
-                  </div>
-                ) : (
-                  <Package size={16} className="text-slate-800/40 relative z-10" />
-                )}
+                <motion.div
+                  draggable={!!item}
+                  onDragStart={() => handleDragStart(idx)}
+                  onClick={() => usable && onUseItem(item.type)}
+                  layout
+                  className={cn(
+                    "aspect-square rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden",
+                    item 
+                      ? "bg-slate-800 border-white/10 shadow-lg cursor-grab active:cursor-grabbing" 
+                      : "bg-slate-900/60 border-slate-800/40 shadow-inner",
+                    usable && "ring-1 ring-emerald-500/30 hover:ring-emerald-500/60 cursor-pointer"
+                  )}
+                >
+                  {item ? (
+                    <div className="flex flex-col items-center justify-center relative z-10 w-full h-full">
+                      <span className="text-4xl mb-0 drop-shadow-md group-hover:scale-110 transition-transform">{config?.icon}</span>
+                      <span className="absolute bottom-1 right-1 text-[9px] font-black text-white bg-black/60 px-1 rounded shadow-sm border border-white/10 leading-none py-0.5">
+                        {item.count}
+                      </span>
+                      
+                      {/* Action Overlay for Consumables */}
+                      {usable && (
+                        <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+                           <div className="bg-emerald-500 text-[8px] font-black text-white px-1.5 py-0.5 rounded uppercase">Použít</div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="size-5 rounded-full border-2 border-slate-800/30 relative z-10" />
+                  )}
+                  
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50" />
+                </motion.div>
                 
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50" />
-                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors" />
-                <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-white/5 rounded-tl-sm" />
-                <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-white/5 rounded-br-sm" />
-              </motion.div>
+                <div className="absolute -top-1 -left-1 text-[7px] font-black text-slate-800 opacity-20">{idx + 1}</div>
+              </div>
             )
           })}
         </div>
-
-        <div className="mt-8 p-4 rounded-2xl bg-slate-900/20 border border-white/5 text-center">
-          <p className="text-[10px] font-black text-slate-600 uppercase italic">
-            {inventory.length > 0 ? "V batohu máš pár věcí. Chceš něco zkombinovat?" : "Zatím se nezdá, že bys měl v batohu něco užitečného."}
-          </p>
+        
+        <div className="mt-8 text-center text-slate-600">
+           <p className="text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2">
+              <Sparkles size={10} className="text-secondary" /> Drag & Drop k uspořádání <Sparkles size={10} className="text-secondary" />
+           </p>
+           <p className="text-[8px] uppercase font-bold tracking-wider mt-1 opacity-50 italic">Kliknutím na elixír ho vypiješ</p>
         </div>
       </section>
     </motion.div>

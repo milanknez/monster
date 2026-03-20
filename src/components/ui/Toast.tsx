@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, CheckCircle2, TrendingUp, Sparkles, X } from 'lucide-react'
+import { Zap, CheckCircle2, TrendingUp, Sparkles, X, AlertCircle } from 'lucide-react'
 import { useEffect, forwardRef } from 'react'
 import { cn } from '../../utils'
 
@@ -7,7 +7,7 @@ export interface ToastMessage {
   id: string
   title: string
   message: string
-  type: 'xp' | 'success' | 'info' | 'boost'
+  type: 'xp' | 'success' | 'info' | 'boost' | 'error'
   duration?: number
 }
 
@@ -39,14 +39,16 @@ const ToastItem = forwardRef<HTMLDivElement, { toast: ToastMessage, onRemove: (i
       xp: <Zap size={18} className="text-primary fill-primary/20" />,
       success: <CheckCircle2 size={18} className="text-emerald-500" />,
       info: <TrendingUp size={18} className="text-blue-500" />,
-      boost: <Sparkles size={18} className="text-yellow-400" />
+      boost: <Sparkles size={18} className="text-yellow-400" />,
+      error: <AlertCircle size={18} className="text-red-500" />
     }
 
     const bgStyles = {
       xp: "bg-slate-900/90 border-primary/20 shadow-primary/10",
       success: "bg-slate-900/90 border-emerald-500/20 shadow-emerald-500/10",
       info: "bg-slate-900/90 border-blue-500/20 shadow-blue-500/10",
-      boost: "bg-slate-900/90 border-yellow-400/20 shadow-yellow-400/10"
+      boost: "bg-slate-900/90 border-yellow-400/20 shadow-yellow-400/10",
+      error: "bg-slate-900/90 border-red-500/20 shadow-red-500/10"
     }
 
     return (

@@ -1,51 +1,115 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ResourceType, InventoryItem } from '../types'
 
+const MAX_SLOTS = 20
+const MAX_STACK = 20
+
 export function useInventory() {
-  const [inventory, setInventory] = useState<InventoryItem[]>(() => {
+  const [inventory, setInventory] = useState<(InventoryItem | null)[]>(() => {
     try {
-      const saved = localStorage.getItem('monster_collector_inventory')
-      return saved ? JSON.parse(saved) : []
-    } catch {
-      return []
-    }
+      const saved = localStorage.getItem('monster_collector_inventory_v2')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) return parsed
+      }
+      // Migrate from old format (V1 was object-based or small array)
+      const old = localStorage.getItem('monster_collector_inventory')
+      if (old) {
+        const parsedOld = JSON.parse(old)
+        // Basic migration if it was a simple list of types
+        // For simplicity, starting fresh or assuming it's an empty 20 slots
+      }
+    } catch (e) { }
+    return Array(MAX_SLOTS).fill(null)
   })
 
   // Save to LocalStorage
   useEffect(() => {
-    localStorage.setItem('monster_collector_inventory', JSON.stringify(inventory))
+    localStorage.setItem('monster_collector_inventory_v2', JSON.stringify(inventory))
   }, [inventory])
 
   const getItemCount = useCallback((type: ResourceType) => {
-    const item = inventory.find(i => i.type === type)
-    return item ? item.count : 0
+    return inventory.reduce((acc, slot) => {
+      if (slot?.type === type) return acc + slot.count
+      return acc
+    }, 0)
   }, [inventory])
 
   const addResource = useCallback((type: ResourceType, amount: number = 1) => {
     setInventory(prev => {
-      const idx = prev.findIndex(i => i.type === type)
-      if (idx !== -1) {
-        const updated = [...prev]
-        updated[idx] = { ...updated[idx], count: updated[idx].count + amount }
-        return updated
+      let remaining = amount
+      const next = [...prev]
+      
+      // 1. Fill existing same-type stacks first
+      for (let i = 0; i < next.length && remaining > 0; i++) {
+        const slot = next[i]
+        if (slot?.type === type && slot.count < MAX_STACK) {
+          const space = MAX_STACK - slot.count
+          const toAdd = Math.min(space, remaining)
+          next[i] = { type, count: slot.count + toAdd }
+          remaining -= toAdd
+        }
       }
-      return [...prev, { type, count: amount }]
+
+      // 2. Fill empty slots
+      for (let i = 0; i < next.length && remaining > 0; i++) {
+        if (!next[i]) {
+          const toAdd = Math.min(MAX_STACK, remaining)
+          next[i] = { type, count: toAdd }
+          remaining -= toAdd
+        }
+      }
+      
+      return next
     })
   }, [])
 
-  const consumeResource = useCallback((type: ResourceType, amount: number = 1) => {
-    let success = false
+  const consumeResources = useCallback((needed: { type: ResourceType, count: number }[]) => {
+    let canDo = true
     setInventory(prev => {
-      const idx = prev.findIndex(i => i.type === type)
-      if (idx !== -1 && prev[idx].count >= amount) {
-        const updated = [...prev]
-        updated[idx] = { ...updated[idx], count: updated[idx].count - amount }
-        success = true
-        return updated
+      // Pre-check
+      const counts: Record<string, number> = {}
+      prev.forEach(slot => {
+        if (slot) counts[slot.type] = (counts[slot.type] || 0) + slot.count
+      })
+      
+      const hasEnough = needed.every(n => (counts[n.type] || 0) >= n.count)
+      if (!hasEnough) {
+        canDo = false
+        return prev
       }
-      return prev
+
+      // Execute consumption
+      const next = [...prev]
+      needed.forEach(n => {
+        let toRemove = n.count
+        // Go through slots and subtract
+        for (let i = 0; i < next.length && toRemove > 0; i++) {
+          const slot = next[i]
+          if (slot?.type === n.type) {
+            if (slot.count > toRemove) {
+              next[i] = { ...slot, count: slot.count - toRemove }
+              toRemove = 0
+            } else {
+              toRemove -= slot.count
+              next[i] = null
+            }
+          }
+        }
+      })
+      return next
     })
-    return success
+    return canDo
+  }, [])
+
+  const swapItems = useCallback((fromIdx: number, toIdx: number) => {
+    setInventory(prev => {
+      const next = [...prev]
+      const temp = next[fromIdx]
+      next[fromIdx] = next[toIdx]
+      next[toIdx] = temp
+      return next
+    })
   }, [])
 
   const hasResources = useCallback((needed: { type: ResourceType, count: number }[]) => {
@@ -55,8 +119,9 @@ export function useInventory() {
   return {
     inventory,
     addResource,
-    consumeResource,
+    consumeResources,
     getItemCount,
-    hasResources
+    hasResources,
+    swapItems
   }
 }

@@ -31,6 +31,15 @@ export function usePlayerHP(initialHPState: { val: number, time: number }, activ
     return freshHP
   }, [getCurrentHP])
 
+  const healHP = useCallback((amount: number) => {
+    const freshHP = getCurrentHP()
+    const newVal = Math.min(100, freshHP + amount)
+    const newState = { val: newVal, time: Date.now() }
+    setHpState(newState)
+    setCurrentHP(newVal)
+    localStorage.setItem('monster_collector_hp', JSON.stringify(newState))
+  }, [getCurrentHP])
+
   const consumeHP = useCallback((amount: number) => {
     const freshHP = getCurrentHP()
     const newVal = Math.max(0, freshHP - amount)
@@ -49,6 +58,7 @@ export function usePlayerHP(initialHPState: { val: number, time: number }, activ
   return {
     currentHP,
     consumeHP,
-    checkpointHP
+    checkpointHP,
+    healHP
   }
 }

@@ -16,9 +16,12 @@ export interface Monster {
     defense: number;
   };
   
-  // Live session stats
   currentHP?: number;
   totalXP?: number;
+  
+  // Progression
+  evolvesInto?: string[]; 
+  evolutionRequirements?: { type: ResourceType, count: number }[];
 }
 
 export interface Boost {
@@ -39,7 +42,11 @@ export interface SpawnPoint {
   caught: boolean
 }
 
-export type ResourceType = 'crystal' | 'herb' | 'energy' | 'mineral' | 'magic_crystal' | 'super_mineral' | 'potion'
+export type ResourceType = 
+  | 'crystal' | 'herb' | 'energy' | 'mineral' 
+  | 'magic_crystal' | 'super_mineral' 
+  | 'potion' 
+  | 'xp_booster' | 'hp_potion' | 'energy_drink'
 
 export interface InventoryItem {
   type: ResourceType;
@@ -53,4 +60,12 @@ export interface ResourceSpawn {
   type: ResourceType;
   amount: number;
   isCollected: boolean;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  description: string;
+  requirements: { type: ResourceType, count: number }[];
+  result: { type: 'boost' | 'item' | 'resource', id: string, amount: number };
 }

@@ -13,6 +13,9 @@ export const RESOURCE_CONFIG: Record<string, { color: string; label: string; ico
   herb: { color: '#10b981', label: 'Bylinka', icon: '🌿' },
   energy: { color: '#f59e0b', label: 'Energie', icon: '⚡' },
   mineral: { color: '#64748b', label: 'Minerál', icon: '🪨' },
+  xp_booster: { color: '#ec4899', label: 'XP Elixír', icon: '🧪' },
+  hp_potion: { color: '#ef4444', label: 'Lékárnička', icon: '❤️' },
+  energy_drink: { color: '#3b82f6', label: 'Energy Drink', icon: '🎒' },
 }
 
 export const SILHOUETTE_SVG = `<path d="M50 10 C35 10 25 20 25 32 C25 38 27 43 32 47 L28 55 C26 60 30 65 35 63 L38 61 C40 64 44 66 50 66 C56 66 60 64 62 61 L65 63 C70 65 74 60 72 55 L68 47 C73 43 75 38 75 32 C75 20 65 10 50 10 Z" fill="currentColor"/><circle cx="40" cy="30" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="60" cy="30" r="4" fill="rgba(0,0,0,0.5)"/>`

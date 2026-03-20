@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
-import type { Monster, Boost } from './types'
+import type { Monster, Boost, Recipe } from './types'
 import { cn } from './utils'
 
 import { Header } from './components/ui/Header'
@@ -13,6 +13,7 @@ import { DailyQuests } from './components/dashboard/DailyQuests'
 import { NewMonsterModal } from './components/modals/NewMonsterModal'
 import { Bestiary } from './components/bestiary/Bestiary'
 import { Inventory } from './components/inventory/Inventory'
+import { Codex } from './components/codex/Codex'
 import { MonsterDetail } from './components/bestiary/MonsterDetail'
 import { NavBar } from './components/ui/NavBar'
 import { PlaceholderTab } from './components/ui/PlaceholderTab'
@@ -54,7 +55,7 @@ function App() {
   // --- HOOKS ---
   const { toasts, addToast, removeToast } = useToasts()
   const { activeBoosts, activateBoost: baseActivateBoost } = useBoosts()
-  const { inventory, addResource } = useInventory()
+  const { inventory, addResource, consumeResources, swapItems } = useInventory()
   
   const { 
     totalXP, 
@@ -79,7 +80,8 @@ function App() {
   const { 
     currentHP, 
     consumeHP, 
-    checkpointHP 
+    checkpointHP,
+    healHP
   } = usePlayerHP(
     (() => {
       try {
@@ -129,13 +131,62 @@ function App() {
     })
   }, [])
 
+  // --- ACTIONS ---
+  const handleCraft = (recipe: Recipe) => {
+    const success = consumeResources(recipe.requirements);
+    if (success) {
+      addResource(recipe.result.id as any, recipe.result.amount);
+      addToast({ 
+        title: 'Crafting dokončen!', 
+        message: `Předmět ${recipe.name} byl přidán do tvého inventáře.`, 
+        type: 'success' 
+      });
+    } else {
+      addToast({ title: 'Chyba', message: 'Nedostatek surovin!', type: 'error' });
+    }
+  };
+
+  const handleUseItem = (type: any) => {
+    // 1. Zkusíme zkonzumovat 1ks z inventáře
+    const success = consumeResources([{ type, count: 1 }]);
+    if (!success) {
+      addToast({ title: 'Chyba', message: 'Tento předmět už nemáš!', type: 'info' });
+      return;
+    }
+
+    // 2. Aplikujeme efekt
+    switch(type) {
+      case 'xp_booster':
+        activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + 30 * 60 * 1000 });
+        addToast({ title: 'Boost aktivován!', message: 'Získáváš 2x XP po dobu 30 minut.', type: 'boost' });
+        break;
+      case 'hp_potion':
+        healHP(50);
+        activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + 15 * 60 * 1000 });
+        addToast({ title: 'Lékárnička použita!', message: 'Okamžitě vyléčeno 50 HP a zvýšena regenerace.', type: 'success' });
+        break;
+      case 'energy_drink':
+        addToast({ title: 'Energy Drink!', message: 'Cítíš se svěží! (Efekt bude brzy implementován).', type: 'info' });
+        break;
+    }
+  };
+
+  const handleGather = (type: any, amount: number) => {
+    addResource(type, amount)
+    addToast({
+      title: 'Surovina získána',
+      message: `${amount}x ${type} přidáno do inventáře`,
+      type: 'boost'
+    })
+  }
+
   // --- SIDE EFFECTS ---
   useEffect(() => {
     handleCompleteTrade((myMonster, theirMonster) => {
       const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
       saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
       removeMonster(myMonster.id, myMonster.level);
-      addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'boost' });
+      addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'success' });
     });
   }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast]);
 
@@ -156,6 +207,9 @@ function App() {
       const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
       saveMonster({ ...dbM, level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp));
     };
+    (window as any).simulateGather = (type: any = 'crystal', amount: number = 5) => {
+      handleGather(type, amount);
+    };
 
     return () => { 
       delete (window as any).triggerLevelUp;
@@ -164,6 +218,7 @@ function App() {
       delete (window as any).simulateP2P_PartnerOffered;
       delete (window as any).simulateP2P_PartnerConfirmed;
       delete (window as any).addTestMonster;
+      delete (window as any).simulateGather;
     };
   }, [currentLevel, setP2pTrade, saveMonster, addXP, setShowLevelUp]);
 
@@ -203,15 +258,6 @@ function App() {
     )
   }
 
-  const handleGather = (type: any, amount: number) => {
-    addResource(type, amount)
-    addToast({
-      title: 'Surovina získána',
-      message: `${amount}x ${type} přidáno do inventáře`,
-      type: 'boost'
-    })
-  }
-
   return (
     <div className="min-h-screen font-display pb-32">
       {!playerName && (
@@ -225,10 +271,20 @@ function App() {
       
       {!selectedMonster && (
         <Header 
-          title={activeTab === 'vault' ? "Bestiář" : activeTab === 'inventory' ? "Inventář" : activeTab === 'world' ? "Mapa světa" : activeTab === 'store' ? "Sektorový Obchod" : playerName || "Aether_Runner"} 
+          title={
+            activeTab === 'vault' ? "Bestiář" : 
+            activeTab === 'inventory' ? "Inventář" : 
+            activeTab === 'world' ? "Mapa světa" : 
+            activeTab === 'store' ? "Obchod" : 
+            activeTab === 'codex' ? "Kodex" :
+            playerName || "Runner"
+          } 
           showBack={activeTab !== 'home'} 
-          onBack={() => setActiveTab('home')}
-          playerName={playerName || 'Aether_Runner'}
+          onBack={() => {
+            if (activeTab === 'codex') setActiveTab('inventory')
+            else setActiveTab('home')
+          }}
+          playerName={playerName || 'Runner'}
           avatarStyle={avatarStyle}
           avatarSeed={avatarSeed}
           onSettingsClick={() => setIsSettingsOpen(true)}
@@ -290,11 +346,22 @@ function App() {
                 />
               )}
 
+              {activeTab === 'codex' && (
+                <Codex 
+                  key="codex"
+                  inventory={inventory}
+                  onCraft={handleCraft}
+                />
+              )}
+
               {activeTab === 'inventory' && (
                 <Inventory 
                   key="inventory" 
                   activeBoosts={activeBoosts}
                   inventory={inventory}
+                  onOpenCodex={() => setActiveTab('codex')}
+                  onSwap={swapItems}
+                  onUseItem={handleUseItem}
                 />
               )}
 
@@ -337,7 +404,7 @@ function App() {
         </AnimatePresence>
       </main>
 
-      <NavBar active={activeTab} onTabChange={(tab) => {
+      <NavBar active={activeTab === 'codex' ? 'inventory' : activeTab} onTabChange={(tab) => {
         setSelectedMonster(null)
         setActiveTab(tab)
       }} />
