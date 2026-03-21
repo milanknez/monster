@@ -13,7 +13,7 @@ import { DailyQuests } from './components/dashboard/DailyQuests'
 import { NewMonsterModal } from './components/modals/NewMonsterModal'
 import { Bestiary } from './components/bestiary/Bestiary'
 import { Inventory } from './components/inventory/Inventory'
-import { Codex } from './components/codex/Codex'
+import { Laboratory } from './components/codex/Codex'
 import { MonsterDetail } from './components/bestiary/MonsterDetail'
 import { Battle } from './components/battle/Battle'
 import { NavBar } from './components/ui/NavBar'
@@ -108,7 +108,7 @@ function App() {
   )
 
 
-  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP } = useMonsters(addToast)
+  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, equipGem } = useMonsters(addToast)
   const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast)
   const activeMonster = caughtMonsters[0] || null
   const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, activeBattle?.opponentUid)
@@ -120,6 +120,41 @@ function App() {
       addToast({ title: 'Soupeř opustil duel', message: `${incomingExit} zbaběle utekl!`, type: 'info' });
     }
   }, [incomingExit, activeBattle]);
+
+  // DEV TOOLS & CHEATS
+  useEffect(() => {
+    (window as any).addGems = () => {
+      const items = [
+        { type: 'gem_red_1', count: 5 },
+        { type: 'gem_red_4', count: 2 },
+        { type: 'gem_green_1', count: 5 },
+        { type: 'gem_green_4', count: 2 },
+        { type: 'gem_white_1', count: 5 },
+        { type: 'gem_white_4', count: 3 },
+        { type: 'mineral', count: 50 },
+        { type: 'super_mineral', count: 20 },
+        { type: 'magic_crystal', count: 20 },
+        { type: 'crystal', count: 100 },
+        { type: 'hp_potion', count: 20 },
+      ];
+      items.forEach(item => addResource(item.type as any, item.count));
+      addToast({ title: '📦 Dev balíček doručen!', message: 'Inventář byl naplněn gemy a surovinami.', type: 'success' });
+    };
+
+    (window as any).giveXP = (amt = 1000) => {
+      giveMonsterXP(0, amt);
+    };
+
+    (window as any).addMonster = (id: string, lvl = 5) => {
+       saveMonster({ id, level: lvl, caughtAt: Date.now(), totalXP: 0, name: id.toUpperCase(), rarity: 'common', type: 'Ohnivá', image: '', description: '' }, (xp) => {});
+    };
+
+    return () => {
+      delete (window as any).addGems;
+      delete (window as any).giveXP;
+      delete (window as any).addMonster;
+    };
+  }, [addResource, giveMonsterXP, saveMonster, addToast]);
 
   const activateBoost = (boost: Boost, item?: any) => {
     if (item?.price && !payingItem) {
@@ -409,7 +444,7 @@ function App() {
               activeTab === 'inventory' ? "Inventář" :
                 activeTab === 'world' ? "Mapa světa" :
                   activeTab === 'store' ? "Obchod" :
-                    activeTab === 'codex' ? "Kodex" :
+                    activeTab === 'codex' ? "Laboratoř" :
                       playerName || "Runner"
           }
           showBack={activeTab !== 'home'}
@@ -437,10 +472,32 @@ function App() {
                 const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                 if (idx !== -1) {
                    if (type === 'hp_potion') {
-                      updateMonsterHP(idx, 100); // Max heal for now OR find potion in inventory
+                      updateMonsterHP(idx, 100); 
                       consumeResources([{ type: 'hp_potion', count: 1 }]);
                       addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
                    }
+                }
+              }}
+              onEquipGem={(gemIdx, type) => {
+                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                if (idx !== -1) {
+                   const oldGem = caughtMonsters[idx].gems?.[gemIdx];
+                   
+                   equipGem(idx, gemIdx, type);
+                   // Update visual state
+                   const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
+                   newGems[gemIdx] = type;
+                   const updated = { ...caughtMonsters[idx], gems: newGems };
+                   setSelectedMonster(updated);
+
+                   if (type) consumeResources([{ type: type as any, count: 1 }]);
+                   if (oldGem) addResource(oldGem as any, 1);
+                   
+                   addToast({ 
+                      title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut', 
+                      message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
+                      type: 'success' 
+                   });
                 }
               }}
             />
@@ -491,12 +548,18 @@ function App() {
               )}
 
               {activeTab === 'codex' && (
-                <Codex
-                  key="codex"
+              <motion.div
+                key="codex"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+              >
+                <Laboratory
                   inventory={inventory}
                   onCraft={handleCraft}
                 />
-              )}
+              </motion.div>
+            )}
 
               {activeTab === 'inventory' && (
                 <Inventory

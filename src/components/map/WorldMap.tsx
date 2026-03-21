@@ -130,7 +130,12 @@ function generateResources(playerLat: number, playerLng: number, cooldowns: Cool
       const gridLng = iy * LNG_STEP
       const id = `resource_${ix}_${iy}`
       if (seededFloat(`r_skip_${id}`) < 0.8) continue 
-      const rType = resourceTypes[Math.floor(seededFloat(`rtype_${id}`) * resourceTypes.length)]
+      let rType = resourceTypes[Math.floor(seededFloat(`rtype_${id}`) * resourceTypes.length)]
+      
+      const rareRoll = seededFloat(`rare_${id}`);
+      if (rareRoll < 0.03) rType = 'magic_crystal';
+      else if (rareRoll < 0.06) rType = 'super_mineral';
+
       const jLat = gridLat + (seededFloat(`rjlat_${id}`) - 0.5) * LAT_STEP * 0.9
       const jLng = gridLng + (seededFloat(`rjlng_${id}`) - 0.5) * LNG_STEP * 0.9
       spawns.push({
@@ -209,6 +214,11 @@ out center;`.trim()
       } else if (tags.highway === 'path' || tags.highway === 'track') {
         type = 'crystal'
       }
+
+      const poiRareRoll = seededFloat(id + '_rare');
+      if (poiRareRoll < 0.05) type = 'magic_crystal';
+      else if (poiRareRoll < 0.10) type = 'super_mineral';
+
 
       resources.push({
         id, lat: elLat, lng: elLng, 

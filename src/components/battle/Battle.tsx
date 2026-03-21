@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile } from 'lucide-react';
+import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart } from 'lucide-react';
 import type { Monster } from '../../types';
-import { cn } from '../../utils';
+import { cn, GEM_BONUSES } from '../../utils';
 
 interface DamagePopup {
   id: number;
@@ -113,15 +113,36 @@ export const Battle = ({
   };
 
   const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
-    // Scaling: 15% bonus per level
+    const getGemBonus = (m: Monster, stat: 'attack' | 'defense') => {
+      if (!m.gems) return 0;
+      const targetPrefix = stat === 'attack' ? 'gem_red' : 'gem_white';
+      return m.gems.reduce((total, gemId) => {
+        if (gemId?.startsWith(targetPrefix)) {
+          const g = GEM_BONUSES[gemId];
+          if (g) {
+            const baseVal = (m.stats as any)?.[stat] || 10;
+            return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
+          }
+        }
+        return total;
+      }, 0);
+    };
+
     const levelMult = (lvl: number) => 1 + (lvl - 1) * 0.15;
-    const base = (attacker.stats?.attack || 50) * levelMult(attacker.level);
-    const def = (defender.stats?.defense || 30) * levelMult(defender.level);
+    
+    const atkTotal = (attacker.stats?.attack || 50);
+    const atkBonus = getGemBonus(attacker, 'attack') + Math.floor(atkTotal * (attacker.level - 1) * 0.15);
+    const base = atkTotal + atkBonus;
+
+    const defTotal = (defender.stats?.defense || 30);
+    const defBonus = getGemBonus(defender, 'defense') + Math.floor(defTotal * (defender.level - 1) * 0.15);
+    const def = defTotal + defBonus;
+
     const critChance = isSkill ? 0.35 : 0.1;
     const isCrit = Math.random() < critChance;
     
-    let dmg = Math.round((base * (isSkill ? 1.2 : 0.4) - def * 0.1) * (0.9 + Math.random() * 0.2));
-    if (isCrit) dmg = Math.round(dmg * 1.8);
+    let dmg = Math.round((base * (isSkill ? 1.2 : 0.5) - def * 0.2) * (0.9 + Math.random() * 0.2));
+    if (isCrit) dmg = Math.round(dmg * 2.0);
     if (defender === playerMonster && isShieldActive) dmg = Math.round(dmg * 0.4);
     
     return { dmg: Math.max(5, dmg), isCrit };

@@ -1,7 +1,8 @@
-import { useEffect, forwardRef } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../../utils';
+import { useState, useEffect, forwardRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X } from 'lucide-react';
+import { cn, TYPE_COLORS, GEM_BONUSES } from '../../utils';
+import { RESOURCE_CONFIG } from '../../components/map/mapUtils';
 import type { Monster } from '../../types';
 
 const RARITY_COLORS: Record<string, string> = {
@@ -11,8 +12,9 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion }, ref) => {
+export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void; onEquipGem?: (idx: number, gemType: string | null) => void }>(
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem }, ref) => {
+    const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
     
@@ -230,8 +232,140 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                {/* Subtle Texture Overlay */}
                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]" />
                
-               {/* Schopnosti */}
-               <div className="relative z-10">
+                {/* Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
+                <div className="relative z-10 space-y-6 px-1">
+                  
+                  {/* Inline Stats */}
+                  <div className="flex items-center justify-between gap-4 py-2">
+                    {[
+                      { label: 'Útok', val: monster.stats?.attack || 10, icon: <Sword size={10} />, type: 'gem_red' },
+                      { label: 'Obrana', val: monster.stats?.defense || 10, icon: <Shield size={10} />, type: 'gem_white' },
+                      { label: 'Zdraví', val: monster.stats?.hp || 100, icon: <Heart size={10} />, type: 'gem_green' }
+                    ].map((s, i) => {
+                      const levelBonus = Math.floor(s.val * (monster.level - 1) * 0.15);
+                      const gemBonus = (monster.gems || []).reduce((acc, gid) => {
+                        if (gid?.startsWith(s.type)) {
+                          const g = GEM_BONUSES[gid];
+                          if (g) return acc + (g.isPerc ? Math.floor(s.val * (g.value / 100)) : g.value);
+                        }
+                        return acc;
+                      }, 0);
+                      const totalBonus = levelBonus + gemBonus;
+                      
+                      return (
+                        <div key={i} className="flex flex-col items-center flex-1">
+                           <div className="flex items-center gap-1.5 opacity-40 mb-1">
+                              {s.icon} <span className="text-[8px] font-black uppercase tracking-widest">{s.label}</span>
+                           </div>
+                           <div className="flex items-baseline gap-0.5">
+                              <span className="text-sm font-black text-white italic">{s.val}</span>
+                              <span className="text-[10px] font-black text-emerald-400">+{totalBonus}</span>
+                           </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Universal Square Gem Sockets */}
+                  <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
+                    <div className="flex items-center justify-between mb-3 px-1">
+                       <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Drahokamy (Sockety)</h3>
+                       <p className="text-[8px] text-slate-500 font-bold">Libovolná kombinace</p>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-4">
+                      {Array.from({ length: 3 }).map((_, idx) => {
+                        const currentGem = monster.gems?.[idx];
+                        const icon = currentGem ? RESOURCE_CONFIG[currentGem]?.icon : null;
+                        const isPicking = activeSlotIdx === idx;
+                        
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => setActiveSlotIdx(idx)}
+                            className={cn(
+                              "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
+                              currentGem 
+                                ? "bg-slate-800 border-white/20 shadow-xl" 
+                                : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
+                              isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
+                            )}
+                          >
+                            {currentGem ? (
+                              <>
+                                <span className="text-4xl drop-shadow-md">{icon}</span>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }}
+                                  className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20"
+                                >
+                                  <Trash2 size={10} />
+                                </button>
+                              </>
+                            ) : (
+                              <Plus size={20} className="text-white/20" />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Custom Fluid Gem Picker */}
+                    <AnimatePresence>
+                       {activeSlotIdx !== null && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                            className="overflow-hidden"
+                          >
+                             <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
+                                <button 
+                                  onClick={() => setActiveSlotIdx(null)}
+                                  className="absolute top-2 right-2 text-slate-500 hover:text-white"
+                                >
+                                  <X size={14} />
+                                </button>
+                                
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">
+                                   Slot {activeSlotIdx + 1}: Vyber si vylepšení
+                                </p>
+                                
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                   {inventory?.filter(i => i?.type.startsWith('gem_') && i?.count > 0).map(i => (
+                                      <motion.button
+                                        key={i?.type}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
+                                        className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative"
+                                      >
+                                         <span className="text-2xl group-hover:scale-125 transition-transform">{RESOURCE_CONFIG[i?.type || '']?.icon}</span>
+                                         <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm">{i?.count}x</span>
+                                      </motion.button>
+                                   ))}
+                                   {(!inventory || inventory.filter(i => i?.type.startsWith('gem_') && i?.count > 0).length === 0) && (
+                                      <div className="w-full text-center py-4 flex flex-col items-center gap-2">
+                                         <div className="text-3xl opacity-30">🧪</div>
+                                         <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné drahokamy v batohu</p>
+                                         <button 
+                                           onClick={() => setActiveSlotIdx(null)}
+                                           className="px-4 py-1.5 bg-slate-800 rounded-full text-[9px] font-black text-white uppercase tracking-widest mt-1"
+                                         >
+                                            Zavřít
+                                         </button>
+                                      </div>
+                                   )}
+                                </div>
+                             </div>
+                          </motion.div>
+                       )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                <div className="h-px bg-white/5 w-full mt-2" />
+
+                {/* Schopnosti */}
+                <div className="relative z-10 mt-2">
                  <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
                    <Zap size={10} />
                    Schopnosti karty

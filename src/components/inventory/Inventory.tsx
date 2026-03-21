@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Clock, Star, Zap, Hammer, Sparkles, Wand2 } from 'lucide-react';
+import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2 } from 'lucide-react';
 import type { Boost, InventoryItem } from '../../types';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { cn } from '../../utils';
@@ -56,7 +56,7 @@ export const Inventory = ({
           onClick={onOpenCodex}
           className="absolute top-6 right-6 size-12 bg-slate-900 border border-secondary/30 rounded-2xl flex items-center justify-center text-secondary shadow-lg shadow-secondary/5 group transition-all"
         >
-          <Hammer size={24} className="group-hover:rotate-12 transition-transform" />
+          <Beaker size={24} className="group-hover:rotate-12 transition-transform" />
           <div className="absolute -top-1 -right-1 size-2 bg-secondary rounded-full animate-pulse" />
         </motion.button>
       </div>

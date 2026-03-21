@@ -137,11 +137,25 @@ export function useMonsters(addToast: (toast: any) => void) {
     })
   }, [])
 
+  const equipGem = useCallback((monsterIdx: number, gemIdx: number, gemType: string | null) => {
+    setCaughtMonsters(prev => {
+      const next = [...prev];
+      if (!next[monsterIdx]) return prev;
+      const m = { ...next[monsterIdx] };
+      const gs = [...(m.gems || [null, null, null])];
+      gs[gemIdx] = gemType || null;
+      m.gems = gs;
+      next[monsterIdx] = m;
+      return next;
+    });
+  }, []);
+
   return {
     caughtMonsters,
     saveMonster,
     removeMonster,
     giveMonsterXP,
-    updateMonsterHP
+    updateMonsterHP,
+    equipGem
   }
 }

@@ -22,6 +22,9 @@ export interface Monster {
   // Progression
   evolvesInto?: string[]; 
   evolutionRequirements?: { type: ResourceType, count: number }[];
+  
+  // Customization
+  gems?: (string | null)[]; // Max 3 gems, any type
 }
 
 export interface Boost {
@@ -47,6 +50,9 @@ export type ResourceType =
   | 'magic_crystal' | 'super_mineral' 
   | 'potion' 
   | 'xp_booster' | 'hp_potion' | 'energy_drink'
+  | 'gem_red_1' | 'gem_red_2' | 'gem_red_3' | 'gem_red_4' | 'gem_red_5' | 'gem_red_6'
+  | 'gem_green_1' | 'gem_green_2' | 'gem_green_3' | 'gem_green_4' | 'gem_green_5' | 'gem_green_6'
+  | 'gem_white_1' | 'gem_white_2' | 'gem_white_3' | 'gem_white_4' | 'gem_white_5' | 'gem_white_6'
 
 export interface InventoryItem {
   type: ResourceType;

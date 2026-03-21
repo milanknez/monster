@@ -28,3 +28,26 @@ export const getTotalXPForLevel = (lvl: number) => {
   const n = lvl - 1;
   return 125 * n * n + 875 * n;
 };
+
+export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = {
+  gem_red_1: { value: 3 },
+  gem_red_2: { value: 5 },
+  gem_red_3: { value: 8 },
+  gem_red_4: { value: 2, isPerc: true },
+  gem_red_5: { value: 4, isPerc: true },
+  gem_red_6: { value: 6, isPerc: true },
+  
+  gem_green_1: { value: 3 },
+  gem_green_2: { value: 5 },
+  gem_green_3: { value: 8 },
+  gem_green_4: { value: 2, isPerc: true },
+  gem_green_5: { value: 4, isPerc: true },
+  gem_green_6: { value: 6, isPerc: true },
+  
+  gem_white_1: { value: 3 },
+  gem_white_2: { value: 5 },
+  gem_white_3: { value: 8 },
+  gem_white_4: { value: 2, isPerc: true },
+  gem_white_5: { value: 4, isPerc: true },
+  gem_white_6: { value: 6, isPerc: true },
+};

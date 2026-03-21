@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hammer, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
+import { Beaker, Sparkles, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { recipes } from '../../data/recipes';
 import type { InventoryItem, Recipe, ResourceType } from '../../types';
 import { cn } from '../../utils';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 
-export const Codex = ({
+export const Laboratory = ({
   inventory,
   onCraft
 }: {
@@ -59,10 +59,10 @@ export const Codex = ({
       <div className="py-8 text-center relative">
         <div className="absolute top-0 left-1/2 -underline-1/2 size-40 bg-secondary/10 blur-[80px] -z-10" />
         <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary mb-4">
-          <Hammer size={32} />
+          <Beaker size={32} />
         </div>
-        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Crafting</h2>
-        <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-widest opacity-80">Proměň suroviny v moc</p>
+        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Laboratoř</h2>
+        <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-widest opacity-80">Syntéza drahokamů a lektvarů</p>
       </div>
 
       <div className="space-y-8">
@@ -99,7 +99,7 @@ export const Codex = ({
                 </div>
                 <div className="size-20 rounded-3xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 relative overflow-hidden">
                   <div className={cn("text-5xl", active ? "animate-bounce" : "animate-pulse-slow")}>
-                    {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : '🎒'}
+                    {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒')}
                   </div>
                   {active && (
                     <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center">
@@ -182,7 +182,7 @@ export const Codex = ({
                   </>
                 ) : ready ? (
                   <>
-                    <Hammer size={18} /> VYROBIT TEĎ
+                    <Beaker size={18} /> VYROBIT TEĎ
                   </>
                 ) : (
                   <>
