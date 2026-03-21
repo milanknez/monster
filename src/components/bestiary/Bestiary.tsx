@@ -42,7 +42,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="pb-32"
+      className="pb-16"
     >
       <div className="flex flex-col gap-3 p-6 bg-primary/5 border-b border-primary/10">
         <div className="flex justify-between items-start">

@@ -108,7 +108,7 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
   const silhouette = `<g transform="translate(18, 18) scale(0.64)" opacity="0.4" style="color:${c.label}">${SILHOUETTE_SVG}</g>`
   
   const lockOverlay = isLocked
-    ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#ef4444" stroke="#000" stroke-width="0.5"/></g>`
+    ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
     : `<text x="50" y="60" text-anchor="middle" font-size="42" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
   
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''

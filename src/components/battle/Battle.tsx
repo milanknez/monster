@@ -152,69 +152,39 @@ export const Battle = ({
   };
 
   const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
-    const getGemBonus = (m: Monster, stat: 'attack' | 'defense') => {
-      if (!m.gems) return 0;
-      const targetPrefix = stat === 'attack' ? 'gem_red' : 'gem_white';
-      return m.gems.reduce((total, gemId) => {
-        if (gemId?.startsWith(targetPrefix)) {
-          const g = GEM_BONUSES[gemId];
-          if (g) {
-            const baseVal = (m.stats as any)?.[stat] || 10;
-            return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
-          }
-        }
-        return total;
-      }, 0);
-    };
-
-    const levelMult = (lvl: number) => 1 + (lvl - 1) * 0.15;
+    const atkStats = getFinalStats(attacker);
+    const defStats = getFinalStats(defender);
     
-    const atkTotal = (attacker.stats?.attack || 50);
-    const atkBonus = getGemBonus(attacker, 'attack') + Math.floor(atkTotal * (attacker.level - 1) * 0.15);
-    const base = atkTotal + atkBonus;
-
-    const defTotal = (defender.stats?.defense || 30);
-    const defBonus = getGemBonus(defender, 'defense') + Math.floor(defTotal * (defender.level - 1) * 0.15);
-    const def = defTotal + defBonus;
+    const atk = atkStats.total.atk;
+    const def = defStats.total.def;
 
     const critChance = isSkill ? 0.35 : 0.1;
     const isCrit = Math.random() < critChance;
     
-    let dmg = Math.round((base * (isSkill ? 1.2 : 0.5) - def * 0.2) * (0.9 + Math.random() * 0.2));
-    if (isCrit) dmg = Math.round(dmg * 2.0);
+    // Damage = (Atk * SkillMultiplier) - (Def / 2)
+    // Skill multiplier: 1.25, normal: 0.8
+    const baseDamage = Math.round((atk * (isSkill ? 1.25 : 0.8) - def * 0.45) * (0.9 + Math.random() * 0.2));
+    let dmg = Math.max(Math.floor(atk * 0.1), baseDamage);
+    
+    if (isCrit) dmg = Math.round(dmg * 1.8);
     if (defender === playerMonster && isShieldActive) dmg = Math.round(dmg * 0.4);
     
-    return { dmg: Math.max(5, dmg), isCrit };
+    return { dmg, isCrit };
   }, [playerMonster, isShieldActive]);
 
   const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
-    const getGemBonus = (m: Monster, stat: 'attack' | 'defense') => {
-      if (!m.gems) return 0;
-      const targetPrefix = stat === 'attack' ? 'gem_red' : 'gem_white';
-      return m.gems.reduce((total, gemId) => {
-        if (gemId?.startsWith(targetPrefix)) {
-          const g = GEM_BONUSES[gemId];
-          if (g) {
-            const baseVal = (m.stats as any)?.[stat] || 10;
-            return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
-          }
-        }
-        return total;
-      }, 0);
-    };
+    const atkStats = getFinalStats(attacker);
+    const defStats = getFinalStats(defender);
+    
+    const atk = atkStats.total.atk;
+    const def = defStats.total.def;
 
-    const atkTotal = (attacker.stats?.attack || 50);
-    const atkBonus = getGemBonus(attacker, 'attack') + Math.floor(atkTotal * (attacker.level - 1) * 0.15);
-    const base = atkTotal + atkBonus;
-
-    const defTotal = (defender.stats?.defense || 30);
-    const defBonus = getGemBonus(defender, 'defense') + Math.floor(defTotal * (defender.level - 1) * 0.15);
-    const def = defTotal + defBonus;
-
-    let dmg = Math.round((base * (isSkill ? 1.2 : 0.5) - def * 0.2));
+    const baseDamage = Math.round((atk * (isSkill ? 1.25 : 0.8) - def * 0.45));
+    let dmg = Math.max(Math.floor(atk * 0.1), baseDamage);
+    
     if (defender === playerMonster && isShieldActive) dmg = Math.round(dmg * 0.4);
     
-    return Math.max(5, dmg);
+    return dmg;
   }, [playerMonster, isShieldActive]);
 
   const executeAttack = (isSkill = false) => {

@@ -41,7 +41,7 @@ export const Inventory = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="pb-32"
+      className="pb-16"
     >
       {/* Header Info */}
       <div className="p-6 pb-2 relative">

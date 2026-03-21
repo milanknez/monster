@@ -64,7 +64,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
             onBack();
           }
         }}
-        className="w-full min-h-screen bg-background-dark pb-32"
+        className="w-full min-h-screen bg-background-dark pb-20"
       >
         {/* Magic Card Layout - Full Width */}
         <div className={cn(
@@ -411,7 +411,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         </div> {/* Closes Card Layout */}
 
         {/* Footer Actions */}
-        <div className="px-4 mt-8 mb-8 pb-16">
+        <div className="px-4 mt-8 mb-8 pb-8">
           {!confirmRelease ? (
             <button 
               onClick={() => setConfirmRelease(true)}
