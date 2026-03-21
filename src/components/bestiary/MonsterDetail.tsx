@@ -385,7 +385,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                             <p className="text-sm font-black uppercase text-white leading-tight mb-0.5 tracking-tight">{ability.name}</p>
                             <p className="text-[11px] leading-snug text-slate-400 font-bold">{ability.description}</p>
                           </div>
-```
                        </div>
                      ))
                    ) : (
@@ -411,50 +410,67 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         </div> {/* Closes Card Layout */}
 
         {/* Footer Actions */}
-        <div className="px-4 mt-8 mb-8 pb-8">
-          {!confirmRelease ? (
-            <button 
-              onClick={() => setConfirmRelease(true)}
-              className="w-full group relative py-4 rounded-[1.5rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-[0_5px_20px_rgba(239,68,68,0.1)]"
-            >
-              <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
-              <div className="relative z-10 flex items-center justify-center gap-2">
-                <Trash2 size={18} className="text-red-500 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-black text-red-500 uppercase tracking-widest drop-shadow-md">Pustit do divočiny</span>
+        <div className="px-6 mt-12 mb-8 pb-12">
+          <button 
+            onClick={() => setConfirmRelease(true)}
+            className="w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-2xl hover:border-red-500/50"
+          >
+            <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
+            <div className="relative z-10 flex items-center justify-center gap-3">
+              <Trash2 size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <p className="text-sm font-black text-red-500 uppercase tracking-widest leading-none mb-0.5">Propustit na svobodu</p>
+                <p className="text-[9px] font-bold text-red-500/60 uppercase">Monstrum bude navždy smazáno</p>
               </div>
-            </button>
-          ) : (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col gap-4">
-              <div className="bg-red-950/40 border border-red-500/30 p-4 rounded-3xl text-center">
-                 <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1 animate-pulse">Opravdu chceš toto monstrum propustit?</p>
-                 <p className="text-[9px] font-bold text-red-300 opacity-60 uppercase">Akci nelze vrátit zpět</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button 
-                  onClick={() => onRelease && onRelease()}
-                  className="py-4 bg-red-600 rounded-2xl text-xs font-black text-white uppercase tracking-widest shadow-xl active:scale-95"
-                >
-                  Ano, pustit
-                </button>
-                <button 
-                  onClick={() => setConfirmRelease(false)}
-                  className="py-4 bg-slate-800 rounded-2xl text-xs font-black text-slate-300 uppercase tracking-widest active:scale-95"
-                >
-                  Ne, nechat
-                </button>
-              </div>
-            </motion.div>
-          )}
+            </div>
+          </button>
           
           <button 
             onClick={onBack}
-            className="w-full mt-4 group relative py-3 rounded-xl overflow-hidden transition-all active:scale-95 border border-white/10 bg-white/5"
+            className="w-full mt-6 py-4 rounded-2xl border border-white/5 bg-white/5 text-slate-500 font-black uppercase tracking-widest text-xs active:scale-95 transition-all"
           >
-            <div className="relative z-10 flex items-center justify-center gap-2">
-              <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Zpět k ostatním</span>
-            </div>
+            Zrušit a jít zpět
           </button>
         </div>
+
+        {/* RELEASE MODAL */}
+        <AnimatePresence>
+          {confirmRelease && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-sm bg-slate-900 border-2 border-red-500/30 rounded-[3rem] p-8 text-center shadow-[0_0_100px_rgba(239,68,68,0.2)]"
+              >
+                <div className="size-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                  <Trash2 size={40} className="text-red-500" />
+                </div>
+                
+                <h2 className="text-2xl font-black text-white uppercase italic mb-2 tracking-tighter">Poslední varování</h2>
+                <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed">
+                  Opravdu chceš propustit <span className="text-white">{monster.name}</span>? 
+                  Ztratíš veškerý postup a drahokamy, které má u sebe.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={() => onRelease?.()}
+                    className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-500/20 transition-all active:scale-95"
+                  >
+                    Ano, propustit
+                  </button>
+                  <button 
+                    onClick={() => setConfirmRelease(false)}
+                    className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95"
+                  >
+                    Ne, nechat si jej
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       </motion.div>
     )
