@@ -13,9 +13,9 @@
     {
       "name": "Jiskrový kotouč",
       "description": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Ostnatý náraz",

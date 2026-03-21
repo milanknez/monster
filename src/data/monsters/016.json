@@ -20,9 +20,9 @@
     {
       "name": "Lesklé šupiny",
       "description": "Odráží část poškození zpět na útočníka.",
-      "type": "defense",
-      "chance": 35,
-      "value": 0.4
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

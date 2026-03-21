@@ -13,9 +13,9 @@
     {
       "name": "Skořápkový náraz",
       "description": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Ochranný pancíř",

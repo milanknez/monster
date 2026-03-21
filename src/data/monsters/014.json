@@ -20,9 +20,9 @@
     {
       "name": "Tichá bouře",
       "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

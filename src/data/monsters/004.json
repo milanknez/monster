@@ -13,16 +13,16 @@
     {
       "name": "Bleskový výboj",
       "description": "Uvolní nahromaděnou energii v podobě ničivého blesku.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "buff",
+      "chance": 40,
+      "value": 0.2
     },
     {
       "name": "Statické nabití",
       "description": "Zvýší rychlost útoku a šanci na ochromení nepřítele.",
-      "type": "buff",
-      "chance": 40,
-      "value": 0.2
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

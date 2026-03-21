@@ -13,16 +13,16 @@
     {
       "name": "Žhavý sek",
       "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Popelavý výbuch",
       "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu.",
-      "type": "attack",
+      "type": "defense",
       "chance": 35,
-      "value": 1.85
+      "value": 0.4
     }
   ]
 }

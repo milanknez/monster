@@ -20,9 +20,9 @@
     {
       "name": "Podvodní rána",
       "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
-      "type": "attack",
-      "chance": 35,
-      "value": 1.85
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

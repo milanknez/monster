@@ -20,8 +20,8 @@
     {
       "name": "Mořský hněv",
       "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
-      "type": "buff",
-      "chance": 40,
+      "type": "heal",
+      "chance": 35,
       "value": 0.2
     }
   ]

@@ -284,34 +284,122 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                   })}
                 </div>
 
-                <div className="h-px bg-white/5 w-full mt-2" />
+                               {/* Schopnosti */}
+                 <div className="relative z-[20] mt-2">
+                  <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
+                    <Zap size={10} />
+                    Schopnosti karty
+                  </h3>
+                  <div className="space-y-4 relative z-[21]">
+                    {monster.abilities && monster.abilities.length > 0 ? (
+                      monster.abilities.map((ability, idx) => {
+                        // Resilient type detection fallback
+                        const effectiveType = ability.type || (idx === 0 ? 'attack' : 'extra');
+                        
+                        const getAbilityEffectText = () => {
+                          switch(effectiveType) {
+                            case 'attack': return { 
+                              label: 'Silný útok', 
+                              val: `Zvyšuje útok o ${Math.round(( (ability.value || 1.85) - 1) * 100)} %`, 
+                              icon: <Sword size={10} />, 
+                              color: 'text-purple-400',
+                              bg: 'bg-purple-500/10',
+                              energy: 50
+                            };
+                            case 'extra': return { 
+                              label: 'Extra zásah', 
+                              val: `Přidá ${Math.round((ability.value || 0.35) * 100)} % k poškození`, 
+                              icon: <Zap size={10} />, 
+                              color: 'text-blue-400',
+                              bg: 'bg-blue-500/10',
+                              energy: 20
+                            };
+                            case 'defense': return { 
+                              label: 'Obrana', 
+                              val: `Sníží utržené DMG o ${Math.round((ability.value || 0.4) * 100)} %`, 
+                              icon: <Shield size={10} />, 
+                              color: 'text-emerald-400',
+                              bg: 'bg-emerald-500/10',
+                              energy: 30
+                            };
+                            case 'heal': return { 
+                              label: 'Léčení', 
+                              val: `Okamžitě vyléčí ${Math.round((ability.value || 0.2) * 100)} % HP`, 
+                              icon: <Heart size={10} />, 
+                              color: 'text-red-400',
+                              bg: 'bg-red-500/10',
+                              energy: 40
+                            };
+                            case 'buff': return { 
+                              label: 'Bonus', 
+                              val: `Zvýší staty o ${Math.round((ability.value || 0.2) * 100)} %`, 
+                              icon: <Sparkles size={10} />, 
+                              color: 'text-yellow-400',
+                              bg: 'bg-yellow-500/10',
+                              energy: 30
+                            };
+                            default: return { label: 'Schopnost', val: 'Speciální efekt', icon: <Info size={10} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
+                          }
+                        };
 
-                {/* Schopnosti */}
-                <div className="relative z-10 mt-2">
-                 <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
-                   <Zap size={10} />
-                   Schopnosti karty
-                 </h3>
-                 <div className="space-y-4">
-                   {monster.abilities && monster.abilities.length > 0 ? (
-                     monster.abilities.map((ability, idx) => (
-                       <div key={idx} className="flex gap-4 group">
-                          <div className={cn("size-10 rounded-xl flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-transform group-hover:scale-110", colors.bg)}>
-                             <Zap size={16} className={colors.text} />
+                        const effect = getAbilityEffectText();
+
+                        return (
+                          <div key={idx} className="flex gap-4 group bg-white/[0.03] p-4 rounded-3xl border border-white/5 hover:border-white/20 transition-all relative z-[30] shadow-sm">
+                             {/* Primary Icon Based on Type */}
+                             <div className={cn(
+                               "size-14 rounded-2xl flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-transform group-hover:scale-105 relative bg-slate-900/50",
+                               effect.bg
+                             )}>
+                                <div className={effect.color}>
+                                   {/* We clone the icon for larger size */}
+                                   {(() => {
+                                      const LargeIcon = () => {
+                                         switch(effectiveType) {
+                                            case 'attack': return <Sword size={28} />;
+                                            case 'extra': return <Zap size={28} />;
+                                            case 'defense': return <Shield size={28} />;
+                                            case 'heal': return <Heart size={28} />;
+                                            case 'buff': return <Sparkles size={28} />;
+                                            default: return <Info size={28} />;
+                                         }
+                                      };
+                                      return <LargeIcon />;
+                                   })()}
+                                </div>
+                                {/* Energy Cost Sticker */}
+                                <div className="absolute -top-2 -right-2 bg-black border border-white/20 rounded-lg px-1.5 py-0.5 text-[10px] font-black text-white shadow-2xl z-[40] tabular-nums">
+                                   {effect.energy}⚡
+                                </div>
+                             </div>
+
+                             <div className="flex-1 relative z-[31]">
+                               <div className="flex items-center justify-between mb-1">
+                                  <p className="text-base font-black uppercase text-white tracking-tight leading-none drop-shadow-md">{ability.name}</p>
+                                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic opacity-60">
+                                     {ability.chance || 40} % šance
+                                  </div>
+                               </div>
+                               
+                               <p className="text-[12px] leading-relaxed text-slate-400 font-bold mb-3 drop-shadow-sm">{ability.description}</p>
+                               
+                               {/* The "Effect Bar" - Integrated, no bubble */}
+                               <div className="flex items-center gap-2 pt-2 border-t border-white/[0.03] mt-auto">
+                                  <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-40 leading-none", effect.color)}>{effect.label}:</span>
+                                  <span className={cn("text-[11px] font-black italic leading-none whitespace-nowrap", effect.color)}>{effect.val}</span>
+                               </div>
+                             </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-black uppercase text-white leading-tight mb-0.5 tracking-tight">{ability.name}</p>
-                            <p className="text-[11px] leading-snug text-slate-400 font-bold">{ability.description}</p>
-                          </div>
-                       </div>
-                     ))
-                   ) : (
-                     <div className="py-2 text-center border border-dashed border-white/10 rounded-xl">
-                       <p className="text-xs italic text-slate-500 font-bold uppercase tracking-widest">Bez speciálních schopností</p>
-                     </div>
-                   )}
+                        );
+                      })
+                    ) : (
+                      <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-3xl">
+                        <p className="text-xs italic text-slate-600 font-bold uppercase tracking-widest">Bez speciálních schopností</p>
+                      </div>
+                    )}
+                  </div>
                  </div>
-               </div>
+
 
                 {/* Příběh / Historie */}
                 <div className="relative z-10 pt-2 border-t border-white/5">

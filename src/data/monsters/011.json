@@ -20,9 +20,9 @@
     {
       "name": "Hod oblázkem",
       "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat.",
-      "type": "buff",
-      "chance": 40,
-      "value": 0.2
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

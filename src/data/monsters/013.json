@@ -13,9 +13,9 @@
     {
       "name": "Medové pohlazení",
       "description": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit.",
-      "type": "defense",
+      "type": "heal",
       "chance": 35,
-      "value": 0.4
+      "value": 0.2
     },
     {
       "name": "Bodnutí včelky",

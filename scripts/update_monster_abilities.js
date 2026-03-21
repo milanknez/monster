@@ -5,11 +5,11 @@ const monstersPath = 'd:/wamp64/www/monster/src/data/monsters';
 const files = fs.readdirSync(monstersPath);
 
 const KEYWORDS = {
-  attack: ['masivn', 'ničiv', 'velk', 'zuřiv', 'exploze', 'super', 'nejsilnější', 'plamen', 'bouře', 'absolutn', 'třesk'],
-  extra: ['rychl', 'sek', 'kous', 'výpad', 'dráp', 'lehk', 'bod', 'střel', 'ostrý', 'náraz'],
-  defense: ['štít', 'chrán', 'aura', 'krunýř', 'pohlc', 'obran', 'zeď', 'blok', 'kamene'],
-  heal: ['léč', 'regen', 'zdrav', 'obnov', 'vital', 'vyléč', 'květ'],
-  buff: ['posil', 'nabud', 'zvýš', 'rychlost', 'koncentr', 'taktik', 'síla', 'vůle']
+  attack: ['masivn', 'ničiv', 'velk', 'zuřiv', 'exploze', 'super', 'nejsilnější', 'plamen', 'bouře', 'absolutn', 'třesk', 'výbuch', 'hněv'],
+  extra: ['rychl', 'sek', 'kous', 'výpad', 'dráp', 'lehk', 'bod', 'střel', 'ostrý', 'náraz', 'šleh', 'hod', 'chňap'],
+  defense: ['štít', 'chrán', 'aura', 'krunýř', 'pohlc', 'obran', 'zeď', 'blok', 'kamene', 'úkryt', 'útočiště', 'past', 'úprk', 'útěk'],
+  heal: ['léč', 'regen', 'zdrav', 'obnov', 'vital', 'vyléč', 'květ', 'pohlazení'],
+  buff: ['posil', 'nabud', 'zvýš', 'rychlost', 'koncentr', 'taktik', 'síla', 'vůle', 'energ', 'nabití']
 };
 
 files.forEach(file => {
@@ -22,6 +22,7 @@ files.forEach(file => {
     monster.abilities = monster.abilities.map((ability, idx) => {
       const text = `${ability.name} ${ability.description}`.toLowerCase();
       
+      // Default assignment based on position
       let type = idx === 0 ? 'attack' : 'extra';
       
       // Smart detection - Priority order matters!
@@ -31,11 +32,23 @@ files.forEach(file => {
       else if (KEYWORDS.attack.some(k => text.includes(k))) type = 'attack';
       else if (KEYWORDS.extra.some(k => text.includes(k))) type = 'extra';
 
-      // Advanced Balance (Option B)
+      return {
+        ...ability,
+        type: type
+      };
+    });
+
+    // Ensure variety - Force 2nd ability to be 'extra' if it's the same type as 1st
+    if (monster.abilities.length > 1 && monster.abilities[0].type === monster.abilities[1].type) {
+       monster.abilities[1].type = 'extra';
+    }
+
+    // Apply values based on the final type
+    monster.abilities = monster.abilities.map(ability => {
       let chance = 40;
       let value = 1.5;
 
-      switch(type) {
+      switch(ability.type) {
         case 'attack': 
           chance = 35; 
           value = 1.85; 
@@ -45,8 +58,8 @@ files.forEach(file => {
           value = 0.35; 
           break;
         case 'defense':
-          chance = 35; // Slightly higher chance for survivability
-          value = 0.4;  // 40% reduction
+          chance = 35; 
+          value = 0.4;  
           break;
         case 'heal':
           chance = 35;
@@ -57,13 +70,8 @@ files.forEach(file => {
           value = 0.2; 
           break;
       }
-      
-      return {
-        ...ability,
-        type: type,
-        chance: chance,
-        value: value
-      };
+
+      return { ...ability, chance, value };
     });
     
     fs.writeFileSync(filePath, JSON.stringify(monster, null, 2), 'utf8');
