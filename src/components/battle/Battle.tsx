@@ -104,6 +104,7 @@ export const Battle = ({
   const [playerEffects, setPlayerEffects] = useState<{ type: 'burn' | 'slow' | 'paralyze', duration: number }[]>([]);
   const [showEmotes, setShowEmotes] = useState(false);
   const [showItems, setShowItems] = useState(false);
+  const [showSkills, setShowSkills] = useState(false);
   const [timeLeft, setTimeLeft] = useState(40);
   const [autoAttackTrigger, setAutoAttackTrigger] = useState(0);
   
@@ -123,6 +124,17 @@ export const Battle = ({
   
   const playerMaxHP = getMonsterMaxHP(playerMonster);
   const enemyMaxHP = getMonsterMaxHP(enemyMonster);
+
+  const getAbilityEnergyCost = (type?: string) => {
+    switch(type) {
+       case 'attack': return 50;  // Special Attack
+       case 'extra': return 20;   // Extra Attack (Spam)
+       case 'heal': return 40;    // Heal / Regen
+       case 'defense': return 30; // Shield
+       case 'buff': return 30;    // Buff
+       default: return 40;
+    }
+  }
 
   const generateLoot = () => {
     const types = ['crystal', 'herb', 'mineral', 'energy'];
@@ -161,12 +173,27 @@ export const Battle = ({
     }, 1000);
   };
 
-  const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
+  const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const atkStats = getFinalStats(attacker);
     const defStats = getFinalStats(defender);
     
-    const atk = atkStats.total.atk;
+    let atk = atkStats.total.atk;
     const def = defStats.total.def;
+
+    let skillMult = 1.0;
+    const ability = isSkill && abilityIdx >= 0 ? attacker.abilities?.[abilityIdx] : null;
+
+    if (isSkill) {
+      if (ability) {
+        if (ability.type === 'attack') skillMult = ability.value || 1.5;
+        else if (ability.type === 'extra') skillMult = 1.0 + (ability.value || 0.2);
+        else skillMult = 1.25; // fallback
+      } else {
+        skillMult = 1.25;
+      }
+    } else {
+      skillMult = 0.8; // normal attack base
+    }
 
     const critChance = isSkill ? 0.35 : 0.1;
     const isCrit = Math.random() < critChance;
@@ -187,7 +214,7 @@ export const Battle = ({
       }
     }
 
-    const baseDamage = Math.round((atk * (isSkill ? 1.25 : 0.8) - def * 0.45) * (0.9 + Math.random() * 0.2));
+    const baseDamage = Math.round((atk * skillMult - def * 0.45) * (0.9 + Math.random() * 0.2));
     let dmg = Math.max(Math.floor(atk * 0.1), baseDamage);
     
     dmg = Math.round(dmg * typeMult);
@@ -204,14 +231,22 @@ export const Battle = ({
     return { dmg, isCrit, isEffective, isWeak };
   }, [playerMonster, isShieldActive, playerEffects, enemyEffects]);
 
-  const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
+  const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const atkStats = getFinalStats(attacker);
     const defStats = getFinalStats(defender);
     
     const atk = atkStats.total.atk;
     const def = defStats.total.def;
 
-    const baseDamage = Math.round((atk * (isSkill ? 1.25 : 0.8) - def * 0.45));
+    let skillMult = isSkill ? 1.25 : 0.8;
+    const ability = isSkill && abilityIdx >= 0 ? attacker.abilities?.[abilityIdx] : null;
+
+    if (ability) {
+      if (ability.type === 'attack') skillMult = ability.value || 1.5;
+      else if (ability.type === 'extra') skillMult = 1.0 + (ability.value || 0.2);
+    }
+
+    const baseDamage = Math.round((atk * skillMult - def * 0.45));
     let dmg = Math.max(Math.floor(atk * 0.1), baseDamage);
     
     if (defender === playerMonster && isShieldActive) dmg = Math.round(dmg * 0.4);
@@ -219,20 +254,25 @@ export const Battle = ({
     return dmg;
   }, [playerMonster, isShieldActive]);
 
-  const executeAttack = (isSkill = false) => {
+  const executeAttack = (abilityIdx: number = -1) => {
     if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0) return;
-    if (isSkill && playerEnergy < 50) return;
+    
+    // Dynamic cost based on type (Option B)
+    const isSkill = abilityIdx >= 0;
+    const abilityData = isSkill ? playerMonster.abilities?.[abilityIdx] : null;
+    const energyCost = isSkill ? getAbilityEnergyCost(abilityData?.type) : 0;
+    if (isSkill && playerEnergy < energyCost) return;
 
     setPlayerAnim('attack');
-    if (isSkill) setPlayerEnergy(prev => Math.max(0, prev - 50));
-    else setPlayerEnergy(prev => Math.min(100, prev + 25));
+    if (isSkill) setPlayerEnergy((prev: number) => Math.max(0, prev - energyCost));
+    else setPlayerEnergy((prev: number) => Math.min(100, prev + 25));
 
     setTimeout(() => {
       // Check PARALYZE
       if (playerEffects.some(e => e.type === 'paralyze') && Math.random() < 0.6) {
          addLog(`Jsi paralyzován a nemůžeš útočit!`);
          setPlayerAnim('idle');
-         setPlayerEffects(prev => prev.map(e => e.type === 'paralyze' ? { ...e, duration: e.duration - 1 } : e).filter(e => e.duration > 0));
+         setPlayerEffects((prev: { type: 'burn' | 'slow' | 'paralyze', duration: number }[]) => prev.map(e => e.type === 'paralyze' ? { ...e, duration: e.duration - 1 } : e).filter(e => e.duration > 0));
          setTurn('enemy');
          return;
       }
@@ -240,44 +280,80 @@ export const Battle = ({
       // Apply BURN damage to player if active
       if (playerEffects.some(e => e.type === 'burn')) {
         const burnDmg = Math.round(playerMaxHP * 0.05);
-        setPlayerHP(prev => Math.max(0, prev - burnDmg));
+        setPlayerHP((prev: number) => Math.max(0, prev - burnDmg));
         addPopup(burnDmg, false);
         addLog(`${playerMonster.name} trpí popáleninami! (-${burnDmg})`);
       }
 
-      const { dmg, isCrit, isEffective, isWeak } = calculateDamage(playerMonster, enemyMonster, isSkill);
+      // Support for special ability logic
+      const ability = abilityIdx >= 0 ? playerMonster.abilities?.[abilityIdx] : null;
+      let dmg = 0;
+      let isCrit = false;
+      let isEffective = false;
+      let isWeak = false;
+
+      // Check CHANCE (%) from the ability data
+      const successChance = (ability?.chance || 100) / 100;
+      const isSuccess = Math.random() < successChance;
+
+      if (ability && !isSuccess) {
+          addLog(`${ability.name} se nepodařil! (Smůla)`);
+          // Note: The energy is still spent, but the effect triggers only on success.
+      } else if (ability && ability.type === 'heal') {
+          const healPct = ability.value || 0.15;
+          const healAmt = Math.round(playerMaxHP * healPct);
+          setPlayerHP((prev: number) => Math.min(playerMaxHP, prev + healAmt));
+          addPopup(healAmt, false, false, false, false, true);
+          addLog(`${playerMonster.name} použil ${ability.name} a vyléčil se!`);
+      } else if (ability && ability.type === 'defense') {
+          setIsShieldActive(true);
+          addLog(`${playerMonster.name} použil ${ability.name} a posílil obranu!`);
+      } else if (ability && ability.type === 'buff') {
+          setPlayerEffects((prev: any[]) => [...prev.filter(e => e.type !== 'slow'), { type: 'slow', duration: -1 }]); // reusing slow for negative, but here we'd need a real buff system
+          addLog(`${playerMonster.name} se nabudil! (Buff)`);
+          // For now let's just do extra energy or something simple
+          setPlayerEnergy((prev: number) => Math.min(100, prev + 30));
+      } else {
+          // Normal attack or successful attack skill
+          const res = calculateDamage(playerMonster, enemyMonster, abilityIdx >= 0 && isSuccess, abilityIdx);
+          dmg = res.dmg; isCrit = res.isCrit; isEffective = res.isEffective; isWeak = res.isWeak;
+          
+          if (ability && isSuccess) addLog(`${playerMonster.name} použil ${ability.name}!`);
+      }
       
       if (pvpRole && onSendAttack) {
          onSendAttack({ dmg, isCrit, isSkill, isEffective, isWeak });
          setTurn('enemy'); 
       }
 
-      setEnemyHP(prev => Math.max(0, prev - dmg));
-      setEnemyAnim('hit');
-      
-      // Elemental Effects
-      if (isEffective) {
-         if (playerMonster.type === 'Ohnivá') {
-            setEnemyEffects(prev => [...prev.filter(e => e.type !== 'burn'), { type: 'burn', duration: 2 }]);
-            addLog(`${playerMonster.name} zapálil soupeře!`);
-         } else if (playerMonster.type === 'Přírodní') {
-            const healAmt = Math.round(dmg * 0.1); // 10% as discussed
-            setPlayerHP(prev => Math.min(playerMaxHP, prev + healAmt));
-            addPopup(healAmt, false, false, false, false, true);
-         } else if (playerMonster.type === 'Vodní') {
-            setEnemyEffects(prev => [...prev.filter(e => e.type !== 'slow'), { type: 'slow', duration: 2 }]);
-            addLog(`${playerMonster.name} zpomalil soupeře!`);
-         } else if (playerMonster.type === 'Elektrická') {
-            setEnemyEffects(prev => [...prev.filter(e => e.type !== 'paralyze'), { type: 'paralyze', duration: 1 }]);
-            addLog(`${playerMonster.name} paralyzoval soupeře!`);
-         }
+      if (dmg > 0) {
+        setEnemyHP((prev: number) => Math.max(0, prev - dmg));
+        setEnemyAnim('hit');
+        
+        // Elemental Effects
+        if (isEffective) {
+           if (playerMonster.type === 'Ohnivá') {
+              setEnemyEffects((prev: any[]) => [...prev.filter(e => e.type !== 'burn'), { type: 'burn', duration: 2 }]);
+              addLog(`${playerMonster.name} zapálil soupeře!`);
+           } else if (playerMonster.type === 'Přírodní') {
+              const healAmt = Math.round(dmg * 0.1); 
+              setPlayerHP((prev: number) => Math.min(playerMaxHP, prev + healAmt));
+              addPopup(healAmt, false, false, false, false, true);
+           } else if (playerMonster.type === 'Vodní') {
+              setEnemyEffects((prev: any[]) => [...prev.filter(e => e.type !== 'slow'), { type: 'slow', duration: 2 }]);
+              addLog(`${playerMonster.name} zpomalil soupeře!`);
+           } else if (playerMonster.type === 'Elektrická') {
+              setEnemyEffects((prev: any[]) => [...prev.filter(e => e.type !== 'paralyze'), { type: 'paralyze', duration: 1 }]);
+              addLog(`${playerMonster.name} paralyzoval soupeře!`);
+           }
+        }
+
+        addPopup(dmg, true, isCrit, isEffective, isWeak);
+        triggerShake();
       }
 
-      addPopup(dmg, true, isCrit, isEffective, isWeak);
-      triggerShake();
-
       // Tick down player effects
-      setPlayerEffects(prev => prev.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
+      setPlayerEffects((prev: any[]) => prev.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
 
       setTimeout(() => {
         setEnemyAnim('idle');
@@ -387,7 +463,7 @@ export const Battle = ({
   // PvP Timer Loop & AutoAttack
   useEffect(() => {
      if (autoAttackTrigger > 0) {
-        executeAttack(false);
+        executeAttack(-1);
      }
   }, [autoAttackTrigger]);
 
@@ -676,22 +752,71 @@ export const Battle = ({
         )}
         <div className="grid grid-cols-4 gap-2">
            {/* ATTACK */}
-           <motion.button whileTap={{ scale: 0.95 }} onClick={() => executeAttack(false)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl relative", turn === 'player' ? "bg-red-600" : "bg-slate-800 opacity-50")}>
+           <motion.button whileTap={{ scale: 0.95 }} onClick={() => executeAttack(-1)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl relative", turn === 'player' ? "bg-red-600" : "bg-slate-800 opacity-50")}>
              <Sword size={20} className="relative z-10" />
              <div className="flex flex-col items-center">
                <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Útok</span>
                <span className="text-[10px] font-black text-white/70 leading-none">~{estimateDamage(playerMonster, enemyMonster, false)} dmg</span>
              </div>
-           </motion.button>
-           {/* SKILL */}
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => executeAttack(true)} disabled={turn !== 'player' || playerAnim !== 'idle' || playerEnergy < 50} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all relative shadow-2xl", turn === 'player' && playerEnergy >= 50 ? "bg-purple-600" : "bg-slate-800 opacity-50")}>
-             <Sparkles size={20} className="relative z-10" />
-             <div className="flex flex-col items-center">
-               <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Skill</span>
-               <span className="text-[10px] font-black text-white/70 leading-none">~{estimateDamage(playerMonster, enemyMonster, true)} dmg</span>
-             </div>
-             <div className="absolute top-1 right-2 text-[7px] font-black text-white/40">50⚡</div>
-           </motion.button>
+            </motion.button>
+            {/* SKILLS CONSOLIDATED */}
+            <div className="relative col-span-1">
+              <AnimatePresence>
+                {showSkills && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.9 }} 
+                    animate={{ opacity: 1, y: 0, scale: 1 }} 
+                    exit={{ opacity: 0, scale: 0.9 }} 
+                    className="absolute bottom-[90px] left-0 w-56 bg-slate-900/95 backdrop-blur-xl p-3 rounded-2xl border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.3)] z-[5000] space-y-2"
+                  >
+                    <h4 className="text-[10px] font-black text-purple-400 mb-2 uppercase text-center tracking-widest">Speciální Schopnosti</h4>
+                    <div className="flex flex-col gap-2">
+                       {playerMonster.abilities?.map((ab, idx) => {
+                          const cost = getAbilityEnergyCost(ab.type);
+                          const isAffordable = playerEnergy >= cost;
+                          const isSpecial = ab.type === 'attack';
+                          
+                          return (
+                            <button 
+                               key={idx}
+                               onClick={() => { executeAttack(idx); setShowSkills(false); }} 
+                               disabled={!isAffordable}
+                               className={cn(
+                                 "flex flex-col p-3 rounded-xl border transition-all text-left relative overflow-hidden group",
+                                 isAffordable 
+                                   ? isSpecial 
+                                     ? "bg-purple-600/20 border-purple-500/40 hover:bg-purple-600/30 active:scale-95" 
+                                     : "bg-blue-600/20 border-blue-500/40 hover:bg-blue-600/30 active:scale-95"
+                                   : "bg-slate-800/40 border-white/5 opacity-50 cursor-not-allowed"
+                               )}
+                             >
+                                <div className="flex items-center justify-between mb-1">
+                                   <div className="flex items-center gap-1.5">
+                                      {isSpecial ? <Zap size={10} className="text-purple-400" /> : <Sparkles size={10} className="text-blue-400" />}
+                                      <span className="text-[10px] font-black text-white uppercase truncate max-w-[120px]">{ab.name || `Skill ${idx + 1}`}</span>
+                                   </div>
+                                   <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-md", isSpecial ? "text-purple-300 bg-purple-500/20" : "text-blue-300 bg-blue-500/20")}>
+                                      {cost}⚡
+                                   </span>
+                                </div>
+                                <p className="text-[8px] text-slate-400 font-bold leading-tight line-clamp-2">~{estimateDamage(playerMonster, enemyMonster, true, idx)} dmg • {ab.description}</p>
+                             </button>
+                          )
+                       })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.button 
+                whileTap={{ scale: 0.9 }} 
+                onClick={() => setShowSkills(p => !p)} 
+                disabled={turn !== 'player' || playerAnim !== 'idle'} 
+                className={cn("w-full h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl relative", turn === 'player' ? "bg-purple-600 shadow-purple-500/20" : "bg-slate-800 opacity-50")}
+              >
+                <Sparkles size={22} className={cn("transition-transform duration-500", showSkills ? "scale-125 rotate-12" : "")} />
+                <span className="text-[9px] font-black uppercase tracking-wider">Skill</span>
+              </motion.button>
+            </div>
            {/* ITEMS */}
            <div className="relative col-span-1">
               <AnimatePresence>
@@ -726,6 +851,7 @@ export const Battle = ({
                 <div className="flex flex-col items-center">
                   <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Chytit</span>
                   <span className="text-[10px] font-black text-amber-200/90 leading-none">{Math.max(1, Math.round((0.9 - ((enemyHP / enemyMaxHP) * 0.89)) * 100))}% šance</span>
+                  {/* Debug: ~{estimateDamage(playerMonster, enemyMonster, false, -1)} dmg */}
                 </div>
               </motion.button>
            ) : (

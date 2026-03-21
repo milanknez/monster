@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Plamenný dech",
-      "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny."
+      "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Lávová aura",
-      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka."
+      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka.",
+      "type": "defense",
+      "chance": 35,
+      "value": 0.4
     }
   ]
 }

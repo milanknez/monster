@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Zářivý prskanec",
-      "description": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí."
+      "description": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Nabití baterek",
-      "description": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet."
+      "description": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet.",
+      "type": "buff",
+      "chance": 40,
+      "value": 0.2
     }
   ]
 }

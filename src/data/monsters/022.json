@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Chapadlový útok",
-      "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození."
+      "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Plazivá obrana",
-      "description": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození."
+      "description": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození.",
+      "type": "defense",
+      "chance": 35,
+      "value": 0.4
     }
   ]
 }

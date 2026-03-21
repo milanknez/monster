@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Slizové obalení",
-      "description": "Krup se obalí slizem a na jedno kolo výrazně zvýší obranu."
+      "description": "Krup se obalí slizem a na jedno kolo výrazně zvýší obranu.",
+      "type": "defense",
+      "chance": 35,
+      "value": 0.4
     },
     {
       "name": "Pohlcení",
-      "description": "Zasáhne nepřítele slizem a postupně mu ubírá životy po dobu 2 kol."
+      "description": "Zasáhne nepřítele slizem a postupně mu ubírá životy po dobu 2 kol.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

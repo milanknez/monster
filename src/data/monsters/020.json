@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Jiskrový kotouč",
-      "description": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením."
+      "description": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Ostnatý náraz",
-      "description": "Způsobí poškození a má malou šanci paralyzovat nepřítele na jedno kolo."
+      "description": "Způsobí poškození a má malou šanci paralyzovat nepřítele na jedno kolo.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

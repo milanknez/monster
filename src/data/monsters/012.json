@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Hřejivé obětí",
-      "description": "Zahřeje svého spojence a dodá mu trochu ztracené odvahy (a zdraví)."
+      "description": "Zahřeje svého spojence a dodá mu trochu ztracené odvahy (a zdraví).",
+      "type": "heal",
+      "chance": 35,
+      "value": 0.2
     },
     {
       "name": "Jiskřivý poskok",
-      "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek."
+      "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     }
   ]
 }

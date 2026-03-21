@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Bublinový úkryt",
-      "description": "Schová se do obří bubliny, která pohltí jeden cizí útok."
+      "description": "Schová se do obří bubliny, která pohltí jeden cizí útok.",
+      "type": "defense",
+      "chance": 35,
+      "value": 0.4
     },
     {
       "name": "Hod oblázkem",
-      "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat."
+      "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat.",
+      "type": "buff",
+      "chance": 40,
+      "value": 0.2
     }
   ]
 }

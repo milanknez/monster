@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Kotvový úder",
-      "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením."
+      "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Podvodní rána",
-      "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo."
+      "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     }
   ]
 }

@@ -29,6 +29,14 @@ const TYPE_EMOJIS: Record<string, string> = {
   'Default': '👾'
 }
 
+const ABILITY_TYPES = [
+  { id: 'attack', label: 'Útočná speciální', defaultChance: 30, defaultVal: 1.5, desc: 'Dmg 1.5x - 2x' },
+  { id: 'defense', label: 'Obrana', defaultChance: 15, defaultVal: 0.25, desc: 'Snížení dmg 20-30%' },
+  { id: 'buff', label: 'Buff', defaultChance: 15, defaultVal: 0.2, desc: '+20% Atk/Speed' },
+  { id: 'heal', label: 'Heal / Regen', defaultChance: 20, defaultVal: 0.15, desc: '+10-20% HP' },
+  { id: 'extra', label: 'Extra útok (%)', defaultChance: 20, defaultVal: 0.2, desc: '+X% DMG k základu' },
+]
+
 export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
   const [monsters, setMonsters] = useState<any[]>(monsterDB)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -40,8 +48,8 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
     rarity: 'Běžná',
     stats: { hp: 50, attack: 50, defense: 50 },
     abilities: [
-      { name: '', description: '' },
-      { name: '', description: '' }
+      { name: '', description: '', type: 'attack', chance: 30, value: 1.5 },
+      { name: '', description: '', type: 'defense', chance: 15, value: 0.25 }
     ]
   })
 
@@ -133,7 +141,7 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
     }))
   }
 
-  const handleAbilityChange = (idx: number, field: string, val: string) => {
+  const handleAbilityChange = (idx: number, field: string, val: any) => {
     const newAbilities = [...formData.abilities]
     newAbilities[idx] = { ...newAbilities[idx], [field]: val }
     setFormData((prev: any) => ({ ...prev, abilities: newAbilities }))
@@ -564,6 +572,46 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
               <h3 className="text-[10px] font-black text-primary uppercase tracking-[3px] border-b border-white/10 pb-2">Schopnosti</h3>
               {formData.abilities.map((ab: any, idx: number) => (
                 <div key={idx} className="space-y-3 p-4 bg-black/40 rounded-2xl border border-white/5">
+                  <div className="grid grid-cols-2 gap-3 mb-2">
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black text-slate-500 uppercase">Typ schopnosti</label>
+                      <select 
+                        value={ab.type || 'attack'} 
+                        onChange={(e) => {
+                          const typeData = ABILITY_TYPES.find(t => t.id === e.target.value);
+                          handleAbilityChange(idx, 'type', e.target.value);
+                          if (typeData) {
+                            handleAbilityChange(idx, 'chance', typeData.defaultChance);
+                            handleAbilityChange(idx, 'value', typeData.defaultVal);
+                          }
+                        }}
+                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white outline-none focus:border-primary"
+                      >
+                        {ABILITY_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-black text-slate-500 uppercase">Šance (%)</label>
+                        <input 
+                          type="number"
+                          value={ab.chance || 0}
+                          onChange={(e) => handleAbilityChange(idx, 'chance', parseInt(e.target.value))}
+                          className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-black text-slate-500 uppercase">Hodnota</label>
+                        <input 
+                          type="number"
+                          step="0.1"
+                          value={ab.value || 0}
+                          onChange={(e) => handleAbilityChange(idx, 'value', parseFloat(e.target.value))}
+                          className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <input 
                     placeholder="Název schopnosti"
                     value={ab.name} 
@@ -571,7 +619,7 @@ export const MonsterEditor = ({ onBack }: { onBack: () => void }) => {
                     className="w-full bg-transparent border-b border-white/10 py-1 text-sm font-bold text-white focus:border-primary outline-none"
                   />
                   <textarea 
-                    placeholder="Popis schopnosti..."
+                    placeholder="Vysvětlení efektu..."
                     value={ab.description} 
                     onChange={(e) => handleAbilityChange(idx, 'description', e.target.value)}
                     rows={2}

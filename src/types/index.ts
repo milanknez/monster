@@ -6,9 +6,16 @@ export interface Monster {
   type: string;
   image: string;
   description: string;
-  abilities?: { name: string; description: string; icon?: string }[];
+  abilities?: {
+    name: string;
+    description: string;
+    icon?: string;
+    type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra';
+    chance?: number;
+    value?: number;
+  }[];
   caughtAt?: number;
-  
+
   // Base stats from data
   stats?: {
     hp: number;

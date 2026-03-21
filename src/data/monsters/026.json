@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Bahnitý šleh",
-      "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost."
+      "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Blátivá obrana",
-      "description": "Na jedno kolo se zablátí a sníží přijaté poškození."
+      "description": "Na jedno kolo se zablátí a sníží přijaté poškození.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     }
   ]
 }

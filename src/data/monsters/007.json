@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Gigantická tsunamy",
-      "description": "Vyvolá obrovskou vlnu, která smete vše v cestě."
+      "description": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Mořský hněv",
-      "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví."
+      "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
+      "type": "buff",
+      "chance": 40,
+      "value": 0.2
     }
   ]
 }

@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Jiskrový chňapák",
-      "description": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli."
+      "description": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Elektrické výboje",
-      "description": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu."
+      "description": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     }
   ]
 }

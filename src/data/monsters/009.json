@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Hlodavý útok",
-      "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka."
+      "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.35
     },
     {
       "name": "Mechová regenerace",
-      "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví."
+      "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví.",
+      "type": "heal",
+      "chance": 35,
+      "value": 0.2
     }
   ]
 }

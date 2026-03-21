@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Kořenové sevření",
-      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii."
+      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Dech pralesa",
-      "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí."
+      "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí.",
+      "type": "heal",
+      "chance": 35,
+      "value": 0.2
     }
   ]
 }

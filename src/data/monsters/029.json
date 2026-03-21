@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Žhavý sek",
-      "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození."
+      "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Popelavý výbuch",
-      "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu."
+      "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     }
   ]
 }

@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Uplakaná sprška",
-      "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí."
+      "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Tichá bouře",
-      "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí."
+      "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     }
   ]
 }

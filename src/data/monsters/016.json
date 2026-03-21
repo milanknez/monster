@@ -12,11 +12,17 @@
   "abilities": [
     {
       "name": "Vodní náraz",
-      "description": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti."
+      "description": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.85
     },
     {
       "name": "Lesklé šupiny",
-      "description": "Odráží část poškození zpět na útočníka."
+      "description": "Odráží část poškození zpět na útočníka.",
+      "type": "defense",
+      "chance": 35,
+      "value": 0.4
     }
   ]
 }
