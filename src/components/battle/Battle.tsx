@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart } from 'lucide-react';
+import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart, Aperture } from 'lucide-react';
 import type { Monster } from '../../types';
 import { cn, GEM_BONUSES } from '../../utils';
 
@@ -32,7 +32,9 @@ export const Battle = ({
   onUseItem,
   onWin,
   onLose,
-  onBack
+  onBack,
+  onCatch,
+  onCatchFail
 }: {
   playerMonster: Monster,
   enemyMonster: Monster,
@@ -46,7 +48,9 @@ export const Battle = ({
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: { type: any, count: number }[]) => void,
   onLose: () => void,
-  onBack: () => void
+  onBack: () => void,
+  onCatch?: (monster: Monster) => void,
+  onCatchFail?: () => void
 }) => {
   const [playerHP, setPlayerHP] = useState(playerMonster.currentHP || playerMonster.stats?.hp || 100);
   const [enemyHP, setEnemyHP] = useState(enemyMonster.stats?.hp || 100);
@@ -74,6 +78,7 @@ export const Battle = ({
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [screenShake, setScreenShake] = useState(false);
+  const [catchAnim, setCatchAnim] = useState(false);
   
   const playerMaxHP = playerMonster.stats?.hp || 100;
   const enemyMaxHP = enemyMonster.stats?.hp || 100;
@@ -148,6 +153,36 @@ export const Battle = ({
     return { dmg: Math.max(5, dmg), isCrit };
   }, [playerMonster, isShieldActive]);
 
+  const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false) => {
+    const getGemBonus = (m: Monster, stat: 'attack' | 'defense') => {
+      if (!m.gems) return 0;
+      const targetPrefix = stat === 'attack' ? 'gem_red' : 'gem_white';
+      return m.gems.reduce((total, gemId) => {
+        if (gemId?.startsWith(targetPrefix)) {
+          const g = GEM_BONUSES[gemId];
+          if (g) {
+            const baseVal = (m.stats as any)?.[stat] || 10;
+            return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
+          }
+        }
+        return total;
+      }, 0);
+    };
+
+    const atkTotal = (attacker.stats?.attack || 50);
+    const atkBonus = getGemBonus(attacker, 'attack') + Math.floor(atkTotal * (attacker.level - 1) * 0.15);
+    const base = atkTotal + atkBonus;
+
+    const defTotal = (defender.stats?.defense || 30);
+    const defBonus = getGemBonus(defender, 'defense') + Math.floor(defTotal * (defender.level - 1) * 0.15);
+    const def = defTotal + defBonus;
+
+    let dmg = Math.round((base * (isSkill ? 1.2 : 0.5) - def * 0.2));
+    if (defender === playerMonster && isShieldActive) dmg = Math.round(dmg * 0.4);
+    
+    return Math.max(5, dmg);
+  }, [playerMonster, isShieldActive]);
+
   const executeAttack = (isSkill = false) => {
     if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0) return;
     if (isSkill && playerEnergy < 50) return;
@@ -184,6 +219,38 @@ export const Battle = ({
         }
       }, 400);
     }, 400);
+  };
+
+  const executeCatch = () => {
+    if (turn !== 'player' || playerAnim !== 'idle') return;
+    setPlayerAnim('attack'); // throwing animation
+    setCatchAnim(true);
+    
+    setTimeout(() => {
+      // Chance scales from 1% (full HP) to 90% (~0% HP)
+      const hpPercentage = enemyHP / enemyMaxHP;
+      const catchChance = 0.9 - (hpPercentage * 0.89);
+      const isSuccess = Math.random() < catchChance;
+
+      setPlayerAnim('idle');
+      
+      if (isSuccess) {
+        setEnemyAnim('lose'); // Shrink down into ball logic
+        setTimeout(() => {
+           setCatchAnim(false);
+           if (onCatch) onCatch(enemyMonster);
+        }, 800);
+      } else {
+        setCatchAnim(false);
+        addPopup(0, true); // display a 0 or miss
+        setEnemyAnim('hit'); // shake enemy to show failure
+        if (onCatchFail) onCatchFail();
+        setTimeout(() => {
+          setEnemyAnim('idle');
+          setTurn('enemy');
+        }, 500);
+      }
+    }, 600);
   };
 
   useEffect(() => {
@@ -320,6 +387,19 @@ export const Battle = ({
 
       {/* Battle Field */}
       <div className="flex-1 relative flex flex-col justify-between p-6">
+         <AnimatePresence>
+           {catchAnim && (
+             <motion.div
+               initial={{ left: '25%', top: '70%', scale: 0.1, rotate: 0 }}
+               animate={{ left: '70%', top: '30%', scale: 2, rotate: 720 }}
+               exit={{ scale: [2, 3, 0], opacity: [1, 1, 0] }}
+               transition={{ duration: 0.6, ease: "circOut", exit: { duration: 0.4 } }}
+               className="absolute z-[400] text-amber-500 drop-shadow-[0_0_20px_rgba(245,158,11,1)]"
+             >
+               <Aperture size={64} strokeWidth={1.5} />
+             </motion.div>
+           )}
+         </AnimatePresence>
         {/* Enemy UI and image same as before... */}
         <div className="flex flex-col items-center self-end w-full max-w-[260px] relative">
           <div className={cn("w-full bg-slate-900/90 p-4 rounded-3xl border shadow-2xl relative mb-4 z-10 scale-90", opponentName ? "border-red-500/50" : "border-white/10")}>
@@ -415,20 +495,21 @@ export const Battle = ({
         )}
         <div className="grid grid-cols-4 gap-2">
            {/* ATTACK */}
-           <motion.button whileTap={{ scale: 0.95 }} onClick={() => executeAttack(false)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl", turn === 'player' ? "bg-red-600" : "bg-slate-800 opacity-50")}>
-             <Sword size={22} />
-             <span className="text-[9px] font-black uppercase tracking-wider">Útok</span>
+           <motion.button whileTap={{ scale: 0.95 }} onClick={() => executeAttack(false)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl relative", turn === 'player' ? "bg-red-600" : "bg-slate-800 opacity-50")}>
+             <Sword size={20} className="relative z-10" />
+             <div className="flex flex-col items-center">
+               <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Útok</span>
+               <span className="text-[10px] font-black text-white/70 leading-none">~{estimateDamage(playerMonster, enemyMonster, false)} dmg</span>
+             </div>
            </motion.button>
            {/* SKILL */}
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => executeAttack(true)} disabled={turn !== 'player' || playerAnim !== 'idle' || playerEnergy < 50} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all relative overflow-hidden shadow-2xl", turn === 'player' && playerEnergy >= 50 ? "bg-purple-600" : "bg-slate-800 opacity-50")}>
-             <Sparkles size={22} className="relative z-10" />
-             <span className="text-[9px] font-black uppercase tracking-wider relative z-10">Skill</span>
+           <motion.button whileTap={{ scale: 0.9 }} onClick={() => executeAttack(true)} disabled={turn !== 'player' || playerAnim !== 'idle' || playerEnergy < 50} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all relative shadow-2xl", turn === 'player' && playerEnergy >= 50 ? "bg-purple-600" : "bg-slate-800 opacity-50")}>
+             <Sparkles size={20} className="relative z-10" />
+             <div className="flex flex-col items-center">
+               <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Skill</span>
+               <span className="text-[10px] font-black text-white/70 leading-none">~{estimateDamage(playerMonster, enemyMonster, true)} dmg</span>
+             </div>
              <div className="absolute top-1 right-2 text-[7px] font-black text-white/40">50⚡</div>
-           </motion.button>
-           {/* SHIELD */}
-           <motion.button whileTap={{ scale: 0.95 }} onClick={() => { if(turn === 'player') { setIsShieldActive(true); setPlayerEnergy(prev => Math.min(100, prev + 10)); setTurn('enemy'); if(pvpRole && onSendAttack) onSendAttack({ dmg: 0, isCrit: false, isSkill: false }); } }} disabled={turn !== 'player' || playerAnim !== 'idle' || isShieldActive} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl", turn === 'player' && !isShieldActive ? "bg-blue-600" : "bg-slate-800 opacity-50")}>
-             <ShieldIcon size={22} />
-             <span className="text-[9px] font-black uppercase tracking-wider">Štít</span>
            </motion.button>
            {/* ITEMS */}
            <div className="relative col-span-1">
@@ -450,11 +531,28 @@ export const Battle = ({
                    </motion.div>
                 )}
               </AnimatePresence>
-              <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowItems(p => !p)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("w-full h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl", turn === 'player' ? "bg-amber-600" : "bg-slate-800 opacity-50")}>
+              <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowItems(p => !p)} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("w-full h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl", turn === 'player' ? "bg-blue-600" : "bg-slate-800 opacity-50")}>
                 <Package size={22} />
                 <span className="text-[9px] font-black uppercase tracking-wider">Batoh</span>
               </motion.button>
            </div>
+           
+           {/* CATCH - Only in PvE! (Replaces Shield, moving Shield out or removing it for now. Actually, let's keep Shield and make grid 4 to 5 or just replace Shield for PvE) */}
+           {!pvpRole ? (
+              <motion.button whileTap={{ scale: 0.95 }} onClick={executeCatch} disabled={turn !== 'player' || playerAnim !== 'idle'} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl relative overflow-hidden", turn === 'player' ? "bg-amber-600" : "bg-slate-800 opacity-50")}>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none" />
+                <Star size={20} className="relative z-10" />
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] font-black uppercase tracking-wider relative z-10 leading-tight">Chytit</span>
+                  <span className="text-[10px] font-black text-amber-200/90 leading-none">{Math.max(1, Math.round((0.9 - ((enemyHP / enemyMaxHP) * 0.89)) * 100))}% šance</span>
+                </div>
+              </motion.button>
+           ) : (
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => { if(turn === 'player') { setIsShieldActive(true); setPlayerEnergy(prev => Math.min(100, prev + 10)); setTurn('enemy'); if(pvpRole && onSendAttack) onSendAttack({ dmg: 0, isCrit: false, isSkill: false }); } }} disabled={turn !== 'player' || playerAnim !== 'idle' || isShieldActive} className={cn("col-span-1 h-20 rounded-[1.8rem] flex flex-col items-center justify-center gap-1 border-b-4 border-black/30 transition-all shadow-2xl", turn === 'player' && !isShieldActive ? "bg-emerald-600" : "bg-slate-800 opacity-50")}>
+                <ShieldIcon size={22} />
+                <span className="text-[9px] font-black uppercase tracking-wider">Štít</span>
+              </motion.button>
+           )}
         </div>
       </div>
 

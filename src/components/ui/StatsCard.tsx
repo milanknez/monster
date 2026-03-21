@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Heart, Zap, ArrowUp } from 'lucide-react';
+import { Battery, Zap, ArrowUp } from 'lucide-react';
 import { cn, calculateLevel, getTotalXPForLevel } from '../../utils';
 
 export const StatsCard = ({ 
@@ -101,15 +101,15 @@ export const StatsCard = ({
         {/* Subtle Divider */}
         <div className="h-px w-full bg-white/5 relative z-10 my-5" />
 
-        {/* HP / Energy Section */}
+        {/* Energy Section */}
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
-              <div className="size-5 bg-red-500/20 rounded-md flex items-center justify-center">
-                <Heart size={12} className={cn("text-red-500 transition-all", (playerHP < 20 || isHPBoosted) && "animate-pulse")} fill="currentColor" />
+              <div className="size-5 bg-blue-500/20 rounded-md flex items-center justify-center">
+                <Battery size={12} className={cn("text-blue-500 transition-all", (playerHP < 20 || isHPBoosted) && "animate-pulse")} fill="currentColor" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-red-500/80 uppercase tracking-widest">Energie</span>
+                <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Energie</span>
                 {isHPBoosted && (
                   <motion.div
                     animate={{ y: [0, -2, 0] }}
@@ -133,11 +133,11 @@ export const StatsCard = ({
               animate={{ width: `${playerHP}%` }}
               className={cn(
                 "h-full rounded-full transition-all duration-500 relative z-10",
-                playerHP > 50 ? "bg-gradient-to-r from-red-600 to-red-500" :
-                playerHP > 20 ? "bg-gradient-to-r from-orange-600 to-orange-500" :
-                "bg-gradient-to-r from-red-800 to-red-600"
+                playerHP > 50 ? "bg-gradient-to-r from-blue-600 to-blue-400" :
+                playerHP > 20 ? "bg-gradient-to-r from-blue-700 to-blue-500" :
+                "bg-gradient-to-r from-blue-900 to-blue-700"
               )}
-              style={{ boxShadow: playerHP > 10 ? '0 0 10px rgba(239, 68, 68, 0.3)' : 'none' }}
+              style={{ boxShadow: playerHP > 10 ? '0 0 10px rgba(59, 130, 246, 0.3)' : 'none' }}
             />
             {isHPBoosted && (
               <div className="absolute inset-0 z-0 flex overflow-hidden">
@@ -156,7 +156,7 @@ export const StatsCard = ({
                       delay: i * 0.5,
                       ease: "easeInOut" 
                     }}
-                    className="absolute top-0 size-full bg-red-400/20 blur-md rounded-full"
+                    className="absolute top-0 size-full bg-blue-400/20 blur-md rounded-full"
                   />
                 ))}
               </div>
@@ -166,14 +166,14 @@ export const StatsCard = ({
           <div className="mt-2.5 flex justify-between items-center h-4">
                <div className="flex items-center gap-1.5">
                  {(playerHP < 100 || isHPBoosted) && (
-                   <div className={cn("size-1 rounded-full animate-pulse", isHPBoosted ? "bg-emerald-500 shadow-[0_0_5px_#10b981]" : "bg-red-500")} />
+                   <div className={cn("size-1 rounded-full animate-pulse", isHPBoosted ? "bg-emerald-500 shadow-[0_0_5px_#10b981]" : "bg-blue-500")} />
                  )}
                  <p className="text-[9px] text-slate-500 font-bold uppercase italic tabular-nums">
-                   {playerHP < 100 ? `REGEN: ${formatRemainingTime(remainingSeconds)}` : "STAV: OPTIMÁLNÍ"}
+                   {playerHP < 100 ? `NABÍJENÍ: ${formatRemainingTime(remainingSeconds)}` : "STAV: OPTIMÁLNÍ"}
                  </p>
                </div>
-               <p className="text-[9px] text-red-500/80 font-black uppercase tracking-tighter">
-                 {playerHP < 20 ? "⚠️ KRITICKÁ ENERGIE" : isHPBoosted ? "⚡ ZRYCHLENÉ DOBÍJENÍ" : ""}
+               <p className="text-[9px] text-blue-500 font-black uppercase tracking-tighter">
+                 {playerHP < 20 ? "⚠️ KRITICKÁ ENERGIE" : isHPBoosted ? "⚡ ZRYCHLENÉ NABÍJENÍ" : ""}
                </p>
           </div>
         </div>

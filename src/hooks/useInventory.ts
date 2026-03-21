@@ -105,9 +105,33 @@ export function useInventory() {
   const swapItems = useCallback((fromIdx: number, toIdx: number) => {
     setInventory(prev => {
       const next = [...prev]
-      const temp = next[fromIdx]
-      next[fromIdx] = next[toIdx]
-      next[toIdx] = temp
+      const fromItem = next[fromIdx]
+      const toItem = next[toIdx]
+
+      if (fromItem && toItem && fromItem.type === toItem.type && fromIdx !== toIdx) {
+        // Merge identical items
+        const total = Number(fromItem.count) + Number(toItem.count);
+        if (total <= MAX_STACK) {
+          next[toIdx] = { ...toItem, count: total };
+          next[fromIdx] = null;
+        } else {
+          next[toIdx] = { ...toItem, count: MAX_STACK };
+          next[fromIdx] = { ...fromItem, count: total - MAX_STACK };
+        }
+      } else {
+        // Standard swap if different items or moving to empty slot
+        next[fromIdx] = toItem
+        next[toIdx] = fromItem
+      }
+      
+      return next
+    })
+  }, [])
+
+  const discardItem = useCallback((idx: number) => {
+    setInventory(prev => {
+      const next = [...prev]
+      next[idx] = null
       return next
     })
   }, [])
@@ -122,6 +146,7 @@ export function useInventory() {
     consumeResources,
     getItemCount,
     hasResources,
-    swapItems
+    swapItems,
+    discardItem
   }
 }

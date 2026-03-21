@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MapPin, RefreshCw, Package } from 'lucide-react'
+import { MapPin, Package, Heart, RefreshCw, Sword, X, Battery } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -65,6 +65,7 @@ export interface WorldMapProps {
   playerLevel: number
   onGather: (type: ResourceType, amount: number) => void
   activeMonster: Monster | null
+  addToast?: (toast: { title: string; message: string; type: 'success' | 'info' | 'error' | 'boost' }) => void
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -72,7 +73,7 @@ const CATCH_RADIUS_M = 15
 const COMMON_GRID_M = 100
 const COMMON_RADIUS_CELLS = 8
 const OVERPASS_RADIUS_M = 3000
-const RESPAWN_COOLDOWN_MS = 5 * 60 * 1000
+const RESPAWN_COOLDOWN_MS = 10 * 60 * 1000
 
 type Cooldowns = Record<string, number>
 
@@ -129,7 +130,7 @@ function generateResources(playerLat: number, playerLng: number, cooldowns: Cool
       const gridLat = ix * LAT_STEP
       const gridLng = iy * LNG_STEP
       const id = `resource_${ix}_${iy}`
-      if (seededFloat(`r_skip_${id}`) < 0.8) continue 
+      if (seededFloat(`r_skip_${id}`) < 0.94) continue // Sníženo z 0.86 (nyní jen ~6 % buněk)
       let rType = resourceTypes[Math.floor(seededFloat(`rtype_${id}`) * resourceTypes.length)]
       
       const rareRoll = seededFloat(`rare_${id}`);
@@ -148,22 +149,38 @@ function generateResources(playerLat: number, playerLng: number, cooldowns: Cool
   return spawns
 }
 
-async function fetchPoiData(lat: number, lng: number, cooldowns: Cooldowns): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[] }> {
+async function fetchPoiData(lat: number, lng: number, cooldowns: Cooldowns, force = false): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[] }> {
   if (!isFinite(lat) || !isFinite(lng)) return { monsters: [], resources: [] }
   
+  // Try to load from cache first for immediate display (if not forced)
+  const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+  if (!force) {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        if (Date.now() - data.timestamp < 3600000) { // 1 hour cache
+          console.log("📍 Načítám POI z mezipaměti");
+          return data.content;
+        }
+      } catch(e) { console.error("Cache read error:", e) }
+    }
+  }
+
   const query = `[out:json][timeout:30];
 (
   // Monsters POIs
   nwr["historic"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   nwr["tourism"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["amenity"~"place_of_worship|museum|library|theatre"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["heritage"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   
   // Resources POIs (Logic-based)
-  nwr["leisure"~"park|garden|nature_reserve"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["leisure"~"park|garden|nature_reserve|playground"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments|meadow"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   nwr["power"~"substation|line|tower"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["amenity"~"university|research_institute|library"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["natural"~"rock|stone|peak|cave_entrance|cliff"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["highway"~"path|track|living_street"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["natural"~"rock|stone|peak|cave_entrance|cliff|water|spring"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["highway"~"path|track|living_street|pedestrian"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   nwr["landuse"~"quarry|industrial|construction"](around:${OVERPASS_RADIUS_M},${lat},${lng});
 );
 out center;`.trim()
@@ -178,7 +195,7 @@ out center;`.trim()
   const monsters: SpawnPoint[] = []
   const resources: ResourceSpawn[] = []
   const seenPos = new Set<string>()
-  const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress']
+  const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress', 'cathedral']
   
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
@@ -193,8 +210,8 @@ out center;`.trim()
     const id = `poi_${el.type}_${el.id}`
     const isCollected = isOnCooldown(cooldowns, id)
 
-    if (tags.historic || tags.tourism) {
-      const rarity: SpawnRarity = EPIC_TAGS.includes(tags.historic) ? 'epic' : 'rare'
+    if (tags.historic || tags.tourism || tags.amenity === 'place_of_worship' || tags.heritage) {
+      const rarity: SpawnRarity = (EPIC_TAGS.includes(tags.historic) || EPIC_TAGS.includes(tags.heritage)) ? 'epic' : 'rare'
       monsters.push({
         id, lat: elLat, lng: elLng, rarity,
         monsterId: pickMonster(id, rarity),
@@ -202,23 +219,23 @@ out center;`.trim()
         caught: isCollected,
       })
     } else {
+      // Snižujeme hustotu surovin z POI o 80% (původně 30%)
+      if (seededFloat(id + '_spawn') < 0.8) continue
+
       let type: ResourceType = 'crystal'
       let amount = Math.floor(seededFloat(id + '_amt') * 3) + 2
 
-      if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard') {
+      if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard' || tags.natural === 'water') {
         type = 'herb'
       } else if (tags.power || tags.amenity === 'university' || tags.amenity === 'research_institute') {
         type = 'energy'
       } else if (tags.natural === 'rock' || tags.landuse === 'quarry' || tags.natural === 'peak') {
         type = 'mineral'
-      } else if (tags.highway === 'path' || tags.highway === 'track') {
-        type = 'crystal'
       }
 
       const poiRareRoll = seededFloat(id + '_rare');
       if (poiRareRoll < 0.05) type = 'magic_crystal';
       else if (poiRareRoll < 0.10) type = 'super_mineral';
-
 
       resources.push({
         id, lat: elLat, lng: elLng, 
@@ -227,7 +244,11 @@ out center;`.trim()
       })
     }
   }
-  return { monsters, resources }
+
+  // Save to cache
+  const result = { monsters, resources };
+  localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), content: result }));
+  return result;
 }
 
 export interface WorldMapHandle {
@@ -248,7 +269,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   playerHP,
   onGather,
   onStartDuel,
-  activeMonster
+  activeMonster,
+  addToast
 }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -270,7 +292,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [nearbyResource, setNearbyResource] = useState<ResourceSpawn | null>(null)
   
   const [levelBlocked, setLevelBlocked] = useState(false)
-  const [hpBlocked, setHpBlocked] = useState(false)
+  const [energyBlocked, setEnergyBlocked] = useState(false)
+  const [showMonsters, setShowMonsters] = useState(true)
+  const [showResources, setShowResources] = useState(true)
   const [loadingPoi, setLoadingPoi] = useState(false)
   const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
@@ -284,6 +308,51 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       }
     }
   }));
+
+  useEffect(() => {
+    (window as any).spawnMapMonster = () => {
+      if (playerPos) {
+        setSpawns(prev => {
+          const newM: SpawnPoint = {
+            id: 'dev_spawn_' + Date.now(),
+            lat: playerPos[0] + 0.00001,
+            lng: playerPos[1] + 0.00001,
+            rarity: 'epic',
+            monsterId: 'obsidian_golem',
+            level: 7,
+            caught: false
+          };
+          const next = [...prev, newM];
+          return next;
+        });
+        console.log("🔥 Epický Golem Lv.7 naspawněn naproti tobě!");
+      }
+    };
+
+    (window as any).spawnBasicMonster = () => {
+      if (playerPos) {
+        setSpawns(prev => {
+          const newM: SpawnPoint = {
+            id: 'dev_spawn_basic_' + Date.now(),
+            lat: playerPos[0] + 0.00001,
+            lng: playerPos[1] + 0.00001,
+            rarity: 'common',
+            monsterId: 'aether_fox',
+            level: 1,
+            caught: false
+          };
+          const next = [...prev, newM];
+          return next;
+        });
+        console.log("🦊 Základní Aether Fox Lv.1 naspawněna naproti tobě!");
+      }
+    };
+
+    return () => { 
+      delete (window as any).spawnMapMonster; 
+      delete (window as any).spawnBasicMonster; 
+    };
+  }, [playerPos]);
 
   const recalcNearby = useCallback((lat: number, lng: number, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[]) => {
     if (!isFinite(lat) || !isFinite(lng)) return
@@ -302,48 +371,57 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     setNearbyResource(nearbyRes?.r ?? null)
   }, [])
 
-  const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[], playerLat: number, playerLng: number, pLevel: number) => {
+  const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[], playerLat: number, playerLng: number, pLevel: number, hideMonsters: boolean, hideResources: boolean) => {
     // Monsters
     const existing = markersRef.current
     for (const [id, marker] of existing) {
-      if (!currentSpawns.find(s => s.id === id && !s.caught)) { marker.remove(); existing.delete(id) }
+      if (hideMonsters || !currentSpawns.find(s => s.id === id && !s.caught)) { marker.remove(); existing.delete(id) }
     }
-    for (const s of currentSpawns) {
-      if (s.caught) continue
-      const dist = haversineM(playerLat, playerLng, s.lat, s.lng)
-      const isNearby = dist <= CATCH_RADIUS_M
-      const marker = existing.get(s.id)
-      if (marker) {
-        if ((marker as any)._isNearby !== isNearby) {
-          marker.setIcon(makeMarkerIcon(s, isNearby, s.level > pLevel))
-          ;(marker as any)._isNearby = isNearby
+    if (!hideMonsters) {
+      for (const s of currentSpawns) {
+        if (s.caught) continue
+        const dist = haversineM(playerLat, playerLng, s.lat, s.lng)
+        const isNearby = dist <= CATCH_RADIUS_M
+        const currentLocked = s.level > pLevel
+        const marker = existing.get(s.id)
+        
+        if (marker) {
+          if ((marker as any)._isNearby !== isNearby || (marker as any)._isLocked !== currentLocked) {
+            marker.setIcon(makeMarkerIcon(s, isNearby, currentLocked))
+            marker.setTooltipContent(makeTooltipHtml(s, pLevel))
+            ;(marker as any)._isNearby = isNearby
+            ;(marker as any)._isLocked = currentLocked
+          }
+        } else {
+          const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, currentLocked) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
+          ;(m as any)._isNearby = isNearby
+          ;(m as any)._isLocked = currentLocked
+          existing.set(s.id, m)
         }
-      } else {
-        const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, s.level > pLevel) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
-        ;(m as any)._isNearby = isNearby
-        existing.set(s.id, m)
       }
     }
 
     // Resources
     const rExisting = resourceMarkersRef.current
     for (const [id, marker] of rExisting) {
-      if (!currentResources.find(r => r.id === id && !r.isCollected)) { marker.remove(); rExisting.delete(id) }
+      if (hideResources || !currentResources.find(r => r.id === id && !r.isCollected)) { marker.remove(); rExisting.delete(id) }
     }
-    for (const r of currentResources) {
-      if (r.isCollected) continue
-      const dist = haversineM(playerLat, playerLng, r.lat, r.lng)
-      const isNearby = dist <= CATCH_RADIUS_M
-      const marker = rExisting.get(r.id)
-      if (marker) {
-        if ((marker as any)._isNearby !== isNearby) {
-          marker.setIcon(makeResourceIcon(r.type, isNearby))
-          ;(marker as any)._isNearby = isNearby
+    if (!hideResources) {
+      for (const r of currentResources) {
+        if (r.isCollected) continue
+        const dist = haversineM(playerLat, playerLng, r.lat, r.lng)
+        const isNearby = dist <= CATCH_RADIUS_M
+        const marker = rExisting.get(r.id)
+        if (marker) {
+          if ((marker as any)._isNearby !== isNearby) {
+            marker.setIcon(makeResourceIcon(r.type, isNearby))
+            ;(marker as any)._isNearby = isNearby
+          }
+        } else {
+          const m = L.marker([r.lat, r.lng], { icon: makeResourceIcon(r.type, isNearby) }).bindTooltip(makeResourceTooltipHtml(r.type, r.amount), { direction: 'top', offset: [0, -5], className: 'resource-tooltip' }).addTo(map)
+          ;(m as any)._isNearby = isNearby
+          rExisting.set(r.id, m)
         }
-      } else {
-        const m = L.marker([r.lat, r.lng], { icon: makeResourceIcon(r.type, isNearby) }).bindTooltip(makeResourceTooltipHtml(r.type, r.amount), { direction: 'top', offset: [0, -5], className: 'resource-tooltip' }).addTo(map)
-        ;(m as any)._isNearby = isNearby
-        rExisting.set(r.id, m)
       }
     }
   }, [])
@@ -365,18 +443,25 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     }
   }, [])
 
-  const fetchPOI = useCallback(async (lat: number, lng: number) => {
+  const fetchPOI = useCallback(async (lat: number, lng: number, force = false) => {
     if (!isFinite(lat) || !isFinite(lng)) return
     const last = lastPoiFetchRef.current
-    if (last && haversineM(lat, lng, last.lat, last.lng) < 200) return
+    if (!force && last && haversineM(lat, lng, last.lat, last.lng) < 200) return
+    
     lastPoiFetchRef.current = { lat, lng }
     setLoadingPoi(true)
+    setStatusMsg('Skenuji POI…')
+    if (force && addToast) {
+       addToast({ title: 'Skenování okolí', message: 'Hledám vzácné příšery a suroviny v tvém okolí...', type: 'info' });
+    }
+    
     try {
-      const { monsters: poiMonsters, resources: poiResources } = await fetchPoiData(lat, lng, cooldownsRef.current)
+      const { monsters: poiMonsters, resources: poiResources } = await fetchPoiData(lat, lng, cooldownsRef.current, force)
       
       setSpawns(prev => {
         const commons = prev.filter(p => p.rarity === 'common')
         const poiMap = new Map<string, SpawnPoint>()
+        // Zachovat POI z jiných oblastí, které už máme
         prev.filter(p => p.rarity !== 'common').forEach(p => poiMap.set(p.id, p))
         poiMonsters.forEach(p => poiMap.set(p.id, p))
         return [...commons, ...Array.from(poiMap.values())]
@@ -389,9 +474,14 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         poiResources.forEach(r => poiMap.set(r.id, r))
         return [...randoms, ...Array.from(poiMap.values())]
       })
-
-    } catch (e) { console.error("POI Fetch Error:", e) }
-    finally { setLoadingPoi(false) }
+      setStatusMsg('')
+    } catch (e) { 
+      console.error("POI Fetch Error:", e)
+      setStatusMsg('Chyba skenování')
+      setTimeout(() => setStatusMsg(''), 3000)
+    } finally { 
+      setLoadingPoi(false) 
+    }
   }, [])
 
   useEffect(() => {
@@ -440,15 +530,16 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
   useEffect(() => {
     if (!playerPos || !mapRef.current) return
-    updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel)
+    updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel, !showMonsters, !showResources)
     updateOtherPlayers(mapRef.current, nearbyPlayers)
-  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers])
+    recalcNearby(playerPos[0], playerPos[1], spawns, resources)
+  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, recalcNearby, showMonsters, showResources])
 
   const handleCatch = () => {
     if (!nearbySpawn) return
-    if (nearbySpawn.level > playerLevel) { setLevelBlocked(true); setTimeout(() => setLevelBlocked(false), 2000); return }
+    // Level check is now handled in the UI directly
     const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
-    if (playerHP < cost) { setHpBlocked(true); setTimeout(() => setHpBlocked(false), 2000); return }
+    if (playerHP < cost) { setEnergyBlocked(true); setTimeout(() => setEnergyBlocked(false), 2000); return }
     const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
     onConsumeHP(cost)
     onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster)
@@ -508,15 +599,54 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         </div>
         <div className="flex items-center gap-2">
           {loadingPoi && <RefreshCw size={12} className="text-blue-500 animate-spin" />}
-          <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
-            <Heart size={10} className="text-red-500" fill="currentColor" />
-            <span className="text-[10px] font-black text-red-500">{Math.round(playerHP)}%</span>
+          
+          {/* Filter Bar */}
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 mr-1">
+             <button 
+                onClick={() => playerPos && fetchPOI(playerPos[0], playerPos[1], true)}
+                className={cn("p-1.5 rounded-full transition-all hover:bg-white/10", loadingPoi ? "text-blue-500" : "text-slate-400")}
+                title="Vynutit obnovu mapy"
+             >
+               <RefreshCw size={12} className={cn(loadingPoi && "animate-spin")} />
+             </button>
+             <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
+             <button 
+               onClick={() => setShowMonsters(!showMonsters)}
+               className={cn("p-1.5 rounded-full transition-all", showMonsters ? "bg-primary/20 text-primary" : "text-slate-500 opacity-50")}
+             >
+               <Sword size={12} />
+             </button>
+             <button 
+               onClick={() => setShowResources(!showResources)}
+               className={cn("p-1.5 rounded-full transition-all", showResources ? "bg-emerald-500/20 text-emerald-500" : "text-slate-500 opacity-50")}
+             >
+               <Package size={12} />
+             </button>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
+            <Battery size={10} className="text-blue-500" fill="currentColor" />
+            <span className="text-[10px] font-black text-blue-500 uppercase">{Math.round(playerHP)}% Energie</span>
           </div>
         </div>
       </div>
 
       <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
+
+        {/* Legend Overlay */}
+        <div className="absolute bottom-4 left-4 z-[1001] bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 flex flex-col gap-2 shadow-2xl pointer-events-none">
+           {[
+             { label: 'Běžná', color: 'bg-blue-500 shadow-blue-500/50' },
+             { label: 'Vzácná', color: 'bg-purple-500 shadow-purple-500/50' },
+             { label: 'Epická', color: 'bg-orange-500 shadow-orange-500/50' }
+           ].map(l => (
+             <div key={l.label} className="flex items-center gap-2">
+                <div className={cn("size-2.5 rounded-full shadow-[0_0_8px_currentColor]", l.color)} />
+                <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{l.label}</span>
+             </div>
+           ))}
+        </div>
       </div>
 
       <AnimatePresence>
@@ -530,10 +660,16 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         )}
         {nearbySpawn && !isInteractionBlocked && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
-             {levelBlocked ? (
-               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-black text-center uppercase text-xs">🔒 VYŽADUJE ÚROVEŇ {nearbySpawn.level}</div>
-             ) : hpBlocked ? (
-               <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-black text-center uppercase text-xs">🔋 ENERGIE PŘÍLIŠ NÍZKÁ</div>
+             {nearbySpawn.level > playerLevel ? (
+               <div className="w-full py-5 rounded-2xl bg-red-950/90 backdrop-blur-md border-b-4 border-red-500/50 text-red-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
+                 <X size={16} className="text-red-500" />
+                 <span>UZAMČENO: VYŽADUJE ÚROVEŇ {nearbySpawn.level}</span>
+               </div>
+             ) : energyBlocked ? (
+               <div className="w-full py-5 rounded-2xl bg-slate-900/90 backdrop-blur-md border-b-4 border-orange-500/50 text-orange-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
+                 <Battery size={16} className="text-orange-500" />
+                 <span>🔋 ENERGIE PŘÍLIŠ NÍZKÁ</span>
+               </div>
              ) : (
                 <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }}>
                    <div className="flex items-center gap-2">
@@ -541,7 +677,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                      <span>{caughtMonsters.length === 0 ? 'CHYTIT' : 'BOJOVAT'}: LEVEL {nearbySpawn.level}</span>
                    </div>
                    <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">
-                     {caughtMonsters.length === 0 ? `SPOTŘEBUJE ${calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% HP` : 'VZÍT SI SVÉ NEJSILNĚJŠÍ MONSTRUM'}
+                     {caughtMonsters.length === 0 ? `SPOTŘEBUJE ${calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% ENERGIE` : 'VZÍT SI SVÉ NEJSILNĚJŠÍ MONSTRUM'}
                    </div>
                 </button>
              )}

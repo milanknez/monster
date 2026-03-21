@@ -46,6 +46,7 @@ function App() {
 
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
+  const [wildEncounter, setWildEncounter] = useState<Monster | null>(null)
   const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender' } | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
 
@@ -64,8 +65,7 @@ function App() {
   // --- HOOKS ---
   const { toasts, addToast, removeToast } = useToasts()
   const { activeBoosts, activateBoost: baseActivateBoost } = useBoosts()
-  const { inventory, addResource, consumeResources, swapItems } = useInventory()
-
+  const { inventory, addResource, consumeResources, swapItems, discardItem } = useInventory()
   const {
     totalXP,
     showLevelUp,
@@ -149,12 +149,39 @@ function App() {
        saveMonster({ id, level: lvl, caughtAt: Date.now(), totalXP: 0, name: id.toUpperCase(), rarity: 'common', type: 'Ohnivá', image: '', description: '' }, (xp) => {});
     };
 
+    (window as any).forceWildEncounter = () => {
+       const wildEnemy: Monster = {
+         id: 'obsidian_golem',
+         level: 7,
+         caughtAt: 0,
+         totalXP: 0,
+         name: 'Obsidiánový Golem',
+         rarity: 'epic',
+         type: 'Kamenná',
+         image: '',
+         description: 'Testovací boss pro odchyt.',
+         stats: { hp: 150, attack: 45, defense: 30 }
+       };
+       setWildEncounter(wildEnemy);
+       addToast({ title: 'Simulace!', message: 'Byl vyvolán divoký golem k otestování chytání.', type: 'info' });
+    };
+
+    (window as any).healMe = () => {
+       healHP(999);
+       if (caughtMonsters.length > 0) {
+         updateMonsterHP(0, 999);
+       }
+       addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvé první monstrum.', type: 'success' });
+    };
+
     return () => {
       delete (window as any).addGems;
       delete (window as any).giveXP;
       delete (window as any).addMonster;
+      delete (window as any).forceWildEncounter;
+      delete (window as any).healMe;
     };
-  }, [addResource, giveMonsterXP, saveMonster, addToast]);
+  }, [addResource, giveMonsterXP, saveMonster, addToast, caughtMonsters, healHP, updateMonsterHP]);
 
   const activateBoost = (boost: Boost, item?: any) => {
     if (item?.price && !payingItem) {
@@ -267,8 +294,10 @@ function App() {
 
     const lootMsg = loot.map(l => `${l.count}x ${l.type}`).join(', ');
     addToast({
-      title: 'Vítězství!',
-      message: `Skvělý souboj! Tvůj parťák získal ${xp} XP a ulovil jsi: ${lootMsg || 'nic'}.`,
+      title: activeBattle.pvpRole ? 'Vítězství!' : 'Poraženo!',
+      message: activeBattle.pvpRole 
+        ? `Skvělý souboj! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.` 
+        : `Divoké monstrum padlo. Tvůj parťák získal ${xp} XP a ty sbíráš kořist: ${lootMsg || 'nic'}.`,
       type: 'success'
     });
   };
@@ -418,6 +447,16 @@ function App() {
               setActiveTab('home');
               addToast({ title: 'Prohra', message: 'Tvé monstrum bylo poraženo!', type: 'error' });
             }}
+            onCatch={(monster) => {
+               saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, (xp) => {
+                 setNewMonster(monster);
+                 addXP(xp);
+               });
+               setActiveBattle(null);
+            }}
+            onCatchFail={() => {
+               addToast({ title: 'Uniklo to!', message: 'Monstrum se vysmeklo. Zkus mu ubrat více HP!', type: 'info' });
+            }}
             onBack={() => {
               if (activeBattle.opponentUid) {
                 sendTradeSignal(activeBattle.opponentUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
@@ -500,6 +539,14 @@ function App() {
                    });
                 }
               }}
+              onRelease={() => {
+                 const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                 if (idx !== -1) {
+                    removeMonster(selectedMonster.id, idx);
+                    setSelectedMonster(null);
+                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
+                 }
+              }}
             />
           ) : (
             <motion.div
@@ -569,6 +616,7 @@ function App() {
                   onOpenCodex={() => setActiveTab('codex')}
                   onSwap={swapItems}
                   onUseItem={handleUseItem}
+                  onDiscard={discardItem}
                 />
               )}
 
@@ -578,9 +626,12 @@ function App() {
                   key="world"
                   onCatch={(m) => {
                     if (caughtMonsters.length === 0) {
-                      saveMonster(m, (xp) => addXP(xp));
+                      saveMonster(m, (xp) => {
+                        addXP(xp);
+                        setNewMonster(m);
+                      });
                     } else {
-                      handleStartBattle(m);
+                      setWildEncounter(m);
                     }
                   }}
                   onStartTrade={(name, uid) => {
@@ -602,6 +653,7 @@ function App() {
                   onStartDuel={(name, uid) => {
                     if (uid) sendChallenge(uid, name || 'Runner');
                   }}
+                  addToast={addToast}
                 />
               )}
 
@@ -623,6 +675,15 @@ function App() {
       }} />
 
       <AnimatePresence>
+        {newMonster && (
+          <NewMonsterModal
+            monster={newMonster}
+            onClose={() => setNewMonster(null)}
+            onAdd={() => setNewMonster(null)}
+            isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+          />
+        )}
+
         {isSettingsOpen && (
           <SettingsModal
             isOpen={isSettingsOpen}
@@ -733,6 +794,19 @@ function App() {
         )}
 
         {/* Duel Modals */}
+        {wildEncounter && (
+          <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
+             <DuelSelectionModal
+               caughtMonsters={caughtMonsters}
+               onClose={() => setWildEncounter(null)}
+               onSelect={(m) => {
+                 setWildEncounter(null);
+                 handleStartBattle(wildEncounter, undefined, undefined, m);
+               }}
+             />
+          </div>
+        )}
+
         {duel && (
           <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
             {duel.step === 'WAITING_ACCEPT' && (
@@ -854,6 +928,20 @@ function App() {
           </motion.div>
         )}
 
+      </AnimatePresence>
+      
+      {/* New Monster Celebration Modal */}
+      <AnimatePresence>
+        {newMonster && (
+          <NewMonsterModal 
+            monster={newMonster} 
+            onClose={() => setNewMonster(null)}
+            onAdd={(m) => {
+              // We've already saved it in handleBattleWin or onCatch
+              setNewMonster(null);
+            }}
+          />
+        )}
       </AnimatePresence>
     </div>
   )

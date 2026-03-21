@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2 } from 'lucide-react';
+import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2, Trash2 } from 'lucide-react';
 import type { Boost, InventoryItem } from '../../types';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { cn } from '../../utils';
@@ -10,13 +10,15 @@ export const Inventory = ({
   inventory,
   onOpenCodex,
   onSwap,
-  onUseItem
+  onUseItem,
+  onDiscard
 }: {
   activeBoosts: Boost[],
   inventory: (InventoryItem | null)[],
   onOpenCodex: () => void,
   onSwap: (from: number, to: number) => void,
-  onUseItem: (type: string) => void
+  onUseItem: (type: string) => void,
+  onDiscard: (idx: number) => void
 }) => {
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
@@ -169,12 +171,32 @@ export const Inventory = ({
           })}
         </div>
         
-         <div className="mt-8 text-center text-slate-600">
-            <p className="text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2">
-               Klikem vyber & přesuň
-            </p>
-            <p className="text-[8px] uppercase font-bold tracking-wider mt-1 opacity-50 italic">Vyber předmět a pak klikni na jiný slot pro prohození</p>
-         </div>
+         {draggedIdx !== null ? (
+           <div className="mt-8 px-6">
+             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center mb-3">
+                <span className="text-xs font-black text-white uppercase bg-slate-800/80 px-4 py-2 rounded-xl border border-white/10 shadow-lg">
+                  {inventory[draggedIdx] ? (RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type) : ''}
+                </span>
+             </motion.div>
+             <motion.button
+               initial={{ scale: 0.9, opacity: 0, y: 10 }}
+               animate={{ scale: 1, opacity: 1, y: 0 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
+               className="w-full py-4 bg-red-950/80 border border-red-500 rounded-2xl flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest shadow-2xl shadow-red-500/10 active:scale-95 transition-all"
+             >
+               <Trash2 size={20} />
+               <span>Zahodit {inventory[draggedIdx] ? `(${inventory[draggedIdx]!.count}x)` : ''}</span>
+             </motion.button>
+           </div>
+         ) : (
+           <div className="mt-8 text-center text-slate-600">
+              <p className="text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2">
+                 Klikem vyber & přesuň
+              </p>
+              <p className="text-[8px] uppercase font-bold tracking-wider mt-1 opacity-50 italic">Vyber předmět a pak klikni na jiný slot pro prohození</p>
+           </div>
+         )}
       </section>
     </motion.div>
   );

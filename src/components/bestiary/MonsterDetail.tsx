@@ -12,9 +12,10 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void; onEquipGem?: (idx: number, gemType: string | null) => void }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem }, ref) => {
+export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void; onEquipGem?: (idx: number, gemType: string | null) => void; onRelease?: () => void }>(
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onRelease }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
+    const [confirmRelease, setConfirmRelease] = useState(false);
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
     
@@ -153,7 +154,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               <div className="space-y-1.5">
                 <div className="flex justify-between items-end px-1">
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Energie (HP)</span>
+                  <div className="flex items-center gap-1.5">
+                    <Heart size={10} className="text-emerald-500" fill="currentColor" />
+                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Zdraví (HP)</span>
+                  </div>
                     {((monster.currentHP ?? (monster.stats?.hp || 100)) < (monster.stats?.hp || 100)) && (
                       <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase mt-1">
                         <Clock size={10} className="text-primary/70" />
@@ -381,6 +385,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                             <p className="text-sm font-black uppercase text-white leading-tight mb-0.5 tracking-tight">{ability.name}</p>
                             <p className="text-[11px] leading-snug text-slate-400 font-bold">{ability.description}</p>
                           </div>
+```
                        </div>
                      ))
                    ) : (
@@ -401,36 +406,52 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                    "{monster.description || "O této příšerce zatím kolují jen legendy v zapomenutých sektorech..."}"
                  </p>
                </div>
-            </div>
-
-            {/* Bottom Indicators */}
-             <div className="flex justify-around items-center pt-2 pb-1">
-                {[
-                  { k: 'HP', v: monster.currentHP !== undefined ? Math.round(monster.currentHP) : (monster.stats?.hp || 100), c: 'text-emerald-500' },
-                  { k: 'ÚTOK', v: monster.stats?.attack || 50, c: 'text-primary' },
-                  { k: 'OBRANA', v: monster.stats?.defense || 30, c: 'text-secondary' }
-                ].map(s => (
-                  <div key={s.k} className="text-center px-4">
-                    <p className="text-[7px] font-black text-slate-500 uppercase tracking-tighter">{s.k}</p>
-                    <p className={cn("text-lg font-black", s.c)}>{s.v}</p>
-                  </div>
-                ))}
-             </div>
-          </div>
-        </div>
+             </div> {/* Closes Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
+           </div> {/* Closes The "Scroll" Text Area */}
+        </div> {/* Closes Card Layout */}
 
         {/* Footer Actions */}
-        <div className="px-4 mt-10 mb-8">
+        <div className="px-4 mt-8 mb-8 pb-16">
+          {!confirmRelease ? (
+            <button 
+              onClick={() => setConfirmRelease(true)}
+              className="w-full group relative py-4 rounded-[1.5rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-[0_5px_20px_rgba(239,68,68,0.1)]"
+            >
+              <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
+              <div className="relative z-10 flex items-center justify-center gap-2">
+                <Trash2 size={18} className="text-red-500 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-black text-red-500 uppercase tracking-widest drop-shadow-md">Pustit do divočiny</span>
+              </div>
+            </button>
+          ) : (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col gap-4">
+              <div className="bg-red-950/40 border border-red-500/30 p-4 rounded-3xl text-center">
+                 <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1 animate-pulse">Opravdu chceš toto monstrum propustit?</p>
+                 <p className="text-[9px] font-bold text-red-300 opacity-60 uppercase">Akci nelze vrátit zpět</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => onRelease && onRelease()}
+                  className="py-4 bg-red-600 rounded-2xl text-xs font-black text-white uppercase tracking-widest shadow-xl active:scale-95"
+                >
+                  Ano, pustit
+                </button>
+                <button 
+                  onClick={() => setConfirmRelease(false)}
+                  className="py-4 bg-slate-800 rounded-2xl text-xs font-black text-slate-300 uppercase tracking-widest active:scale-95"
+                >
+                  Ne, nechat
+                </button>
+              </div>
+            </motion.div>
+          )}
+          
           <button 
             onClick={onBack}
-            className="w-full group relative py-4 rounded-2xl overflow-hidden transition-all active:scale-95 border border-white/10"
+            className="w-full mt-4 group relative py-3 rounded-xl overflow-hidden transition-all active:scale-95 border border-white/10 bg-white/5"
           >
-            {/* Dark Glass Background */}
-            <div className="absolute inset-0 bg-white/5 backdrop-blur-md group-hover:bg-white/10" />
-            
             <div className="relative z-10 flex items-center justify-center gap-2">
-              <ArrowLeft size={18} className="text-slate-400 group-hover:text-slate-100 transition-colors" />
-              <span className="text-sm font-black text-slate-400 group-hover:text-slate-100 uppercase tracking-wider transition-colors">Zavřít</span>
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Zpět k ostatním</span>
             </div>
           </button>
         </div>
