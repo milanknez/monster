@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart, Aperture } from 'lucide-react';
 import type { Monster } from '../../types';
-import { cn, GEM_BONUSES } from '../../utils';
+import { cn, GEM_BONUSES, getMonsterMaxHP } from '../../utils';
 
 interface DamagePopup {
   id: number;
@@ -26,7 +26,7 @@ const getFinalStats = (m: Monster) => {
     hp: m.stats?.hp || 100
   };
 
-  const levelBonus = (val: number) => Math.floor(val * (m.level - 1) * 0.15);
+  const levelBonus = (val: number) => Math.floor(val * (m.level - 1) * 0.1);
   
   const getGemBonus = (baseVal: number, type: string) => {
     if (!m.gems) return 0;
@@ -86,7 +86,7 @@ export const Battle = ({
   onCatch?: (monster: Monster) => void,
   onCatchFail?: () => void
 }) => {
-  const [playerHP, setPlayerHP] = useState(playerMonster.currentHP || playerMonster.stats?.hp || 100);
+  const [playerHP, setPlayerHP] = useState(playerMonster.currentHP !== undefined ? playerMonster.currentHP : getMonsterMaxHP(playerMonster));
   const [enemyHP, setEnemyHP] = useState(enemyMonster.stats?.hp || 100);
   const [playerEnergy, setPlayerEnergy] = useState(20);
   
@@ -114,8 +114,8 @@ export const Battle = ({
   const [screenShake, setScreenShake] = useState(false);
   const [catchAnim, setCatchAnim] = useState(false);
   
-  const playerMaxHP = playerMonster.stats?.hp || 100;
-  const enemyMaxHP = enemyMonster.stats?.hp || 100;
+  const playerMaxHP = getMonsterMaxHP(playerMonster);
+  const enemyMaxHP = getMonsterMaxHP(enemyMonster);
 
   const generateLoot = () => {
     const types = ['crystal', 'herb', 'mineral', 'energy'];
@@ -494,7 +494,7 @@ export const Battle = ({
           </div>
           <div className="w-full bg-slate-900/90 p-5 rounded-[2.5rem] border border-primary/30 shadow-2xl mt-4 relative z-10">
             <div className="h-3 bg-black/60 rounded-full overflow-hidden mb-2 border border-white/5 p-0.5 relative">
-              <motion.div animate={{ width: `${(playerHP / playerMaxHP) * 100}%` }} className={cn("h-full rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]")} />
+              <motion.div animate={{ width: `${(playerHP / playerMaxHP) * 100}%` }} className={cn("h-full rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]")} />
               <div className="absolute inset-0 flex items-center justify-center">
                  <span className="text-[9px] font-black text-white drop-shadow-md">{Math.round(playerHP)} / {playerMaxHP} HP</span>
               </div>

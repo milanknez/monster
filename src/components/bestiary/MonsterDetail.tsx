@@ -1,7 +1,7 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X } from 'lucide-react';
-import { cn, TYPE_COLORS, GEM_BONUSES } from '../../utils';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical } from 'lucide-react';
+import { cn, TYPE_COLORS, GEM_BONUSES, getMonsterMaxHP } from '../../utils';
 import { RESOURCE_CONFIG } from '../../components/map/mapUtils';
 import type { Monster } from '../../types';
 
@@ -16,6 +16,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
   ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onRelease }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
+    const [showHealingModal, setShowHealingModal] = useState(false);
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
     
@@ -93,9 +94,25 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               >
                 <ArrowLeft size={24} strokeWidth={3} />
               </button>
-              <h2 className="text-xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate flex-1">
-                {monster.name}
-              </h2>
+              <div className="flex-1 flex flex-col justify-center min-w-0">
+                <h2 className="text-xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate leading-none mb-1.5">
+                  {monster.name}
+                </h2>
+                {/* XP Bar sub-indicator */}
+                <div className="w-full">
+                   <div className="flex justify-between items-center mb-1">
+                      <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">XP k další úrovni</span>
+                      <span className="text-[8px] font-black text-white/50 tabular-nums leading-none">{Math.round(monster.totalXP || 0)} / {monster.level * 250}</span>
+                   </div>
+                   <div className="h-1.5 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(100, ((monster.totalXP || 0) / (monster.level * 250)) * 100)}%` }}
+                        className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" 
+                      />
+                   </div>
+                </div>
+              </div>
               <div className={cn("size-10 rounded-xl flex items-center justify-center border shadow-lg", colors.bg, colors.border)}>
                 <TypeIcon />
               </div>
@@ -114,121 +131,105 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                 src={monster.image} 
                 className="w-full h-full object-contain relative z-10 p-8 drop-shadow-[0_30px_50px_rgba(0,0,0,1)]" 
               />
+              
+              {/* Floating Level Sticker */}
+              <div className="absolute bottom-4 right-4 z-20 flex flex-col items-center">
+                 <div className="bg-primary/20 backdrop-blur-md border border-primary/30 px-3 py-1.5 rounded-xl shadow-2xl transform rotate-3">
+                    <p className="text-xl font-black text-white italic leading-none tracking-tighter">LVL {monster.level}</p>
+                 </div>
+              </div>
             </div>
 
-            {/* Type/Level Bar */}
-            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 flex justify-between items-center">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Typ a Vzácnost</span>
-                <div className="flex items-center gap-1.5 mt-1">
-                   <div className="size-5 rounded-md bg-white/5 flex items-center justify-center">
+            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex justify-center items-center">
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Kategorie Karty</span>
+                <div className="flex items-center gap-2">
+                   <div className="size-6 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 shadow-inner">
                       {(() => {
                         const Icon = () => {
                           switch (monster.type) {
-                            case 'Ohnivá': return <Flame size={12} className="text-red-500" />;
-                            case 'Vodní': return <Droplets size={12} className="text-blue-400" />;
-                            case 'Přírodní': return <Leaf size={12} className="text-green-400" />;
-                            case 'Elektrická': return <Zap size={12} className="text-yellow-400" />;
-                            case 'Temná': return <Moon size={12} className="text-purple-500" />;
-                            case 'Světelná': return <Sun size={12} className="text-cyan-400" />;
-                            default: return <Bolt size={12} className="text-yellow-400" />;
+                            case 'Ohnivá': return <Flame size={14} className="text-red-500" />;
+                            case 'Vodní': return <Droplets size={14} className="text-blue-400" />;
+                            case 'Přírodní': return <Leaf size={14} className="text-green-400" />;
+                            case 'Elektrická': return <Zap size={14} className="text-yellow-400" />;
+                            case 'Temná': return <Moon size={14} className="text-purple-500" />;
+                            case 'Světelná': return <Sun size={14} className="text-cyan-400" />;
+                            default: return <Bolt size={14} className="text-yellow-400" />;
                           }
                         };
                         return <Icon />;
                       })()}
                    </div>
-                   <span className="text-xs font-black text-slate-200 uppercase tracking-tight">{monster.type}</span>
-                   <span className="text-slate-700 font-bold px-0.5">//</span>
-                   <span className={cn("text-xs font-black uppercase tracking-tight", RARITY_COLORS[monster.rarity])}>{monster.rarity}</span>
+                   <span className="text-sm font-black text-slate-200 uppercase tracking-wide">{monster.type}</span>
+                   <div className="w-1 h-1 rounded-full bg-slate-800 mx-1" />
+                   <span className={cn("text-sm font-black uppercase tracking-wide", RARITY_COLORS[monster.rarity])}>{monster.rarity}</span>
                 </div>
-              </div>
-              <div className="text-right">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Úroveň</span>
-                <p className="text-lg font-black text-primary italic leading-none">LVL {monster.level}</p>
               </div>
             </div>
 
-            {/* HP & XP Bars */}
+            {/* HP & Healing Section */}
             <div className="space-y-3 px-1">
-              {/* HP BAR */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end px-1">
-                  <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5">
-                    <Heart size={10} className="text-emerald-500" fill="currentColor" />
-                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Zdraví (HP)</span>
-                  </div>
-                    {((monster.currentHP ?? (monster.stats?.hp || 100)) < (monster.stats?.hp || 100)) && (
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase mt-1">
-                        <Clock size={10} className="text-primary/70" />
-                        <span>Plné zdraví za <span className="text-white">{(() => {
-                          const max = monster.stats?.hp || 100;
-                          const cur = monster.currentHP ?? max;
-                          const minLeft = Math.ceil((max - cur) / (max / 150));
-                          const h = Math.floor(minLeft / 60);
-                          const m = minLeft % 60;
-                          return h > 0 ? `${h}h ${m}m` : `${m}m`;
-                        })()}</span></span>
+              {(() => {
+                const maxHP = getMonsterMaxHP(monster);
+                const currentHP = monster.currentHP ?? maxHP;
+
+                return (
+                  <>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-end px-1">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            <Heart size={10} className="text-red-500" fill="currentColor" />
+                            <span className="text-[8px] font-black text-red-500 uppercase tracking-widest text-[8px]">Zdraví Monstra</span>
+                          </div>
+                          {Math.round(currentHP) < maxHP && (
+                            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase mt-0.5">
+                              <div className="flex items-center gap-1.5 text-slate-500">
+                                <RefreshCw size={8} className="animate-spin text-primary/50" />
+                                <span>Regenerace</span>
+                                <div className="size-0.5 rounded-full bg-slate-700 mx-0.5" />
+                                <div className="flex items-center gap-0.5 text-primary/70">
+                                   <Clock size={8} />
+                                   <span>{(() => {
+                                      const diff = maxHP - currentHP;
+                                      const healPerMin = maxHP * 0.1;
+                                      const mins = diff / healPerMin;
+                                      const sec = Math.ceil(mins * 60);
+                                      if (sec < 60) return `${sec}s`;
+                                      return `${Math.floor(mins)}m ${Math.round((mins % 1) * 60)}s`;
+                                   })()}</span>
+                                </div>
+                              </div>
+                              
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setShowHealingModal(true)}
+                                className="ml-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[8px] font-black tracking-tighter flex items-center gap-1.5 shadow-xl shadow-emerald-900/40 border border-emerald-400/30"
+                              >
+                                <FlaskConical size={10} className="text-emerald-200" />
+                                POUŽÍT LEKTVAR
+                              </motion.button>
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[12px] font-black text-white tabular-nums tracking-tighter">
+                          {Math.round(currentHP)} <span className="opacity-30">/</span> {maxHP}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                  <span className="text-[10px] font-black text-white tabular-nums">{Math.round(monster.currentHP ?? (monster.stats?.hp || 100))} / {monster.stats?.hp || 100}</span>
-                </div>
-                <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((monster.currentHP ?? (monster.stats?.hp || 100)) / (monster.stats?.hp || 100)) * 100}%` }}
-                    className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" 
-                  />
-                </div>
-              </div>
-
-
-              {/* HEALING SECTION */}
-              {((monster.currentHP ?? (monster.stats?.hp || 100)) < (monster.stats?.hp || 100)) && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mt-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                       <Package size={14} className="text-emerald-500" />
-                       <span className="text-[10px] font-black text-white uppercase tracking-widest">Rychlé Léčení</span>
+                      <div className="h-3 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5 shadow-inner">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(currentHP / maxHP) * 100}%` }}
+                          className="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                    {inventory?.filter(i => i?.type === 'hp_potion' && i?.count > 0).map(item => (
-                      <motion.button
-                        key={item?.type}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => item?.type && onUsePotion?.(item.type)}
-                        className="flex-shrink-0 px-4 py-2 bg-emerald-600 rounded-xl flex items-center gap-3 border-b-2 border-black/20"
-                      >
-                        <div className="size-6 bg-white/20 rounded-lg flex items-center justify-center">
-                          <Plus size={14} className="text-white" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-[10px] font-black text-white leading-none uppercase">Lektvar HP</p>
-                          <p className="text-[8px] font-bold text-emerald-200 mt-0.5">{item?.count} ks v batohu</p>
-                        </div>
-                      </motion.button>
-                    ))}
-                    {(!inventory || inventory.filter(i => i?.type === 'hp_potion' && i?.count > 0).length === 0) && (
-                      <p className="text-[9px] text-slate-500 font-bold uppercase italic p-2 w-full text-center">Nemáš žádné léčivé lektvary</p>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end px-1">
-                  <span className="text-[8px] font-black text-primary uppercase tracking-widest">Zkušenosti (XP)</span>
-                  <span className="text-[10px] font-black text-white tabular-nums">{Math.round(monster.totalXP || 0)} / {monster.level * 250}</span>
-                </div>
-                <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((monster.totalXP || 0) / (monster.level * 250)) * 100}%` }}
-                    className="h-full bg-primary rounded-full shadow-[0_0_10px_#0db9f2]" 
-                  />
-                </div>
-              </div>
+
+
+                  </>
+                );
+              })()}
             </div>
 
             {/* The "Scroll" Text Area */}
@@ -239,132 +240,64 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                 {/* Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
                 <div className="relative z-10 space-y-6 px-1">
                   
-                  {/* Inline Stats */}
-                  <div className="flex items-center justify-between gap-4 py-2">
-                    {[
-                      { label: 'Útok', val: monster.stats?.attack || 10, icon: <Sword size={10} />, type: 'gem_red' },
-                      { label: 'Obrana', val: monster.stats?.defense || 10, icon: <Shield size={10} />, type: 'gem_white' },
-                      { label: 'Zdraví', val: monster.stats?.hp || 100, icon: <Heart size={10} />, type: 'gem_green' }
-                    ].map((s, i) => {
-                      const levelBonus = Math.floor(s.val * (monster.level - 1) * 0.15);
-                      const gemBonus = (monster.gems || []).reduce((acc, gid) => {
-                        if (gid?.startsWith(s.type)) {
-                          const g = GEM_BONUSES[gid];
-                          if (g) return acc + (g.isPerc ? Math.floor(s.val * (g.value / 100)) : g.value);
-                        }
-                        return acc;
-                      }, 0);
-                      const totalBonus = levelBonus + gemBonus;
-                      
-                      return (
-                        <div key={i} className="flex flex-col items-center flex-1">
-                           <div className="flex items-center gap-1.5 opacity-40 mb-1">
-                              {s.icon} <span className="text-[8px] font-black uppercase tracking-widest">{s.label}</span>
-                           </div>
-                           <div className="flex items-baseline gap-0.5">
-                              <span className="text-sm font-black text-white italic">{s.val}</span>
-                              <span className="text-[10px] font-black text-emerald-400">+{totalBonus}</span>
-                           </div>
+                {/* Stats Grid Visualization (3-Column Layout with Rarity-Specific Max) */}
+                <div className="relative z-10 py-5 px-1 grid grid-cols-3 gap-3 border-b border-white/5">
+                  {[
+                    { label: 'Útok', key: 'attack', base: monster.stats?.attack || 10, icon: <Sword size={12} />, type: 'gem_red', marker: 'bg-blue-500' },
+                    { label: 'Obrana', key: 'defense', base: monster.stats?.defense || 10, icon: <Shield size={12} />, type: 'gem_white', marker: 'bg-emerald-500' },
+                    { label: 'Zdraví', key: 'hp', base: monster.stats?.hp || 100, icon: <Heart size={12} />, type: 'gem_green', marker: 'bg-red-500' }
+                  ].map((s, i) => {
+                    const levelBonus = Math.floor(s.base * (monster.level - 1) * 0.1);
+                    const gemBonus = (monster.gems || []).reduce((acc, gid) => {
+                      if (gid?.startsWith(s.type)) {
+                        const g = GEM_BONUSES[gid];
+                        if (g) return acc + (g.isPerc ? Math.floor(s.base * (g.value / 100)) : g.value);
+                      }
+                      return acc;
+                    }, 0);
+                    const totalBonus = levelBonus + gemBonus;
+                    const totalVal = s.base + totalBonus;
+                    
+                    // Rarity-Specific Max Caps (based on base stats + buffer)
+                    const r = monster.rarity?.toLowerCase() || 'běžná';
+                    const isB = r === 'běžná' || r === 'common';
+                    const isV = r === 'vzácná' || r === 'rare';
+                    const isE = r === 'epická' || r === 'epic';
+                    
+                    const caps = s.key === 'hp' 
+                      ? (isB ? 150 : isV ? 250 : isE ? 500 : 1050)
+                      : s.key === 'attack'
+                        ? (isB ? 60 : isV ? 100 : isE ? 200 : 420)
+                        : (isB ? 25 : isV ? 45 : isE ? 80 : 130);
+                    
+                    const percentage = Math.min(100, (s.base / caps) * 100);
+
+                    return (
+                      <div key={i} className="flex flex-col bg-white/5 border border-white/5 rounded-2xl p-3 relative overflow-hidden group hover:bg-white/[0.08] transition-colors">
+                        <div className="flex flex-col items-center mb-1">
+                           <div className="text-white/30 mb-1">{s.icon}</div>
+                           <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">{s.label}</span>
                         </div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Universal Square Gem Sockets */}
-                  <div className="bg-white/5 p-4 rounded-3xl border border-white/5">
-                    <div className="flex items-center justify-between mb-3 px-1">
-                       <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Drahokamy (Sockety)</h3>
-                       <p className="text-[8px] text-slate-500 font-bold">Libovolná kombinace</p>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-4">
-                      {Array.from({ length: 3 }).map((_, idx) => {
-                        const currentGem = monster.gems?.[idx];
-                        const icon = currentGem ? RESOURCE_CONFIG[currentGem]?.icon : null;
-                        const isPicking = activeSlotIdx === idx;
-                        
-                        return (
-                          <div 
-                            key={idx} 
-                            onClick={() => setActiveSlotIdx(idx)}
-                            className={cn(
-                              "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
-                              currentGem 
-                                ? "bg-slate-800 border-white/20 shadow-xl" 
-                                : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
-                              isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
-                            )}
-                          >
-                            {currentGem ? (
-                              <>
-                                <span className="text-4xl drop-shadow-md">{icon}</span>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }}
-                                  className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20"
-                                >
-                                  <Trash2 size={10} />
-                                </button>
-                              </>
-                            ) : (
-                              <Plus size={20} className="text-white/20" />
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Custom Fluid Gem Picker */}
-                    <AnimatePresence>
-                       {activeSlotIdx !== null && (
+                        <div className="text-center py-1">
+                           <span className="text-xl font-black text-white italic tracking-tighter drop-shadow-lg">{totalVal}</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-1 opacity-60">
+                           <span className="text-[9px] font-bold text-slate-400">{s.base}</span>
+                           <span className="text-[9px] font-black text-emerald-400">+{totalBonus}</span>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/[0.03]">
                           <motion.div 
-                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                            className="overflow-hidden"
-                          >
-                             <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
-                                <button 
-                                  onClick={() => setActiveSlotIdx(null)}
-                                  className="absolute top-2 right-2 text-slate-500 hover:text-white"
-                                >
-                                  <X size={14} />
-                                </button>
-                                
-                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">
-                                   Slot {activeSlotIdx + 1}: Vyber si vylepšení
-                                </p>
-                                
-                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                   {inventory?.filter(i => i?.type.startsWith('gem_') && i?.count > 0).map(i => (
-                                      <motion.button
-                                        key={i?.type}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
-                                        className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative"
-                                      >
-                                         <span className="text-2xl group-hover:scale-125 transition-transform">{RESOURCE_CONFIG[i?.type || '']?.icon}</span>
-                                         <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm">{i?.count}x</span>
-                                      </motion.button>
-                                   ))}
-                                   {(!inventory || inventory.filter(i => i?.type.startsWith('gem_') && i?.count > 0).length === 0) && (
-                                      <div className="w-full text-center py-4 flex flex-col items-center gap-2">
-                                         <div className="text-3xl opacity-30">🧪</div>
-                                         <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné drahokamy v batohu</p>
-                                         <button 
-                                           onClick={() => setActiveSlotIdx(null)}
-                                           className="px-4 py-1.5 bg-slate-800 rounded-full text-[9px] font-black text-white uppercase tracking-widest mt-1"
-                                         >
-                                            Zavřít
-                                         </button>
-                                      </div>
-                                   )}
-                                </div>
-                             </div>
-                          </motion.div>
-                       )}
-                    </AnimatePresence>
-                  </div>
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            className={cn("h-full", s.marker)}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
+
+
 
                 <div className="h-px bg-white/5 w-full mt-2" />
 
@@ -395,18 +328,114 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                  </div>
                </div>
 
-               {/* Příběh / Historie */}
-               <div className="relative z-10 pt-2 border-t border-white/5">
-                 <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
-                   <LayoutGrid size={10} />
-                   Původ a historie
-                 </h3>
-                 <p className="text-sm text-slate-300 italic leading-relaxed font-bold tracking-tight">
-                   "{monster.description || "O této příšerce zatím kolují jen legendy v zapomenutých sektorech..."}"
-                 </p>
-               </div>
+                {/* Příběh / Historie */}
+                <div className="relative z-10 pt-2 border-t border-white/5">
+                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
+                    <LayoutGrid size={10} />
+                    Původ a historie
+                  </h3>
+                  <p className="text-sm text-slate-300 italic leading-relaxed font-bold tracking-tight mb-6">
+                    "{monster.description || "O této příšerce zatím kolují jen legendy v zapomenutých sektorech..."}"
+                  </p>
+                </div>
+
+                {/* Universal Square Gem Sockets */}
+                <div className="bg-white/5 p-4 rounded-3xl border border-white/5 relative z-10">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                     <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Drahokamy (Sockety)</h3>
+                     <p className="text-[8px] text-slate-500 font-bold">Libovolná kombinace</p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-4">
+                    {Array.from({ length: 3 }).map((_, idx) => {
+                      const currentGem = monster.gems?.[idx];
+                      const icon = currentGem ? RESOURCE_CONFIG[currentGem]?.icon : null;
+                      const isPicking = activeSlotIdx === idx;
+                      
+                      return (
+                        <div 
+                          key={idx} 
+                          onClick={() => setActiveSlotIdx(idx)}
+                          className={cn(
+                            "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
+                            currentGem 
+                              ? "bg-slate-800 border-white/20 shadow-xl" 
+                              : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
+                            isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
+                          )}
+                        >
+                          {currentGem ? (
+                            <>
+                              <span className="text-4xl drop-shadow-md">{icon}</span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }}
+                                className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                            </>
+                          ) : (
+                            <Plus size={20} className="text-white/20" />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Custom Fluid Gem Picker */}
+                  <AnimatePresence>
+                     {activeSlotIdx !== null && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                          animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                          className="overflow-hidden"
+                        >
+                           <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
+                              <button 
+                                onClick={() => setActiveSlotIdx(null)}
+                                className="absolute top-2 right-2 text-slate-500 hover:text-white"
+                              >
+                                <X size={14} />
+                              </button>
+                              
+                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">
+                                 Slot {activeSlotIdx + 1}: Vyber si vylepšení
+                              </p>
+                              
+                              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                 {inventory?.filter(i => i?.type.startsWith('gem_') && i?.count > 0).map(i => (
+                                    <motion.button
+                                      key={i?.type}
+                                      whileTap={{ scale: 0.9 }}
+                                      onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
+                                      className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative"
+                                    >
+                                       <span className="text-2xl group-hover:scale-125 transition-transform">{RESOURCE_CONFIG[i?.type || '']?.icon}</span>
+                                       <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm">{i?.count}x</span>
+                                    </motion.button>
+                                 ))}
+                                 {(!inventory || inventory.filter(i => i?.type.startsWith('gem_') && i?.count > 0).length === 0) && (
+                                    <div className="w-full text-center py-4 flex flex-col items-center gap-2">
+                                       <div className="text-3xl opacity-30">🧪</div>
+                                       <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné drahokamy v batohu</p>
+                                       <button 
+                                         onClick={() => setActiveSlotIdx(null)}
+                                         className="px-4 py-1.5 bg-slate-800 rounded-full text-[9px] font-black text-white uppercase tracking-widest mt-1"
+                                       >
+                                          Zavřít
+                                       </button>
+                                    </div>
+                                 )}
+                              </div>
+                           </div>
+                        </motion.div>
+                     )}
+                  </AnimatePresence>
+                </div>
              </div> {/* Closes Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
-           </div> {/* Closes The "Scroll" Text Area */}
+            </div> {/* Closes The "Scroll" Text Area */}
+          </div> {/* Closes Card Content */}
         </div> {/* Closes Card Layout */}
 
         {/* Footer Actions */}
@@ -432,6 +461,83 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
             Zrušit a jít zpět
           </button>
         </div>
+
+        {/* HEALING MODAL */}
+        <AnimatePresence>
+          {showHealingModal && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col bg-black/80 backdrop-blur-xl">
+              <motion.div 
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                className="w-full max-w-lg bg-slate-900 border-t-4 border-emerald-500/50 rounded-t-[3rem] p-8 pb-12 shadow-[0_-20px_50px_rgba(16,185,129,0.2)]"
+              >
+                <div className="flex justify-between items-center mb-8">
+                   <div className="flex items-center gap-3">
+                      <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500 border border-emerald-500/20">
+                         <Package size={24} />
+                      </div>
+                      <div>
+                         <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">Lékárnička</h2>
+                         <p className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Dostupné lektvary k léčení</p>
+                      </div>
+                   </div>
+                   <button 
+                     onClick={() => setShowHealingModal(false)}
+                     className="size-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-slate-400 transition-colors"
+                   >
+                     <X size={20} />
+                   </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide">
+                  {inventory?.filter(i => i?.type === 'hp_potion' && i?.count > 0).map(item => (
+                    <motion.button
+                      key={item?.type}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => {
+                        item?.type && onUsePotion?.(item.type);
+                        setShowHealingModal(false);
+                      }}
+                      className="group relative flex items-center gap-5 p-5 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/20 rounded-[2rem] hover:border-emerald-500/40 transition-all text-left overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors" />
+                      <div className="size-16 flex-shrink-0 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform">
+                         <Plus size={32} className="text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-lg font-black text-white uppercase tracking-tight">Lektvar HP</p>
+                          <p className="bg-emerald-500 text-background-dark text-[10px] font-black px-2 py-0.5 rounded-full">{item?.count}x</p>
+                        </div>
+                        <p className="text-xs font-bold text-emerald-400/80 leading-relaxed">
+                           Okamžitě vyléčí část poškození a zvýší stabilitu monstra.
+                        </p>
+                      </div>
+                    </motion.button>
+                  ))}
+
+                  {(!inventory || inventory.filter(i => i?.type === 'hp_potion' && i?.count > 0).length === 0) && (
+                    <div className="py-12 text-center">
+                       <div className="size-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50 border border-white/5">
+                          <FlaskConical size={32} className="text-slate-600" />
+                       </div>
+                       <p className="text-sm font-black text-slate-500 uppercase tracking-widest italic">Nemáš žádné léčivé lektvary</p>
+                       <p className="text-[10px] font-bold text-slate-600 mt-2">Můžeš si je koupit v obchodu nebo najít při průzkumu</p>
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  onClick={() => setShowHealingModal(false)}
+                  className="w-full mt-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95"
+                >
+                  Možná později
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* RELEASE MODAL */}
         <AnimatePresence>

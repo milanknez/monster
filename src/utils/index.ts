@@ -30,24 +30,38 @@ export const getTotalXPForLevel = (lvl: number) => {
 };
 
 export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = {
-  gem_red_1: { value: 3 },
-  gem_red_2: { value: 5 },
-  gem_red_3: { value: 8 },
-  gem_red_4: { value: 2, isPerc: true },
-  gem_red_5: { value: 4, isPerc: true },
-  gem_red_6: { value: 6, isPerc: true },
+  gem_red_1: { value: 6 },
+  gem_red_2: { value: 12 },
+  gem_red_3: { value: 20 },
+  gem_red_4: { value: 5, isPerc: true },
+  gem_red_5: { value: 10, isPerc: true },
+  gem_red_6: { value: 15, isPerc: true },
   
-  gem_green_1: { value: 3 },
-  gem_green_2: { value: 5 },
-  gem_green_3: { value: 8 },
-  gem_green_4: { value: 2, isPerc: true },
-  gem_green_5: { value: 4, isPerc: true },
-  gem_green_6: { value: 6, isPerc: true },
+  gem_green_1: { value: 15 },
+  gem_green_2: { value: 30 },
+  gem_green_3: { value: 50 },
+  gem_green_4: { value: 5, isPerc: true },
+  gem_green_5: { value: 10, isPerc: true },
+  gem_green_6: { value: 15, isPerc: true },
   
-  gem_white_1: { value: 3 },
-  gem_white_2: { value: 5 },
-  gem_white_3: { value: 8 },
-  gem_white_4: { value: 2, isPerc: true },
-  gem_white_5: { value: 4, isPerc: true },
-  gem_white_6: { value: 6, isPerc: true },
+  gem_white_1: { value: 4 },
+  gem_white_2: { value: 8 },
+  gem_white_3: { value: 15 },
+  gem_white_4: { value: 5, isPerc: true },
+  gem_white_5: { value: 10, isPerc: true },
+  gem_white_6: { value: 15, isPerc: true },
+};
+
+export const getMonsterMaxHP = (monster: any) => {
+  if (!monster || !monster.stats) return 100;
+  const base = monster.stats.hp || 100;
+  const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
+  const gemBonus = (monster.gems || []).reduce((acc: number, gid: string) => {
+    if (gid?.startsWith('gem_green')) {
+      const g = GEM_BONUSES[gid];
+      if (g) return acc + (g.isPerc ? Math.floor(base * (g.value / 100)) : g.value);
+    }
+    return acc;
+  }, 0);
+  return base + levelBonus + gemBonus;
 };

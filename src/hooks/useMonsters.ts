@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Monster } from '../types'
 import { monsterDB } from '../data/monsters'
+import { getMonsterMaxHP } from '../utils'
 
 export function useMonsters(addToast: (toast: any) => void) {
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
@@ -9,11 +10,14 @@ export function useMonsters(addToast: (toast: any) => void) {
       if (saved) {
         const parsed = JSON.parse(saved)
         // Ensure stats and HP exist on load
-        return parsed.map((m: any) => ({
-          ...m,
-          totalXP: m.totalXP || 0,
-          currentHP: m.currentHP !== undefined ? m.currentHP : (m.stats?.hp || 100)
-        }))
+        return parsed.map((m: any) => {
+          const max = getMonsterMaxHP(m);
+          return {
+            ...m,
+            totalXP: m.totalXP || 0,
+            currentHP: m.currentHP !== undefined ? Math.min(max, m.currentHP) : max
+          }
+        })
       }
       return []
     } catch { return [] }
@@ -34,13 +38,13 @@ export function useMonsters(addToast: (toast: any) => void) {
         setCaughtMonsters(prev => {
           let hasHealed = false;
           const updated = prev.map(m => {
-            const maxHP = m.stats?.hp || 100;
+            const maxHP = getMonsterMaxHP(m);
             const current = m.currentHP ?? maxHP;
             
             if (current < maxHP) {
               hasHealed = true;
-              // 2% of maxHP per minute (full heal in 50 minutes)
-              const healPerMin = maxHP * 0.02;
+              // 10% of total maxHP per minute (full heal in 10 minutes)
+              const healPerMin = maxHP * 0.1;
               const totalHeal = healPerMin * minsPassed;
               return {
                 ...m,
@@ -61,7 +65,7 @@ export function useMonsters(addToast: (toast: any) => void) {
     applyRegen();
 
     // Set up more frequent interval for smoother visual feedback
-    const interval = setInterval(applyRegen, 30000); // Check every 30 seconds
+    const interval = setInterval(applyRegen, 3000); // Check every 3 seconds for smooth UI
     return () => clearInterval(interval);
   }, []);
 
@@ -80,13 +84,20 @@ export function useMonsters(addToast: (toast: any) => void) {
       }
       
       const dbData = monsterDB.find(d => d.id === monster.id)
+      const baseStats = dbData?.stats || monster.stats
+      const baseLevel = monster.level || 1
+      
       const enriched: Monster = { 
         ...monster, 
+        stats: baseStats,
+        level: baseLevel,
         caughtAt: monster.caughtAt || Date.now(),
         totalXP: monster.totalXP || 0,
-        currentHP: monster.currentHP !== undefined ? monster.currentHP : (dbData?.stats?.hp || 100),
-        stats: dbData?.stats || monster.stats
       }
+      
+      // Calculate TRUE Max HP including bonuses for initial health
+      const max = getMonsterMaxHP(enriched)
+      enriched.currentHP = monster.currentHP !== undefined ? monster.currentHP : max
       
       const updated = [enriched, ...prev]
       success = true
@@ -150,7 +161,7 @@ export function useMonsters(addToast: (toast: any) => void) {
       if (!updated[monsterIdx]) return prev
 
       const m = { ...updated[monsterIdx] }
-      const maxHP = m.stats?.hp || 100
+      const maxHP = getMonsterMaxHP(m);
       m.currentHP = Math.min(maxHP, Math.max(0, (m.currentHP || 0) + hpChange))
       
       updated[monsterIdx] = m

@@ -108,7 +108,20 @@ function App() {
   )
 
 
-  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, equipGem } = useMonsters(addToast)
+  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, equipGem } = useMonsters(addToast);
+
+  // Synchronize selectedMonster with caughtMonsters (for regeneration & updates)
+  useEffect(() => {
+    if (selectedMonster) {
+      const updated = caughtMonsters.find(m => 
+        (m as any).caughtAt === (selectedMonster as any).caughtAt && m.id === selectedMonster.id
+      );
+      if (updated && JSON.stringify(updated) !== JSON.stringify(selectedMonster)) {
+        setSelectedMonster(updated);
+      }
+    }
+  }, [caughtMonsters, selectedMonster]);
+
   const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast)
   const activeMonster = caughtMonsters[0] || null
   const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, activeBattle?.opponentUid)
@@ -145,8 +158,19 @@ function App() {
       giveMonsterXP(0, amt);
     };
 
-    (window as any).addMonster = (id: string, lvl = 5) => {
-       saveMonster({ id, level: lvl, caughtAt: Date.now(), totalXP: 0, name: id.toUpperCase(), rarity: 'common', type: 'Ohnivá', image: '', description: '' }, (xp) => {});
+    (window as any).addMonster = (mId: string, lvl = 5) => {
+      const base = monsterDB.find(m => m.id === mId) || monsterDB[0];
+      const monsterToSave = { 
+        ...base, 
+        level: lvl, 
+        caughtAt: Date.now(), 
+        totalXP: 0, 
+        currentHP: base.stats?.hp || 100,
+        image: `/monsters/${base.id}.png`,
+        gems: [null, null, null]
+      };
+      saveMonster(monsterToSave as any, () => {});
+      addToast({ title: '🧬 Monstrum přidáno!', message: `${base.name} (Lv.${lvl}) se připojilo k tobě!`, type: 'success' });
     };
 
     (window as any).forceWildEncounter = () => {

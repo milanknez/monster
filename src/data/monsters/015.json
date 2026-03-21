@@ -5,9 +5,9 @@
   "type": "Přírodní",
   "rarity": "Epická",
   "stats": {
-    "hp": 145,
-    "attack": 140,
-    "defense": 150
+    "hp": 482,
+    "attack": 170,
+    "defense": 54
   },
   "abilities": [
     {

@@ -329,28 +329,28 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       }
     };
 
-    (window as any).spawnBasicMonster = () => {
+    (window as any).spawnCustomMonster = (mId: string, lvl: number, rar: SpawnRarity = 'common') => {
       if (playerPos) {
-        setSpawns(prev => {
-          const newM: SpawnPoint = {
-            id: 'dev_spawn_basic_' + Date.now(),
-            lat: playerPos[0] + 0.00001,
-            lng: playerPos[1] + 0.00001,
-            rarity: 'common',
-            monsterId: 'aether_fox',
-            level: 1,
+        setSpawns(prev => [
+          ...prev,
+          {
+            id: 'custom_spawn_' + Date.now(),
+            lat: playerPos[0] + 0.00005,
+            lng: playerPos[1] + 0.00005,
+            rarity: rar,
+            monsterId: mId,
+            level: lvl,
             caught: false
-          };
-          const next = [...prev, newM];
-          return next;
-        });
-        console.log("🦊 Základní Aether Fox Lv.1 naspawněna naproti tobě!");
+          }
+        ]);
+        console.log(`🧨 Monstrum ${mId} (Lv.${lvl}, ${rar}) naspawněno u tebe!`);
       }
     };
 
     return () => { 
       delete (window as any).spawnMapMonster; 
       delete (window as any).spawnBasicMonster; 
+      delete (window as any).spawnCustomMonster;
     };
   }, [playerPos]);
 
@@ -635,16 +635,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-[1001] bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 flex flex-col gap-2 shadow-2xl pointer-events-none">
+        <div className="absolute bottom-4 left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
            {[
-             { label: 'Běžná', color: 'bg-blue-500 shadow-blue-500/50' },
-             { label: 'Vzácná', color: 'bg-purple-500 shadow-purple-500/50' },
-             { label: 'Epická', color: 'bg-orange-500 shadow-orange-500/50' }
+             { label: 'Běžná', color: 'text-blue-500' },
+             { label: 'Vzácná', color: 'text-purple-500' },
+             { label: 'Epická', color: 'text-orange-500' }
            ].map(l => (
-             <div key={l.label} className="flex items-center gap-2">
-                <div className={cn("size-2.5 rounded-full shadow-[0_0_8px_currentColor]", l.color)} />
-                <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{l.label}</span>
-             </div>
+             <span key={l.label} className={cn("text-[7.5px] font-black uppercase tracking-[0.2em] drop-shadow-sm leading-none", l.color)}>
+                {l.label}
+             </span>
            ))}
         </div>
       </div>

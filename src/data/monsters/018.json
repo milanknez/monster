@@ -5,9 +5,9 @@
   "type": "Elektrická",
   "rarity": "Běžná",
   "stats": {
-    "hp": 75,
-    "attack": 55,
-    "defense": 60
+    "hp": 122,
+    "attack": 50,
+    "defense": 20
   },
   "abilities": [
     {

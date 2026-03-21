@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterMaxHP } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
@@ -187,20 +187,29 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                         </div>
                       </div>
 
-                      {/* Top Right: HP Badge */}
                       <div className="absolute top-2 right-2 z-20 pointer-events-none">
                         <div className="h-6 px-1.5 rounded-lg bg-slate-900/90 text-[8px] font-black flex items-center gap-1 border border-white/20 shadow-lg">
-                          <motion.div
-                            animate={(m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100) < 80 ? { opacity: [1, 0, 1] } : { opacity: 1 }}
-                            transition={{ repeat: Infinity, duration: 0.8 }}
-                            className="flex items-center"
-                          >
-                            <Heart size={10} className="text-red-500 fill-red-500" />
-                          </motion.div>
-                          <span className={cn(
-                            "text-white transition-colors",
-                            (m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100) < 80 ? "text-red-400" : "text-white"
-                          )}>{Math.round(m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100)}%</span>
+                          {(() => {
+                            const maxHP = getMonsterMaxHP(m);
+                            const currentHP = m.currentHP ?? maxHP;
+                            const hpPerc = Math.round((currentHP / maxHP) * 100);
+                            
+                            return (
+                              <>
+                                <motion.div
+                                  animate={hpPerc < 80 ? { opacity: [1, 0, 1] } : { opacity: 1 }}
+                                  transition={{ repeat: Infinity, duration: 0.8 }}
+                                  className="flex items-center"
+                                >
+                                  <Heart size={10} className="text-red-500 fill-red-500" />
+                                </motion.div>
+                                <span className={cn(
+                                  "text-white transition-colors",
+                                  hpPerc < 80 ? "text-red-400" : "text-white"
+                                )}>{hpPerc}%</span>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
 

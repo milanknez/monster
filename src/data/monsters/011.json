@@ -5,9 +5,9 @@
   "type": "Ohnivá",
   "rarity": "Běžná",
   "stats": {
-    "hp": 95,
-    "attack": 45,
-    "defense": 110
+    "hp": 131,
+    "attack": 46,
+    "defense": 18
   },
   "abilities": [
     {

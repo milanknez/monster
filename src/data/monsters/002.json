@@ -5,9 +5,9 @@
   "type": "Vodní",
   "rarity": "Běžná",
   "stats": {
-    "hp": 80,
-    "attack": 40,
-    "defense": 70
+    "hp": 136,
+    "attack": 49,
+    "defense": 16
   },
   "abilities": [
     {

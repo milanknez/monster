@@ -5,9 +5,9 @@
   "type": "Ohnivá",
   "rarity": "Vzácná",
   "stats": {
-    "hp": 60,
-    "attack": 125,
-    "defense": 50
+    "hp": 200,
+    "attack": 78,
+    "defense": 28
   },
   "abilities": [
     {

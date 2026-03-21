@@ -109,7 +109,7 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
   
   const lockOverlay = isLocked
     ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
-    : `<text x="50" y="60" text-anchor="middle" font-size="42" font-weight="bold" fill="${c.label}" filter="url(#mg)">?</text>`
+    : `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`
   
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
   
@@ -119,7 +119,6 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
     </defs>
     ${pulse}
     <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
-    ${silhouette}
     ${lockOverlay}
     <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
     <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
