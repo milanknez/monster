@@ -39,7 +39,8 @@ export const syncPlayerToFirebase = (data: {
     lat: number,
     lng: number,
     avatarStyle: string,
-    avatarSeed: string
+    avatarSeed: string,
+    activeMonster?: { id: string, level: number, name: string, stats: any }
 }) => {
     const playerRef = ref(db, `players/${PLAYER_UID}`);
 

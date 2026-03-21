@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun } from 'lucide-react';
+import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun, Heart } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
@@ -28,15 +28,15 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
   const [filter, setFilter] = useState('Vše')
   const rarities = ['Vše', 'Běžná', 'Vzácná', 'Epická', 'Legendární']
 
-  const filteredDB = monsterDB
+  const caughtFiltered = caughtMonsters
     .filter(m => filter === 'Vše' || m.rarity === filter)
-    .sort((a, b) => {
-      const isACaught = caughtMonsters.some(cm => cm.id === a.id);
-      const isBCaught = caughtMonsters.some(cm => cm.id === b.id);
-      if (isACaught && !isBCaught) return -1;
-      if (!isACaught && isBCaught) return 1;
-      return 0; // Keep original order (by ID) if both caught or both locked
-    });
+    .sort((a, b) => (b.level || 1) - (a.level || 1));
+
+  const uncaughtInDB = monsterDB
+    .filter(m => filter === 'Vše' || m.rarity === filter)
+    .filter(m => !caughtMonsters.some(cm => cm.id === m.id));
+
+  const allToDisplay = [...caughtFiltered, ...uncaughtInDB];
 
   return (
     <motion.div 
@@ -97,20 +97,19 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
       </div>
 
       <div className="grid grid-cols-2 gap-4 p-4">
-        {filteredDB.map(m => {
-          const isCaught = caughtMonsters.some(cm => cm.id === m.id)
-          const stackCount = caughtMonsters.filter(cm => cm.id === m.id).length
+        {allToDisplay.map((m: any, idx) => {
+          const isCaught = 'caughtAt' in m || caughtMonsters.some(cm => cm.id === m.id && cm.level === m.level && (cm.totalXP || 0) === (m.totalXP || 0));
+          // Use monster object directly if it's a caught one (it has a level/XP)
           const colors = TYPE_COLORS[m.type] || TYPE_COLORS['Default']
           
           return (
             <motion.div 
-              key={m.id}
+              key={(m as any).caughtAt ? (m as any).caughtAt + idx : m.id}
               whileHover={isCaught ? { scale: 1.02, y: -4 } : {}}
               whileTap={isCaught ? { scale: 0.98 } : {}}
               onClick={() => {
                 if (!isCaught) return;
-                const caughtData = caughtMonsters.find(cm => cm.id === m.id) || { ...m, level: 1, image: `/monsters/${m.id}.png` } as Monster;
-                onSelect(caughtData);
+                onSelect(m as Monster);
               }}
               className={cn(
                 "group relative aspect-square rounded-2xl overflow-hidden border transition-all duration-500 cursor-pointer shadow-lg",
@@ -157,18 +156,34 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               
               {isCaught ? (
                 <>
-                  <div className="absolute top-2 left-2 p-1.5 rounded-md bg-black/40 backdrop-blur-md border border-white/10 z-20 pointer-events-none flex items-center">
-                    {(() => {
-                      const Icon = TYPE_ICONS[m.type];
-                      return Icon ? <Icon size={12} className={colors.text} /> : null;
-                    })()}
-                  </div>
-                  {/* Stack badge */}
-                  {stackCount > 1 && (
-                    <div className="absolute top-2 right-2 min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary text-background-dark text-[10px] font-black flex items-center justify-center z-20 shadow-[0_0_8px_rgba(13,185,242,0.6)] pointer-events-none">
-                      ×{stackCount}
+                  {/* Stats Badges */}
+                  {isCaught && (
+                    <div className="absolute top-2 left-2 right-2 flex justify-between z-20 pointer-events-none">
+                      <div className="size-7 rounded-full bg-primary/90 text-background-dark text-[11px] font-black flex items-center justify-center border border-white/20 shadow-lg leading-none">
+                        {m.level}
+                      </div>
+                      <div className="h-7 px-2 rounded-full bg-slate-900/90 text-[9px] font-black flex items-center gap-1 border border-white/20 shadow-lg">
+                        <motion.div
+                          animate={(m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100) < 80 ? { opacity: [1, 0, 1] } : { opacity: 1 }}
+                          transition={{ repeat: Infinity, duration: 0.8 }}
+                          className="flex items-center"
+                        >
+                          <Heart size={10} className="text-red-500 fill-red-500" />
+                        </motion.div>
+                        <span className={cn(
+                          "text-white transition-colors",
+                          (m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100) < 80 ? "text-red-400" : "text-white"
+                        )}>{Math.round(m.currentHP !== undefined ? (m.currentHP / (m.stats?.hp || 100) * 100) : 100)}%</span>
+                      </div>
                     </div>
                   )}
+                  {/* Type Icon (shrunk/moved) */}
+                  <div className="absolute bottom-12 left-2 p-1.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 z-20 pointer-events-none flex items-center shadow-lg">
+                    {(() => {
+                      const Icon = TYPE_ICONS[m.type];
+                      return Icon ? <Icon size={14} className={colors.text} /> : null;
+                    })()}
+                  </div>
                   <img 
                     src={`/monsters/${m.id}.png`} 
                     className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110 pointer-events-none" 

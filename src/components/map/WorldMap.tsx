@@ -51,6 +51,7 @@ export interface NearbyPlayer {
 export interface WorldMapProps {
   onCatch: (monster: Monster) => void
   onStartTrade: (targetPlayerName?: string, targetUid?: string) => void
+  onStartDuel: (targetPlayerName?: string, targetUid?: string) => void
   tradeSignal?: string | null
   onBleSignal?: (type: string, targetName: string, fromName: string, data: string) => void
   playerHP: number
@@ -63,6 +64,7 @@ export interface WorldMapProps {
   avatarSeed: string
   playerLevel: number
   onGather: (type: ResourceType, amount: number) => void
+  activeMonster: Monster | null
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -234,7 +236,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   playerLevel, 
   caughtMonsters, 
   playerHP,
-  onGather
+  onGather,
+  onStartDuel,
+  activeMonster
 }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -455,6 +459,24 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
   useEffect(() => {
     if (!playerPos || !playerName) return
+    const sync = () => {
+      syncPlayerToFirebase({
+        name: playerName,
+        level: playerLevel,
+        monsterCount: caughtMonsters.length,
+        lat: playerPos[0],
+        lng: playerPos[1],
+        avatarStyle: avatarStyle,
+        avatarSeed: avatarSeed
+      });
+    };
+    sync(); // Sync immediately
+    const interval = setInterval(sync, 10000); // And every 10s
+    return () => clearInterval(interval);
+  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed])
+
+  useEffect(() => {
+    if (!playerPos || !playerName) return
     const unsubscribe = watchNearbyPlayers((others) => {
       setFirebasePlayers(others.filter(p => (Date.now() - p.lastActive) < 300000 && haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000).map(p => ({ ...p, id: p.id || `fb_${p.name}` })))
     });
@@ -503,10 +525,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
              ) : hpBlocked ? (
                <div className="w-full py-4 rounded-2xl bg-red-950 border border-red-500 text-red-100 font-black text-center uppercase text-xs">🔋 ENERGIE PŘÍLIŠ NÍZKÁ</div>
              ) : (
-               <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }}>
-                  <div className="flex items-center gap-2"><MapPin size={14} className="animate-bounce" /><span>CHYTIT: LEVEL {nearbySpawn.level}</span></div>
-                  <div className="text-[10px] opacity-80 mt-1">SPOTŘEBUJE {calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% HP</div>
-               </button>
+                <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }}>
+                   <div className="flex items-center gap-2">
+                     <MapPin size={14} className="animate-bounce" />
+                     <span>{caughtMonsters.length === 0 ? 'CHYTIT' : 'BOJOVAT'}: LEVEL {nearbySpawn.level}</span>
+                   </div>
+                   <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">
+                     {caughtMonsters.length === 0 ? `SPOTŘEBUJE ${calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% HP` : 'VZÍT SI SVÉ NEJSILNĚJŠÍ MONSTRUM'}
+                   </div>
+                </button>
              )}
           </motion.div>
         )}
@@ -520,10 +547,19 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                    <img src={`https://api.dicebear.com/7.x/${selectedOtherPlayer.avatarStyle || 'avataaars'}/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} className="size-20 bg-slate-800 rounded-2xl mb-4 border border-purple-500/30" alt="" />
                    <h3 className="text-xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
                    <p className="text-purple-400 text-xs font-black uppercase mb-6 tracking-widest">Aeternum Runner (LVL {selectedOtherPlayer.level})</p>
-                   <div className="grid grid-cols-2 gap-3 w-full">
-                      <button onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }} className="bg-purple-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter">Vyměnit</button>
-                      <button onClick={() => setSelectedOtherPlayer(null)} className="bg-slate-800 text-slate-400 font-bold py-4 rounded-xl uppercase text-xs">Zavřít</button>
-                   </div>
+                    <div className="grid grid-cols-2 gap-3 w-full">
+                       <button onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }} className="bg-purple-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter">Vyměnit</button>
+                       <button 
+                         onClick={() => { 
+                           onStartDuel?.(selectedOtherPlayer.name, selectedOtherPlayer.id); 
+                           setSelectedOtherPlayer(null); 
+                         }} 
+                         className="bg-red-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter"
+                       >
+                         Vyzvat
+                       </button>
+                       <button onClick={() => setSelectedOtherPlayer(null)} className="col-span-2 bg-slate-800 text-slate-400 font-bold py-4 rounded-xl uppercase text-xs">Zavřít</button>
+                    </div>
                 </div>
              </motion.div>
           </div>

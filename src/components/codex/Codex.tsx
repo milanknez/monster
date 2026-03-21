@@ -33,7 +33,7 @@ export const Codex = ({
   const startCrafting = (recipe: Recipe) => {
     setCraftingRecipeId(recipe.id);
     setProgress(0);
-    
+
     const duration = 3000;
     const interval = 50;
     const steps = duration / interval;
@@ -61,7 +61,7 @@ export const Codex = ({
         <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary mb-4">
           <Hammer size={32} />
         </div>
-        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Hradba Crafting</h2>
+        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Crafting</h2>
         <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-widest opacity-80">Proměň suroviny v moc</p>
       </div>
 
@@ -69,9 +69,9 @@ export const Codex = ({
         {recipes.map((recipe, idx) => {
           const ready = canCraft(recipe);
           const active = craftingRecipeId === recipe.id;
-          
+
           return (
-            <motion.div 
+            <motion.div
               key={recipe.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -80,7 +80,7 @@ export const Codex = ({
                 "group relative p-6 rounded-[2.5rem] border transition-all duration-500",
                 active ? "ring-2 ring-secondary ring-offset-4 ring-offset-background-dark scale-[1.02]" : "",
                 ready || active
-                  ? "bg-slate-900 border-secondary/40 shadow-2xl shadow-secondary/10" 
+                  ? "bg-slate-900 border-secondary/40 shadow-2xl shadow-secondary/10"
                   : "bg-slate-900/40 border-white/5 opacity-70 grayscale-[0.3]"
               )}
             >
@@ -98,14 +98,14 @@ export const Codex = ({
                   <p className="text-[11px] text-slate-400 font-bold leading-relaxed pr-8">{recipe.description}</p>
                 </div>
                 <div className="size-20 rounded-3xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 relative overflow-hidden">
-                   <div className={cn("text-5xl", active ? "animate-bounce" : "animate-pulse-slow")}>
-                      {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : '🎒'}
-                   </div>
-                   {active && (
-                     <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center">
-                        <span className="text-xs font-black text-white">{Math.floor(progress)}%</span>
-                     </div>
-                   )}
+                  <div className={cn("text-5xl", active ? "animate-bounce" : "animate-pulse-slow")}>
+                    {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : '🎒'}
+                  </div>
+                  {active && (
+                    <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center">
+                      <span className="text-xs font-black text-white">{Math.floor(progress)}%</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -114,34 +114,34 @@ export const Codex = ({
               {/* Requirements Grid */}
               {!active && (
                 <div className="space-y-4 mb-8">
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-secondary" /> Potřebné materiály
-                   </p>
-                   <div className="flex flex-wrap gap-4">
-                     {recipe.requirements.map(req => {
-                       const count = getItemCount(req.type);
-                       const ok = count >= req.count;
-                       const config = RESOURCE_CONFIG[req.type];
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary" /> Potřebné materiály
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {recipe.requirements.map(req => {
+                      const count = getItemCount(req.type);
+                      const ok = count >= req.count;
+                      const config = RESOURCE_CONFIG[req.type];
 
-                       return (
-                         <div key={req.type} className={cn(
-                           "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all truncate min-w-[140px]",
-                           ok ? "bg-emerald-500/5 border-emerald-500/20" : "bg-black/40 border-white/5"
-                         )}>
-                           <div className="size-12 bg-slate-800 rounded-xl flex items-center justify-center text-3xl shadow-inner">{config.icon}</div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-500 uppercase leading-none">{config.label}</p>
-                              <div className="flex items-center gap-1 mt-1">
-                                 <p className={cn("text-sm font-black italic", ok ? "text-emerald-500" : "text-red-500")}>
-                                   {count}
-                                 </p>
-                                 <span className="text-[10px] text-slate-700">/ {req.count}</span>
-                              </div>
-                           </div>
-                         </div>
-                       )
-                     })}
-                   </div>
+                      return (
+                        <div key={req.type} className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all truncate min-w-[140px]",
+                          ok ? "bg-emerald-500/5 border-emerald-500/20" : "bg-black/40 border-white/5"
+                        )}>
+                          <div className="size-12 bg-slate-800 rounded-xl flex items-center justify-center text-3xl shadow-inner">{config.icon}</div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase leading-none">{config.label}</p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <p className={cn("text-sm font-black italic", ok ? "text-emerald-500" : "text-red-500")}>
+                                {count}
+                              </p>
+                              <span className="text-[10px] text-slate-700">/ {req.count}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -153,7 +153,7 @@ export const Codex = ({
                     <p className="text-xs font-black text-white italic">{Math.floor(progress)}%</p>
                   </div>
                   <div className="h-4 bg-black/40 rounded-full border border-white/5 overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       className="h-full bg-gradient-to-r from-secondary to-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.5)]"
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
@@ -169,10 +169,10 @@ export const Codex = ({
                 onClick={() => startCrafting(recipe)}
                 className={cn(
                   "w-full py-5 rounded-[1.5rem] font-black uppercase text-sm tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:translate-y-1 shadow-xl",
-                  active 
+                  active
                     ? "bg-slate-800 text-slate-400 cursor-not-allowed"
-                    : ready 
-                      ? "bg-gradient-to-r from-secondary to-orange-500 text-white shadow-secondary/30" 
+                    : ready
+                      ? "bg-gradient-to-r from-secondary to-orange-500 text-white shadow-secondary/30"
                       : "bg-slate-800 text-slate-600 cursor-not-allowed grayscale"
                 )}
               >
@@ -195,9 +195,7 @@ export const Codex = ({
         })}
       </div>
 
-      <div className="mt-16 text-center">
-        <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.3em]">Hradba © 2026 Alchemy System</p>
-      </div>
+
     </div>
   )
 }

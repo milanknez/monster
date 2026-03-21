@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ResourceType, InventoryItem } from '../types'
 
-const MAX_SLOTS = 20
+const MAX_SLOTS = 16
 const MAX_STACK = 20
 
 export function useInventory() {
@@ -10,7 +10,7 @@ export function useInventory() {
       const saved = localStorage.getItem('monster_collector_inventory_v2')
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) return parsed
+        if (Array.isArray(parsed)) return parsed.slice(0, MAX_SLOTS)
       }
       // Migrate from old format (V1 was object-based or small array)
       const old = localStorage.getItem('monster_collector_inventory')

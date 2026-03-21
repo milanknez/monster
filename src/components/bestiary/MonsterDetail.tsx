@@ -1,6 +1,6 @@
 import { useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart } from 'lucide-react';
 import { cn, TYPE_COLORS } from '../../utils';
 import type { Monster } from '../../types';
 
@@ -11,8 +11,8 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void }>(
-  ({ monster, onBack, onUpgrade }, ref) => {
+export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void }>(
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion }, ref) => {
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
     
@@ -145,6 +145,86 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               </div>
             </div>
 
+            {/* HP & XP Bars */}
+            <div className="space-y-3 px-1">
+              {/* HP BAR */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-end px-1">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Energie (HP)</span>
+                    {((monster.currentHP ?? (monster.stats?.hp || 100)) < (monster.stats?.hp || 100)) && (
+                      <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase mt-1">
+                        <Clock size={10} className="text-primary/70" />
+                        <span>Plné zdraví za <span className="text-white">{(() => {
+                          const max = monster.stats?.hp || 100;
+                          const cur = monster.currentHP ?? max;
+                          const minLeft = Math.ceil((max - cur) / (max / 150));
+                          const h = Math.floor(minLeft / 60);
+                          const m = minLeft % 60;
+                          return h > 0 ? `${h}h ${m}m` : `${m}m`;
+                        })()}</span></span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-black text-white tabular-nums">{Math.round(monster.currentHP ?? (monster.stats?.hp || 100))} / {monster.stats?.hp || 100}</span>
+                </div>
+                <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((monster.currentHP ?? (monster.stats?.hp || 100)) / (monster.stats?.hp || 100)) * 100}%` }}
+                    className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" 
+                  />
+                </div>
+              </div>
+
+
+              {/* HEALING SECTION */}
+              {((monster.currentHP ?? (monster.stats?.hp || 100)) < (monster.stats?.hp || 100)) && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                       <Package size={14} className="text-emerald-500" />
+                       <span className="text-[10px] font-black text-white uppercase tracking-widest">Rychlé Léčení</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {inventory?.filter(i => i?.type === 'hp_potion' && i?.count > 0).map(item => (
+                      <motion.button
+                        key={item?.type}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => item?.type && onUsePotion?.(item.type)}
+                        className="flex-shrink-0 px-4 py-2 bg-emerald-600 rounded-xl flex items-center gap-3 border-b-2 border-black/20"
+                      >
+                        <div className="size-6 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Plus size={14} className="text-white" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-[10px] font-black text-white leading-none uppercase">Lektvar HP</p>
+                          <p className="text-[8px] font-bold text-emerald-200 mt-0.5">{item?.count} ks v batohu</p>
+                        </div>
+                      </motion.button>
+                    ))}
+                    {(!inventory || inventory.filter(i => i?.type === 'hp_potion' && i?.count > 0).length === 0) && (
+                      <p className="text-[9px] text-slate-500 font-bold uppercase italic p-2 w-full text-center">Nemáš žádné léčivé lektvary</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-end px-1">
+                  <span className="text-[8px] font-black text-primary uppercase tracking-widest">Zkušenosti (XP)</span>
+                  <span className="text-[10px] font-black text-white tabular-nums">{Math.round(monster.totalXP || 0)} / {monster.level * 250}</span>
+                </div>
+                <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((monster.totalXP || 0) / (monster.level * 250)) * 100}%` }}
+                    className="h-full bg-primary rounded-full shadow-[0_0_10px_#0db9f2]" 
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* The "Scroll" Text Area */}
             <div className="bg-slate-950/60 backdrop-blur-lg rounded-[1.5rem] border-2 border-white/5 p-5 text-slate-100 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
                {/* Subtle Texture Overlay */}
@@ -190,18 +270,18 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
             </div>
 
             {/* Bottom Indicators */}
-            <div className="flex justify-around items-center pt-2 pb-1">
-               {[
-                 { k: 'ÚTOK', v: monster.level * 5, c: 'text-primary' },
-                 { k: 'RYCHLOST', v: monster.level * 3, c: 'text-secondary' },
-                 { k: 'ENERGIE', v: 100 - (monster.level * 2), c: 'text-purple-400' }
-               ].map(s => (
-                 <div key={s.k} className="text-center px-4">
-                   <p className="text-[7px] font-black text-slate-500 uppercase tracking-tighter">{s.k}</p>
-                   <p className={cn("text-lg font-black", s.c)}>{s.v}</p>
-                 </div>
-               ))}
-            </div>
+             <div className="flex justify-around items-center pt-2 pb-1">
+                {[
+                  { k: 'HP', v: monster.currentHP !== undefined ? Math.round(monster.currentHP) : (monster.stats?.hp || 100), c: 'text-emerald-500' },
+                  { k: 'ÚTOK', v: monster.stats?.attack || 50, c: 'text-primary' },
+                  { k: 'OBRANA', v: monster.stats?.defense || 30, c: 'text-secondary' }
+                ].map(s => (
+                  <div key={s.k} className="text-center px-4">
+                    <p className="text-[7px] font-black text-slate-500 uppercase tracking-tighter">{s.k}</p>
+                    <p className={cn("text-lg font-black", s.c)}>{s.v}</p>
+                  </div>
+                ))}
+             </div>
           </div>
         </div>
 
