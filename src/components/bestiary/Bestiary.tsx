@@ -191,9 +191,23 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none">
                     <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{m.name}</p>
                     <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", RARITY_COLORS[m.rarity])}>{m.rarity}</p>
-                    <div className="flex gap-1 mt-1.5">
-                      <div className={cn("h-1 w-8 rounded-full", colors.bg.replace('/10', ''))}></div>
-                      <div className="h-1 w-4 rounded-full bg-white/20"></div>
+                    
+                    {/* Capacity indicators (3 squares) */}
+                    <div className="flex gap-1.5 mt-2">
+                       {(() => {
+                         const count = caughtMonsters.filter(cm => cm.id === m.id).length;
+                         return [0, 1, 2].map(i => (
+                           <div 
+                             key={i} 
+                             className={cn(
+                               "size-2.5 rounded-sm border-t border-x transition-all duration-700",
+                               i < count 
+                                 ? cn(colors.bg.replace('/10', ''), colors.border.replace('/30', 'border-white/40'), "shadow-[0_0_8px_rgba(255,255,255,0.2)]")
+                                 : "bg-slate-950 border-white/5"
+                             )}
+                           />
+                         ));
+                       })()}
                     </div>
                   </div>
                 </>
@@ -201,6 +215,13 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                 <div className="flex flex-col items-center justify-center size-full gap-2 opacity-50 pointer-events-none">
                   <Lock size={32} className="text-slate-600" />
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Neznámý</p>
+                  
+                  {/* Capacity indicator for unknown monster (0/3) */}
+                  <div className="flex gap-1 mt-1">
+                    {[0, 1, 2].map(i => (
+                      <div key={i} className="size-2 rounded-sm border bg-white/5 border-white/10" />
+                    ))}
+                  </div>
                 </div>
               )}
             </motion.div>

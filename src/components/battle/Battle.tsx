@@ -19,6 +19,40 @@ interface LootItem {
   collected: boolean;
 }
 
+const getFinalStats = (m: Monster) => {
+  const stats = {
+    atk: m.stats?.attack || 10,
+    def: m.stats?.defense || 10,
+    hp: m.stats?.hp || 100
+  };
+
+  const levelBonus = (val: number) => Math.floor(val * (m.level - 1) * 0.15);
+  
+  const getGemBonus = (baseVal: number, type: string) => {
+    if (!m.gems) return 0;
+    const targetPrefix = type === 'atk' ? 'gem_red' : type === 'def' ? 'gem_white' : 'gem_green';
+    return m.gems.reduce((total, gemId) => {
+      if (gemId?.startsWith(targetPrefix)) {
+        const g = GEM_BONUSES[gemId];
+        if (g) return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
+      }
+      return total;
+    }, 0);
+  };
+
+  const bonuses = {
+    atk: levelBonus(stats.atk) + getGemBonus(stats.atk, 'atk'),
+    def: levelBonus(stats.def) + getGemBonus(stats.def, 'def'),
+    hp: levelBonus(stats.hp) + getGemBonus(stats.hp, 'hp')
+  };
+
+  return { base: stats, bonuses, total: {
+    atk: stats.atk + bonuses.atk,
+    def: stats.def + bonuses.def,
+    hp: stats.hp + bonuses.hp
+  }};
+};
+
 export const Battle = ({
   playerMonster,
   enemyMonster,
@@ -416,8 +450,26 @@ export const Battle = ({
             <div className="h-2.5 bg-black/60 rounded-full overflow-hidden border border-white/5 p-0.5 relative">
               <motion.div animate={{ width: `${(enemyHP / enemyMaxHP) * 100}%` }} className={cn("h-full rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]")} />
               <div className="absolute inset-0 flex items-center justify-center">
-                 <span className="text-[8px] font-black text-white drop-shadow-md">{Math.round(enemyHP)} / {enemyMaxHP} HP</span>
+                 <span className="text-[8px] font-black text-white drop-shadow-md">{Math.round(enemyHP)} / {getFinalStats(enemyMonster).total.hp} HP</span>
               </div>
+            </div>
+            {/* Enemy Stats Row */}
+            <div className="flex gap-4 mt-2 px-1">
+               {(() => {
+                 const s = getFinalStats(enemyMonster);
+                 return (
+                   <>
+                     <div className="flex items-center gap-1">
+                        <Sword size={10} className="text-red-400" />
+                        <span className="text-[10px] font-black text-white">{s.base.atk}<span className="text-red-400">+{s.bonuses.atk}</span></span>
+                     </div>
+                     <div className="flex items-center gap-1">
+                        <ShieldIcon size={10} className="text-blue-400" />
+                        <span className="text-[10px] font-black text-white">{s.base.def}<span className="text-blue-400">+{s.bonuses.def}</span></span>
+                     </div>
+                   </>
+                 )
+               })()}
             </div>
           </div>
           <div className="relative flex justify-center items-center">
@@ -479,6 +531,24 @@ export const Battle = ({
             </div>
             <div className="h-1.5 bg-black/80 rounded-full overflow-hidden flex border border-white/5">
                <motion.div animate={{ width: `${playerEnergy}%` }} className="h-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" />
+            </div>
+            {/* Player Stats Row */}
+            <div className="flex gap-4 mt-3 px-1">
+               {(() => {
+                 const s = getFinalStats(playerMonster);
+                 return (
+                   <>
+                     <div className="flex items-center gap-1">
+                        <Sword size={10} className="text-red-400" />
+                        <span className="text-[10px] font-black text-white">{s.base.atk}<span className="text-red-400">+{s.bonuses.atk}</span></span>
+                     </div>
+                     <div className="flex items-center gap-1">
+                        <ShieldIcon size={10} className="text-blue-400" />
+                        <span className="text-[10px] font-black text-white">{s.base.def}<span className="text-blue-400">+{s.bonuses.def}</span></span>
+                     </div>
+                   </>
+                 )
+               })()}
             </div>
           </div>
         </div>

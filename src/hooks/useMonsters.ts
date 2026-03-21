@@ -19,29 +19,50 @@ export function useMonsters(addToast: (toast: any) => void) {
     } catch { return [] }
   })
 
-  // Passive Regeneration
+  // Passive & Offline Regeneration
   useEffect(() => {
-    const regenInterval = setInterval(() => {
-      setCaughtMonsters(prev => {
-        let changed = false;
-        const updated = prev.map(m => {
-          const maxHP = m.stats?.hp || 100;
-          if ((m.currentHP || 0) < maxHP) {
-            changed = true;
-            // 150 mins for 100% heal. 
-            // In 2 mins (interval), heal 1.33% = maxHP / 75
-            return {
-              ...m,
-              currentHP: Math.min(maxHP, (m.currentHP || 0) + (maxHP / 75))
-            };
-          }
-          return m;
+    const applyRegen = () => {
+      const now = Date.now();
+      const lastStr = localStorage.getItem('monster_collector_regen_last');
+      const last = lastStr ? Number(lastStr) : now;
+      const diffMs = now - last;
+      
+      // If at least 5 seconds passed, we can apply some healing
+      if (diffMs > 5000) {
+        const minsPassed = diffMs / 60000;
+        
+        setCaughtMonsters(prev => {
+          let hasHealed = false;
+          const updated = prev.map(m => {
+            const maxHP = m.stats?.hp || 100;
+            const current = m.currentHP ?? maxHP;
+            
+            if (current < maxHP) {
+              hasHealed = true;
+              // 2% of maxHP per minute (full heal in 50 minutes)
+              const healPerMin = maxHP * 0.02;
+              const totalHeal = healPerMin * minsPassed;
+              return {
+                ...m,
+                currentHP: Math.min(maxHP, current + totalHeal)
+              };
+            }
+            return m;
+          });
+          return hasHealed ? updated : prev;
         });
-        return changed ? updated : prev;
-      });
-    }, 120000); // 2 minutes
+        localStorage.setItem('monster_collector_regen_last', now.toString());
+      } else if (!lastStr) {
+        localStorage.setItem('monster_collector_regen_last', now.toString());
+      }
+    };
 
-    return () => clearInterval(regenInterval);
+    // Run immediately on load to catch up
+    applyRegen();
+
+    // Set up more frequent interval for smoother visual feedback
+    const interval = setInterval(applyRegen, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   // Save to LocalStorage

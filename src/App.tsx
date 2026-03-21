@@ -540,12 +540,23 @@ function App() {
                 }
               }}
               onRelease={() => {
-                 const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                 if (idx !== -1) {
-                    removeMonster(selectedMonster.id, idx);
-                    setSelectedMonster(null);
-                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
-                 }
+                const idx = caughtMonsters.findIndex(m => 
+                  ((m as any).caughtAt === (selectedMonster as any).caughtAt) && 
+                  (m.id === selectedMonster.id)
+                );
+                if (idx !== -1) {
+                  removeMonster(selectedMonster.id, idx);
+                  setSelectedMonster(null);
+                  addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
+                } else {
+                   // Fallback if caughtAt is missing for some reason
+                   const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
+                   if (fallbackIdx !== -1) {
+                      removeMonster(selectedMonster.id, fallbackIdx);
+                      setSelectedMonster(null);
+                      addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
+                   }
+                }
               }}
             />
           ) : (
@@ -681,6 +692,7 @@ function App() {
             onClose={() => setNewMonster(null)}
             onAdd={() => setNewMonster(null)}
             isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+            isStackFull={caughtMonsters.filter(m => m.id === newMonster.id).length >= 3}
           />
         )}
 
