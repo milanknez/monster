@@ -1,7 +1,7 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical } from 'lucide-react';
-import { cn, TYPE_COLORS, GEM_BONUSES, getMonsterMaxHP } from '../../utils';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, HelpCircle, Info } from 'lucide-react';
+import { cn, TYPE_COLORS, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP } from '../../utils';
 import { RESOURCE_CONFIG } from '../../components/map/mapUtils';
 import type { Monster } from '../../types';
 
@@ -15,6 +15,7 @@ const RARITY_COLORS: Record<string, string> = {
 export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void; onEquipGem?: (idx: number, gemType: string | null) => void; onRelease?: () => void }>(
   ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onRelease }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
+  const [showMultiplierInfo, setShowMultiplierInfo] = useState(false);
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
     if (!monster) return null;
@@ -240,7 +241,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                 {/* Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
                 <div className="relative z-10 space-y-6 px-1">
                   
-                {/* Stats Grid Visualization (3-Column Layout with Rarity-Specific Max) */}
+                {/* Stats Grid Visualization */}
                 <div className="relative z-10 py-5 px-1 grid grid-cols-3 gap-3 border-b border-white/5">
                   {[
                     { label: 'Útok', key: 'attack', base: monster.stats?.attack || 10, icon: <Sword size={12} />, type: 'gem_red', marker: 'bg-blue-500' },
@@ -258,46 +259,30 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                     const totalBonus = levelBonus + gemBonus;
                     const totalVal = s.base + totalBonus;
                     
-                    // Rarity-Specific Max Caps (based on base stats + buffer)
-                    const r = monster.rarity?.toLowerCase() || 'běžná';
-                    const isB = r === 'běžná' || r === 'common';
-                    const isV = r === 'vzácná' || r === 'rare';
-                    const isE = r === 'epická' || r === 'epic';
-                    
-                    const caps = s.key === 'hp' 
-                      ? (isB ? 150 : isV ? 250 : isE ? 500 : 1050)
-                      : s.key === 'attack'
-                        ? (isB ? 60 : isV ? 100 : isE ? 200 : 420)
-                        : (isB ? 25 : isV ? 45 : isE ? 80 : 130);
-                    
-                    const percentage = Math.min(100, (s.base / caps) * 100);
+                    const caps = s.key === 'hp' ? 1000 : s.key === 'attack' ? 400 : 120;
+                    const percentage = Math.min(100, (totalVal / caps) * 100);
 
                     return (
-                      <div key={i} className="flex flex-col bg-white/5 border border-white/5 rounded-2xl p-3 relative overflow-hidden group hover:bg-white/[0.08] transition-colors">
+                      <div key={i} className="flex flex-col bg-white/5 border border-white/5 rounded-2xl p-3 relative overflow-hidden group hover:bg-white/[0.08] transition-colors shadow-lg">
                         <div className="flex flex-col items-center mb-1">
                            <div className="text-white/30 mb-1">{s.icon}</div>
                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">{s.label}</span>
                         </div>
-                        <div className="text-center py-1">
-                           <span className="text-xl font-black text-white italic tracking-tighter drop-shadow-lg">{totalVal}</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-1 opacity-60">
-                           <span className="text-[9px] font-bold text-slate-400">{s.base}</span>
-                           <span className="text-[9px] font-black text-emerald-400">+{totalBonus}</span>
+                        <div className="text-center relative z-10">
+                          <p className="text-sm font-black text-white italic tracking-tighter leading-none">{totalVal}</p>
+                          <p className="text-[7px] font-black text-emerald-400 mt-0.5">+{totalBonus}</p>
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/[0.03]">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percentage}%` }}
-                            className={cn("h-full", s.marker)}
-                          />
+                           <motion.div 
+                             initial={{ width: 0 }}
+                             animate={{ width: `${percentage}%` }}
+                             className={cn("h-full", s.marker)}
+                           />
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
-
-
 
                 <div className="h-px bg-white/5 w-full mt-2" />
 
@@ -337,6 +322,67 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                   <p className="text-sm text-slate-300 italic leading-relaxed font-bold tracking-tight mb-6">
                     "{monster.description || "O této příšerce zatím kolují jen legendy v zapomenutých sektorech..."}"
                   </p>
+
+                  {/* Elemental Insights (Relocated) */}
+                  {(() => {
+                    const match = TYPE_MATCHUP[monster.type];
+                    if (!match) return null;
+                    
+                    const getTypeIcon = (type: string) => {
+                      switch (type) {
+                        case 'Ohnivá': return <Flame size={12} className="text-red-500" />;
+                        case 'Vodní': return <Droplets size={12} className="text-blue-400" />;
+                        case 'Přírodní': return <Leaf size={12} className="text-green-400" />;
+                        case 'Elektrická': return <Zap size={12} className="text-yellow-400" />;
+                        default: return <Sparkles size={12} className="text-slate-400" />;
+                      }
+                    };
+
+                    return (
+                      <div className="grid grid-cols-2 gap-4 bg-white/[0.03] border border-white/5 rounded-3xl p-4 shadow-xl mb-6">
+                        <div className="flex flex-col gap-2">
+                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Silný Proti</p>
+                          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-2xl relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent" />
+                            <div className="size-6 bg-emerald-500/20 rounded-lg flex items-center justify-center relative z-10">
+                              {getTypeIcon(match.strong)}
+                            </div>
+                            <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate relative z-10">{match.strong}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Slabý Proti</p>
+                          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 p-2.5 rounded-2xl relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent" />
+                            <div className="size-6 bg-red-500/20 rounded-lg flex items-center justify-center relative z-10">
+                              {getTypeIcon(match.weak)}
+                            </div>
+                            <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate relative z-10">{match.weak}</span>
+                          </div>
+                        </div>
+                        <div className="col-span-2 pt-2 border-t border-white/5 mt-1 flex flex-col gap-1.5">
+                           <div className="flex items-center gap-2 px-1">
+                              <div className="size-1.5 rounded-full bg-primary/40 shrink-0" />
+                              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-tight">
+                                 Schopnost: <span className="text-primary italic font-black">{match.effect}</span>
+                                 <span className="text-slate-600 lowercase font-bold ml-1 tracking-tight">
+                                    {monster.type === 'Ohnivá' && "— zapálí soupeře (-5% HP/tah)"}
+                                    {monster.type === 'Přírodní' && "— léčí 10% poškození při výhodě"}
+                                    {monster.type === 'Vodní' && "— zpomalí útok soupeře o 30%"}
+                                    {monster.type === 'Elektrická' && "— ochromí soupeře (šance na skip tahu)"}
+                                 </span>
+                              </p>
+                           </div>
+                           <div className="flex items-center gap-1.5 px-1 opacity-50">
+                              <Info size={8} className="text-slate-500" />
+                              <p className="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">
+                                 Výhoda: <span className="text-emerald-500">1.3x dmg (30% šance)</span> | Nevýhoda: <span className="text-red-500">0.7x dmg</span>
+                              </p>
+                           </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Universal Square Gem Sockets */}

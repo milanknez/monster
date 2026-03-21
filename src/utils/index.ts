@@ -65,3 +65,13 @@ export const getMonsterMaxHP = (monster: any) => {
   }, 0);
   return base + levelBonus + gemBonus;
 };
+
+export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect: string }> = {
+  'Ohnivá': { strong: 'Přírodní', weak: 'Vodní', effect: 'BURN' },
+  'Přírodní': { strong: 'Vodní', weak: 'Ohnivá', effect: 'REGEN' },
+  'Vodní': { strong: 'Ohnivá', weak: 'Elektrická', effect: 'SLOW' },
+  'Elektrická': { strong: 'Přírodní', weak: 'Ohnivá', effect: 'PARALYZE' }
+};
+
+export const ADVANTAGE_MULT = 1.3;
+export const WEAKNESS_MULT = 0.7;
