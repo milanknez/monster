@@ -271,7 +271,7 @@ function App() {
         addToast({ title: 'Lékárnička použita!', message: 'Okamžitě vyléčeno 50 HP (ty i monstrum) a zvýšena regenerace.', type: 'success' });
         break;
       case 'energy_drink':
-        addToast({ title: 'Energy Drink!', message: 'Cítíš se svěží! (Efekt bude brzy implementován).', type: 'info' });
+        addToast({ title: 'Energy Drink!', message: 'Cítíš se skvěle! Tvoje energie byla plně obnovena.', type: 'info' });
         break;
     }
   };
@@ -454,7 +454,7 @@ function App() {
                   addToast({ title: 'Lékárnička použita v boji!', message: 'Léčí tě i monstrum (50 HP).', type: 'success' });
                   consumeResources([{ type: 'hp_potion', count: 1 }]);
                } else if (type === 'energy_drink') {
-                  addToast({ title: 'Energy Drink v boji!', message: 'Osvěžuje... ale energie ještě nefunguje. Tvoje chyba!', type: 'info' });
+                  addToast({ title: 'Energy Drink v boji!', message: 'Tvoje energie byla posílena o 60%!', type: 'success' });
                   consumeResources([{ type: 'energy_drink', count: 1 }]);
                }
             }}

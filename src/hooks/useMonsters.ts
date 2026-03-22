@@ -12,8 +12,12 @@ export function useMonsters(addToast: (toast: any) => void) {
         // Ensure stats and HP exist on load
         return parsed.map((m: any) => {
           const max = getMonsterMaxHP(m);
+          // Restore missing abilities and original stats from DB if corrupted or legacy
+          // Using String() comparison to be robust against numeric IDs
+          const dbData = monsterDB.find(d => String(d.id) === String(m.id));
           return {
             ...m,
+            abilities: (m.abilities && m.abilities.length > 0) ? m.abilities : (dbData?.abilities || []),
             totalXP: m.totalXP || 0,
             currentHP: m.currentHP !== undefined ? Math.min(max, m.currentHP) : max
           }

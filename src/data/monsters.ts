@@ -30,22 +30,6 @@ import monster029 from './monsters/029.json';
 import monster030 from './monsters/030.json';
 
 export const monsterDB = [
-  monster030,
-  monster029,
-  monster028,
-  monster027,
-  monster026,
-  monster025,
-  monster024,
-  monster023,
-  monster022,
-  monster021,
-  monster020,
-  monster019,
-  monster018,
-  monster017,
-  monster016,
-  monster015,
   monster001,
   monster002,
   monster003,
@@ -59,7 +43,23 @@ export const monsterDB = [
   monster011,
   monster012,
   monster013,
-  monster014
+  monster014,
+  monster015,
+  monster016,
+  monster017,
+  monster018,
+  monster019,
+  monster020,
+  monster021,
+  monster022,
+  monster023,
+  monster024,
+  monster025,
+  monster026,
+  monster027,
+  monster028,
+  monster029,
+  monster030
 ];
 
 export type MonsterData = typeof monster001;
