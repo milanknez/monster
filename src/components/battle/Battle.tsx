@@ -222,6 +222,11 @@ export const Battle = ({
     setTimeout(() => setPopups(prev => prev.filter(item => item.id !== p.id)), 1200); 
   };
 
+  const npcAttackTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (turn === 'player') npcAttackTriggeredRef.current = false;
+  }, [turn]);
+
   const handleSendEmote = (emote: string) => {
     setOutgoingEmote(emote);
     onSendEmote?.(emote);
@@ -318,7 +323,8 @@ export const Battle = ({
   const loadMonsterHP = () => { if (playerHP <= 0) onLose(); };
 
   useEffect(() => {
-    if (turn === 'enemy' && enemyHP > 0 && playerHP > 0 && !pvpRole) {
+    if (turn === 'enemy' && enemyHP > 0 && playerHP > 0 && !pvpRole && !npcAttackTriggeredRef.current) {
+      npcAttackTriggeredRef.current = true;
       const timer = setTimeout(() => {
         if (enemyEffects.some(e => e.type === 'paralyze')) {
            addLog(`${enemyMonster.name} je ochromen a nemůže útočit!`);
