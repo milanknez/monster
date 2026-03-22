@@ -12,10 +12,10 @@
   "abilities": [
     {
       "name": "Rychlé kousnutí",
-      "description": "Mazlík Hegeš rychle zaútočí a způsobí menší poškození.",
-      "type": "extra",
+      "description": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
+      "type": "attack",
       "chance": 65,
-      "value": 0.35
+      "value": 1.4
     },
     {
       "name": "Zmatený úprk",
