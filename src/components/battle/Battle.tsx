@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import type { Monster } from '../../types';
 import { cn, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
+import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { LootModal, type LootItem } from './LootModal';
 
 // --- Types ---
 interface DamagePopup {
@@ -19,13 +21,6 @@ interface DamagePopup {
   isWeak: boolean;
   isHeal?: boolean;
   isPlayerSide?: boolean;
-}
-
-interface LootItem {
-  id: string;
-  type: string;
-  count: number;
-  collected: boolean;
 }
 
 interface StatusEffect {
@@ -212,7 +207,6 @@ export const Battle = ({
   const [playerEffects, setPlayerEffects] = useState<StatusEffect[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
   const [winXP, setWinXP] = useState<number>(0);
-  const [timeLeft, setTimeLeft] = useState<number>(40);
 
   const addLog = (msg: string) => setLogs(p => [msg, ...p].slice(0, 3));
   const triggerShake = (isHeavy = false) => { setScreenShake(true); if (isHeavy) { setShowFlash(true); setTimeout(() => setShowFlash(false), 80); } setTimeout(() => setScreenShake(false), 300); };
@@ -265,7 +259,6 @@ export const Battle = ({
   }, [playerMonster, shieldTurns, enemyShieldTurns]);
 
   const executeAttack = (abilityIdx: number = -1) => {
-    console.log("Execute Attack called", { turn, playerAnim, abilityIdx });
     if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0) return;
     const isSkill = abilityIdx >= 0;
     const ability = isSkill ? playerMonster.abilities?.[abilityIdx] : null;
@@ -300,19 +293,18 @@ export const Battle = ({
         setEnemyAnim('idle'); setPlayerAnim('idle');
         if (enemyHP - dmg <= 0) { setEnemyAnim('lose'); setPlayerAnim('win'); setWinXP(80 + enemyMonster.level * 15); const types = ['crystal', 'herb', 'mineral', 'energy']; setLoot([...Array(Math.floor(Math.random() * 2) + 1)].map(() => ({ id: Math.random().toString(), type: types[Math.floor(Math.random() * types.length)], count: Math.floor(Math.random() * 3) + 1, collected: false }))); setTimeout(() => setShowLoot(true), 1200); }
         else setTurn('enemy');
-      }, 400); loadMonsterHP();
+      }, 400);
     }, 400);
   };
 
   const executeCatch = () => {
-    console.log("Execute Catch called", { turn, playerAnim });
     if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0) return;
     setTurn('enemy'); setCatchAnim(true);
     setTimeout(() => {
        const chance = 0.9 - (enemyHP / enemyMaxHP) * 0.89;
        const success = Math.random() < chance;
        if (success) { 
-          setEnemyAnim('win'); // Using win anim to vanish 
+          setEnemyAnim('win');
           setTimeout(() => onCatch?.(enemyMonster), 1000); 
        } else { 
           setCatchAnim(false); 
@@ -321,8 +313,6 @@ export const Battle = ({
        }
     }, 1500);
   };
-
-  const loadMonsterHP = () => { if (playerHP <= 0) onLose(); };
 
   useEffect(() => {
     if (turn === 'enemy' && enemyHP > 0 && playerHP > 0 && !pvpRole && !npcAttackTriggeredRef.current) {
@@ -518,7 +508,7 @@ export const Battle = ({
                   </motion.div>
                 )}
              </div>
-         </div>
+          </div>
       </div>
 
       {/* CONTROL PANEL */}
@@ -663,7 +653,7 @@ export const Battle = ({
            ) : (
               <motion.button 
                 whileTap={{ scale: 0.94, y: 4 }} 
-                onClick={() => { console.log("Shield click"); if(turn === 'player') { setShieldTurns(2); setPlayerEnergy(p => Math.min(100, p + 10)); setTurn('enemy'); if(pvpRole && onSendAttack) onSendAttack({ dmg: 0, isCrit: false, isSkill: false, isEffective: false, isWeak: false, isShield: true }); } }} 
+                onClick={() => { if(turn === 'player') { setShieldTurns(2); setPlayerEnergy(p => Math.min(100, p + 10)); setTurn('enemy'); if(pvpRole && onSendAttack) onSendAttack({ dmg: 0, isCrit: false, isSkill: false, isEffective: false, isWeak: false, isShield: true }); } }} 
                 disabled={turn !== 'player' || playerAnim !== 'idle' || shieldTurns > 0} 
                 className={cn(
                   "col-span-1 h-16 rounded-xl flex flex-col items-center justify-center border transition-all shadow-xl relative z-[7001]", 
@@ -683,26 +673,17 @@ export const Battle = ({
       </div>
 
       {/* WIN MODAL */}
-      <AnimatePresence>
-        {showLoot && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-3xl px-10">
-            <motion.div initial={{ scale: 0.7, opacity: 0, y: 50 }} animate={{ scale: 1, opacity: 1, y: 0 }} className="w-full max-w-sm bg-slate-900 border-2 border-primary/30 rounded-[3rem] p-10 text-center shadow-[0_20px_60px_rgba(0,0,0,1)]">
-              <Trophy size={60} className="text-primary mx-auto mb-6 drop-shadow-[0_0_25px_#0db9f2]" />
-              <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">VÍTĚZSTVÍ!</h2>
-              <div className="relative mb-12 flex justify-center h-32">
-                {!isChestOpened ? (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsChestOpened(true)} className="cursor-pointer"><div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" /><Package size={100} className="text-primary relative z-10" /><p className="mt-4 text-[10px] font-black text-primary animate-pulse uppercase">Klikni k otevření</p></motion.div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3 w-full">
-                    <AnimatePresence>{loot.map(i => !i.collected && (<motion.div key={i.id} initial={{ scale: 0, y: 20 }} animate={{ scale: 1, y: 0 }} onClick={() => setLoot(p => p.map(x => x.id === i.id ? { ...x, collected: true } : x))} className="bg-slate-800/80 border border-white/10 rounded-2xl p-4 cursor-pointer relative shadow-xl"><span className="absolute -top-1 -right-1 bg-primary text-black text-[11px] font-black size-6 rounded-full flex items-center justify-center">{i.count}</span><span className="text-[10px] font-black text-white uppercase truncate block mb-1">{i.type}</span><Sparkles size={14} className="text-primary mx-auto" /></motion.div>))}</AnimatePresence>
-                    {loot.every(l => l.collected) && <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onClick={() => onWin(winXP, loot)} className="col-span-2 py-5 mt-6 bg-primary text-black font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">Pokračovat <ChevronRight size={20} /></motion.button>}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <LootModal 
+        isOpen={showLoot}
+        loot={loot}
+        winXP={winXP}
+        isChestOpened={isChestOpened}
+        onOpenChest={() => setIsChestOpened(true)}
+        onCollect={(id) => setLoot(p => p.map(x => x.id === id ? { ...x, collected: true } : x))}
+        onComplete={() => onWin(winXP, loot)}
+      />
     </motion.div>
   );
 };
+
+export default Battle;
