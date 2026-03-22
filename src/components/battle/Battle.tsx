@@ -301,7 +301,8 @@ export const Battle = ({
     if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0) return;
     setTurn('enemy'); setCatchAnim(true);
     setTimeout(() => {
-       const chance = 0.9 - (enemyHP / enemyMaxHP) * 0.89;
+       const hpRatio = enemyHP / enemyMaxHP;
+       const chance = Math.min(0.95, 0.95 * Math.pow(1 - hpRatio, 2.6));
        const success = Math.random() < chance;
        if (success) { 
           setEnemyAnim('win');
@@ -647,7 +648,7 @@ export const Battle = ({
                 </div>
                 <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
                    <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
-                   <span className="text-[8px] font-bold opacity-60">{Math.max(1, Math.round((0.9 - (enemyHP/enemyMaxHP)*0.89)*100))}%</span>
+                   <span className="text-[8px] font-bold opacity-60">{Math.max(1, Math.round(Math.min(0.95, 0.95 * Math.pow(1 - (enemyHP / enemyMaxHP), 2.6)) * 100))}%</span>
                 </div>
               </motion.button>
            ) : (
