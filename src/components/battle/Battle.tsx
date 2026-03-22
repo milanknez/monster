@@ -272,6 +272,7 @@ export const Battle = ({
     const cost = isSkill ? (ability?.type === 'attack' ? 50 : 30) : 0;
     if (isSkill && playerEnergy < cost) return;
     setShowSkills(false);
+    setShowItems(false);
     setPlayerAnim('attack');
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
     setTimeout(() => {
@@ -605,9 +606,15 @@ export const Battle = ({
                       ) : (
                         inventory?.filter(i => ['hp_potion', 'energy_drink'].includes(i.type)).map(i => (
                           <button key={i.type} onClick={() => { 
-                             if (i.type === 'energy_drink') setPlayerEnergy(p => Math.min(100, p + 60));
+                             if (i.type === 'energy_drink') { setPlayerEnergy(p => Math.min(100, p + 60)); addPopup(60, false, { isHeal: true }); }
+                             if (i.type === 'hp_potion') { 
+                               const h = Math.round(playerMaxHP * 0.5); 
+                               setPlayerHP(p => Math.min(playerMaxHP, p + h)); 
+                               addPopup(h, false, { isHeal: true }); 
+                             }
                              onUseItem?.(i.type); 
                              setShowItems(false); 
+                             setShowSkills(false); 
                              setTurn('enemy'); 
                           }} className="flex justify-between items-center p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[10px] font-bold text-white uppercase hover:bg-blue-500/10 transition-colors">
                             <span>{i.type.replace('_', ' ')}</span>
