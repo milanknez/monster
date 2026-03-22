@@ -271,6 +271,7 @@ export const Battle = ({
     const ability = isSkill ? playerMonster.abilities?.[abilityIdx] : null;
     const cost = isSkill ? (ability?.type === 'attack' ? 50 : 30) : 0;
     if (isSkill && playerEnergy < cost) return;
+    setShowSkills(false);
     setPlayerAnim('attack');
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
     setTimeout(() => {
