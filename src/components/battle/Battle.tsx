@@ -181,7 +181,7 @@ export const Battle = ({
 
   // --- Turn Timer ---
   useEffect(() => {
-    if (showLoot) return;
+    if (showLoot || playerAnim !== 'idle' || enemyAnim !== 'idle') return;
     const timer = setInterval(() => {
       setTurnTime(prev => {
         if (prev <= 1) {
@@ -195,7 +195,7 @@ export const Battle = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [showLoot, turn]);
+  }, [showLoot, turn, playerAnim, enemyAnim]);
 
   useEffect(() => {
     setTurnTime(50);
@@ -338,7 +338,7 @@ export const Battle = ({
             setEnemyAnim('idle'); setPlayerAnim('idle'); if (playerHP - res.dmg <= 0) { setPlayerAnim('lose'); setTimeout(onLose, 1200); } else setTurn('player');
           }, 400);
         }, 400);
-      }, 1000); return () => clearTimeout(timer);
+      }, 3000); return () => clearTimeout(timer);
     }
   }, [turn, enemyHP, playerHP, calculateDamage, enemyMonster, playerMonster, onLose, shieldTurns, enemyShieldTurns, pvpRole, enemyMaxHP, enemyEffects]);
 
@@ -638,11 +638,11 @@ export const Battle = ({
                 )}
               >
                 <div className="relative">
-                  <Star size={20} className="text-amber-400 animate-spin-slow drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" />
-                  <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-150" />
+                  <Aperture size={20} className="text-amber-400 animate-spin-slow drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" />
+                  <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-110" />
                 </div>
-                <div className="flex flex-col items-center leading-none mt-1">
-                   <span className="text-[9px] font-black uppercase">Vzít</span>
+                <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
+                   <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
                    <span className="text-[8px] font-bold opacity-60">{Math.max(1, Math.round((0.9 - (enemyHP/enemyMaxHP)*0.89)*100))}%</span>
                 </div>
               </motion.button>

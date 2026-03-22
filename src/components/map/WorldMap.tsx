@@ -72,7 +72,7 @@ export interface WorldMapProps {
 const CATCH_RADIUS_M = 15
 const COMMON_GRID_M = 100
 const COMMON_RADIUS_CELLS = 8
-const OVERPASS_RADIUS_M = 3000
+const OVERPASS_RADIUS_M = 1500
 const RESPAWN_COOLDOWN_MS = 10 * 60 * 1000
 
 type Cooldowns = Record<string, number>
@@ -284,6 +284,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const lastPosRef = useRef<[number, number] | null>(null)
   const lastPosTimeRef = useRef<number | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
+  const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
@@ -300,6 +301,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
+  const [isAutoCenter, setIsAutoCenter] = useState(true)
 
   useImperativeHandle(ref, () => ({
     centerOnPlayer: () => {
@@ -461,8 +463,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       setSpawns(prev => {
         const commons = prev.filter(p => p.rarity === 'common')
         const poiMap = new Map<string, SpawnPoint>()
-        // Zachovat POI z jiných oblastí, které už máme
-        prev.filter(p => p.rarity !== 'common').forEach(p => poiMap.set(p.id, p))
+        // Zachovat POI z okolí, ostatní pryč (vyřeší "cache" problém při cestování)
+        prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => poiMap.set(p.id, p))
         poiMonsters.forEach(p => poiMap.set(p.id, p))
         return [...commons, ...Array.from(poiMap.values())]
       })
@@ -470,7 +472,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       setResources(prev => {
         const randoms = prev.filter(r => !r.id.startsWith('poi_'))
         const poiMap = new Map<string, ResourceSpawn>()
-        prev.filter(r => r.id.startsWith('poi_')).forEach(r => poiMap.set(r.id, r))
+        // Vyčistit vzdálené suroviny
+        prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).forEach(r => poiMap.set(r.id, r))
         poiResources.forEach(r => poiMap.set(r.id, r))
         return [...randoms, ...Array.from(poiMap.values())]
       })
@@ -489,6 +492,26 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     mapRef.current = map
+
+    // Detekce ručního pohybu mapy pro vypnutí auto-centrování a start timeru pro návrat
+    map.on('movestart', (e) => {
+       if ((e as any).originalEvent) {
+          setIsAutoCenter(false)
+          if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
+       }
+    })
+
+    map.on('moveend', (e) => {
+       if ((e as any).originalEvent) {
+          if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
+          autoCenterTimerRef.current = setTimeout(() => {
+             setIsAutoCenter(true)
+             if (mapRef.current && playerMarkerRef.current) {
+                mapRef.current.panTo(playerMarkerRef.current.getLatLng(), { animate: true })
+             }
+          }, 10000) // Po 10 sekundách nečinnosti se vrátí k sledování
+       }
+    })
     
     if ('geolocation' in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
@@ -506,27 +529,32 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         if (!playerMarkerRef.current) {
           playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
           map.setView([lat, lng], 17)
-        } else { playerMarkerRef.current.setLatLng([lat, lng]) }
+        } else { 
+          playerMarkerRef.current.setLatLng([lat, lng]) 
+          if (isAutoCenter) {
+             map.panTo([lat, lng], { animate: true })
+          }
+        }
         
         const cooldowns = loadCooldowns()
         const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
         const commonRes = generateResources(lat, lng, cooldowns)
         
         setSpawns(prev => {
-          const pois = prev.filter(p => p.rarity !== 'common').map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
+          const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
           return [...commonMonsters, ...pois]
         })
         
         setResources(prev => {
-          const pois = prev.filter(r => r.id.startsWith('poi_')).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
+          const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
           return [...commonRes, ...pois]
         })
 
         if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 1500)
+        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
       }, () => setStatusMsg('GPS nedostupná'), { enableHighAccuracy: true })
     }
-  }, [onDistanceUpdate])
+  }, [onDistanceUpdate, isAutoCenter])
 
   useEffect(() => {
     if (!playerPos || !mapRef.current) return
@@ -598,6 +626,17 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           <p className="text-slate-500 text-[9px] font-bold">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer & ${resources.filter(r => !r.isCollected).length} surovin`}</p>
         </div>
         <div className="flex items-center gap-2">
+          {!isAutoCenter && (
+            <button 
+              onClick={() => {
+                setIsAutoCenter(true);
+                if (mapRef.current && playerPos) mapRef.current.setView(playerPos, 17);
+              }}
+              className="px-2.5 py-1 bg-primary text-black text-[9px] font-black uppercase rounded-full flex items-center gap-1.5 animate-pulse shadow-lg"
+            >
+              <RefreshCw size={10} /> Vycentrovat
+            </button>
+          )}
           {loadingPoi && <RefreshCw size={12} className="text-blue-500 animate-spin" />}
           
           {/* Filter Bar */}
