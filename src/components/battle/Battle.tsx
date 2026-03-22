@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart, Aperture, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, FlaskConical, Trophy, Package, ChevronRight, Smile, RefreshCw, Star, Heart, Aperture, ArrowUpRight, ArrowDownLeft, Flame } from 'lucide-react';
 import type { Monster } from '../../types';
 import { cn, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
 
@@ -89,15 +89,15 @@ export const Battle = ({
   onCatch?: (monster: Monster) => void,
   onCatchFail?: () => void
 }) => {
-  const [playerHP, setPlayerHP] = useState(playerMonster.currentHP !== undefined ? playerMonster.currentHP : getMonsterMaxHP(playerMonster));
-  const [enemyHP, setEnemyHP] = useState(enemyMonster.stats?.hp || 100);
-  const [playerEnergy, setPlayerEnergy] = useState(20);
+  const [playerHP, setPlayerHP] = useState<number>(playerMonster.currentHP !== undefined ? playerMonster.currentHP : getMonsterMaxHP(playerMonster));
+  const [enemyHP, setEnemyHP] = useState<number>(enemyMonster.stats?.hp || 100);
+  const [playerEnergy, setPlayerEnergy] = useState<number>(20);
   
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
   const [isShieldActive, setIsShieldActive] = useState(false);
   const [popups, setPopups] = useState<DamagePopup[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
-  const [winXP, setWinXP] = useState(0);
+  const [winXP, setWinXP] = useState<number>(0);
   
   // Status effects: { type: 'burn' | 'slow' | 'paralyze', duration: number }
   const [enemyEffects, setEnemyEffects] = useState<{ type: 'burn' | 'slow' | 'paralyze', duration: number }[]>([]);
@@ -105,8 +105,8 @@ export const Battle = ({
   const [showEmotes, setShowEmotes] = useState(false);
   const [showItems, setShowItems] = useState(false);
   const [showSkills, setShowSkills] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(40);
-  const [autoAttackTrigger, setAutoAttackTrigger] = useState(0);
+  const [timeLeft, setTimeLeft] = useState<number>(40);
+  const [autoAttackTrigger, setAutoAttackTrigger] = useState<number>(0);
   
   // Interaction states
   const [showLoot, setShowLoot] = useState(false);

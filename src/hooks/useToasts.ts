@@ -6,7 +6,12 @@ export function useToasts() {
 
   const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
     const id = Math.random().toString(36).substring(2, 9)
-    setToasts(prev => [...prev, { ...toast, id }])
+    setToasts(prev => {
+      // Prevent exact duplicate toasts showing up at the same time
+      const isDuplicate = prev.some(t => t.title === toast.title && t.message === toast.message);
+      if (isDuplicate) return prev;
+      return [...prev, { ...toast, id }];
+    })
   }, [])
 
   const removeToast = useCallback((id: string) => {

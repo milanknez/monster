@@ -17,7 +17,7 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
   const lastSignalTime = useRef(0);
 
   const [incomingEmote, setIncomingEmote] = useState<string | null>(null);
-  const [incomingAttack, setIncomingAttack] = useState<{ dmg: number, isCrit: boolean, isSkill: boolean, timestamp: number } | null>(null);
+  const [incomingAttack, setIncomingAttack] = useState<{ dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, timestamp: number } | null>(null);
   const [incomingExit, setIncomingExit] = useState<string | null>(null);
 
   // Use ref to track partner UID to avoid stale closures in stable listener

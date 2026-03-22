@@ -344,13 +344,17 @@ function App() {
   }, [duel?.step, duel?.opponentMonster, duel?.myMonster, duel?.role, handleStartBattle, setDuel]);
 
   useEffect(() => {
-    handleCompleteTrade((myMonster, theirMonster) => {
-      const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
-      saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
-      removeMonster(myMonster.id, 0); // Assuming first match
-      addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'success' });
-    });
-  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast]);
+    if (p2pTrade?.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
+      handleCompleteTrade((myMonster, theirMonster) => {
+        const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
+        saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
+        removeMonster(myMonster.id, 0); // Assuming first match
+        addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'success' });
+        // Immediately clear state to prevent double execution
+        setP2pTrade(null);
+      });
+    }
+  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, p2pTrade?.step, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast, setP2pTrade]);
 
   useEffect(() => {
     (window as any).triggerLevelUp = (lvl?: number) => setShowLevelUp(lvl || currentLevel + 1);
