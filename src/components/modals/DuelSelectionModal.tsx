@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { X, Sword, Heart } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, getMonsterMaxHP } from '../../utils';
 import type { Monster } from '../../types';
 
 export const DuelSelectionModal = ({ 
@@ -34,7 +34,9 @@ export const DuelSelectionModal = ({
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {sorted.length > 0 ? (
           sorted.map((monster: any, idx) => {
-            const hpPercent = Math.round(((monster.currentHP ?? (monster.stats?.hp || 100)) / (monster.stats?.hp || 100)) * 100);
+            const maxHP = getMonsterMaxHP(monster);
+            const currentHP = monster.currentHP ?? maxHP;
+            const hpPercent = Math.round((currentHP / maxHP) * 100);
             const isDisabled = hpPercent < 80;
             
             return (

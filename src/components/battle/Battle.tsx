@@ -138,8 +138,22 @@ const getFinalStats = (m: Monster) => {
       return total;
     }, 0);
   };
-  const bonuses = { atk: levelBonus(stats.atk) + getGemBonus(stats.atk, 'atk'), def: levelBonus(stats.def) + getGemBonus(stats.def, 'def'), hp: levelBonus(stats.hp) + getGemBonus(stats.hp, 'hp') };
-  return { base: stats, bonuses, total: { atk: stats.atk + bonuses.atk, def: stats.def + bonuses.def, hp: stats.hp + bonuses.hp } };
+  const leveling = { 
+    atk: levelBonus(stats.atk), 
+    def: levelBonus(stats.def), 
+    hp: levelBonus(stats.hp) 
+  };
+  const gems = {
+    atk: getGemBonus(stats.atk, 'atk'),
+    def: getGemBonus(stats.def, 'def'),
+    hp: getGemBonus(stats.hp, 'hp')
+  };
+  const total = { 
+    atk: stats.atk + leveling.atk + gems.atk, 
+    def: stats.def + leveling.def + gems.def, 
+    hp: stats.hp + leveling.hp + gems.hp 
+  };
+  return { base: stats, leveling, gems, total };
 };
 
 // --- Main Component ---
@@ -411,16 +425,20 @@ export const Battle = ({
                   <div className="flex gap-2">
                      <div className="flex items-center gap-1">
                         <Sword size={8} className="text-red-400" />
-                        <span className="text-[8px] font-black text-white italic">
-                           {getFinalStats(enemyMonster).base.atk}
-                           <span className="text-emerald-400">+{getFinalStats(enemyMonster).bonuses.atk}</span>
+                        <span className="text-[9px] font-black text-white italic">
+                           {getFinalStats(enemyMonster).total.atk}
+                           <span className="text-[7px] text-slate-400 ml-1 font-normal not-italic">
+                             ({getFinalStats(enemyMonster).base.atk}+{getFinalStats(enemyMonster).leveling.atk}+{getFinalStats(enemyMonster).gems.atk})
+                           </span>
                         </span>
                      </div>
                      <div className="flex items-center gap-1">
                         <ShieldIcon size={8} className="text-blue-400" />
-                        <span className="text-[8px] font-black text-white italic">
-                           {getFinalStats(enemyMonster).base.def}
-                           <span className="text-emerald-400">+{getFinalStats(enemyMonster).bonuses.def}</span>
+                        <span className="text-[9px] font-black text-white italic">
+                           {getFinalStats(enemyMonster).total.def}
+                           <span className="text-[7px] text-slate-400 ml-1 font-normal not-italic">
+                             ({getFinalStats(enemyMonster).base.def}+{getFinalStats(enemyMonster).leveling.def}+{getFinalStats(enemyMonster).gems.def})
+                           </span>
                         </span>
                      </div>
                   </div>
@@ -479,16 +497,20 @@ export const Battle = ({
                   <div className="flex gap-3">
                      <div className="flex items-center gap-1">
                         <Sword size={10} className="text-red-400" />
-                        <span className="text-[9px] font-black text-white italic tracking-tighter">
-                           {getFinalStats(playerMonster).base.atk}
-                           <span className="text-emerald-400">+{getFinalStats(playerMonster).bonuses.atk}</span>
+                        <span className="text-[10px] font-black text-white italic tracking-tighter">
+                           {getFinalStats(playerMonster).total.atk}
+                           <span className="text-[7px] text-slate-400 ml-1 font-normal not-italic tracking-normal">
+                             ({getFinalStats(playerMonster).base.atk}+{getFinalStats(playerMonster).leveling.atk}+{getFinalStats(playerMonster).gems.atk})
+                           </span>
                         </span>
                      </div>
                      <div className="flex items-center gap-1">
                         <ShieldIcon size={10} className="text-blue-400" />
-                        <span className="text-[9px] font-black text-white italic tracking-tighter">
-                           {getFinalStats(playerMonster).base.def}
-                           <span className="text-emerald-400">+{getFinalStats(playerMonster).bonuses.def}</span>
+                        <span className="text-[10px] font-black text-white italic tracking-tighter">
+                           {getFinalStats(playerMonster).total.def}
+                           <span className="text-[7px] text-slate-400 ml-1 font-normal not-italic tracking-normal">
+                             ({getFinalStats(playerMonster).base.def}+{getFinalStats(playerMonster).leveling.def}+{getFinalStats(playerMonster).gems.def})
+                           </span>
                         </span>
                      </div>
                   </div>
