@@ -527,7 +527,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         setPlayerPos([lat, lng]); setStatusMsg('')
         
         if (!playerMarkerRef.current) {
-          playerMarkerRef.current = L.marker([lat, lng], { icon: makePlayerIcon(), zIndexOffset: 1000 }).addTo(map)
+          playerMarkerRef.current = L.marker([lat, lng], { 
+            icon: makePlayerIcon(), 
+            zIndexOffset: 1000, // Zpět na 1000, aby kulička byla nahoře
+            interactive: false // Pořád non-interactive, aby šlo klikat skrz
+          }).addTo(map)
           map.setView([lat, lng], 17)
         } else { 
           playerMarkerRef.current.setLatLng([lat, lng]) 
