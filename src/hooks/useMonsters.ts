@@ -119,10 +119,15 @@ export function useMonsters(addToast: (toast: any) => void) {
     return success
   }
 
-  const removeMonster = (id: string, index: number) => {
+  const removeMonster = (id: string, caughtAt?: number) => {
     setCaughtMonsters(prev => {
+      // Find correctly by ID and caughtAt
+      const idx = prev.findIndex(m => 
+        m.id === id && (caughtAt !== undefined ? (m as any).caughtAt === caughtAt : true)
+      );
+      if (idx === -1) return prev;
       const updated = [...prev]
-      updated.splice(index, 1)
+      updated.splice(idx, 1)
       return updated
     })
   }

@@ -347,8 +347,8 @@ function App() {
     if (p2pTrade?.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
       handleCompleteTrade((myMonster, theirMonster) => {
         const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
+        removeMonster(myMonster.id, (myMonster as any).caughtAt);
         saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
-        removeMonster(myMonster.id, 0); // Assuming first match
         addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'success' });
         // Immediately clear state to prevent double execution
         setP2pTrade(null);
@@ -573,14 +573,14 @@ function App() {
                   (m.id === selectedMonster.id)
                 );
                 if (idx !== -1) {
-                  removeMonster(selectedMonster.id, idx);
+                  removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
                   setSelectedMonster(null);
                   addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
                 } else {
                    // Fallback if caughtAt is missing for some reason
                    const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
                    if (fallbackIdx !== -1) {
-                      removeMonster(selectedMonster.id, fallbackIdx);
+                      removeMonster(selectedMonster.id);
                       setSelectedMonster(null);
                       addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
                    }
