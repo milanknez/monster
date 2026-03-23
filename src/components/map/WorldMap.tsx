@@ -167,7 +167,7 @@ async function fetchPoiData(lat: number, lng: number, cooldowns: Cooldowns, forc
     }
   }
 
-  const query = `[out:json][timeout:30];
+  const query = `[out:json][timeout:60];
 (
   // Monsters POIs
   nwr["historic"](around:${OVERPASS_RADIUS_M},${lat},${lng});
@@ -185,13 +185,40 @@ async function fetchPoiData(lat: number, lng: number, cooldowns: Cooldowns, forc
 );
 out center;`.trim()
 
-  const res = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST', 
-    body: 'data=' + encodeURIComponent(query), 
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  })
-  
-  const json = await res.json()
+  const endpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.osm.ch/api/interpreter'
+  ];
+
+  let json: any = null;
+  let lastError: any = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST', 
+        body: 'data=' + encodeURIComponent(query), 
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      
+      if (res.ok) {
+        json = await res.json();
+        if (json && json.elements) break;
+      } else {
+        lastError = `Status ${res.status}`;
+      }
+    } catch (e) {
+      lastError = e;
+      console.warn(`Endpoint ${endpoint} failed, trying next...`);
+    }
+  }
+
+  if (!json || !json.elements) {
+    throw new Error(lastError || "Všechny Overpass servery jsou zaneprázdněny");
+  }
+
   const monsters: SpawnPoint[] = []
   const resources: ResourceSpawn[] = []
   const seenPos = new Set<string>()
@@ -453,9 +480,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     lastPoiFetchRef.current = { lat, lng }
     setLoadingPoi(true)
     setStatusMsg('Skenuji POI…')
-    if (force && addToast) {
-       addToast({ title: 'Skenování okolí', message: 'Hledám vzácné příšery a suroviny v tvém okolí...', type: 'info' });
-    }
     
     try {
       const { monsters: poiMonsters, resources: poiResources } = await fetchPoiData(lat, lng, cooldownsRef.current, force)
@@ -502,63 +526,78 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     })
 
     map.on('moveend', (e) => {
-       if ((e as any).originalEvent) {
-          if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
-          autoCenterTimerRef.current = setTimeout(() => {
-             setIsAutoCenter(true)
-             if (mapRef.current && playerMarkerRef.current) {
-                mapRef.current.panTo(playerMarkerRef.current.getLatLng(), { animate: true })
-             }
-          }, 10000) // Po 10 sekundách nečinnosti se vrátí k sledování
-       }
+      if ((e as any).originalEvent) {
+        if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
+        autoCenterTimerRef.current = setTimeout(() => {
+          setIsAutoCenter(true)
+          if (mapRef.current && playerMarkerRef.current) {
+            mapRef.current.panTo(playerMarkerRef.current.getLatLng(), { animate: true })
+          }
+        }, 14000) // Po 14 sekundách nečinnosti se vrátí k sledování
+      }
     })
     
-    if ('geolocation' in navigator) {
-      watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords
-        if (!isFinite(lat) || !isFinite(lng)) return
-        const now = Date.now()
-        if (lastPosRef.current && lastPosTimeRef.current) {
-          const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
-          if (traveled >= 4 && traveled <= 150) onDistanceUpdate(traveled)
-        }
-        lastPosRef.current = [lat, lng]
-        lastPosTimeRef.current = now
-        setPlayerPos([lat, lng]); setStatusMsg('')
-        
-        if (!playerMarkerRef.current) {
-          playerMarkerRef.current = L.marker([lat, lng], { 
-            icon: makePlayerIcon(), 
-            zIndexOffset: 1000, // Zpět na 1000, aby kulička byla nahoře
-            interactive: false // Pořád non-interactive, aby šlo klikat skrz
-          }).addTo(map)
-          map.setView([lat, lng], 17)
-        } else { 
-          playerMarkerRef.current.setLatLng([lat, lng]) 
-          if (isAutoCenter) {
-             map.panTo([lat, lng], { animate: true })
-          }
-        }
-        
-        const cooldowns = loadCooldowns()
-        const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
-        const commonRes = generateResources(lat, lng, cooldowns)
-        
-        setSpawns(prev => {
-          const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
-          return [...commonMonsters, ...pois]
-        })
-        
-        setResources(prev => {
-          const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
-          return [...commonRes, ...pois]
-        })
-
-        if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
-      }, () => setStatusMsg('GPS nedostupná'), { enableHighAccuracy: true })
+    return () => {
+      if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current);
     }
-  }, [onDistanceUpdate, isAutoCenter])
+  }, []) // Mapa se inicializuje jen jednou
+
+  // --- GPS Sledování ---
+  useEffect(() => {
+    if (!('geolocation' in navigator) || !mapRef.current) return
+
+    const watchId = navigator.geolocation.watchPosition((pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords
+      if (!isFinite(lat) || !isFinite(lng)) return
+      const now = Date.now()
+      if (lastPosRef.current && lastPosTimeRef.current) {
+        const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
+        if (traveled >= 4 && traveled <= 150) onDistanceUpdate(traveled)
+      }
+      lastPosRef.current = [lat, lng]
+      lastPosTimeRef.current = now
+      setPlayerPos([lat, lng]); setStatusMsg('')
+      
+      if (!playerMarkerRef.current) {
+        playerMarkerRef.current = L.marker([lat, lng], { 
+          icon: makePlayerIcon(), 
+          zIndexOffset: 1000,
+          interactive: false
+        }).addTo(mapRef.current!)
+        mapRef.current!.setView([lat, lng], 17)
+      } else { 
+        playerMarkerRef.current.setLatLng([lat, lng]) 
+        if (isAutoCenter && mapRef.current) {
+          mapRef.current.panTo([lat, lng], { animate: true })
+        }
+      }
+      
+      const cooldowns = loadCooldowns()
+      const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
+      const commonRes = generateResources(lat, lng, cooldowns)
+      
+      setSpawns(prev => {
+        const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
+        return [...commonMonsters, ...pois]
+      })
+      
+      setResources(prev => {
+        const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
+        return [...commonRes, ...pois]
+      })
+
+      if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
+      overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
+    }, (err) => {
+      setStatusMsg('GPS nedostupná');
+      console.warn("Geolocation watch error:", err);
+    }, { enableHighAccuracy: true })
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+      if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current);
+    }
+  }, [onDistanceUpdate, isAutoCenter]) // Reaguje na změnu sledování
 
   useEffect(() => {
     if (!playerPos || !mapRef.current) return
@@ -641,7 +680,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
               <RefreshCw size={10} /> Vycentrovat
             </button>
           )}
-          {loadingPoi && <RefreshCw size={12} className="text-blue-500 animate-spin" />}
           
           {/* Filter Bar */}
           <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 mr-1">
