@@ -23,13 +23,6 @@ export const Laboratory = ({
     }, 0);
   };
 
-  const canCraft = (recipe: Recipe) => {
-    if (craftingRecipeId) return false;
-    return recipe.requirements.every(req => {
-      return getItemCount(req.type) >= req.count;
-    });
-  };
-
   const startCrafting = (recipe: Recipe) => {
     setCraftingRecipeId(recipe.id);
     setProgress(0);
@@ -67,7 +60,9 @@ export const Laboratory = ({
 
       <div className="space-y-8">
         {recipes.map((recipe, idx) => {
-          const ready = canCraft(recipe);
+          const hasSpace = inventory.some(slot => slot === null);
+          const materialsMet = recipe.requirements.every(req => getItemCount(req.type) >= req.count);
+          const ready = materialsMet && hasSpace && !craftingRecipeId;
           const active = craftingRecipeId === recipe.id;
 
           return (
@@ -179,7 +174,7 @@ export const Laboratory = ({
                 whileHover={ready ? { scale: 1.02, translateY: -2 } : {}}
                 whileTap={ready ? { scale: 0.98 } : {}}
                 disabled={!ready || active}
-                onClick={() => startCrafting(recipe)}
+                onClick={() => ready && startCrafting(recipe)}
                 className={cn(
                   "w-full py-5 rounded-[1.5rem] font-black uppercase text-sm tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:translate-y-1 shadow-xl",
                   active
@@ -196,6 +191,10 @@ export const Laboratory = ({
                 ) : ready ? (
                   <>
                     <Beaker size={18} /> VYROBIT TEĎ
+                  </>
+                ) : !hasSpace ? (
+                  <>
+                    <AlertCircle size={18} /> PLNÝ INVENTÁŘ
                   </>
                 ) : (
                   <>

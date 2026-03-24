@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
 import { cn } from './utils'
+import { RESOURCE_CONFIG } from './components/map/mapUtils'
 
 import { Header } from './components/ui/Header'
 import { StatsCard } from './components/ui/StatsCard'
@@ -316,14 +317,24 @@ function App() {
 
     setActiveBattle(null);
 
-    const lootMsg = loot.map(l => `${l.count}x ${l.type}`).join(', ');
-    addToast({
-      title: 'Vítězství!',
-      message: activeBattle.pvpRole 
-        ? `Porazil jsi soupeře! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.` 
-        : `Divoké monstrum poraženo! Tvůj parťák získal ${xp} XP a ty sbíráš kořist: ${lootMsg || 'nic'}.`,
-      type: 'success'
-    });
+    // Group loot for nicer toast display
+    const groupedLoot = loot.reduce((acc: Record<string, number>, item) => {
+      acc[item.type] = (acc[item.type] || 0) + item.count;
+      return acc;
+    }, {});
+
+    const lootMsg = Object.entries(groupedLoot).map(([type, count]) => {
+      const label = RESOURCE_CONFIG[type as any]?.label || type;
+      return `${count}x ${label}`;
+    }).join(', ');
+
+    if (activeBattle.pvpRole) {
+      addToast({
+        title: 'Vítězství!',
+        message: `Porazil jsi soupeře! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.`,
+        type: 'success'
+      });
+    }
   };
 
   const handleGather = (type: ResourceType, amount: number) => {
@@ -467,11 +478,17 @@ function App() {
               }
             }}
             onWin={handleBattleWin}
-            onLose={() => {
+            onLose={(xp) => {
               updateMonsterHP(activeBattle.playerIdx, -999);
+              if (!activeBattle.pvpRole) {
+                // Přidání XP pro prohru v PVE
+                giveMonsterXP(activeBattle.playerIdx, xp);
+                addToast({ title: 'Těsná prohra', message: `Tvé monstrum se sice vyčerpalo, ale získává ${xp} XP za zkušenosti ze zápasu!`, type: 'info' });
+              } else {
+                addToast({ title: 'Prohra', message: 'Tvé monstrum bylo poraženo v duelu.', type: 'error' });
+              }
               setActiveBattle(null);
               setActiveTab('home');
-              addToast({ title: 'Prohra', message: 'Tvé monstrum bylo poraženo!', type: 'error' });
             }}
             onCatch={(monster) => {
                saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, (xp) => {

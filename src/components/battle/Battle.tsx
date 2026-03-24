@@ -170,7 +170,7 @@ export const Battle = ({
   onSendEmote?: (emote: string) => void,
   onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
   onUseItem?: (type: string) => void,
-  onWin: (xp: number, loot: any[]) => void, onLose: () => void, onBack: () => void,
+  onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
   onCatch?: (monster: Monster) => void, onCatchFail?: () => void
 }) => {
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -214,7 +214,7 @@ export const Battle = ({
   const playerMaxHP = getMonsterMaxHP(playerMonster);
   const enemyMaxHP = getMonsterMaxHP(enemyMonster);
   const [playerHP, setPlayerHP] = useState<number>(playerMonster.currentHP ?? playerMaxHP);
-  const [enemyHP, setEnemyHP] = useState<number>(enemyMonster.stats?.hp || 100);
+  const [enemyHP, setEnemyHP] = useState<number>(enemyMonster.currentHP ?? enemyMaxHP);
   const [playerEnergy, setPlayerEnergy] = useState<number>(20);
   const [shieldTurns, setShieldTurns] = useState(0);
   const [enemyShieldTurns, setEnemyShieldTurns] = useState(0);
@@ -316,9 +316,12 @@ export const Battle = ({
           // GENERATE LOOT FROM CONFIG
           const generatedLoot: any[] = [];
           const numDrops = Math.floor(Math.random() * 2) + 1; // 1-2 items
+          const pickedTypes = new Set<string>();
           
           for (let i = 0; i < numDrops; i++) {
-            const table: LootTableEntry[] = LOOT_CONFIG.battle_win;
+            const table: LootTableEntry[] = LOOT_CONFIG.battle_win.filter(e => !pickedTypes.has(e.type));
+            if (table.length === 0) break;
+            
             const totalWeight = table.reduce((sum: number, e: LootTableEntry) => sum + e.weight, 0);
             let r = Math.random() * totalWeight;
             let picked = table[0];
@@ -326,7 +329,15 @@ export const Battle = ({
               if (r < entry.weight) { picked = entry; break; }
               r -= entry.weight;
             }
-            const count = Math.floor(Math.random() * (picked.max - picked.min + 1)) + picked.min;
+            pickedTypes.add(picked.type);
+
+            // Tady omezíme šanci na maximální počet!
+            // Math.pow(Math.random(), 2) zajistí, že menší čísla padají častěji.
+            // Příklad (1-3): Math.random()^2 dává převážně 0-0.2, takže zůstane u minima.
+            const range = picked.max - picked.min + 1;
+            const extra = Math.floor(Math.pow(Math.random(), 2) * range);
+            const count = picked.min + extra;
+
             generatedLoot.push({ 
               id: Math.random().toString(), 
               type: picked.type, 
@@ -387,7 +398,7 @@ export const Battle = ({
           setEnemyEffects(p => p.map(e => e.type !== 'paralyze' ? { ...e, duration: e.duration - 1 } : e).filter(e => e.duration > 0));
           if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
           setTimeout(() => {
-            setEnemyAnim('idle'); setPlayerAnim('idle'); if (playerHP - res.dmg <= 0) { setPlayerAnim('lose'); setTimeout(onLose, 1200); } else setTurn('player');
+            setEnemyAnim('idle'); setPlayerAnim('idle'); if (playerHP - res.dmg <= 0) { setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player');
           }, 400);
         }, 400);
       }, 1500); // Shorter delay for better flow
@@ -409,7 +420,7 @@ export const Battle = ({
            setPlayerHP(p => Math.max(0, p - incomingAttack.dmg)); setPlayerAnim('hit'); addPopup(incomingAttack.dmg, false, incomingAttack); 
            if (shieldTurns > 0) setShieldTurns(p => p - 1);
            if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
-           setTimeout(() => { setPlayerAnim('idle'); setEnemyAnim('idle'); if (playerHP - incomingAttack.dmg <= 0) { setPlayerAnim('lose'); setTimeout(onLose, 1200); } else setTurn('player'); }, 400);
+           setTimeout(() => { setPlayerAnim('idle'); setEnemyAnim('idle'); if (playerHP - incomingAttack.dmg <= 0) { setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player'); }, 400);
         }, 400);
      }
   }, [incomingAttack, pvpRole, playerHP, shieldTurns, enemyShieldTurns, onLose]);

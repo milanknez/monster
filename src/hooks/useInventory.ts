@@ -105,23 +105,25 @@ export function useInventory() {
   const swapItems = useCallback((fromIdx: number, toIdx: number) => {
     setInventory(prev => {
       const next = [...prev]
-      const fromItem = next[fromIdx]
-      const toItem = next[toIdx]
+      const fIdx = Number(fromIdx);
+      const tIdx = Number(toIdx);
+      const fromItem = next[fIdx]
+      const toItem = next[tIdx]
 
-      if (fromItem && toItem && fromItem.type === toItem.type && fromIdx !== toIdx) {
+      if (fromItem && toItem && String(fromItem.type) === String(toItem.type) && fIdx !== tIdx) {
         // Merge identical items
         const total = Number(fromItem.count) + Number(toItem.count);
         if (total <= MAX_STACK) {
-          next[toIdx] = { ...toItem, count: total };
-          next[fromIdx] = null;
+          next[tIdx] = { ...toItem, count: total };
+          next[fIdx] = null;
         } else {
-          next[toIdx] = { ...toItem, count: MAX_STACK };
-          next[fromIdx] = { ...fromItem, count: total - MAX_STACK };
+          next[tIdx] = { ...toItem, count: MAX_STACK };
+          next[fIdx] = { ...fromItem, count: total - MAX_STACK };
         }
       } else {
         // Standard swap if different items or moving to empty slot
-        next[fromIdx] = toItem
-        next[toIdx] = fromItem
+        next[fIdx] = toItem
+        next[tIdx] = fromItem
       }
       
       return next

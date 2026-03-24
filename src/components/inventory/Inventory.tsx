@@ -115,26 +115,38 @@ export const Inventory = ({
               <div 
                 key={idx}
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(idx)}
+                onDrop={(e) => { 
+                  e.preventDefault(); 
+                  const dt = e.dataTransfer.getData('text/plain');
+                  if (dt) {
+                    const fromID = parseInt(dt, 10);
+                    if (!isNaN(fromID) && fromID !== idx) {
+                      onSwap(fromID, idx);
+                    }
+                    setDraggedIdx(null);
+                  } else {
+                    handleDrop(idx);
+                  }
+                }}
                 className="relative"
               >
                 <motion.div
                   draggable={!!item}
-                  onDragStart={() => handleDragStart(idx)}
+                  onDragStart={(e: any) => {
+                    e.dataTransfer.setData('text/plain', idx.toString());
+                    e.dataTransfer.effectAllowed = 'move';
+                    handleDragStart(idx);
+                  }}
                   onDragEnd={() => setDraggedIdx(null)}
                   onClick={() => {
                     if (draggedIdx === null && item) {
                        setDraggedIdx(idx);
-                       if (usable) {
-                          // Allow 500ms for swap before triggering use
-                          // Actually, better to separate use and swap.
-                          // Long press for use? Or double tap?
-                          // For now, if it's selected, second tap uses it.
-                       }
+                    } else if (draggedIdx === idx) {
+                       setDraggedIdx(null);
+                       if (usable) onUseItem(item.type);
                     } else if (draggedIdx !== null) {
-                       handleDrop(idx);
-                    } else if (usable) {
-                       onUseItem(item.type);
+                       onSwap(draggedIdx, idx);
+                       setDraggedIdx(null);
                     }
                   }}
                   layout
@@ -180,9 +192,12 @@ export const Inventory = ({
         
          {draggedIdx !== null ? (
            <div className="mt-8 px-6">
-             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center mb-3">
-                <span className="text-xs font-black text-white uppercase bg-slate-800/80 px-4 py-2 rounded-xl border border-white/10 shadow-lg">
+             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center mb-3 bg-slate-800/80 p-4 rounded-2xl border border-white/10 shadow-lg">
+                <span className="text-sm font-black text-white uppercase tracking-widest text-center">
                   {inventory[draggedIdx] ? (RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type) : ''}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-2 text-center leading-relaxed">
+                  {inventory[draggedIdx] ? (RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || '') : ''}
                 </span>
              </motion.div>
              <motion.button

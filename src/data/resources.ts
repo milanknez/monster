@@ -1,15 +1,15 @@
 import { ResourceConfig } from '../types';
 
 export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
-  crystal: { color: '#0db9f2', label: 'Krystal', icon: '💎' },
-  herb: { color: '#10b981', label: 'Bylinka', icon: '🌿' },
-  energy: { color: '#f59e0b', label: 'Energie', icon: '⚡' },
-  mineral: { color: '#64748b', label: 'Minerál', icon: '🪨' },
-  xp_booster: { color: '#ec4899', label: 'XP Elixír', icon: '🧪' },
-  hp_potion: { color: '#ef4444', label: 'Lékárnička', icon: '❤️' },
-  energy_drink: { color: '#3b82f6', label: 'Energy Drink', icon: '🎒' },
-  magic_crystal: { color: '#a855f7', label: 'Magický Krystal', icon: '🔮' },
-  super_mineral: { color: '#ea580c', label: 'Vzácný Minerál', icon: '🌋' },
+  crystal: { color: '#0db9f2', label: 'Krystal', icon: '💎', description: 'Běžný drahokam sloužící k vylepšování základních atributů a pro stavbu jednoduchých předmětů v laboratoři.' },
+  herb: { color: '#10b981', label: 'Bylinka', icon: '🌿', description: 'Přírodní surovina nezbytná pro vaření lékárniček a dalších podpůrných lektvarů.' },
+  energy: { color: '#f59e0b', label: 'Energie', icon: '⚡', description: 'Kondenzovaná elektrická energie z města. Dobijí výdrž a tvoří jádro mnoha technických vylepšení.' },
+  mineral: { color: '#64748b', label: 'Minerál', icon: '🪨', description: 'Tvrdý stavební kámen k posilování obrany a fúzi s drahokamy.' },
+  xp_booster: { color: '#ec4899', label: 'XP Elixír', icon: '🧪', description: '[Spustitelné] Dvojitý zisk bodů zkušenosti (XP) na 15 minut pro tvé bojovníky. Klikni podruhé na ikonu pro vypití.' },
+  hp_potion: { color: '#ef4444', label: 'Lékárnička', icon: '❤️', description: '[Spustitelné] Okamžitě vyléčí 50 HP (bodů zdraví). Můžeš použít i přímo ze sáčku uprostřed boje.' },
+  energy_drink: { color: '#3b82f6', label: 'Energy Drink', icon: '🎒', description: '[Spustitelné] Extrémní nabuzení energie, které obnoví 60 % tvé výdrže na mapě. Klinutím vypiješ.' },
+  magic_crystal: { color: '#a855f7', label: 'Magický Krystal', icon: '🔮', description: 'Hutný magický drahokam nezbytný pro nejvzácnější procesy v laboratoři.' },
+  super_mineral: { color: '#ea580c', label: 'Vzácný Minerál', icon: '🌋', description: 'Ohněm kovaný kámen z hor, hledaný pro legendární úpravy armoru.' },
   
   // RED GEMS
   gem_red_1: { color: '#ef4444', label: 'Rudý Jaspis I', icon: '🔴' },

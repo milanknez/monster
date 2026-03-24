@@ -95,4 +95,18 @@ export interface ResourceConfig {
   label: string;
   icon: string;
   hasCustomIcon?: boolean;
+  description?: string;
+}
+
+export type Cooldowns = Record<string, number>;
+
+export interface NearbyPlayer {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  lastSeen: number;
+  level: number;
+  avatarSeed?: string;
+  avatarStyle?: string;
 }

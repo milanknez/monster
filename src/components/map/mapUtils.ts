@@ -67,7 +67,7 @@ export function calculateHPCost(level: number, rarity: SpawnRarity) {
   return base + (level * 2) + rarityBonus
 }
 
-export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean): L.DivIcon {
+export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
   const outerSize = spawn.rarity === 'epic' ? 48 : spawn.rarity === 'rare' ? 42 : 36
   const innerR = 32
@@ -81,21 +81,23 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
   
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
   
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
-    <defs>
-      <filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    ${pulse}
-    <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
-    ${lockOverlay}
-    <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
-    <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
-  </svg>`
+  const svg = `<div style="width:${outerSize}px; height:${(outerSize + 10)}px; transform:scale(${scale}); transform-origin: center center;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
+      <defs>
+        <filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      ${pulse}
+      <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
+      ${lockOverlay}
+      <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
+      <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
+    </svg>
+  </div>`
   
-  return L.divIcon({ html: svg, className: '', iconSize: [outerSize, outerSize + 10], iconAnchor: [outerSize / 2, outerSize / 2] })
+  return L.divIcon({ html: svg, className: '', iconSize: [outerSize * scale, (outerSize + 10) * scale], iconAnchor: [outerSize / 2 * scale, (outerSize / 2 + 5) * scale] })
 }
 
-export function makeResourceIcon(type: string, isNearby: boolean): L.DivIcon {
+export function makeResourceIcon(type: string, isNearby: boolean, scale = 1.0): L.DivIcon {
   const conf = RESOURCE_CONFIG[type] || RESOURCE_CONFIG.crystal
   const size = 32
   const pulse = isNearby ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${conf.color}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="32;50;32" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/></circle>` : ''
@@ -104,8 +106,10 @@ export function makeResourceIcon(type: string, isNearby: boolean): L.DivIcon {
     ? `<image href="resources/${type}.png" x="25" y="25" width="50" height="50" />`
     : `<text x="50" y="65" text-anchor="middle" font-size="45">${conf.icon}</text>`;
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">${pulse}<circle cx="50" cy="50" r="30" fill="rgba(0,0,0,0.6)" stroke="${conf.color}" stroke-width="2"/>${iconHtml}</svg>`
-  return L.divIcon({ html: svg, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
+  const svg = `<div style="width:${size * scale}px; height:${size * scale}px; transform:scale(${scale}); transform-origin: center center;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">${pulse}<circle cx="50" cy="50" r="30" fill="rgba(0,0,0,0.6)" stroke="${conf.color}" stroke-width="2"/>${iconHtml}</svg>
+  </div>`
+  return L.divIcon({ html: svg, className: '', iconSize: [size * scale, size * scale], iconAnchor: [(size * scale) / 2, (size * scale) / 2] })
 }
 
 export function makeResourceTooltipHtml(type: string, amount: number): string {
@@ -114,7 +118,13 @@ export function makeResourceTooltipHtml(type: string, amount: number): string {
     ? `<img src="resources/${type}.png" style="width:32px;height:32px;object-fit:contain;margin:0 auto 2px auto;" />`
     : `<div style="font-size:24px;margin-bottom:2px;">${conf.icon}</div>`;
 
-  return `<div style="text-align:center;min-width:80px;">${iconHtml}<div style="color:${conf.color};font-size:12px;font-weight:900;text-transform:uppercase;">${conf.label}</div><div style="color:#94a3b8;font-size:10px;font-weight:bold;">Množství: ${amount}</div></div>`
+  return `
+    <div style="text-align:center; min-width:80px; padding:2px 0;">
+      ${iconHtml}
+      <div style="color:${conf.color}; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.05em; line-height:1.2;">${conf.label}</div>
+      <div style="color:rgba(255,255,255,0.6); font-size:10px; font-weight:700; margin-top:2px;">Množství: <span style="color:#fff;">${amount}</span></div>
+    </div>
+  `
 }
 
 
@@ -144,4 +154,51 @@ export function makeOtherPlayerIcon(name: string, seed: string, style?: string):
     </div>
   `;
   return L.divIcon({ html: svg, className: '', iconSize: [30, 30], iconAnchor: [15, 15] })
+}
+
+export function optimizeSpawns<T extends { lat: number, lng: number }>(
+  spawns: T[],
+  buildings: { lat: number, lng: number }[],
+  existingSpawns: { lat: number, lng: number }[] = [],
+  avoidMeters: number = 35,
+  spacingMeters: number = 15
+): T[] {
+  // 1. Odtlačení spawnu ven z kolizního okruhu budov
+  let processed = spawns.map(s => {
+    let lat = s.lat;
+    let lng = s.lng;
+    buildings.forEach(b => {
+      const d = haversineM(lat, lng, b.lat, b.lng);
+      if (d < avoidMeters && d >= 0) {
+        let dLat = lat - b.lat;
+        let dLng = lng - b.lng;
+        if (dLat === 0 && dLng === 0) { dLat = 0.0001; }
+        const len = Math.sqrt(dLat * dLat + dLng * dLng);
+        
+        const cosLat = Math.abs(Math.cos(lat * Math.PI / 180));
+        const lngRatio = 1 / (111320 * (cosLat < 0.00001 ? 0.00001 : cosLat));
+        const latRatio = 1 / 111320;
+        
+        const pushM = avoidMeters - d + 3; // +3m rezerva
+        
+        lat += (dLat / len) * pushM * latRatio;
+        lng += (dLng / len) * pushM * lngRatio;
+      }
+    });
+    return { ...s, lat, lng };
+  });
+
+  // 2. Rozestupy - proškrtání těch, které jsou moc blízko
+  const finalList: T[] = [];
+  processed.forEach(s => {
+    const tooCloseToExisting = existingSpawns.some(es => haversineM(s.lat, s.lng, es.lat, es.lng) < spacingMeters);
+    if (tooCloseToExisting) return; // zahodit, stojí blízko POI
+    
+    const tooCloseToNew = finalList.some(fs => haversineM(s.lat, s.lng, fs.lat, fs.lng) < spacingMeters);
+    if (!tooCloseToNew) {
+      finalList.push(s);
+    }
+  });
+
+  return finalList;
 }
