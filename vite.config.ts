@@ -45,21 +45,58 @@ export default defineConfig({
                 res.end('Internal Server Error');
               }
             });
+          } else if (req.method === 'POST' && req.url === '/api/save-config') {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', () => {
+              try {
+                const { key, data } = JSON.parse(body); // key is like 'loot' or 'recipes' or 'gems'
+                const paths: Record<string, string> = {
+                  loot: 'src/data/loot.ts',
+                  recipes: 'src/data/recipes.ts',
+                  gems: 'src/data/gems.ts',
+                  resources: 'src/data/resources.ts'
+                };
+                const relativePath = paths[key];
+                if (!relativePath) { res.statusCode = 400; res.end('Invalid config key'); return; }
+                const filePath = path.resolve(__dirname, relativePath);
+                
+                // For .ts files we need to export the const
+                let content = '';
+                if (key === 'loot') content = `import { ResourceType, LootTableEntry } from '../types';\n\nexport const LOOT_CONFIG = ${JSON.stringify(data, null, 2)} as any;`;
+                else if (key === 'recipes') content = `import { Recipe } from '../types';\n\nexport const recipes: Recipe[] = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'gems') content = `export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'resources') content = `export const RESOURCE_CONFIG: Record<string, { color: string; label: string; icon: string }> = ${JSON.stringify(data, null, 2)};`;
+
+                
+                fs.writeFileSync(filePath, content);
+                res.statusCode = 200;
+                res.end('Config saved successfully');
+              } catch (e) {
+                res.statusCode = 500;
+                res.end('Internal Server Error');
+              }
+            });
           } else if (req.method === 'POST' && req.url?.startsWith('/api/save-monster-image')) {
             const url = new URL(req.url, `http://${req.headers.host}`);
             const id = url.searchParams.get('id');
-            if (!id) { res.statusCode = 400; res.end('Missing id'); return; }
-            
-            const filePath = path.resolve(__dirname, 'public/monsters', `${id}.png`);
-            const fileStream = fs.createWriteStream(filePath);
-            req.pipe(fileStream);
-            req.on('end', () => {
-              res.statusCode = 200;
-              res.end('Image saved successfully');
-            });
+            const dir = path.resolve(__dirname, 'public/monsters');
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            const filePath = path.join(dir, `${id}.png`);
+            req.pipe(fs.createWriteStream(filePath));
+            req.on('end', () => { res.statusCode = 200; res.end('OK'); });
+          } else if (req.method === 'POST' && req.url?.startsWith('/api/save-resource-image')) {
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const id = url.searchParams.get('id');
+            const dir = path.resolve(__dirname, 'public/resources');
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            const filePath = path.join(dir, `${id}.png`);
+            req.pipe(fs.createWriteStream(filePath));
+            req.on('end', () => { res.statusCode = 200; res.end('OK'); });
           } else {
             next();
           }
+
         });
       }
     }

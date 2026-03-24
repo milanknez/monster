@@ -1,6 +1,7 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Moon, Sun, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, HelpCircle, Info } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, Info } from 'lucide-react';
+
 import { cn, TYPE_COLORS, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP } from '../../utils';
 import { RESOURCE_CONFIG } from '../../components/map/mapUtils';
 import type { Monster } from '../../types';
@@ -15,7 +16,6 @@ const RARITY_COLORS: Record<string, string> = {
 export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBack: () => void; onUpgrade?: () => void; inventory?: any[]; onUsePotion?: (type: string) => void; onEquipGem?: (idx: number, gemType: string | null) => void; onRelease?: () => void }>(
   ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onRelease }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
-  const [showMultiplierInfo, setShowMultiplierInfo] = useState(false);
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
     if (!monster) return null;
@@ -32,8 +32,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         case 'Vodní': return <Droplets size={20} className="text-blue-400" />;
         case 'Přírodní': return <Leaf size={20} className="text-green-400" />;
         case 'Elektrická': return <Zap size={20} className="text-yellow-400" />;
-        case 'Temná': return <Moon size={20} className="text-purple-500" />;
-        case 'Světelná': return <Sun size={20} className="text-cyan-400" />;
         default: return <Bolt size={20} className="text-yellow-400" />;
       }
     };
@@ -45,8 +43,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         case 'Vodní': return <Droplets {...props} className={cn(props.className, "text-blue-500")} />;
         case 'Přírodní': return <Leaf {...props} className={cn(props.className, "text-green-500")} />;
         case 'Elektrická': return <Zap {...props} className={cn(props.className, "text-yellow-500")} />;
-        case 'Temná': return <Moon {...props} className={cn(props.className, "text-purple-500")} />;
-        case 'Světelná': return <Sun {...props} className={cn(props.className, "text-cyan-500")} />;
         default: return <Bolt {...props} className={cn(props.className, "text-yellow-500")} />;
       }
     };
@@ -68,7 +64,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
         }}
         className="w-full min-h-screen bg-background-dark pb-20"
       >
-        {/* Magic Card Layout - Full Width */}
         <div className={cn(
           "w-full rounded-b-[2.5rem] p-3 pt-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-t-0 overflow-hidden relative",
           monster.type === 'Ohnivá' ? "border-[#4a1a1a] bg-[#2a0a0a]" :
@@ -76,18 +71,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
           monster.type === 'Přírodní' ? "border-[#1a3a1a] bg-[#0a2a0a]" :
           "border-[#3a2a1a] bg-[#2a1a0a]"
         )}>
-          {/* Holographic Overlays */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-b-[2.5rem]">
             <div className="absolute inset-0 w-[200%] h-full opacity-20 bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.6)_45%,rgba(255,255,255,0.6)_50%,transparent_55%)] animate-shimmer transform-gpu" />
           </div>
 
-          {/* Background Type Icon */}
           <TypeIconLarge />
 
-          {/* Card Content */}
           <div className="relative z-10 flex flex-col gap-3">
-            
-            {/* Header Area */}
             <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-3 shadow-inner">
               <button 
                 onClick={onBack}
@@ -99,7 +89,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                 <h2 className="text-xl font-black text-slate-100 uppercase tracking-tighter drop-shadow-md truncate leading-none mb-1.5">
                   {monster.name}
                 </h2>
-                {/* XP Bar sub-indicator */}
                 <div className="w-full">
                    <div className="flex justify-between items-center mb-1">
                       <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">XP k další úrovni</span>
@@ -119,7 +108,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               </div>
             </div>
 
-            {/* Large Visual Area */}
             <div className="relative aspect-square w-full bg-black/60 rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl">
               <div className={cn("absolute inset-0 opacity-40", 
                 monster.type === 'Ohnivá' ? "bg-[radial-gradient(circle_at_center,_#ff4444_0%,_transparent_70%)]" :
@@ -132,8 +120,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                 src={monster.image} 
                 className="w-full h-full object-contain relative z-10 p-8 drop-shadow-[0_30px_50px_rgba(0,0,0,1)]" 
               />
-              
-              {/* Floating Level Sticker */}
               <div className="absolute bottom-4 right-4 z-20 flex flex-col items-center">
                  <div className="bg-primary/20 backdrop-blur-md border border-primary/30 px-3 py-1.5 rounded-xl shadow-2xl transform rotate-3">
                     <p className="text-xl font-black text-white italic leading-none tracking-tighter">LVL {monster.level}</p>
@@ -153,8 +139,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                             case 'Vodní': return <Droplets size={14} className="text-blue-400" />;
                             case 'Přírodní': return <Leaf size={14} className="text-green-400" />;
                             case 'Elektrická': return <Zap size={14} className="text-yellow-400" />;
-                            case 'Temná': return <Moon size={14} className="text-purple-500" />;
-                            case 'Světelná': return <Sun size={14} className="text-cyan-400" />;
                             default: return <Bolt size={14} className="text-yellow-400" />;
                           }
                         };
@@ -168,80 +152,69 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
               </div>
             </div>
 
-            {/* HP & Healing Section */}
             <div className="space-y-3 px-1">
               {(() => {
                 const maxHP = getMonsterMaxHP(monster);
                 const currentHP = monster.currentHP ?? maxHP;
 
                 return (
-                  <>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-end px-1">
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-1.5">
-                            <Heart size={10} className="text-red-500" fill="currentColor" />
-                            <span className="text-[8px] font-black text-red-500 uppercase tracking-widest text-[8px]">Zdraví Monstra</span>
-                          </div>
-                          {Math.round(currentHP) < maxHP && (
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase mt-0.5">
-                              <div className="flex items-center gap-1.5 text-slate-500">
-                                <RefreshCw size={8} className="animate-spin text-primary/50" />
-                                <span>Regenerace</span>
-                                <div className="size-0.5 rounded-full bg-slate-700 mx-0.5" />
-                                <div className="flex items-center gap-0.5 text-primary/70">
-                                   <Clock size={8} />
-                                   <span>{(() => {
-                                      const diff = maxHP - currentHP;
-                                      const healPerMin = maxHP * 0.1;
-                                      const mins = diff / healPerMin;
-                                      const sec = Math.ceil(mins * 60);
-                                      if (sec < 60) return `${sec}s`;
-                                      return `${Math.floor(mins)}m ${Math.round((mins % 1) * 60)}s`;
-                                   })()}</span>
-                                </div>
-                              </div>
-                              
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setShowHealingModal(true)}
-                                className="ml-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[8px] font-black tracking-tighter flex items-center gap-1.5 shadow-xl shadow-emerald-900/40 border border-emerald-400/30"
-                              >
-                                <FlaskConical size={10} className="text-emerald-200" />
-                                POUŽÍT LEKTVAR
-                              </motion.button>
-                            </div>
-                          )}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-end px-1">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <Heart size={10} className="text-red-500" fill="currentColor" />
+                          <span className="text-[8px] font-black text-red-500 uppercase tracking-widest text-[8px]">Zdraví Monstra</span>
                         </div>
-                        <span className="text-[12px] font-black text-white tabular-nums tracking-tighter">
-                          {Math.round(currentHP)} <span className="opacity-30">/</span> {maxHP}
-                        </span>
+                        {Math.round(currentHP) < maxHP && (
+                          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase mt-0.5">
+                            <div className="flex items-center gap-1.5 text-slate-500">
+                              <RefreshCw size={8} className="animate-spin text-primary/50" />
+                              <span>Regenerace</span>
+                              <div className="size-0.5 rounded-full bg-slate-700 mx-0.5" />
+                              <div className="flex items-center gap-0.5 text-primary/70">
+                                 <Clock size={8} />
+                                 <span>{(() => {
+                                    const diff = maxHP - currentHP;
+                                    const healPerMin = maxHP * 0.1;
+                                    const mins = diff / healPerMin;
+                                    const sec = Math.ceil(mins * 60);
+                                    if (sec < 60) return `${sec}s`;
+                                    return `${Math.floor(mins)}m ${Math.round((mins % 1) * 60)}s`;
+                                 })()}</span>
+                              </div>
+                            </div>
+                            
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setShowHealingModal(true)}
+                              className="ml-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[8px] font-black tracking-tighter flex items-center gap-1.5 shadow-xl shadow-emerald-900/40 border border-emerald-400/30"
+                            >
+                              <FlaskConical size={10} className="text-emerald-200" />
+                              POUŽÍT LEKTVAR
+                            </motion.button>
+                          </div>
+                        )}
                       </div>
-                      <div className="h-3 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5 shadow-inner">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(currentHP / maxHP) * 100}%` }}
-                          className="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
-                        />
-                      </div>
+                      <span className="text-[12px] font-black text-white tabular-nums tracking-tighter">
+                        {Math.round(currentHP)} <span className="opacity-30">/</span> {maxHP}
+                      </span>
                     </div>
-
-
-                  </>
+                    <div className="h-3 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden p-0.5 shadow-inner">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(currentHP / maxHP) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
+                      />
+                    </div>
+                  </div>
                 );
               })()}
             </div>
 
-            {/* The "Scroll" Text Area */}
             <div className="bg-slate-950/60 backdrop-blur-lg rounded-[1.5rem] border-2 border-white/5 p-5 text-slate-100 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
-               {/* Subtle Texture Overlay */}
                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]" />
-               
-                {/* Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
                 <div className="relative z-10 space-y-6 px-1">
-                  
-                {/* Stats Grid Visualization */}
                 <div className="relative z-10 py-5 px-1 grid grid-cols-3 gap-3 border-b border-white/5">
                   {[
                     { label: 'Útok', key: 'attack', base: monster.stats?.attack || 10, icon: <Sword size={12} />, type: 'gem_red', marker: 'bg-blue-500' },
@@ -258,7 +231,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                     }, 0);
                     const totalBonus = levelBonus + gemBonus;
                     const totalVal = s.base + totalBonus;
-                    
                     const caps = s.key === 'hp' ? 1000 : s.key === 'attack' ? 400 : 120;
                     const percentage = Math.min(100, (totalVal / caps) * 100);
 
@@ -284,7 +256,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                   })}
                 </div>
 
-                               {/* Schopnosti */}
                  <div className="relative z-[20] mt-2">
                   <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
                     <Zap size={10} />
@@ -293,97 +264,43 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                   <div className="space-y-4 relative z-[21]">
                     {monster.abilities && monster.abilities.length > 0 ? (
                       monster.abilities.map((ability, idx) => {
-                        // Resilient type detection fallback
                         const effectiveType = ability.type || (idx === 0 ? 'attack' : 'extra');
-                        
                         const getAbilityEffectText = () => {
                           switch(effectiveType) {
-                            case 'attack': return { 
-                              label: 'Silný útok', 
-                              val: `Zvyšuje útok o ${Math.round(( (ability.value || 1.85) - 1) * 100)} %`, 
-                              icon: <Sword size={10} />, 
-                              color: 'text-purple-400',
-                              bg: 'bg-purple-500/10',
-                              energy: 50
-                            };
-                            case 'extra': return { 
-                              label: 'Extra zásah', 
-                              val: `Přidá ${Math.round((ability.value || 0.35) * 100)} % k poškození`, 
-                              icon: <Zap size={10} />, 
-                              color: 'text-blue-400',
-                              bg: 'bg-blue-500/10',
-                              energy: 20
-                            };
-                            case 'defense': return { 
-                              label: 'Obrana', 
-                              val: `Sníží utržené DMG o ${Math.round((ability.value || 0.4) * 100)} %`, 
-                              icon: <Shield size={10} />, 
-                              color: 'text-emerald-400',
-                              bg: 'bg-emerald-500/10',
-                              energy: 30
-                            };
-                            case 'heal': return { 
-                              label: 'Léčení', 
-                              val: `Okamžitě vyléčí ${Math.round((ability.value || 0.2) * 100)} % HP`, 
-                              icon: <Heart size={10} />, 
-                              color: 'text-red-400',
-                              bg: 'bg-red-500/10',
-                              energy: 40
-                            };
-                            case 'buff': return { 
-                              label: 'Bonus', 
-                              val: `Zvýší staty o ${Math.round((ability.value || 0.2) * 100)} %`, 
-                              icon: <Sparkles size={10} />, 
-                              color: 'text-yellow-400',
-                              bg: 'bg-yellow-500/10',
-                              energy: 30
-                            };
+                            case 'attack': return { label: 'Silný útok', val: `Zvyšuje útok o ${Math.round(( (ability.value || 1.85) - 1) * 100)} %`, icon: <Sword size={10} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
+                            case 'extra': return { label: 'Extra zásah', val: `Přidá ${Math.round((ability.value || 0.35) * 100)} % k poškození`, icon: <Zap size={10} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
+                            case 'defense': return { label: 'Obrana', val: `Sníží utržené DMG o ${Math.round((ability.value || 0.4) * 100)} %`, icon: <Shield size={10} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
+                            case 'heal': return { label: 'Léčení', val: `Okamžitě vyléčí ${Math.round((ability.value || 0.2) * 100)} % HP`, icon: <Heart size={10} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
+                            case 'buff': return { label: 'Bonus', val: `Zvýší staty o ${Math.round((ability.value || 0.2) * 100)} %`, icon: <Sparkles size={10} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
                             default: return { label: 'Schopnost', val: 'Speciální efekt', icon: <Info size={10} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
                           }
                         };
-
                         const effect = getAbilityEffectText();
-
                         return (
                           <div key={idx} className="flex gap-4 group bg-white/[0.03] p-4 rounded-3xl border border-white/5 hover:border-white/20 transition-all relative z-[30] shadow-sm">
-                             {/* Primary Icon Based on Type */}
-                             <div className={cn(
-                               "size-14 rounded-2xl flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-transform group-hover:scale-105 relative bg-slate-900/50",
-                               effect.bg
-                             )}>
+                             <div className={cn("size-14 rounded-2xl flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-transform group-hover:scale-105 relative bg-slate-900/50", effect.bg)}>
                                 <div className={effect.color}>
-                                   {/* We clone the icon for larger size */}
                                    {(() => {
-                                      const LargeIcon = () => {
-                                         switch(effectiveType) {
-                                            case 'attack': return <Sword size={28} />;
-                                            case 'extra': return <Zap size={28} />;
-                                            case 'defense': return <Shield size={28} />;
-                                            case 'heal': return <Heart size={28} />;
-                                            case 'buff': return <Sparkles size={28} />;
-                                            default: return <Info size={28} />;
-                                         }
-                                      };
-                                      return <LargeIcon />;
+                                      switch(effectiveType) {
+                                         case 'attack': return <Sword size={28} />;
+                                         case 'extra': return <Zap size={28} />;
+                                         case 'defense': return <Shield size={28} />;
+                                         case 'heal': return <Heart size={28} />;
+                                         case 'buff': return <Sparkles size={28} />;
+                                         default: return <Info size={28} />;
+                                      }
                                    })()}
                                 </div>
-                                {/* Energy Cost Sticker */}
                                 <div className="absolute -top-2 -right-2 bg-black border border-white/20 rounded-lg px-1.5 py-0.5 text-[10px] font-black text-white shadow-2xl z-[40] tabular-nums">
                                    {effect.energy}⚡
                                 </div>
                              </div>
-
                              <div className="flex-1 relative z-[31]">
                                <div className="flex items-center justify-between mb-1">
                                   <p className="text-base font-black uppercase text-white tracking-tight leading-none drop-shadow-md">{ability.name}</p>
-                                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic opacity-60">
-                                     {ability.chance || 40} % šance
-                                  </div>
+                                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic opacity-60">{ability.chance || 40} % šance</div>
                                </div>
-                               
                                <p className="text-[12px] leading-relaxed text-slate-400 font-bold mb-3 drop-shadow-sm">{ability.description}</p>
-                               
-                               {/* The "Effect Bar" - Integrated, no bubble */}
                                <div className="flex items-center gap-2 pt-2 border-t border-white/[0.03] mt-auto">
                                   <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-40 leading-none", effect.color)}>{effect.label}:</span>
                                   <span className={cn("text-[11px] font-black italic leading-none whitespace-nowrap", effect.color)}>{effect.val}</span>
@@ -400,8 +317,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                   </div>
                  </div>
 
-
-                {/* Příběh / Historie */}
                 <div className="relative z-10 pt-2 border-t border-white/5">
                   <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
                     <LayoutGrid size={10} />
@@ -411,11 +326,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                     "{monster.description || "O této příšerce zatím kolují jen legendy v zapomenutých sektorech..."}"
                   </p>
 
-                  {/* Elemental Insights (Relocated) */}
                   {(() => {
                     const match = TYPE_MATCHUP[monster.type];
                     if (!match) return null;
-                    
                     const getTypeIcon = (type: string) => {
                       switch (type) {
                         case 'Ohnivá': return <Flame size={12} className="text-red-500" />;
@@ -431,80 +344,59 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                         <div className="flex flex-col gap-2">
                           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Silný Proti</p>
                           <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-2xl relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent" />
-                            <div className="size-6 bg-emerald-500/20 rounded-lg flex items-center justify-center relative z-10">
-                              {getTypeIcon(match.strong)}
-                            </div>
+                            <div className="size-6 bg-emerald-500/20 rounded-lg flex items-center justify-center relative z-10">{getTypeIcon(match.strong)}</div>
                             <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate relative z-10">{match.strong}</span>
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
                           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Slabý Proti</p>
                           <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 p-2.5 rounded-2xl relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent" />
-                            <div className="size-6 bg-red-500/20 rounded-lg flex items-center justify-center relative z-10">
-                              {getTypeIcon(match.weak)}
-                            </div>
+                            <div className="size-6 bg-red-500/20 rounded-lg flex items-center justify-center relative z-10">{getTypeIcon(match.weak)}</div>
                             <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate relative z-10">{match.weak}</span>
                           </div>
                         </div>
-                        <div className="col-span-2 pt-2 border-t border-white/5 mt-1 flex flex-col gap-1.5">
-                           <div className="flex items-center gap-2 px-1">
-                              <div className="size-1.5 rounded-full bg-primary/40 shrink-0" />
-                              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-tight">
-                                 Schopnost: <span className="text-primary italic font-black">{match.effect}</span>
-                                 <span className="text-slate-600 lowercase font-bold ml-1 tracking-tight">
-                                    {monster.type === 'Ohnivá' && "— zapálí soupeře (-5% HP/tah)"}
-                                    {monster.type === 'Přírodní' && "— léčí 10% poškození při výhodě"}
-                                    {monster.type === 'Vodní' && "— zpomalí útok soupeře o 30%"}
-                                    {monster.type === 'Elektrická' && "— ochromí soupeře (šance na skip tahu)"}
-                                 </span>
-                              </p>
-                           </div>
-                           <div className="flex items-center gap-1.5 px-1 opacity-50">
-                              <Info size={8} className="text-slate-500" />
-                              <p className="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">
-                                 Výhoda: <span className="text-emerald-500">1.3x dmg (30% šance)</span> | Nevýhoda: <span className="text-red-500">0.7x dmg</span>
-                              </p>
-                           </div>
-                        </div>
+                         <div className="col-span-2 pt-2 border-t border-white/5 mt-1 flex flex-col gap-1.5 opacity-60">
+                            <div className="flex items-center gap-1.5 px-1">
+                               <Info size={8} className="text-slate-500" />
+                               <p className="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">
+                                  Výhoda: <span className="text-emerald-500">1.3x dmg (30% šance)</span> | Nevýhoda: <span className="text-red-500">0.7x dmg</span>
+                               </p>
+                            </div>
+                         </div>
                       </div>
                     );
                   })()}
                 </div>
 
-                {/* Universal Square Gem Sockets */}
                 <div className="bg-white/5 p-4 rounded-3xl border border-white/5 relative z-10">
                   <div className="flex items-center justify-between mb-3 px-1">
                      <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Drahokamy (Sockety)</h3>
-                     <p className="text-[8px] text-slate-500 font-bold">Libovolná kombinace</p>
                   </div>
 
                   <div className="flex items-center justify-center gap-4">
                     {Array.from({ length: 3 }).map((_, idx) => {
                       const currentGem = monster.gems?.[idx];
-                      const icon = currentGem ? RESOURCE_CONFIG[currentGem]?.icon : null;
                       const isPicking = activeSlotIdx === idx;
-                      
                       return (
                         <div 
                           key={idx} 
                           onClick={() => setActiveSlotIdx(idx)}
                           className={cn(
                             "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
-                            currentGem 
-                              ? "bg-slate-800 border-white/20 shadow-xl" 
-                              : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
+                            currentGem ? "bg-slate-800 border-white/20 shadow-xl" : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
                             isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
                           )}
                         >
                           {currentGem ? (
                             <>
-                              <span className="text-4xl drop-shadow-md">{icon}</span>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }}
-                                className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20"
-                              >
+                              <div className="size-14 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                {RESOURCE_CONFIG[currentGem]?.hasCustomIcon ? (
+                                  <img src={`resources/${currentGem}.png`} className="w-full h-full object-contain filter drop-shadow-md" />
+                                ) : (
+                                  <span className="text-4xl drop-shadow-md">{RESOURCE_CONFIG[currentGem]?.icon}</span>
+                                )}
+                              </div>
+                              <button onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }} className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20">
                                 <Trash2 size={10} />
                               </button>
                             </>
@@ -516,49 +408,34 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                     })}
                   </div>
 
-                  {/* Custom Fluid Gem Picker */}
                   <AnimatePresence>
                      {activeSlotIdx !== null && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                          animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                          exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                          className="overflow-hidden"
-                        >
+                        <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 16 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
                            <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
-                              <button 
-                                onClick={() => setActiveSlotIdx(null)}
-                                className="absolute top-2 right-2 text-slate-500 hover:text-white"
-                              >
-                                <X size={14} />
-                              </button>
-                              
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">
-                                 Slot {activeSlotIdx + 1}: Vyber si vylepšení
-                              </p>
-                              
+                              <button onClick={() => setActiveSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
+                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vylepšení</p>
                               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                  {inventory?.filter(i => i?.type.startsWith('gem_') && i?.count > 0).map(i => (
                                     <motion.button
                                       key={i?.type}
                                       whileTap={{ scale: 0.9 }}
                                       onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
-                                      className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative"
+                                      className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative overflow-hidden"
                                     >
-                                       <span className="text-2xl group-hover:scale-125 transition-transform">{RESOURCE_CONFIG[i?.type || '']?.icon}</span>
-                                       <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm">{i?.count}x</span>
+                                       <div className="size-10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                          {RESOURCE_CONFIG[i?.type || '']?.hasCustomIcon ? (
+                                            <img src={`resources/${i?.type}.png`} className="w-full h-full object-contain filter drop-shadow-md" />
+                                          ) : (
+                                            <span className="text-2xl drop-shadow-md">{RESOURCE_CONFIG[i?.type || '']?.icon}</span>
+                                          )}
+                                       </div>
+                                       <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm relative z-10">{i?.count}x</span>
                                     </motion.button>
                                  ))}
                                  {(!inventory || inventory.filter(i => i?.type.startsWith('gem_') && i?.count > 0).length === 0) && (
                                     <div className="w-full text-center py-4 flex flex-col items-center gap-2">
                                        <div className="text-3xl opacity-30">🧪</div>
                                        <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné drahokamy v batohu</p>
-                                       <button 
-                                         onClick={() => setActiveSlotIdx(null)}
-                                         className="px-4 py-1.5 bg-slate-800 rounded-full text-[9px] font-black text-white uppercase tracking-widest mt-1"
-                                       >
-                                          Zavřít
-                                       </button>
                                     </div>
                                  )}
                               </div>
@@ -567,151 +444,76 @@ export const MonsterDetail = forwardRef<HTMLDivElement, { monster: Monster; onBa
                      )}
                   </AnimatePresence>
                 </div>
-             </div> {/* Closes Stats & Gems Grid: NEW COMPACT & UNIVERSAL */}
-            </div> {/* Closes The "Scroll" Text Area */}
-          </div> {/* Closes Card Content */}
-        </div> {/* Closes Card Layout */}
+              </div>
+            </div>
+          </div>
+        </div>
 
-        {/* Footer Actions */}
         <div className="px-6 mt-12 mb-8 pb-12">
-          <button 
-            onClick={() => setConfirmRelease(true)}
-            className="w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-2xl hover:border-red-500/50"
-          >
+          <button onClick={() => setConfirmRelease(true)} className="w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-2xl hover:border-red-500/50">
             <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
             <div className="relative z-10 flex items-center justify-center gap-3">
               <Trash2 size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
               <div className="text-left">
                 <p className="text-sm font-black text-red-500 uppercase tracking-widest leading-none mb-0.5">Propustit na svobodu</p>
-                <p className="text-[9px] font-bold text-red-500/60 uppercase">Monstrum bude navždy smazáno</p>
               </div>
             </div>
           </button>
-          
-          <button 
-            onClick={onBack}
-            className="w-full mt-6 py-4 rounded-2xl border border-white/5 bg-white/5 text-slate-500 font-black uppercase tracking-widest text-xs active:scale-95 transition-all"
-          >
-            Zrušit a jít zpět
-          </button>
         </div>
 
-        {/* HEALING MODAL */}
         <AnimatePresence>
           {showHealingModal && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col bg-black/80 backdrop-blur-xl">
-              <motion.div 
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                className="w-full max-w-lg bg-slate-900 border-t-4 border-emerald-500/50 rounded-t-[3rem] p-8 pb-12 shadow-[0_-20px_50px_rgba(16,185,129,0.2)]"
-              >
+              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="w-full max-w-lg bg-slate-900 border-t-4 border-emerald-500/50 rounded-t-[3rem] p-8 pb-12 shadow-[0_-20px_50px_rgba(16,185,129,0.2)]">
                 <div className="flex justify-between items-center mb-8">
                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500 border border-emerald-500/20">
-                         <Package size={24} />
-                      </div>
+                      <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-500 border border-emerald-500/20"><Package size={24} /></div>
                       <div>
                          <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">Lékárnička</h2>
-                         <p className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Dostupné lektvary k léčení</p>
                       </div>
                    </div>
-                   <button 
-                     onClick={() => setShowHealingModal(false)}
-                     className="size-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-slate-400 transition-colors"
-                   >
-                     <X size={20} />
-                   </button>
+                   <button onClick={() => setShowHealingModal(false)} className="size-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-slate-400 transition-colors"><X size={20} /></button>
                 </div>
-
                 <div className="grid grid-cols-1 gap-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide">
                   {inventory?.filter(i => i?.type === 'hp_potion' && i?.count > 0).map(item => (
-                    <motion.button
-                      key={item?.type}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => {
-                        item?.type && onUsePotion?.(item.type);
-                        setShowHealingModal(false);
-                      }}
-                      className="group relative flex items-center gap-5 p-5 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/20 rounded-[2rem] hover:border-emerald-500/40 transition-all text-left overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors" />
-                      <div className="size-16 flex-shrink-0 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform">
-                         <Plus size={32} className="text-white" />
-                      </div>
+                    <motion.button key={item?.type} whileTap={{ scale: 0.97 }} onClick={() => { item?.type && onUsePotion?.(item.type); setShowHealingModal(false); }} className="group relative flex items-center gap-5 p-5 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/20 rounded-[2rem] hover:border-emerald-500/40 transition-all text-left overflow-hidden">
+                      <div className="size-16 flex-shrink-0 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform"><Plus size={32} className="text-white" /></div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-lg font-black text-white uppercase tracking-tight">Lektvar HP</p>
                           <p className="bg-emerald-500 text-background-dark text-[10px] font-black px-2 py-0.5 rounded-full">{item?.count}x</p>
                         </div>
-                        <p className="text-xs font-bold text-emerald-400/80 leading-relaxed">
-                           Okamžitě vyléčí část poškození a zvýší stabilitu monstra.
-                        </p>
                       </div>
                     </motion.button>
                   ))}
-
                   {(!inventory || inventory.filter(i => i?.type === 'hp_potion' && i?.count > 0).length === 0) && (
                     <div className="py-12 text-center">
-                       <div className="size-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50 border border-white/5">
-                          <FlaskConical size={32} className="text-slate-600" />
-                       </div>
+                       <div className="size-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50 border border-white/5"><FlaskConical size={32} className="text-slate-600" /></div>
                        <p className="text-sm font-black text-slate-500 uppercase tracking-widest italic">Nemáš žádné léčivé lektvary</p>
-                       <p className="text-[10px] font-bold text-slate-600 mt-2">Můžeš si je koupit v obchodu nebo najít při průzkumu</p>
                     </div>
                   )}
                 </div>
-
-                <button 
-                  onClick={() => setShowHealingModal(false)}
-                  className="w-full mt-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95"
-                >
-                  Možná později
-                </button>
+                <button onClick={() => setShowHealingModal(false)} className="w-full mt-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95">Možná později</button>
               </motion.div>
             </div>
           )}
         </AnimatePresence>
 
-        {/* RELEASE MODAL */}
         <AnimatePresence>
           {confirmRelease && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="w-full max-w-sm bg-slate-900 border-2 border-red-500/30 rounded-[3rem] p-8 text-center shadow-[0_0_100px_rgba(239,68,68,0.2)]"
-              >
-                <div className="size-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
-                  <Trash2 size={40} className="text-red-500" />
-                </div>
-                
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="w-full max-w-sm bg-slate-900 border-2 border-red-500/30 rounded-[3rem] p-8 text-center shadow-[0_0_100px_rgba(239,68,68,0.2)]">
+                <div className="size-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20"><Trash2 size={40} className="text-red-500" /></div>
                 <h2 className="text-2xl font-black text-white uppercase italic mb-2 tracking-tighter">Poslední varování</h2>
-                <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed">
-                  Opravdu chceš propustit <span className="text-white">{monster.name}</span>? 
-                  Ztratíš veškerý postup a drahokamy, které má u sebe.
-                </p>
-
+                <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed">Opravdu chceš propustit <span className="text-white">{monster.name}</span>?</p>
                 <div className="flex flex-col gap-3">
-                  <button 
-                    onClick={() => onRelease?.()}
-                    className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-500/20 transition-all active:scale-95"
-                  >
-                    Ano, propustit
-                  </button>
-                  <button 
-                    onClick={() => setConfirmRelease(false)}
-                    className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95"
-                  >
-                    Ne, nechat si jej
-                  </button>
+                  <button onClick={() => onRelease?.()} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-500/20 transition-all active:scale-95">Ano, propustit</button>
+                  <button onClick={() => setConfirmRelease(false)} className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95">Ne, nechat si jej</button>
                 </div>
               </motion.div>
             </div>
           )}
         </AnimatePresence>
-
       </motion.div>
     )
   }

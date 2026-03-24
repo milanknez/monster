@@ -23,7 +23,7 @@ import { SetupProfileModal } from './components/modals/SetupProfileModal'
 import { TradeSelectionModal } from './components/modals/TradeSelectionModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { Store } from './components/bestiary/Store'
-import { MonsterEditor } from './components/bestiary/MonsterEditor'
+import { SystemEditor } from './components/admin/SystemEditor'
 import { GooglePayModal } from './components/modals/GooglePayModal'
 import { DuelSelectionModal } from './components/modals/DuelSelectionModal'
 import { ToastContainer } from './components/ui/Toast'
@@ -318,10 +318,10 @@ function App() {
 
     const lootMsg = loot.map(l => `${l.count}x ${l.type}`).join(', ');
     addToast({
-      title: activeBattle.pvpRole ? 'Vítězství!' : 'Poraženo!',
+      title: 'Vítězství!',
       message: activeBattle.pvpRole 
-        ? `Skvělý souboj! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.` 
-        : `Divoké monstrum padlo. Tvůj parťák získal ${xp} XP a ty sbíráš kořist: ${lootMsg || 'nic'}.`,
+        ? `Porazil jsi soupeře! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.` 
+        : `Divoké monstrum poraženo! Tvůj parťák získal ${xp} XP a ty sbíráš kořist: ${lootMsg || 'nic'}.`,
       type: 'success'
     });
   };
@@ -425,11 +425,9 @@ function App() {
 
   if (isEditorMode) {
     return (
-      <MonsterEditor onBack={() => {
-        const url = new URL(window.location.href)
-        url.searchParams.delete('editor')
-        window.history.pushState({}, '', url)
-        setIsEditorMode(false)
+      <SystemEditor onBack={() => {
+        window.history.pushState({}, '', window.location.pathname);
+        setIsEditorMode(false);
       }} />
     )
   }
@@ -834,10 +832,12 @@ function App() {
         )}
 
         {/* Duel Modals */}
-        {wildEncounter && (
+         {wildEncounter && (
           <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
              <DuelSelectionModal
                caughtMonsters={caughtMonsters}
+               title="Výběr pro bitvu"
+               description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% energie!"
                onClose={() => setWildEncounter(null)}
                onSelect={(m) => {
                  setWildEncounter(null);

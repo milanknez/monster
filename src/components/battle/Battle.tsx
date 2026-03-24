@@ -7,9 +7,10 @@ import {
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle, 
   Hourglass 
 } from 'lucide-react';
-import type { Monster } from '../../types';
+import type { Monster, LootTableEntry } from '../../types';
 import { cn, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
-import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { LOOT_CONFIG } from '../../data/loot';
+
 import { LootModal, type LootItem } from './LootModal';
 
 // --- Types ---
@@ -207,8 +208,8 @@ export const Battle = ({
   }, [showLoot, turn, playerAnim, enemyAnim]);
 
   useEffect(() => {
-    setTurnTime(50);
-  }, [turn]);
+    setTurnTime(pvpRole ? 50 : 30);
+  }, [turn, pvpRole]);
 
   const playerMaxHP = getMonsterMaxHP(playerMonster);
   const enemyMaxHP = getMonsterMaxHP(enemyMonster);
@@ -254,8 +255,10 @@ export const Battle = ({
     }
     const base = Math.round((s.total.atk * mult - d.total.def * 0.45) * (0.9 + Math.random() * 0.2));
     let dmg = Math.max(Math.floor(s.total.atk * 0.1), base) * typeMult;
-    const effects = attacker === playerMonster ? playerEffects : enemyEffects;
-    if (effects.some(e => e.type === 'slow')) dmg *= 0.7;
+    
+    // Use latest effects if available
+    const attackerEffects = attacker === playerMonster ? playerEffects : enemyEffects;
+    if (attackerEffects.some(e => e.type === 'slow')) dmg *= 0.7;
     if (isCrit) dmg *= 1.8;
     if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;
     if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= 0.4;
@@ -296,16 +299,52 @@ export const Battle = ({
         triggerShake(res.isCrit || isSkill);
         
         if (res.isEffective && Math.random() < 0.6) {
-           if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Soupeř byl zapálen!"); }
-           else if (playerMonster.type === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog("Soupeř byl zpomalen!"); }
-           else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Soupeř byl ochromen!"); }
+           if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Nepřítel byl zapálen!"); }
+           else if (playerMonster.type === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog("Nepřítel byl zpomalen!"); }
+           else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Nepřítel byl ochromen!"); }
         }
       }
       setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
       if (pvpRole && onSendAttack) onSendAttack({ ...res, isSkill });
       setTimeout(() => {
         setEnemyAnim('idle'); setPlayerAnim('idle');
-        if (enemyHP - dmg <= 0) { setEnemyAnim('lose'); setPlayerAnim('win'); setWinXP(80 + enemyMonster.level * 15); const types = ['crystal', 'herb', 'mineral', 'energy']; setLoot([...Array(Math.floor(Math.random() * 2) + 1)].map(() => ({ id: Math.random().toString(), type: types[Math.floor(Math.random() * types.length)], count: Math.floor(Math.random() * 3) + 1, collected: false }))); setTimeout(() => setShowLoot(true), 1200); }
+        if (enemyHP - dmg <= 0) { 
+          setEnemyAnim('lose'); 
+          setPlayerAnim('win'); 
+          setWinXP(80 + enemyMonster.level * 15); 
+          
+          // GENERATE LOOT FROM CONFIG
+          const generatedLoot: any[] = [];
+          const numDrops = Math.floor(Math.random() * 2) + 1; // 1-2 items
+          
+          for (let i = 0; i < numDrops; i++) {
+            const table: LootTableEntry[] = LOOT_CONFIG.battle_win;
+            const totalWeight = table.reduce((sum: number, e: LootTableEntry) => sum + e.weight, 0);
+            let r = Math.random() * totalWeight;
+            let picked = table[0];
+            for (const entry of table) {
+              if (r < entry.weight) { picked = entry; break; }
+              r -= entry.weight;
+            }
+            const count = Math.floor(Math.random() * (picked.max - picked.min + 1)) + picked.min;
+            generatedLoot.push({ 
+              id: Math.random().toString(), 
+              type: picked.type, 
+              count, 
+              collected: false 
+            });
+          }
+          
+          // Rare bonus chance (10%)
+          if (Math.random() < 0.1) {
+            const rareTable: LootTableEntry[] = LOOT_CONFIG.rare_bonus;
+            const picked = rareTable[Math.floor(Math.random() * rareTable.length)];
+            generatedLoot.push({ id: 'rare_'+Math.random(), type: picked.type, count: 1, collected: false });
+          }
+
+          setLoot(generatedLoot);
+          setTimeout(() => setShowLoot(true), 1200); 
+        }
         else setTurn('enemy');
       }, 400);
     }, 400);
@@ -351,16 +390,18 @@ export const Battle = ({
             setEnemyAnim('idle'); setPlayerAnim('idle'); if (playerHP - res.dmg <= 0) { setPlayerAnim('lose'); setTimeout(onLose, 1200); } else setTurn('player');
           }, 400);
         }, 400);
-      }, 3000); return () => clearTimeout(timer);
+      }, 1500); // Shorter delay for better flow
+      return () => clearTimeout(timer);
     }
-  }, [turn, enemyHP, playerHP, calculateDamage, enemyMonster, playerMonster, onLose, shieldTurns, enemyShieldTurns, pvpRole, enemyMaxHP, enemyEffects]);
+  }, [turn, pvpRole]); // SIGNIFICANTLY REDUCED DEPENDENCIES to prevent cancellation by passive regen
+
 
   const lastAttackTime = useRef<number>(0);
   useEffect(() => {
      if (incomingAttack && pvpRole && incomingAttack.timestamp !== lastAttackTime.current) {
         lastAttackTime.current = incomingAttack.timestamp;
         if (incomingAttack.isShield) {
-          setEnemyShieldTurns(2); setLogs(p => ["Soupeř aktivoval štít!", ...p]);
+          setEnemyShieldTurns(2); setLogs(p => ["Nepřítel aktivoval štít!", ...p]);
           setTimeout(() => setTurn('player'), 1200); return;
         }
         setTurn('enemy'); setEnemyAnim('attack');

@@ -82,3 +82,17 @@ export interface Recipe {
   requirements: { type: ResourceType, count: number }[];
   result: { type: 'boost' | 'item' | 'resource', id: string, amount: number };
 }
+
+export interface LootTableEntry {
+  type: ResourceType;
+  weight: number;
+  min: number;
+  max: number;
+}
+
+export interface ResourceConfig {
+  color: string;
+  label: string;
+  icon: string;
+  hasCustomIcon?: boolean;
+}

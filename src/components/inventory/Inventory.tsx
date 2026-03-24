@@ -149,10 +149,17 @@ export const Inventory = ({
                 >
                   {item ? (
                     <div className="flex flex-col items-center justify-center relative z-10 w-full h-full pointer-events-none">
-                      <span className="text-4xl mb-0 drop-shadow-md group-hover:scale-110 transition-transform">{config?.icon}</span>
+                      <div className="size-10 flex items-center justify-center mb-0 group-hover:scale-110 transition-transform">
+                        {config?.hasCustomIcon ? (
+                          <img src={`resources/${item.type}.png`} className="w-full h-full object-contain filter drop-shadow-md" />
+                        ) : (
+                          <span className="text-4xl drop-shadow-md">{config?.icon}</span>
+                        )}
+                      </div>
                       <span className="absolute bottom-1 right-1 text-[9px] font-black text-white bg-black/60 px-1 rounded shadow-sm border border-white/10 leading-none py-0.5">
                         {item.count}
                       </span>
+
                       
                       {usable && (
                         <div className="absolute top-1 right-1 size-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]" />

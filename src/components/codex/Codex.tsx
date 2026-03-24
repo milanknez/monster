@@ -97,9 +97,15 @@ export const Laboratory = ({
                   <h3 className="text-2xl font-black text-white uppercase italic">{recipe.name}</h3>
                   <p className="text-[11px] text-slate-400 font-bold leading-relaxed pr-8">{recipe.description}</p>
                 </div>
-                <div className="size-20 rounded-3xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 relative overflow-hidden">
-                  <div className={cn("text-5xl", active ? "animate-bounce" : "animate-pulse-slow")}>
-                    {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒')}
+                <div className="size-20 rounded-3xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 relative overflow-hidden shrink-0">
+                  <div className={cn("size-14 flex items-center justify-center", active ? "animate-bounce" : "animate-pulse-slow")}>
+                    {RESOURCE_CONFIG[recipe.result.id]?.hasCustomIcon ? (
+                      <img src={`resources/${recipe.result.id}.png`} className="w-full h-full object-contain filter drop-shadow-md" />
+                    ) : (
+                      <span className="text-5xl drop-shadow-md">
+                        {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒')}
+                      </span>
+                    )}
                   </div>
                   {active && (
                     <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center">
@@ -128,7 +134,14 @@ export const Laboratory = ({
                           "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all truncate min-w-[140px]",
                           ok ? "bg-emerald-500/5 border-emerald-500/20" : "bg-black/40 border-white/5"
                         )}>
-                          <div className="size-12 bg-slate-800 rounded-xl flex items-center justify-center text-3xl shadow-inner">{config.icon}</div>
+                          <div className="size-12 bg-slate-800 rounded-xl flex items-center justify-center text-3xl shadow-inner relative overflow-hidden">
+                            {config?.hasCustomIcon ? (
+                              <img src={`resources/${req.type}.png`} className="w-full h-full object-contain p-1" />
+                            ) : (
+                              <span>{config?.icon}</span>
+                            )}
+                          </div>
+
                           <div>
                             <p className="text-[10px] font-black text-slate-500 uppercase leading-none">{config.label}</p>
                             <div className="flex items-center gap-1 mt-1">

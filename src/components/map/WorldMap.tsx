@@ -312,6 +312,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const lastPosTimeRef = useRef<number | null>(null)
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
   const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isInternalMoveRef = useRef(false)
   
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
@@ -329,6 +330,14 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
   const [isAutoCenter, setIsAutoCenter] = useState(true)
+  const isAutoCenterRef = useRef(isAutoCenter)
+  
+  const setAutoCenterSync = (val: boolean) => {
+    setIsAutoCenter(val)
+    isAutoCenterRef.current = val
+  }
+
+  useEffect(() => { isAutoCenterRef.current = isAutoCenter }, [isAutoCenter])
 
   useImperativeHandle(ref, () => ({
     centerOnPlayer: () => {
@@ -517,25 +526,42 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     mapRef.current = map
 
-    // Detekce ručního pohybu mapy pro vypnutí auto-centrování a start timeru pro návrat
-    map.on('movestart', (e) => {
-       if ((e as any).originalEvent) {
-          setIsAutoCenter(false)
-          if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
-       }
+    const handleManualInteractionStart = () => {
+      if (mapRef.current) mapRef.current.stop()
+      setAutoCenterSync(false)
+      if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
+    }
+
+    const handleManualInteractionEnd = () => {
+      if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
+      autoCenterTimerRef.current = setTimeout(() => {
+        setAutoCenterSync(true)
+        if (mapRef.current && playerMarkerRef.current) {
+          isInternalMoveRef.current = true
+          mapRef.current.panTo(playerMarkerRef.current.getLatLng(), { animate: true })
+        }
+      }, 14000)
+    }
+
+    map.on('movestart', () => {
+      if (isInternalMoveRef.current) {
+        // This was us (GPS or return-to-center timer)
+        return
+      }
+      handleManualInteractionStart()
     })
 
-    map.on('moveend', (e) => {
-      if ((e as any).originalEvent) {
-        if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
-        autoCenterTimerRef.current = setTimeout(() => {
-          setIsAutoCenter(true)
-          if (mapRef.current && playerMarkerRef.current) {
-            mapRef.current.panTo(playerMarkerRef.current.getLatLng(), { animate: true })
-          }
-        }, 14000) // Po 14 sekundách nečinnosti se vrátí k sledování
+    map.on('moveend', () => {
+      if (isInternalMoveRef.current) {
+        isInternalMoveRef.current = false
+        return
       }
+      handleManualInteractionEnd()
     })
+
+    // Also handle zoom just in case it doesn't trigger move properly in all browsers
+    map.on('zoomstart', handleManualInteractionStart)
+    map.on('zoomend', handleManualInteractionEnd)
     
     return () => {
       if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current);
@@ -567,7 +593,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         mapRef.current!.setView([lat, lng], 17)
       } else { 
         playerMarkerRef.current.setLatLng([lat, lng]) 
-        if (isAutoCenter && mapRef.current) {
+        if (isAutoCenterRef.current && mapRef.current) {
+          isInternalMoveRef.current = true
           mapRef.current.panTo([lat, lng], { animate: true })
         }
       }
@@ -597,7 +624,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       navigator.geolocation.clearWatch(watchId);
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current);
     }
-  }, [onDistanceUpdate, isAutoCenter]) // Reaguje na změnu sledování
+  }, [onDistanceUpdate]) // REMOVED isAutoCenter from dependencies
 
   useEffect(() => {
     if (!playerPos || !mapRef.current) return

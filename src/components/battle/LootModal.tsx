@@ -67,8 +67,15 @@ export const LootModal = ({
                           className="bg-slate-800 border-2 border-white/5 rounded-[1.5rem] p-5 cursor-pointer relative shadow-2xl flex flex-col items-center gap-2 group active:scale-95 transition-all"
                           style={{ boxShadow: `0 10px 30px -10px ${config.color}33` }}
                         >
-                          <span className="text-4xl drop-shadow-xl group-hover:scale-110 transition-transform">{config.icon}</span>
+                          <div className="size-12 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform">
+                            {config.hasCustomIcon ? (
+                              <img src={`resources/${i.type}.png`} className="w-full h-full object-contain" />
+                            ) : (
+                              <span className="text-4xl drop-shadow-xl">{config.icon}</span>
+                            )}
+                          </div>
                           <span className="text-[9px] font-black text-white uppercase tracking-wider block opacity-70 text-center">{config.label}</span>
+
                           <span className="absolute -top-1 -right-1 bg-primary text-black text-[12px] font-black size-7 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-lg">
                             {i.count}
                           </span>

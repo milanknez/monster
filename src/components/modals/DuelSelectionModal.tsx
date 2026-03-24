@@ -7,12 +7,14 @@ export const DuelSelectionModal = ({
   caughtMonsters, 
   onSelect, 
   onClose,
-  title = "Vyber si bojovníka"
+  title = "Vyber si bojovníka",
+  description
 }: { 
   caughtMonsters: Monster[], 
   onSelect: (m: Monster) => void, 
   onClose: () => void,
-  title?: string
+  title?: string,
+  description?: string
 }) => {
   // Seřadit podle nejsilnějšího (lvl * útok nebo prostě lvl)
   const sorted = [...caughtMonsters].sort((a, b) => (b.level || 0) - (a.level || 0));
@@ -95,7 +97,7 @@ export const DuelSelectionModal = ({
       
       <div className="p-8 bg-slate-950/80 border-t border-white/5">
         <p className="text-[10px] text-slate-500 text-center font-bold uppercase tracking-[0.2em] leading-relaxed opacity-60">
-          Zvolte svého šampiona, který se utká s nepřátelským lovcem. Pamatujte, že k boji je potřeba alespoň 80% energie!
+          {description || "Zvolte svého šampiona, který se utká s nepřítelem. Pamatujte, že k boji je potřeba alespoň 80% energie!"}
         </p>
       </div>
     </div>
