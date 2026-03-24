@@ -14,14 +14,14 @@
       "name": "Listová břitva",
       "description": "Vysílá ostré listy, které proříznou i brnění.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Tanec ve větru",
       "description": "Zvýší mrštnost a šanci na vyhnutí se útoku.",
       "type": "buff",
-      "chance": 40,
+      "chance": 75,
       "value": 0.2
     }
   ]

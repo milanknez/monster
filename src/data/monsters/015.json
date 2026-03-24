@@ -14,21 +14,21 @@
       "name": "Donutový vír",
       "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Cukrová past",
       "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     },
     {
       "name": "Bonbonový štít",
       "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

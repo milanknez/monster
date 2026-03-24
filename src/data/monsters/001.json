@@ -14,14 +14,14 @@
       "name": "Plamenný dech",
       "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Lávová aura",
       "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

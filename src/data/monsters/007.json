@@ -14,14 +14,14 @@
       "name": "Gigantická tsunamy",
       "description": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Mořský hněv",
       "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
       "type": "heal",
-      "chance": 35,
+      "chance": 70,
       "value": 0.2
     }
   ]

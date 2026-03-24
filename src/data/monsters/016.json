@@ -14,14 +14,14 @@
       "name": "Vodní náraz",
       "description": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Lesklé šupiny",
       "description": "Odráží část poškození zpět na útočníka.",
       "type": "extra",
-      "chance": 65,
+      "chance": 90,
       "value": 0.35
     }
   ]

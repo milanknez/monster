@@ -196,7 +196,15 @@ function App() {
        if (caughtMonsters.length > 0) {
          updateMonsterHP(0, 999);
        }
-       addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvé první monstrum.', type: 'success' });
+       if (selectedMonster) {
+         const idx = caughtMonsters.findIndex(m => 
+           (m as any).caughtAt === (selectedMonster as any).caughtAt && m.id === selectedMonster.id
+         );
+         if (idx !== -1 && idx !== 0) {
+            updateMonsterHP(idx, 999);
+         }
+       }
+       addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvého parťáka.', type: 'success' });
     };
 
     return () => {
@@ -206,7 +214,7 @@ function App() {
       delete (window as any).forceWildEncounter;
       delete (window as any).healMe;
     };
-  }, [addResource, giveMonsterXP, saveMonster, addToast, caughtMonsters, healHP, updateMonsterHP]);
+  }, [addResource, giveMonsterXP, saveMonster, addToast, caughtMonsters, healHP, updateMonsterHP, selectedMonster]);
 
   const activateBoost = (boost: Boost, item?: any) => {
     if (item?.price && !payingItem) {

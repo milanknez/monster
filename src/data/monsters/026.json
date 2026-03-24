@@ -14,14 +14,14 @@
       "name": "Bahnitý šleh",
       "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost.",
       "type": "buff",
-      "chance": 40,
+      "chance": 75,
       "value": 0.2
     },
     {
       "name": "Blátivá obrana",
       "description": "Na jedno kolo se zablátí a sníží přijaté poškození.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

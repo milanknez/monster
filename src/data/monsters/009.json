@@ -14,14 +14,14 @@
       "name": "Hlodavý útok",
       "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     },
     {
       "name": "Mechová regenerace",
       "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví.",
       "type": "heal",
-      "chance": 35,
+      "chance": 70,
       "value": 0.2
     }
   ]

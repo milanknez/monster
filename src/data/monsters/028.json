@@ -14,14 +14,14 @@
       "name": "Rychlé kousnutí",
       "description": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
       "type": "attack",
-      "chance": 65,
+      "chance": 90,
       "value": 1.4
     },
     {
       "name": "Zmatený úprk",
       "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

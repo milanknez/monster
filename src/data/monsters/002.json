@@ -14,14 +14,14 @@
       "name": "Vodní puls",
       "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Léčivá pramen",
       "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví.",
       "type": "heal",
-      "chance": 35,
+      "chance": 70,
       "value": 0.2
     }
   ]

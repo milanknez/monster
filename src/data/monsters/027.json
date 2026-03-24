@@ -14,14 +14,14 @@
       "name": "Mazlivý sev",
       "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo.",
       "type": "buff",
-      "chance": 40,
+      "chance": 75,
       "value": 0.2
     },
     {
       "name": "Plyšový štít",
       "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

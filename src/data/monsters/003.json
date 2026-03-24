@@ -14,14 +14,14 @@
       "name": "Kořenové vězení",
       "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Fotosyntéza",
       "description": "Využívá sluneční světlo k postupné regeneraci zdraví.",
       "type": "heal",
-      "chance": 35,
+      "chance": 70,
       "value": 0.2
     }
   ]

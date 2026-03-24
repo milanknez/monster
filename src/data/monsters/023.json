@@ -14,14 +14,14 @@
       "name": "Jedovatý dotek",
       "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Klouzavý útěk",
       "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

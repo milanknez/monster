@@ -14,14 +14,14 @@
       "name": "Kořenové sevření",
       "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii.",
       "type": "buff",
-      "chance": 40,
+      "chance": 75,
       "value": 0.2
     },
     {
       "name": "Dech pralesa",
       "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí.",
       "type": "heal",
-      "chance": 35,
+      "chance": 70,
       "value": 0.2
     }
   ]

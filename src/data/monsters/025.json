@@ -14,14 +14,14 @@
       "name": "Plamenomet",
       "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Ohnivý štít",
       "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

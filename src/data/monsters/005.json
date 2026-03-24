@@ -14,14 +14,14 @@
       "name": "Erupce",
       "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
       "type": "attack",
-      "chance": 35,
+      "chance": 70,
       "value": 1.85
     },
     {
       "name": "Ztuhlá láva",
       "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu.",
       "type": "defense",
-      "chance": 35,
+      "chance": 70,
       "value": 0.4
     }
   ]

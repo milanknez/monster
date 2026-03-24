@@ -22,6 +22,7 @@ interface DamagePopup {
   isWeak: boolean;
   isHeal?: boolean;
   isPlayerSide?: boolean;
+  isMiss?: boolean;
 }
 
 interface StatusEffect {
@@ -86,11 +87,13 @@ const PopupLayer = ({ popups }: { popups: DamagePopup[] }) => (
           transition={{ duration: 1, ease: "easeOut" }}
           className={cn(
             "absolute font-black italic flex items-center gap-1 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)] whitespace-nowrap",
-            p.isHeal ? "text-emerald-400 text-5xl" : p.isCrit ? "text-amber-500 text-7xl" : p.isPlayerSide ? "text-6xl text-red-500" : "text-5xl text-red-400"
+            p.isHeal ? "text-emerald-400 text-5xl" : p.isCrit ? "text-amber-500 text-7xl" : p.isMiss ? "text-slate-400 text-4xl" : p.isPlayerSide ? "text-6xl text-red-500" : "text-5xl text-red-400"
           )}
         >
           {p.isHeal ? <Heart size={28} className="fill-emerald-400" /> : (p.isEffective ? <ArrowUpRight size={32} className="text-emerald-400 stroke-[5]" /> : (p.isWeak && <ArrowDownLeft size={32} className="text-red-400 stroke-[5]" />))}
-          <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">{p.isHeal ? '+' : '-'}{p.value}</span>
+          <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
+            {p.isMiss ? 'MINUL' : (p.isHeal ? '+' : '-') + p.value}
+          </span>
         </motion.div>
       ))}
     </AnimatePresence>
@@ -123,6 +126,73 @@ const EffectBadges = ({ effects }: { effects: StatusEffect[] }) => (
     ))}
   </div>
 );
+
+const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'player' | 'enemy', subType: string }) => {
+  const isHeal = subType === 'heal';
+  const count = isHeal ? 15 : 12; 
+  const particles = [...Array(count)].map((_, i) => ({
+    id: i,
+    delay: i * 0.04,
+    rotation: Math.random() * 360,
+    scale: isHeal ? (2.0 + Math.random() * 1.5) : (3.5 + Math.random() * 1.5),
+    speed: isHeal ? (1.5 + Math.random() * 1.0) : (0.8 + Math.random() * 0.4)
+  }));
+
+  const getIcon = (t: string) => {
+    const s = 64;
+    if (isHeal) return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
+    const lt = t.toLowerCase();
+    if (lt.includes('ohn') || lt.includes('fire')) return <Flame className="text-orange-500 fill-orange-500/60" size={s} />;
+    if (lt.includes('vod') || lt.includes('wat')) return <Droplets className="text-blue-500 fill-blue-500/60" size={s} />;
+    if (lt.includes('ele') || lt.includes('zap')) return <Zap className="text-yellow-400 fill-yellow-400/60" size={s} />;
+    if (lt.includes('pří') || lt.includes('nat') || lt.includes('leaf') || lt.includes('pri')) return <Leaf className="text-emerald-500 fill-emerald-500/60" size={s} />;
+    return <Sword className="text-white/90 drop-shadow-2xl" size={s} />;
+  };
+
+  const startCoords = {
+      left: fromSide === 'player' ? '25%' : '75%', 
+      top: fromSide === 'player' ? '75%' : '25%' 
+  };
+  const targetCoords = {
+      left: fromSide === 'player' ? '75%' : '25%', 
+      top: fromSide === 'player' ? '25%' : '75%'
+  };
+
+  return (
+    <div className="fixed inset-0 z-[10000] pointer-events-none">
+      {particles.map(p => (
+        <motion.div
+           key={p.id}
+           initial={{ 
+              opacity: 0, 
+              scale: 0,
+              left: startCoords.left, 
+              top: startCoords.top,
+              x: '-50%',
+              y: '-50%'
+           }}
+           animate={isHeal ? {
+              opacity: [0, 1, 1, 1, 0],
+              scale: [0.5, p.scale, p.scale, 0],
+              top: [startCoords.top, `calc(${startCoords.top} - 35%)`],
+              left: [startCoords.left, `calc(${startCoords.left} + ${(Math.random() - 0.5) * 20}%)`],
+              rotate: [p.rotation, p.rotation + 45]
+           } : { 
+              opacity: [0, 1, 1, 1, 0],
+              scale: [0.5, p.scale, p.scale, 0],
+              left: [startCoords.left, targetCoords.left], 
+              top: [startCoords.top, targetCoords.top],
+              rotate: [p.rotation, p.rotation + 720]
+           }}
+           transition={{ duration: p.speed, delay: p.delay, ease: isHeal ? "easeOut" : "easeInOut" }}
+           className="absolute drop-shadow-[0_0_30px_rgba(255,255,255,0.9)]"
+        >
+          {getIcon(type)}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 // --- Helpers ---
 const getFinalStats = (m: Monster) => {
@@ -186,6 +256,7 @@ export const Battle = ({
   const [showLoot, setShowLoot] = useState(false);
   const [isChestOpened, setIsChestOpened] = useState(false);
   const [loot, setLoot] = useState<LootItem[]>([]);
+  const [activeBurst, setActiveBurst] = useState<{ id: number, type: string, fromSide: 'player' | 'enemy', subType: any } | null>(null);
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
   const [turnTime, setTurnTime] = useState(50);
 
@@ -284,12 +355,21 @@ export const Battle = ({
     setShowSkills(false);
     setShowItems(false);
     setPlayerAnim('attack');
+    if (isSkill) {
+      setActiveBurst({ id: Date.now(), type: playerMonster.type, fromSide: 'player', subType: ability?.type });
+      setTimeout(() => setActiveBurst(null), 3000);
+    }
+
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
     setTimeout(() => {
       if (playerEffects.some(e => e.type === 'burn')) { const bd = Math.round(playerMaxHP * 0.05); setPlayerHP(p => Math.max(0, p - bd)); addPopup(bd, false); }
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
       let dmg = res.dmg;
-      if (ability && Math.random() > (ability.chance || 100) / 100) { addLog(`${ability.name} selhal!`); dmg = 0; }
+      if (ability && Math.random() > (ability.chance || 100) / 100) { 
+        addLog(`${ability.name} minul!`); 
+        addPopup(0, true, { isMiss: true });
+        dmg = 0; 
+      }
       else if (ability?.type === 'heal') { const heal = Math.round(playerMaxHP * (ability.value || 0.15)); setPlayerHP(p => Math.min(playerMaxHP, p + heal)); addPopup(heal, false, { isHeal: true }); dmg = 0; }
       else if (ability?.type === 'defense') { setShieldTurns(2); dmg = 0; }
       if (dmg > 0) { 
@@ -389,8 +469,9 @@ export const Battle = ({
            setTurn('player');
            return;
         }
-
+        
         setEnemyAnim('attack');
+        
         setTimeout(() => {
           if (enemyEffects.some(e => e.type === 'burn')) { const bd = Math.round(enemyMaxHP * 0.05); setEnemyHP(p => Math.max(0, p - bd)); addPopup(bd, true); }
           const res = calculateDamage(enemyMonster, playerMonster);
@@ -415,7 +496,11 @@ export const Battle = ({
           setEnemyShieldTurns(2); setLogs(p => ["Nepřítel aktivoval štít!", ...p]);
           setTimeout(() => setTurn('player'), 1200); return;
         }
-        setTurn('enemy'); setEnemyAnim('attack');
+         setTurn('enemy'); setEnemyAnim('attack');
+        if (incomingAttack.isSkill) {
+           setActiveBurst({ id: Date.now(), type: enemyMonster.type, fromSide: 'enemy', subType: incomingAttack.isShield ? 'defense' : 'attack' }); 
+           setTimeout(() => setActiveBurst(null), 3000);
+        }
         setTimeout(() => {
            setPlayerHP(p => Math.max(0, p - incomingAttack.dmg)); setPlayerAnim('hit'); addPopup(incomingAttack.dmg, false, incomingAttack); 
            if (shieldTurns > 0) setShieldTurns(p => p - 1);
@@ -757,6 +842,7 @@ export const Battle = ({
         onCollect={(id) => setLoot(p => p.map(x => x.id === id ? { ...x, collected: true } : x))}
         onComplete={() => onWin(winXP, loot)}
       />
+      <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} />}</AnimatePresence>
     </motion.div>
   );
 };

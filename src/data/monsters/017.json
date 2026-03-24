@@ -14,14 +14,14 @@
       "name": "Smradlavý výbuch",
       "description": "Vyvolá oblaka zápachu za sebou, snižuje sílu a rychlost nepřátel na jedno kolo.",
       "type": "buff",
-      "chance": 40,
+      "chance": 75,
       "value": 0.2
     },
     {
       "name": "Kořenový náraz",
       "description": "Z kořenů vyrazí rychlý útok na jednoho nepřítele.",
       "type": "extra",
-      "chance": 65,
+      "chance": 90,
       "value": 0.35
     }
   ]
