@@ -452,7 +452,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen font-display pb-32">
+    <div className={cn("min-h-screen font-display flex flex-col", activeTab !== 'world' && "pb-32")}>
       <AnimatePresence>
         {activeBattle && (
           <Battle

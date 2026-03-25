@@ -35,7 +35,8 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
 
   const uncaughtInDB = monsterDB
     .filter(m => filter === 'Vše' || m.rarity === filter)
-    .filter(m => !caughtMonsters.some(cm => cm.id === m.id));
+    .filter(m => !caughtMonsters.some(cm => cm.id === m.id))
+    .slice(0, 6); // Limit unknown monsters to 6 items
 
   const allToDisplay = [...caughtFiltered, ...uncaughtInDB];
 
@@ -43,7 +44,6 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="pb-16"
     >
       <div className="flex flex-col gap-3 p-6 bg-primary/5 border-b border-primary/10">
         <div className="flex justify-between items-start">

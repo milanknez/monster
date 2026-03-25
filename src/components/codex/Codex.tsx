@@ -55,7 +55,7 @@ export const Laboratory = ({
   });
 
   return (
-    <div className="pb-32 px-4">
+    <div className="px-4">
       {/* Premium Header */}
       <div className="py-6 text-center relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 size-32 bg-secondary/10 blur-[60px] -z-10" />

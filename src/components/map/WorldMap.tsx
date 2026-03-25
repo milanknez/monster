@@ -560,7 +560,12 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   }, [firebasePlayers])
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full h-full flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 176px)' }}>
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      className="relative w-full flex flex-col overflow-hidden" 
+      style={{ height: 'calc(100dvh - 160px)' }}
+    >
       <div className="px-4 py-2 flex items-center justify-between bg-background-dark/50 backdrop-blur-sm z-50">
         <div>
           <p className="text-slate-400 text-[10px] uppercase font-black tracking-widest">Průzkum Sektoru</p>
