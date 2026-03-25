@@ -11,7 +11,7 @@ export type DuelState = {
   role?: 'challenger' | 'defender';
 }
 
-export function useP2PDuel(playerName: string | null, activeMonster: Monster | null, addToast: (toast: any) => void, opponentUid?: string) {
+export function useP2PDuel(playerName: string | null, activeMonster: Monster | null, addToast: (toast: any) => void, userUid: string, opponentUid?: string) {
   const [duel, setDuel] = useState<DuelState | null>(null);
   const startTimestamp = useRef(Date.now());
   const lastSignalTime = useRef(0);
@@ -29,7 +29,7 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
   useEffect(() => {
     if (!playerName) return;
 
-    const unsubscribe = watchTradeSignals((signal) => {
+    const unsubscribe = watchTradeSignals(userUid, (signal) => {
       const { type, fromUid, fromName, data, timestamp } = signal;
       
       // Ignore duplicate signals exactly matching the last seen
@@ -70,11 +70,11 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
         }
         if (type === 'DRJ') { // Duel ReJect
           addToast({ title: 'Výzva odmítnuta', message: `${fromName} se boji souboje!`, type: 'info' });
-          clearTradeSignal();
+          clearTradeSignal(userUid);
           setDuel(null);
         }
         if (type === 'DCN') { // Duel CaNcel
-           clearTradeSignal();
+           clearTradeSignal(userUid);
            setDuel(null);
            setIncomingExit(fromName);
            setTimeout(() => setIncomingExit(null), 1000);
@@ -83,19 +83,19 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
     });
 
     return () => { if (unsubscribe) unsubscribe(); };
-  }, [playerName, addToast]); // Constant deps for stable listener
+  }, [playerName, addToast, userUid]); // Constant deps for stable listener
 
   const sendChallenge = (targetUid: string, targetName: string) => {
     setIncomingAttack(null);
     setDuel({ step: 'WAITING_ACCEPT', partnerName: targetName, partnerUid: targetUid, role: 'challenger' });
-    sendTradeSignal(targetUid, { type: 'DRE', fromName: playerName || 'Neznámý', data: '' });
+    sendTradeSignal(userUid, targetUid, { type: 'DRE', fromName: playerName || 'Neznámý', data: '' });
   };
 
   const notifyAccept = () => {
     if (!duel?.partnerUid) return;
     setIncomingAttack(null);
     setDuel({ ...duel, step: 'PICKING', role: 'defender' });
-    sendTradeSignal(duel.partnerUid, { type: 'DAC', fromName: playerName || 'Neznámý', data: '' });
+    sendTradeSignal(userUid, duel.partnerUid, { type: 'DAC', fromName: playerName || 'Neznámý', data: '' });
   };
 
   const pickMyFighter = (monster: Monster) => {
@@ -107,7 +107,7 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
        else newState.step = 'WAITING_OPPONENT_PICK'; 
        return newState;
     });
-    sendTradeSignal(duel.partnerUid, { 
+    sendTradeSignal(userUid, duel.partnerUid, { 
        type: 'DMO', 
        fromName: playerName || 'Neznámý', 
        data: JSON.stringify(monster) 
@@ -116,20 +116,20 @@ export function useP2PDuel(playerName: string | null, activeMonster: Monster | n
 
   const sendEmote = (emote: string) => {
     if (duel?.partnerUid) {
-      sendTradeSignal(duel.partnerUid, { type: 'DEM', fromName: playerName || 'Neznámý', data: emote });
+      sendTradeSignal(userUid, duel.partnerUid, { type: 'DEM', fromName: playerName || 'Neznámý', data: emote });
     }
   };
 
   const rejectChallenge = () => {
     if (!duel?.partnerUid) return;
-    sendTradeSignal(duel.partnerUid, { type: 'DRJ', fromName: playerName || 'Neznámý', data: '' });
+    sendTradeSignal(userUid, duel.partnerUid, { type: 'DRJ', fromName: playerName || 'Neznámý', data: '' });
     setDuel(null);
-    clearTradeSignal();
+    clearTradeSignal(userUid);
   };
 
   const cancelChallenge = () => {
     if (duel?.partnerUid) {
-      sendTradeSignal(duel.partnerUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
+      sendTradeSignal(userUid, duel.partnerUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
     }
     setDuel(null);
   };

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw } from 'lucide-react';
+import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../../utils';
 
@@ -12,6 +12,9 @@ interface SettingsModalProps {
   avatarStyle: string;
   avatarSeed: string;
   onUpdateAvatar: (style: string, seed: string) => void;
+  userEmail?: string | null;
+  onLogout: () => void;
+  onLogin: () => void;
 }
 
 const AVATAR_STYLES = [
@@ -29,7 +32,10 @@ export const SettingsModal = ({
   onResetProgress,
   avatarStyle,
   avatarSeed,
-  onUpdateAvatar
+  onUpdateAvatar,
+  userEmail,
+  onLogout,
+  onLogin
 }: SettingsModalProps) => {
   const [tempName, setTempName] = useState(playerName);
   const [notifications, setNotifications] = useState(true);
@@ -57,6 +63,19 @@ export const SettingsModal = ({
       onResetProgress();
       onClose();
     }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Opravdu se chceš odhlásit?')) {
+      onLogout();
+      onClose();
+    }
+  };
+
+  const handleLogin = async () => {
+    console.log("SettingsModal: handleLogin clicked");
+    await onLogin();
+    onClose();
   };
 
   return (
@@ -131,15 +150,17 @@ export const SettingsModal = ({
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px]">Zobrazované jméno</label>
-                  <input
-                    type="text"
-                    value={tempName}
-                    onChange={(e) => setTempName(e.target.value)}
-                    placeholder="Zadej své jméno..."
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-primary/50 transition-colors font-bold"
-                  />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px]">Přezdívka lovce</label>
+                    <input
+                      type="text"
+                      value={tempName}
+                      onChange={(e) => setTempName(e.target.value)}
+                      placeholder="Zadej své jméno..."
+                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-primary/50 transition-colors font-bold"
+                    />
+                  </div>
                 </div>
               </section>
 
@@ -147,7 +168,7 @@ export const SettingsModal = ({
               <section className="space-y-4">
                 <div className="flex items-center gap-2 text-primary">
                   <Bell size={16} className="fill-current opacity-20" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Systémová upozornění</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Nastavení Herního UI</span>
                 </div>
                 
                 <div className="space-y-3">
@@ -174,21 +195,67 @@ export const SettingsModal = ({
               <section className="space-y-4 pt-4">
                 <div className="flex items-center gap-2 text-red-500">
                   <Shield size={16} className="fill-current opacity-20" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Nebezpečná zóna</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Správa účtu</span>
                 </div>
                 
-                <button
-                  onClick={confirmReset}
-                  className="w-full flex items-center justify-between p-4 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 rounded-2xl transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Trash2 size={18} className="text-red-500" />
-                    <div className="text-left">
-                      <p className="text-sm font-bold text-red-100">Resetovat postup</p>
-                      <p className="text-[10px] text-red-500/60 font-medium">Smaže všechny příšery a level</p>
+                <div className="space-y-3">
+                  <div className="mb-2">
+                    <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px] mb-1 block">Propojený Email</label>
+                    <div className="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-4 py-3 text-slate-400 font-medium flex items-center justify-between gap-3">
+                       <div className="flex items-center gap-3 truncate">
+                          <Mail size={16} className="text-slate-600 shrink-0" />
+                          <span className="truncate text-xs">{userEmail || 'V režimu hosta'}</span>
+                       </div>
                     </div>
                   </div>
-                </button>
+
+                   {userEmail ? (
+                     <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="size-10 bg-white/10 rounded-xl flex items-center justify-center text-slate-100 group-hover:scale-110 transition-transform">
+                          <User size={18} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-bold text-slate-100">Odhlásit se</p>
+                          <p className="text-[10px] text-slate-500 font-medium">Odpojí tvůj Google účet</p>
+                        </div>
+                      </div>
+                    </button>
+                   ) : (
+                     <button
+                        onClick={handleLogin}
+                        className="w-full flex items-center justify-between p-4 bg-white text-slate-950 rounded-2xl transition-all group active:scale-95 shadow-lg shadow-white/5"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 bg-slate-950 rounded-xl flex items-center justify-center overflow-hidden">
+                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/google.svg" className="size-5" alt="Google" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-black uppercase tracking-tight">Přihlásit přes Google</p>
+                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">Aktivuj zálohu a odměny</p>
+                          </div>
+                        </div>
+                      </button>
+                   )}
+
+                   <button
+                    onClick={confirmReset}
+                    className="w-full flex items-center justify-between p-4 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 rounded-2xl transition-all group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                         <Trash2 size={18} />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-red-100">Resetovat postup</p>
+                        <p className="text-[10px] text-red-500/60 font-medium whitespace-nowrap">Smaže tvůj herní profil z tohoto zařízení</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </section>
             </div>
 

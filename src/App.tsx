@@ -38,12 +38,36 @@ import { useMonsters } from './hooks/useMonsters'
 import { useP2PTrade } from './hooks/useP2PTrade'
 import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
-import { sendTradeSignal } from './lib/firebase'
+import { 
+  auth, 
+  onAuthStateChanged, 
+  saveUserBackup, 
+  loadUserBackup, 
+  registerReferral, 
+  checkEmailInvitation,
+  watchReferrals, 
+  claimReferralReward,
+  deleteReferral,
+  logout,
+  signInWithGoogle,
+  syncPlayerToFirebase,
+  sendTradeSignal,
+  PLAYER_UID
+} from './lib/firebase'
+import { User as FirebaseUser } from 'firebase/auth'
+
+import { InviteModal } from './components/modals/InviteModal'
+import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const worldMapRef = useRef<WorldMapHandle>(null)
+
+  const [user, setUser] = useState<FirebaseUser | null>(null)
+  const [userUid, setUserUid] = useState<string>(PLAYER_UID)
+  const [referrals, setReferrals] = useState<ReferralEntry[]>([])
 
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
@@ -123,10 +147,103 @@ function App() {
     }
   }, [caughtMonsters, selectedMonster]);
 
-  const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast)
+  const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast, userUid)
   const activeMonster = caughtMonsters[0] || null
-  const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, activeBattle?.opponentUid)
+  const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, userUid, activeBattle?.opponentUid)
   
+  // --- FIREBASE AUTH & SYNC ---
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        setUserUid(firebaseUser.uid);
+        
+        // Online Backup Recovery
+        const backup = await loadUserBackup(firebaseUser.uid);
+        if (backup && !playerName) {
+          // Restore data if user is logging in on a new device
+          setPlayerName(backup.playerName);
+          setAvatarStyle(backup.avatarStyle);
+          setAvatarSeed(backup.avatarSeed);
+          // Note: hooks like usePlayerXP/useMonsters also need to be synced
+          // For now, we update localStorage so hooks pick it up on reload or next sync
+          localStorage.setItem('monster_collector_player_name', backup.playerName);
+          localStorage.setItem('monster_collector_avatar_style', backup.avatarStyle);
+          localStorage.setItem('monster_collector_avatar_seed', backup.avatarSeed);
+          if (backup.totalXP) localStorage.setItem('monster_collector_xp', backup.totalXP.toString());
+          if (backup.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(backup.caughtMonsters));
+          if (backup.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
+          
+          window.location.reload(); // Quickest way to let all hooks re-initialize with new data
+        } else if (!backup && !playerName && firebaseUser.email) {
+          // New user! Check if they were invited by email
+          const referrerUidMatch = await checkEmailInvitation(firebaseUser.email);
+          if (referrerUidMatch) {
+             registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || 'Nový lovec', firebaseUser.email);
+             addToast({ 
+                title: 'Odměna za pozvánku', 
+                message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.', 
+                type: 'xp' 
+             });
+          }
+        }
+      } else {
+        setUser(null);
+        setUserUid(PLAYER_UID);
+      }
+    });
+    return () => unsubscribe();
+  }, [playerName]);
+
+  // Periodic Online Backup
+  useEffect(() => {
+    if (!user || !userUid) return;
+    const interval = setInterval(() => {
+      saveUserBackup(userUid, {
+        playerName,
+        avatarStyle,
+        avatarSeed,
+        totalXP,
+        currentLevel,
+        caughtMonsters,
+        inventory,
+        lastSync: Date.now()
+      });
+    }, 60000); // Back up every minute
+    return () => clearInterval(interval);
+  }, [user, userUid, playerName, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
+
+  // Watch Referrals
+  useEffect(() => {
+    if (!userUid) return;
+    const unsubscribe = watchReferrals(userUid, (data) => {
+      const list: ReferralEntry[] = Object.entries(data).map(([uid, val]: [string, any]) => ({
+        uid,
+        ...val,
+        level: 1 // We'll update this in the next effect
+      }));
+      setReferrals(list);
+    });
+    return () => unsubscribe();
+  }, [userUid]);
+
+  // Sync Referral Levels (Real-time check of invited friends)
+  useEffect(() => {
+    if (referrals.length === 0) return;
+    const interval = setInterval(async () => {
+      const updatedReferrals = await Promise.all(referrals.map(async (refEntry) => {
+        // Fetch invited player level from players/UID
+        const playerRef = (await loadUserBackup(refEntry.uid)); // reuse helper or make new
+        return { ...refEntry, level: playerRef?.level || 1 };
+      }));
+      // Only update if something changed
+      if (JSON.stringify(updatedReferrals) !== JSON.stringify(referrals)) {
+        setReferrals(updatedReferrals);
+      }
+    }, 30000);
+    return () => interval && clearInterval(interval);
+  }, [referrals]);
+
   // Handle opponent exiting battle
   useEffect(() => {
     if (incomingExit && activeBattle) {
@@ -477,12 +594,12 @@ function App() {
             }}
             onSendEmote={(emote) => {
               if (activeBattle.opponentUid) {
-                sendTradeSignal(activeBattle.opponentUid, { type: 'DEM', fromName: playerName || 'Neznámý', data: emote });
+                sendTradeSignal(userUid, activeBattle.opponentUid, { type: 'DEM', fromName: playerName || 'Neznámý', data: emote });
               }
             }}
             onSendAttack={(attackData) => {
               if (activeBattle.opponentUid) {
-                sendTradeSignal(activeBattle.opponentUid, { type: 'DAT', fromName: playerName || 'Neznámý', data: JSON.stringify(attackData) });
+                sendTradeSignal(userUid, activeBattle.opponentUid, { type: 'DAT', fromName: playerName || 'Neznámý', data: JSON.stringify(attackData) });
               }
             }}
             onWin={handleBattleWin}
@@ -510,7 +627,7 @@ function App() {
             }}
             onBack={() => {
               if (activeBattle.opponentUid) {
-                sendTradeSignal(activeBattle.opponentUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
+                sendTradeSignal(userUid, activeBattle.opponentUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
               }
               setActiveBattle(null);
             }}
@@ -520,10 +637,7 @@ function App() {
 
       {!playerName && (
         <SetupProfileModal
-          onComplete={(name) => {
-            setPlayerName(name)
-            localStorage.setItem('monster_collector_player_name', name)
-          }}
+          onComplete={handleProfileComplete}
         />
       )}
 
@@ -644,6 +758,10 @@ function App() {
                     dailyDistance={dailyDistance}
                     onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+                    referrals={referrals}
+                    onInvite={() => setIsInviteModalOpen(true)}
+                    onHatch={handleHatchReferral}
+                    onDelete={handleDeleteReferral}
                   />
                 </motion.div>
               )}
@@ -707,6 +825,7 @@ function App() {
                   isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle}
                   caughtMonsters={caughtMonsters}
                   playerName={playerName || 'Aether_Runner'}
+                  playerUid={userUid}
                   avatarStyle={avatarStyle}
                   avatarSeed={avatarSeed}
                   playerLevel={currentLevel}
@@ -767,6 +886,23 @@ function App() {
               setAvatarSeed(seed)
               localStorage.setItem('monster_collector_avatar_style', style)
               localStorage.setItem('monster_collector_avatar_seed', seed)
+            }}
+            userEmail={user?.email}
+            onLogout={() => logout()}
+            onLogin={async () => {
+              try {
+                const user = await signInWithGoogle();
+                if (user) {
+                   addToast({ title: 'Přihlášeno!', message: `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
+                }
+              } catch (err: any) {
+                console.error(err);
+                addToast({ 
+                  title: 'Chyba přihlášení', 
+                  message: `[${err.code || 'unknown'}]: ${err.message || 'Zkus to prosím znovu.'}`, 
+                  type: 'error' 
+                });
+              }
             }}
           />
         )}
@@ -1010,8 +1146,68 @@ function App() {
           />
         )}
       </AnimatePresence>
+
+      <InviteModal 
+        isOpen={isInviteModalOpen} 
+        onClose={() => setIsInviteModalOpen(false)} 
+        referralCode={userUid} 
+      />
     </div>
   )
+
+  async function handleProfileComplete(name: string, referralCode?: string) {
+    setPlayerName(name)
+    localStorage.setItem('monster_collector_player_name', name)
+    
+    if (referralCode && userUid) {
+      await registerReferral(referralCode, userUid, name);
+      addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+    }
+  }
+
+  async function handleHatchReferral(invitedUid: string) {
+    try {
+      if (!userUid) return;
+      await claimReferralReward(userUid, invitedUid);
+      
+      const rarePool = monsterDB.filter(m => {
+          const r = (m.rarity || '').toLowerCase();
+          return r === 'vzácná' || r === 'rare';
+      });
+      const randomMonster = rarePool[Math.floor(Math.random() * rarePool.length)];
+      
+      if (randomMonster) {
+        const monsterWithMeta: Monster = {
+          ...randomMonster,
+          level: 1,
+          image: '', // Visuals are handled by ID
+          currentHP: undefined, 
+          totalXP: 0,
+          abilities: (randomMonster.abilities || []).map(a => ({
+            ...a,
+            type: a.type as any
+          }))
+        };
+        saveMonster(monsterWithMeta, (xp) => {
+          setNewMonster(monsterWithMeta);
+          addXP(xp);
+        });
+        addToast({ title: 'Vajíčko vylíhnuto!', message: `Získal jsi vzácného ${randomMonster.name}!`, type: 'success' });
+      }
+    } catch (error) {
+       console.error(error);
+    }
+  }
+
+  async function handleDeleteReferral(invitedId: string) {
+    if (!userUid) return;
+    try {
+      await deleteReferral(userUid, invitedId);
+      addToast({ title: 'Pozvánka smazána', message: 'Tento záznam byl odstraněn.', type: 'xp' });
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
 
 export default App

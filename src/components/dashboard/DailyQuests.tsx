@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer } from 'lucide-react';
+import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer, UserPlus, Sparkles } from 'lucide-react';
 import { cn } from '../../utils';
 
 import { Monster } from '../../types';
+import { ReferralList, type ReferralEntry } from '../referrals/ReferralList';
+
+interface DailyQuestsProps {
+  caughtMonsters: Monster[];
+  dailyDistance: number;
+  onClaimReward: (xp: number) => void;
+  isXPBoosted: boolean;
+  referrals?: ReferralEntry[];
+  onInvite: () => void;
+  onHatch: (uid: string) => void;
+  onDelete: (uid: string) => void;
+}
 
 export const DailyQuests = ({ 
   caughtMonsters, 
   dailyDistance,
   onClaimReward,
-  isXPBoosted
-}: { 
-  caughtMonsters: Monster[], 
-  dailyDistance: number,
-  onClaimReward: (xp: number) => void,
-  isXPBoosted: boolean 
-}) => {
+  isXPBoosted,
+  referrals = [],
+  onInvite,
+  onHatch,
+  onDelete
+}: DailyQuestsProps) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [claimedQuests, setClaimedQuests] = useState<number[]>(() => {
     try {
@@ -108,63 +119,97 @@ export const DailyQuests = ({
   };
 
   return (
-    <section className="p-4 mb-32">
-      <div className="flex justify-between items-center mb-4 px-1">
-        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Denní protokoly</h3>
-        <div className="flex items-center gap-1 text-[10px] text-primary font-black uppercase">
-          <Timer size={12} />
-          <span>RESETOVÁNÍ ZA {timeLeft}</span>
+    <div className="p-4 space-y-8">
+      {/* Daily Quests Section */}
+      <section>
+        <div className="flex justify-between items-center mb-4 px-1">
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Denní protokoly</h3>
+          <div className="flex items-center gap-1 text-[10px] text-primary font-black uppercase">
+            <Timer size={12} />
+            <span>RESETOVÁNÍ ZA {timeLeft}</span>
+          </div>
         </div>
-      </div>
-      <div className="space-y-3">
-        {quests.map((quest, idx) => {
-          const Icon = quest.icon;
-          return (
-            <motion.div
-              key={quest.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + idx * 0.1 }}
-              className={cn(
-                "flex items-center p-4 bg-slate-900/40 border border-slate-800 rounded-2xl transition-all hover:bg-slate-900/60",
-                quest.completed && "border-green-500/30 bg-green-500/5"
-              )}
-            >
-              <div className={cn("p-2.5 rounded-xl mr-4", quest.bg)}>
-                <Icon size={20} className={quest.color} />
+        <div className="space-y-3">
+          {quests.map((quest, idx) => {
+            const Icon = quest.icon;
+            return (
+              <motion.div
+                key={quest.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + idx * 0.1 }}
+                className={cn(
+                  "flex items-center p-4 bg-slate-900/40 border border-slate-800 rounded-2xl transition-all hover:bg-slate-900/60",
+                  quest.completed && "border-green-500/30 bg-green-500/5"
+                )}
+              >
+                <div className={cn("p-2.5 rounded-xl mr-4", quest.bg)}>
+                  <Icon size={20} className={quest.color} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-slate-100">{quest.title}</p>
+                  <p className="text-[11px] text-slate-500 font-medium">{quest.desc}</p>
+                </div>
+                <div className="text-right flex flex-col items-end">
+                  {claimedQuests.includes(quest.id) ? (
+                    <CheckCircle2 size={24} className="text-green-500" />
+                  ) : quest.completed ? (
+                    <button 
+                      onClick={() => handleClaim(quest.id, quest.reward)}
+                      className="bg-green-500 hover:bg-green-400 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-tighter transition-all active:scale-95 shadow-lg shadow-green-500/20"
+                    >
+                      Získat {isXPBoosted ? `+${quest.reward * 2}` : `+${quest.reward}`} XP
+                    </button>
+                  ) : (
+                    <>
+                      <p className={cn("text-xs font-black", quest.color)}>
+                        {quest.id === 3 ? `${quest.progress.toFixed(1)}km` : `${quest.progress}/${quest.total}`}
+                      </p>
+                      <div className="w-16 h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                        <div
+                          className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))}
+                          style={{ width: `${(quest.progress / quest.total) * 100}%` }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Lifetime / Referral Section */}
+      <section className="pb-8">
+        <div className="flex justify-between items-center mb-4 px-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Celoživotní úkoly</h3>
+            <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-black">BONUS</span>
+          </div>
+          <button 
+            onClick={onInvite}
+            className="flex items-center gap-1.5 text-[10px] text-primary font-black uppercase hover:text-white transition-colors"
+          >
+            <UserPlus size={14} />
+            <span>Pozvat přítele</span>
+          </button>
+        </div>
+
+        <div className="bg-slate-900/20 border border-slate-800/50 rounded-3xl p-4">
+           <div className="flex items-center gap-4 mb-4 p-3 bg-primary/5 border border-primary/10 rounded-2xl">
+              <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                 <Sparkles size={20} className="text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-slate-100">{quest.title}</p>
-                <p className="text-[11px] text-slate-500 font-medium">{quest.desc}</p>
+                 <p className="text-xs font-black text-slate-100 leading-tight uppercase">Získej Vzácné Vajíčko</p>
+                 <p className="text-[10px] text-slate-500 font-medium">Za každého přítele, který dosáhne 3. úrovně.</p>
               </div>
-              <div className="text-right flex flex-col items-end">
-                {claimedQuests.includes(quest.id) ? (
-                  <CheckCircle2 size={24} className="text-green-500" />
-                ) : quest.completed ? (
-                  <button 
-                    onClick={() => handleClaim(quest.id, quest.reward)}
-                    className="bg-green-500 hover:bg-green-400 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-tighter transition-all active:scale-95 shadow-lg shadow-green-500/20"
-                  >
-                    Získat {isXPBoosted ? `+${quest.reward * 2}` : `+${quest.reward}`} XP
-                  </button>
-                ) : (
-                  <>
-                    <p className={cn("text-xs font-black", quest.color)}>
-                      {quest.id === 3 ? `${quest.progress.toFixed(1)}km` : `${quest.progress}/${quest.total}`}
-                    </p>
-                    <div className="w-16 h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
-                      <div
-                        className={cn("h-full transition-all duration-500", quest.completed ? "bg-green-500" : quest.color.replace('text', 'bg'))}
-                        style={{ width: `${(quest.progress / quest.total) * 100}%` }}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </section>
-  )
+           </div>
+
+           <ReferralList referrals={referrals} onHatch={onHatch} onDelete={onDelete} />
+        </div>
+      </section>
+    </div>
+  );
 }

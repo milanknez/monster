@@ -28,8 +28,10 @@ import monster027 from './monsters/027.json';
 import monster028 from './monsters/028.json';
 import monster029 from './monsters/029.json';
 import monster030 from './monsters/030.json';
+import monster031 from './monsters/031.json';
 
 export const monsterDB = [
+  monster031,
   monster001,
   monster002,
   monster003,

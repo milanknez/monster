@@ -1,0 +1,28 @@
+{
+  "id": "031",
+  "name": "Švábomyš",
+  "description": "Odpudivý vodní mutant připomínající křížence švába a myši. Má dlouhý lysý ocas, chitinový krunýř a tenké nožky, kterými se plazí po dně. Rád se skrývá ve špíně a kalu, kde tiše číhá na kořist.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 145,
+    "attack": 38,
+    "defense": 40
+  },
+  "abilities": [
+    {
+      "name": "Kalný výpad",
+      "description": "Švábomyš se vynoří z kalu a rychle kousne nepřítele, čímž má šanci ho oslabit.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.6
+    },
+    {
+      "name": "Chitinový odraz",
+      "description": "Tvrdý krunýř odrazí část poškození zpět na útočníka.",
+      "type": "extra",
+      "chance": 90,
+      "value": 0.2
+    }
+  ]
+}

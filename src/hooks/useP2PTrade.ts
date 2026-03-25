@@ -13,13 +13,13 @@ export type P2PTradeState = {
   confirmedByThem?: boolean;
 };
 
-export function useP2PTrade(playerName: string | null, addToast: (toast: any) => void) {
+export function useP2PTrade(playerName: string | null, addToast: (toast: any) => void, userUid: string) {
   const [p2pTrade, setP2pTrade] = useState<P2PTradeState | null>(null);
 
   useEffect(() => {
     if (!playerName) return;
 
-    const unsubscribe = watchTradeSignals((signal) => {
+    const unsubscribe = watchTradeSignals(userUid, (signal) => {
       const { type, fromUid, fromName, data } = signal;
       
       setP2pTrade(prev => {
@@ -60,7 +60,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
     });
 
     return () => { if (unsubscribe) unsubscribe(); };
-  }, [playerName, addToast]);
+  }, [playerName, addToast, userUid]);
 
   useEffect(() => {
     if (!p2pTrade || !p2pTrade.partnerUid) return;
@@ -77,7 +77,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
           data = `${p2pTrade.myMonster.id}:${p2pTrade.myMonster.level}`;
        }
        
-       sendTradeSignal(p2pTrade.partnerUid, {
+       sendTradeSignal(userUid, p2pTrade.partnerUid, {
           type: signalType,
           fromName: playerName || 'Neznámý',
           data
@@ -90,7 +90,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
       if (p2pTrade.myMonster && p2pTrade.theirMonster) {
         onSuccess(p2pTrade.myMonster, p2pTrade.theirMonster);
         setTimeout(() => {
-          clearTradeSignal();
+          clearTradeSignal(userUid);
           setP2pTrade(null);
         }, 1500);
       }

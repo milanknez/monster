@@ -58,6 +58,7 @@ export interface WorldMapProps {
   isInteractionBlocked?: boolean
   caughtMonsters: Monster[]
   playerName: string
+  playerUid: string
   avatarStyle: string
   avatarSeed: string
   playerLevel: number
@@ -82,6 +83,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   onDistanceUpdate,
   isInteractionBlocked,
   playerName,
+  playerUid,
   avatarStyle,
   avatarSeed,
   playerLevel,
@@ -546,12 +548,12 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed])
 
   useEffect(() => {
-    if (!playerPos || !playerName) return
-    const unsubscribe = watchNearbyPlayers((others) => {
-      setFirebasePlayers(others.filter(p => (Date.now() - p.lastActive) < 300000 && haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000).map(p => ({ ...p, id: p.id || `fb_${p.name}` })))
+    if (!playerPos || !playerName || !playerUid) return
+    const unsubscribe = watchNearbyPlayers(playerUid, (others: any[]) => {
+      setFirebasePlayers(others.filter((p: any) => (Date.now() - p.lastActive) < 300000 && haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000).map((p: any) => ({ ...p, id: p.id || `fb_${p.name}` })))
     });
     return () => unsubscribe();
-  }, [playerPos, playerName])
+  }, [playerPos, playerName, playerUid])
 
   useEffect(() => {
     const all = new Map<string, NearbyPlayer>()

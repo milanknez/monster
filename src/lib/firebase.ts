@@ -1,21 +1,52 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, onDisconnect, update } from "firebase/database";
+import { getDatabase, ref, onValue, set, onDisconnect, update, get, remove } from "firebase/database";
+import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    signOut, // Added signOut here
+    User
+} from "firebase/auth";
+export { onAuthStateChanged };
 
 // Pro uživatele: Sem vlož konfiguraci ze své Firebase Console (Web App Config)
 const firebaseConfig = {
-    apiKey: "AIzaSyC3tHRAzNy_bxVQHo7_1zcaXmk3uDd9UNM",
-    authDomain: "monstero-5cbe6.firebaseapp.com",
-    projectId: "monstero-5cbe6",
-    databaseURL: "https://monstero-5cbe6-default-rtdb.europe-west1.firebasedatabase.app",
-    storageBucket: "monstero-5cbe6.firebasestorage.app",
-    messagingSenderId: "615786759721",
-    appId: "1:615786759721:web:22af53b47747248beb7e38",
-    measurementId: "G-NVMV14KX3G"
+    apiKey: "AIzaSyDGwx0MLkdXvGRkLR3UTnL-9vlcc-WUi-Y",
+
+    authDomain: "monster-app-3062e.firebaseapp.com",
+
+    databaseURL: "https://monster-app-3062e-default-rtdb.europe-west1.firebasedatabase.app",
+
+    projectId: "monster-app-3062e",
+
+    storageBucket: "monster-app-3062e.firebasestorage.app",
+
+    messagingSenderId: "924150763137",
+
+    appId: "1:924150763137:web:dca166eb99197cf7c38780",
+
+    measurementId: "G-J1F1290THF"
+
 };
 
 
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
+export const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+export const signInWithGoogle = async () => {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        return result.user;
+    } catch (error) {
+        console.error("Chyba při přihlášení přes Google:", error);
+        throw error;
+    }
+};
+
+export const logout = () => signOut(auth);
 
 // Pomocná funkce pro vygenerování unikátního anonymního ID, pokud nechceme Auth
 const getAnonymousId = () => {
@@ -33,6 +64,7 @@ export const PLAYER_UID = getAnonymousId();
  * Synchronizuje polohu a stav hráče do Firebase
  */
 export const syncPlayerToFirebase = (data: {
+    uid?: string,
     name: string,
     level: number,
     monsterCount: number,
@@ -42,10 +74,18 @@ export const syncPlayerToFirebase = (data: {
     avatarSeed: string,
     activeMonster?: { id: string, level: number, name: string, stats: any }
 }) => {
-    const playerRef = ref(db, `players/${PLAYER_UID}`);
+    const uid = data.uid || PLAYER_UID;
+    const playerRef = ref(db, `players/${uid}`);
 
     const statusData = {
-        ...data,
+        name: data.name,
+        level: data.level,
+        monsterCount: data.monsterCount,
+        lat: data.lat,
+        lng: data.lng,
+        avatarStyle: data.avatarStyle,
+        avatarSeed: data.avatarSeed,
+        activeMonster: data.activeMonster || null,
         lastActive: Date.now(),
         isOnline: true
     };
@@ -60,9 +100,109 @@ export const syncPlayerToFirebase = (data: {
 };
 
 /**
+ * Uloží kompletní data uživatele (online záloha)
+ */
+export const saveUserBackup = async (uid: string, data: any) => {
+    const backupRef = ref(db, `users/${uid}`);
+    await set(backupRef, {
+        ...data,
+        updatedAt: Date.now()
+    });
+};
+
+/**
+ * Načte kompletní data uživatele (obsluha nového zařízení)
+ */
+export const loadUserBackup = async (uid: string) => {
+    const backupRef = ref(db, `users/${uid}`);
+    const snapshot = await get(backupRef);
+    return snapshot.exists() ? snapshot.val() : null;
+};
+
+/**
+ * Referral Logika
+ */
+export const registerReferral = async (referrerUid: string, invitedUid: string, invitedName: string, invitedEmail?: string | null) => {
+    // 1. Primární tracking pro levely
+    const referralRef = ref(db, `referrals/${referrerUid}/${invitedUid}`);
+    await set(referralRef, {
+        name: invitedName,
+        email: invitedEmail || null,
+        timestamp: Date.now(),
+        hatchClaimed: false
+    });
+
+    // 2. Aktualizovat stav v seznamu pozvaných emailů, pokud existuje
+    if (invitedEmail) {
+        const cleanEmail = invitedEmail.replace(/\./g, '_').toLowerCase();
+        const userInviteRef = ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`);
+        await update(userInviteRef, { status: 'registered', registeredUid: invitedUid });
+    }
+};
+
+export const watchReferrals = (uid: string, callback: (referrals: any) => void) => {
+    const referralsRef = ref(db, `referrals/${uid}`);
+    return onValue(referralsRef, (snapshot) => {
+        callback(snapshot.val() || {});
+    });
+};
+
+export const claimReferralReward = async (referrerUid: string, invitedUid: string) => {
+    const referralRef = ref(db, `referrals/${referrerUid}/${invitedUid}`);
+    await update(referralRef, { hatchClaimed: true });
+};
+
+export const deleteReferral = async (referrerUid: string, invitedId: string) => {
+    const referralRef = ref(db, `referrals/${referrerUid}/${invitedId}`);
+    await remove(referralRef);
+};
+
+/**
+ * Pozvání přes email
+ */
+export const inviteByEmail = async (referrerUid: string, email: string) => {
+    // Firebase cesty nemohou obsahovat tečky
+    const cleanEmail = email.replace(/\./g, '_').toLowerCase();
+
+    // 1. Uložit do globálního seznamu pozvánek pro snadný lookup při registraci
+    const inviteRef = ref(db, `invites/${cleanEmail}`);
+    await set(inviteRef, {
+        referrerUid,
+        email,
+        timestamp: Date.now()
+    });
+
+    // 2. Uložit do seznamu pozvaných u referrera pro tracking (v objektu uživatele)
+    const userInviteRef = ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`);
+    await set(userInviteRef, {
+        email,
+        status: 'pending',
+        timestamp: Date.now()
+    });
+
+    // 3. Vytvořit záznam v referrals (pro okamžité zobrazení vajíčka v dashboardu)
+    const referralRef = ref(db, `referrals/${referrerUid}/${cleanEmail}`);
+    await set(referralRef, {
+        name: email.split('@')[0], // Dočasné jméno z emailu
+        email: email,
+        level: 0,
+        status: 'invited',
+        timestamp: Date.now(),
+        hatchClaimed: false
+    });
+};
+
+export const checkEmailInvitation = async (email: string) => {
+    const cleanEmail = email.replace(/\./g, '_').toLowerCase();
+    const inviteRef = ref(db, `invites/${cleanEmail}`);
+    const snapshot = await get(inviteRef);
+    return snapshot.exists() ? snapshot.val().referrerUid : null;
+};
+
+/**
  * Poslouchá změny všech ostatních hráčů v databázi
  */
-export const watchNearbyPlayers = (callback: (players: any[]) => void) => {
+export const watchNearbyPlayers = (currentUid: string, callback: (players: any[]) => void) => {
     const playersRef = ref(db, 'players');
     return onValue(playersRef, (snapshot) => {
         const data = snapshot.val();
@@ -72,7 +212,7 @@ export const watchNearbyPlayers = (callback: (players: any[]) => void) => {
         }
 
         const playersArray = Object.entries(data)
-            .filter(([id]) => id !== PLAYER_UID) // Vyfiltrovat sebe
+            .filter(([id]) => id !== currentUid) // Vyfiltrovat sebe
             .map(([id, val]: [string, any]) => ({
                 id,
                 ...val,
@@ -85,11 +225,11 @@ export const watchNearbyPlayers = (callback: (players: any[]) => void) => {
 /**
  * Pošle signál (žádost, potvrzení, monster data) jinému hráči
  */
-export const sendTradeSignal = async (targetUid: string, signal: any) => {
+export const sendTradeSignal = async (fromUid: string, targetUid: string, signal: any) => {
     const signalRef = ref(db, `signals/${targetUid}`);
     await set(signalRef, {
         ...signal,
-        fromUid: PLAYER_UID,
+        fromUid: fromUid,
         timestamp: Date.now()
     });
 };
@@ -97,8 +237,8 @@ export const sendTradeSignal = async (targetUid: string, signal: any) => {
 /**
  * Sleduje vlastní schránku signálů
  */
-export const watchTradeSignals = (callback: (signal: any) => void) => {
-    const signalRef = ref(db, `signals/${PLAYER_UID}`);
+export const watchTradeSignals = (uid: string, callback: (signal: any) => void) => {
+    const signalRef = ref(db, `signals/${uid}`);
     return onValue(signalRef, (snapshot) => {
         const data = snapshot.val();
         if (data) callback(data);
@@ -108,7 +248,7 @@ export const watchTradeSignals = (callback: (signal: any) => void) => {
 /**
  * Vymaže signál po zpracování
  */
-export const clearTradeSignal = async () => {
-    const signalRef = ref(db, `signals/${PLAYER_UID}`);
+export const clearTradeSignal = async (uid: string) => {
+    const signalRef = ref(db, `signals/${uid}`);
     await set(signalRef, null);
 };

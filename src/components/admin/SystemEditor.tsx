@@ -22,18 +22,14 @@ import { GemEditorTab } from './tabs/GemEditorTab'
 import { LootEditorTab } from './tabs/LootEditorTab'
 
 // --- Constants ---
-const MONSTER_TYPES = ['Normal', 'Oheň', 'Voda', 'Tráva', 'Blesk', 'Země', 'Vzduch', 'Led']
-const MONSTER_RARITIES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendární']
+const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
+const MONSTER_RARITIES = ['Běžná', 'Vzácná', 'Epická', 'Legendární']
 
 const TYPE_ICONS: Record<string, any> = {
-  'Normal': Package,
-  'Oheň': Flame,
-  'Voda': Droplets,
-  'Tráva': Leaf,
-  'Blesk': Zap,
-  'Země': Beaker,
-  'Vzduch': Dice5,
-  'Led': Snowflake
+  'Ohnivá': Flame,
+  'Vodní': Droplets,
+  'Přírodní': Leaf,
+  'Elektrická': Zap
 }
 
 function Snowflake(props: any) {
@@ -41,15 +37,15 @@ function Snowflake(props: any) {
 }
 
 const TYPE_EMOJIS: Record<string, string> = {
-  'Normal': '📦', 'Oheň': '🔥', 'Voda': '💧', 'Tráva': '🌿', 'Blesk': '⚡', 'Země': '⛰️', 'Vzduch': '💨', 'Led': '❄️'
+  'Ohnivá': '🔥', 'Vodní': '💧', 'Přírodní': '🌿', 'Elektrická': '⚡'
 }
 
 const RARITY_COLORS: Record<string, string> = {
-  'Common': 'text-slate-400', 'Uncommon': 'text-emerald-400', 'Rare': 'text-blue-400', 'Epic': 'text-purple-400', 'Legendární': 'text-yellow-400'
+  'Běžná': 'text-slate-400', 'Vzácná': 'text-blue-400', 'Epická': 'text-purple-400', 'Legendární': 'text-yellow-400'
 }
 
 const RARITY_EMOJIS: Record<string, string> = {
-  'Common': '⚪', 'Uncommon': '🟢', 'Rare': '🔵', 'Epic': '🟣', 'Legendární': '🟡'
+  'Běžná': '⚪', 'Vzácná': '🔵', 'Epická': '🟣', 'Legendární': '🟡'
 }
 
 const ABILITY_TYPES = [
@@ -111,8 +107,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
        id: newId,
        name: 'Nová příšerka',
        description: 'Popis...',
-       type: 'Normal',
-       rarity: 'Common',
+       type: 'Ohnivá',
+       rarity: 'Běžná',
        stats: { hp: 100, attack: 50, defense: 40, speed: 50 },
        abilities: []
      };
@@ -120,15 +116,65 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
      setSelectedMonsterId(newId);
   }
 
-  const handleSaveMonster = () => {
+  const handleSaveMonster = async () => {
     if (!monsterForm) return;
+
+    // Save image if changed
+    if (tempImageUrl && !imgError) {
+      try {
+        const fileInput = document.getElementById('image-upload-hidden') as HTMLInputElement;
+        const file = fileInput?.files?.[0];
+        if (file) {
+          await fetch(`/api/save-monster-image?id=${monsterForm.id}`, {
+            method: 'POST',
+            body: file
+          });
+        }
+      } catch (err) {
+        console.error('Monster image upload failed:', err);
+      }
+    }
+
     const newMonsters = monsters.map(m => m.id === monsterForm.id ? monsterForm : m);
     setMonsters(newMonsters);
+    
+    if (window.location.hostname === 'localhost') {
+      try {
+        const res = await fetch('/api/save-monster', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: monsterForm.id, monster: monsterForm })
+        });
+        if (res.ok) {
+          alert('Monstrum uloženo přímo do souboru.');
+          return;
+        }
+      } catch (e) {
+        console.error('API save failed:', e);
+      }
+    }
+    
     downloadJson(newMonsters, 'monsters.ts', 'monsterDB');
   }
 
-  const handleSaveConfig = (tab: EditorTab, data: any) => {
-     downloadJson(data, `${tab}.ts`, tab === 'recipes' ? 'recipes' : tab === 'gems' ? 'gemBonuses' : tab === 'resources' ? 'resourceConfig' : 'lootPools');
+  const handleSaveConfig = async (tab: EditorTab, data: any) => {
+    if (window.location.hostname === 'localhost') {
+      try {
+        const res = await fetch('/api/save-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: tab, data })
+        });
+        if (res.ok) {
+          alert(`Konfigurace ${tab} uložena přímo do souboru.`);
+          return;
+        }
+      } catch (e) {
+        console.error('API save failed:', e);
+      }
+    }
+    
+    downloadJson(data, `${tab}.ts`, tab === 'recipes' ? 'recipes' : tab === 'gems' ? 'gemBonuses' : tab === 'resources' ? 'resourceConfig' : 'lootPools');
   }
 
   const downloadJson = (data: any, filename: string, varName: string) => {
@@ -151,19 +197,22 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   }
 
   const handleResourceImageUpload = async (id: string, file: File) => {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('id', id);
-
     try {
-      const res = await fetch('/api/save-resource-image', { method: 'POST', body: formData });
+      const res = await fetch(`/api/save-resource-image?id=${id}`, { 
+        method: 'POST', 
+        body: file 
+      });
       if (res.ok) {
-        alert('Ikonka nahrána! Pro projevení změn může být potřeba refresh.');
-        setResourceConfig({ ...resourceConfig, [id]: { ...resourceConfig[id], hasCustomIcon: true } });
+        const newConfig = { ...resourceConfig, [id]: { ...resourceConfig[id], hasCustomIcon: true } };
+        setResourceConfig(newConfig);
+        await handleSaveConfig('resources', newConfig);
+        alert('Ikonka nahrána a konfigurace aktualizována!');
+      } else {
+        throw new Error('Upload server error');
       }
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('Chyba při nahrávání ikonky.');
+      alert('Chyba při nahrávání ikonky. Ujistěte se, že běží dev server.');
     }
   }
 

@@ -50,7 +50,7 @@ export default defineConfig({
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
               try {
-                const { key, data } = JSON.parse(body); // key is like 'loot' or 'recipes' or 'gems'
+                const { key, data } = JSON.parse(body); 
                 const paths: Record<string, string> = {
                   loot: 'src/data/loot.ts',
                   recipes: 'src/data/recipes.ts',
@@ -61,18 +61,17 @@ export default defineConfig({
                 if (!relativePath) { res.statusCode = 400; res.end('Invalid config key'); return; }
                 const filePath = path.resolve(__dirname, relativePath);
                 
-                // For .ts files we need to export the const
                 let content = '';
-                if (key === 'loot') content = `import { ResourceType, LootTableEntry } from '../types';\n\nexport const LOOT_CONFIG = ${JSON.stringify(data, null, 2)} as any;`;
+                if (key === 'loot') content = `import { LootTableEntry } from '../types';\n\nexport const LOOT_CONFIG: Record<string, LootTableEntry[]> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'recipes') content = `import { Recipe } from '../types';\n\nexport const recipes: Recipe[] = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'gems') content = `export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = ${JSON.stringify(data, null, 2)};`;
-                else if (key === 'resources') content = `export const RESOURCE_CONFIG: Record<string, { color: string; label: string; icon: string }> = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'resources') content = `import { ResourceConfig } from '../types';\n\nexport const RESOURCE_CONFIG: Record<string, ResourceConfig> = ${JSON.stringify(data, null, 2)};`;
 
-                
                 fs.writeFileSync(filePath, content);
                 res.statusCode = 200;
                 res.end('Config saved successfully');
               } catch (e) {
+                console.error(e);
                 res.statusCode = 500;
                 res.end('Internal Server Error');
               }
@@ -96,7 +95,6 @@ export default defineConfig({
           } else {
             next();
           }
-
         });
       }
     }
