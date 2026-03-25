@@ -12,6 +12,7 @@ import { cn, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNES
 import { LOOT_CONFIG } from '../../data/loot';
 
 import { LootModal, type LootItem } from './LootModal';
+import { useGameSound } from '../../data/sounds';
 
 // --- Types ---
 interface DamagePopup {
@@ -260,6 +261,17 @@ export const Battle = ({
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
   const [turnTime, setTurnTime] = useState(50);
 
+  const { 
+    playAttack, playHit, playCritical, playHeal, 
+    playVictory, playDefeat, playCatch, playClick,
+    playBattleMusic, stopBattleMusic, playSpell
+  } = useGameSound();
+
+  useEffect(() => {
+    playBattleMusic();
+    return () => stopBattleMusic();
+  }, [playBattleMusic, stopBattleMusic]);
+
   // --- Turn Timer ---
   useEffect(() => {
     if (showLoot || playerAnim !== 'idle' || enemyAnim !== 'idle') return;
@@ -356,8 +368,11 @@ export const Battle = ({
     setShowItems(false);
     setPlayerAnim('attack');
     if (isSkill) {
+      playSpell();
       setActiveBurst({ id: Date.now(), type: playerMonster.type, fromSide: 'player', subType: ability?.type });
       setTimeout(() => setActiveBurst(null), 3000);
+    } else {
+      playAttack();
     }
 
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
@@ -370,13 +385,22 @@ export const Battle = ({
         addPopup(0, true, { isMiss: true });
         dmg = 0; 
       }
-      else if (ability?.type === 'heal') { const heal = Math.round(playerMaxHP * (ability.value || 0.15)); setPlayerHP(p => Math.min(playerMaxHP, p + heal)); addPopup(heal, false, { isHeal: true }); dmg = 0; }
+      else if (ability?.type === 'heal') { 
+        const heal = Math.round(playerMaxHP * (ability.value || 0.15)); 
+        setPlayerHP(p => Math.min(playerMaxHP, p + heal)); 
+        addPopup(heal, false, { isHeal: true }); 
+        playHeal();
+        dmg = 0; 
+      }
       else if (ability?.type === 'defense') { setShieldTurns(2); dmg = 0; }
       if (dmg > 0) { 
         setEnemyHP(p => Math.max(0, p - dmg)); 
         setEnemyAnim('hit'); 
         addPopup(dmg, true, res); 
         triggerShake(res.isCrit || isSkill);
+        
+        if (res.isCrit) playCritical();
+        else playHit();
         
         if (res.isEffective && Math.random() < 0.6) {
            if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Nepřítel byl zapálen!"); }
@@ -391,6 +415,7 @@ export const Battle = ({
         if (enemyHP - dmg <= 0) { 
           setEnemyAnim('lose'); 
           setPlayerAnim('win'); 
+          playVictory();
           setWinXP(80 + enemyMonster.level * 15); 
           
           // GENERATE LOOT FROM CONFIG
@@ -450,9 +475,11 @@ export const Battle = ({
        const success = Math.random() < chance;
        if (success) { 
           setEnemyAnim('win');
+          playCatch(true);
           setTimeout(() => onCatch?.(enemyMonster), 1000); 
        } else { 
           setCatchAnim(false); 
+          playCatch(false);
           onCatchFail?.(); 
           setLogs(p => ["Chycení selhalo!", ...p].slice(0, 3)); 
        }
@@ -471,15 +498,24 @@ export const Battle = ({
         }
         
         setEnemyAnim('attack');
+        playAttack();
         
         setTimeout(() => {
           if (enemyEffects.some(e => e.type === 'burn')) { const bd = Math.round(enemyMaxHP * 0.05); setEnemyHP(p => Math.max(0, p - bd)); addPopup(bd, true); }
           const res = calculateDamage(enemyMonster, playerMonster);
           setPlayerHP(p => Math.max(0, p - res.dmg)); setPlayerAnim('hit'); addPopup(res.dmg, false, res); triggerShake(res.isCrit); if (shieldTurns > 0) setShieldTurns(p => p - 1);
+          
+          if (res.isCrit) playCritical();
+          else playHit();
           setEnemyEffects(p => p.map(e => e.type !== 'paralyze' ? { ...e, duration: e.duration - 1 } : e).filter(e => e.duration > 0));
           if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
           setTimeout(() => {
-            setEnemyAnim('idle'); setPlayerAnim('idle'); if (playerHP - res.dmg <= 0) { setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player');
+            setEnemyAnim('idle'); setPlayerAnim('idle'); 
+            if (playerHP - res.dmg <= 0) { 
+              setPlayerAnim('lose'); 
+              playDefeat();
+              setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); 
+            } else setTurn('player');
           }, 400);
         }, 400);
       }, 1500); // Shorter delay for better flow
@@ -496,13 +532,17 @@ export const Battle = ({
           setEnemyShieldTurns(2); setLogs(p => ["Nepřítel aktivoval štít!", ...p]);
           setTimeout(() => setTurn('player'), 1200); return;
         }
-         setTurn('enemy'); setEnemyAnim('attack');
-        if (incomingAttack.isSkill) {
-           setActiveBurst({ id: Date.now(), type: enemyMonster.type, fromSide: 'enemy', subType: incomingAttack.isShield ? 'defense' : 'attack' }); 
-           setTimeout(() => setActiveBurst(null), 3000);
-        }
+          setTurn('enemy'); setEnemyAnim('attack');
+         if (incomingAttack.isSkill) {
+            playSpell();
+            setActiveBurst({ id: Date.now(), type: enemyMonster.type, fromSide: 'enemy', subType: incomingAttack.isShield ? 'defense' : 'attack' }); 
+            setTimeout(() => setActiveBurst(null), 3000);
+         } else {
+            playAttack();
+         }
         setTimeout(() => {
            setPlayerHP(p => Math.max(0, p - incomingAttack.dmg)); setPlayerAnim('hit'); addPopup(incomingAttack.dmg, false, incomingAttack); 
+           if (incomingAttack.isCrit) playCritical(); else playHit();
            if (shieldTurns > 0) setShieldTurns(p => p - 1);
            if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
            setTimeout(() => { setPlayerAnim('idle'); setEnemyAnim('idle'); if (playerHP - incomingAttack.dmg <= 0) { setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player'); }, 400);

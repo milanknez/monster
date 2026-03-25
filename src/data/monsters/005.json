@@ -21,8 +21,8 @@
       "name": "Ztuhlá láva",
       "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu.",
       "type": "defense",
-      "chance": 70,
-      "value": 0.4
+      "chance": 85,
+      "value": 1.2
     }
   ]
 }

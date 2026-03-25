@@ -530,9 +530,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   }
 
   useEffect(() => {
-    if (!playerPos || !playerName) return
+    if (!playerPos || !playerName || !playerUid) return
     const sync = () => {
       syncPlayerToFirebase({
+        uid: playerUid,
         name: playerName,
         level: playerLevel,
         monsterCount: caughtMonsters.length,
@@ -545,7 +546,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     sync(); // Sync immediately
     const interval = setInterval(sync, 10000); // And every 10s
     return () => clearInterval(interval);
-  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed])
+  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed, playerUid])
 
   useEffect(() => {
     if (!playerPos || !playerName || !playerUid) return

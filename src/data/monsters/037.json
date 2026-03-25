@@ -1,0 +1,28 @@
+{
+  "id": "037",
+  "name": "Voltinka Čibu",
+  "description": "Malá odvážná čivava stojící na kopci, chytá blesky z nebe. Srst jí vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 120,
+    "attack": 38,
+    "defense": 48
+  },
+  "abilities": [
+    {
+      "name": "Nebeský výboj",
+      "description": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.55
+    },
+    {
+      "name": "Elektrická obnova",
+      "description": "Použije energii blesků k doražení nepřítele.",
+      "type": "extra",
+      "chance": 85,
+      "value": 0.3
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import type { InventoryItem, Recipe, ResourceType } from '../../types';
 import { cn } from '../../utils';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 
+import { useGameSound } from '../../data/sounds';
+
 export const Laboratory = ({
   inventory,
   onCraft
@@ -13,6 +15,7 @@ export const Laboratory = ({
   inventory: (InventoryItem | null)[],
   onCraft: (recipe: Recipe) => void
 }) => {
+  const { playLabStart, playLabComplete } = useGameSound();
   const [craftingRecipeId, setCraftingRecipeId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [activeCategory, setActiveCategory] = useState<'vše' | 'lektvary' | 'drahokamy'>('vše');
@@ -27,6 +30,7 @@ export const Laboratory = ({
   const startCrafting = (recipe: Recipe) => {
     setCraftingRecipeId(recipe.id);
     setProgress(0);
+    playLabStart();
 
     const duration = 3000;
     const interval = 50;
@@ -41,6 +45,7 @@ export const Laboratory = ({
       if (currentStep >= steps) {
         clearInterval(timer);
         onCraft(recipe);
+        playLabComplete();
         setCraftingRecipeId(null);
         setProgress(0);
       }

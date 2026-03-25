@@ -1,0 +1,28 @@
+{
+  "id": "036",
+  "name": "Plasmarík Ed",
+  "description": "Malý energický králík držící zářící plazmovou kouli, která praská blesky. Je rychlý, srst mu jemně vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 124,
+    "attack": 72,
+    "defense": 26
+  },
+  "abilities": [
+    {
+      "name": "Plazmový výboj",
+      "description": "Uvolní soustředěnou plazmovou energii na jednoho nepřítele a způsobí silné poškození.",
+      "type": "extra",
+      "chance": 90,
+      "value": 0.35
+    },
+    {
+      "name": "Elektro léčba",
+      "description": "Vytvoří jiskřící bublinu, která obnoví 25% zdraví.",
+      "type": "heal",
+      "chance": 100,
+      "value": 0.25
+    }
+  ]
+}

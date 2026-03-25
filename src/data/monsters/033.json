@@ -1,0 +1,28 @@
+{
+  "id": "033",
+  "name": "Dotty Rose",
+  "description": "Přirozený pes se skvrnitou srstí, rychlý a bystrý. Dobře reaguje na povely a je skvělý lovec i společník. Má silný čich a rychlé reflexy, což mu umožňuje vyhledávat a pronásledovat kořist či cizince.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 120,
+    "attack": 60,
+    "defense": 40
+  },
+  "abilities": [
+    {
+      "name": "Rychlý útok",
+      "description": "Útok vysokou rychlostí na jednoho nepřítele.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.5
+    },
+    {
+      "name": "Čichové vyhledávání",
+      "description": "Odhalí nepřátele a zvyšuje šanci zásahu příštího útoku.",
+      "type": "extra",
+      "chance": 85,
+      "value": 0.5
+    }
+  ]
+}

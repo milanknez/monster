@@ -41,11 +41,11 @@ const TYPE_EMOJIS: Record<string, string> = {
 }
 
 const RARITY_COLORS: Record<string, string> = {
-  'Běžná': 'text-slate-400', 'Vzácná': 'text-blue-400', 'Epická': 'text-purple-400', 'Legendární': 'text-yellow-400'
+  'Běžná': 'text-slate-400', 'Vzácná': 'text-purple-400', 'Epická': 'text-orange-400', 'Legendární': 'text-amber-400'
 }
 
 const RARITY_EMOJIS: Record<string, string> = {
-  'Běžná': '⚪', 'Vzácná': '🔵', 'Epická': '🟣', 'Legendární': '🟡'
+  'Běžná': '⚪', 'Vzácná': '🟣', 'Epická': '🟠', 'Legendární': '✨'
 }
 
 const ABILITY_TYPES = [

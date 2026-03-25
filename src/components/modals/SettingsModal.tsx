@@ -24,6 +24,8 @@ const AVATAR_STYLES = [
   { id: 'lorelei', name: 'Lorelei' },
 ];
 
+import { useSoundSystem } from '../../context/SoundContext';
+
 export const SettingsModal = ({ 
   isOpen, 
   onClose, 
@@ -37,9 +39,9 @@ export const SettingsModal = ({
   onLogout,
   onLogin
 }: SettingsModalProps) => {
+  const { isMuted, setIsMuted } = useSoundSystem();
   const [tempName, setTempName] = useState(playerName);
   const [notifications, setNotifications] = useState(true);
-  const [sound, setSound] = useState(true);
   const [vibration, setVibration] = useState(true);
 
   useEffect(() => {
@@ -180,8 +182,8 @@ export const SettingsModal = ({
                   <Toggle 
                     label="Zvukové efekty" 
                     icon={<Volume2 size={14} />}
-                    active={sound} 
-                    onToggle={() => setSound(!sound)} 
+                    active={!isMuted} 
+                    onToggle={() => setIsMuted(!isMuted)} 
                   />
                   <Toggle 
                     label="Haptická odezva" 

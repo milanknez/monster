@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { LayoutGrid, BookOpen, Map as MapIcon, Package } from 'lucide-react';
 import { cn } from '../../utils';
+import { useGameSound } from '../../data/sounds';
 
 export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (id: string) => void }) => {
+  const { playClick } = useGameSound();
   const navItems = [
     { id: 'home', label: 'Domů', icon: LayoutGrid },
     { id: 'vault', label: 'Bestiář', icon: BookOpen },
@@ -16,7 +18,10 @@ export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (
         {navItems.map((item) => (
           <button 
             key={item.id}
-            onClick={() => onTabChange(item.id)}
+            onClick={() => {
+              playClick();
+              onTabChange(item.id);
+            }}
             className={cn(
               "flex flex-col items-center gap-1.5 transition-all relative px-2",
               active === item.id ? "text-primary" : "text-slate-500"

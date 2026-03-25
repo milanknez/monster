@@ -58,8 +58,9 @@ import { User as FirebaseUser } from 'firebase/auth'
 
 import { InviteModal } from './components/modals/InviteModal'
 import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
+import { SoundProvider } from './context/SoundContext'
 
-function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -1210,4 +1211,10 @@ function App() {
   }
 }
 
-export default App
+export default function App() {
+  return (
+    <SoundProvider>
+      <AppContent />
+    </SoundProvider>
+  )
+}

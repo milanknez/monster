@@ -22,10 +22,13 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
+import { useGameSound } from '../../data/sounds';
+
 export const Bestiary = ({ caughtMonsters, onSelect }: { 
   caughtMonsters: Monster[], 
   onSelect: (m: Monster) => void
 }) => {
+  const { playBookFlip, playClick } = useGameSound();
   const [filter, setFilter] = useState('Vše')
   const rarities = ['Vše', 'Běžná', 'Vzácná', 'Epická', 'Legendární']
 
@@ -82,7 +85,10 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
           {rarities.map(r => (
             <button
               key={r}
-              onClick={() => setFilter(r)}
+              onClick={() => {
+                setFilter(r);
+                playBookFlip();
+              }}
               className={cn(
                 "whitespace-nowrap text-xs font-black uppercase tracking-widest transition-all relative pb-2",
                 filter === r ? "text-primary" : "text-slate-500 hover:text-slate-300"
@@ -110,6 +116,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               whileTap={isCaught ? { scale: 0.98 } : {}}
               onClick={() => {
                 if (!isCaught) return;
+                playClick();
                 onSelect(m as Monster);
               }}
               className={cn(

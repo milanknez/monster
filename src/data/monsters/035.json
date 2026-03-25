@@ -1,0 +1,28 @@
+{
+  "id": "035",
+  "name": "Bublík Mořský",
+  "description": "Malý, roztomilý mořský koník s lesklými šupinami a jemnými ploutvemi, který elegantně pluje mezi korály a mořskou trávou, zanechává za sebou drobné bublinky.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 110,
+    "attack": 60,
+    "defense": 34
+  },
+  "abilities": [
+    {
+      "name": "Vlnivý švih",
+      "description": "Útočí rychlým pohybem ocasu, způsobí poškození jednomu nepříteli.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.65
+    },
+    {
+      "name": "Léčivé bublinky",
+      "description": "Vytvoří kouzlo z bublin, které obnoví zdraví spojencům.",
+      "type": "heal",
+      "chance": 100,
+      "value": 0.25
+    }
+  ]
+}

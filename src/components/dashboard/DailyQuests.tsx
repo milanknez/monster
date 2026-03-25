@@ -5,6 +5,7 @@ import { cn } from '../../utils';
 
 import { Monster } from '../../types';
 import { ReferralList, type ReferralEntry } from '../referrals/ReferralList';
+import { useGameSound } from '../../data/sounds';
 
 interface DailyQuestsProps {
   caughtMonsters: Monster[];
@@ -113,7 +114,10 @@ export const DailyQuests = ({
     },
   ]
 
+  const { playLevelUp } = useGameSound();
+
   const handleClaim = (questId: number, xp: number) => {
+    playLevelUp();
     setClaimedQuests(prev => [...prev, questId]);
     onClaimReward(xp);
   };

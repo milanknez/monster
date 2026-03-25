@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Gift, ChevronRight } from 'lucide-react';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { useGameSound } from '../../data/sounds';
 
 export interface LootItem {
   id: string;
@@ -28,6 +29,18 @@ export const LootModal = ({
   onCollect,
   onComplete
 }: LootModalProps) => {
+  const { playNotification, playClick } = useGameSound();
+
+  const handleOpenChest = () => {
+    playNotification();
+    onOpenChest();
+  };
+
+  const handleCollect = (id: string) => {
+    playClick();
+    onCollect(id);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -45,7 +58,7 @@ export const LootModal = ({
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={onOpenChest}
+                  onClick={handleOpenChest}
                   className="cursor-pointer flex flex-col items-center relative"
                 >
                   <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
@@ -65,7 +78,7 @@ export const LootModal = ({
                           key={i.id}
                           initial={{ scale: 0, y: 20 }}
                           animate={{ scale: 1, y: 0 }}
-                          onClick={() => onCollect(i.id)}
+                          onClick={() => handleCollect(i.id)}
                           className="bg-slate-800 border-2 border-white/5 rounded-[1.5rem] p-5 cursor-pointer relative shadow-2xl flex flex-col items-center gap-2 group active:scale-95 transition-all"
                           style={{ boxShadow: `0 10px 30px -10px ${config.color}33` }}
                         >

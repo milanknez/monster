@@ -1,0 +1,28 @@
+{
+  "id": "034",
+  "name": "Flamík Popelka",
+  "description": "Malá, roztomilá ohnivá liška s žhnoucíma očima a drápky, které zanechávají stopy jisker a popela při každém pohybu.",
+  "type": "Ohnivá",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 120,
+    "attack": 55,
+    "defense": 18
+  },
+  "abilities": [
+    {
+      "name": "Jiskřivý švih",
+      "description": "Rychlý úder rozpáleným drápem, způsobí silné poškození jednomu nepříteli.",
+      "type": "extra",
+      "chance": 90,
+      "value": 0.5
+    },
+    {
+      "name": "Popelavý vír",
+      "description": "Vyvolá vír popela a jisker. Od všech nepřítele a sníží útok  v příštím kole o 80%.",
+      "type": "defense",
+      "chance": 85,
+      "value": 0.8
+    }
+  ]
+}
