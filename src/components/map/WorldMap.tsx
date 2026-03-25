@@ -469,14 +469,14 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       const cooldowns = loadCooldowns()
       const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
       const commonRes = generateResources(lat, lng, cooldowns)
-      
+
       setSpawns(prev => {
         const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
         // Aplikace přesunu + 15m rozestupu přes optimizeSpawns
         const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 15)
         return [...optimizedCommon, ...pois]
       })
-      
+
       setResources(prev => {
         const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
         // Aplikace přesunu + 15m rozestupu
@@ -661,30 +661,37 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                 <p className="text-purple-400 text-[10px] font-black uppercase mb-6 tracking-widest leading-none">Aeternum Runner (LVL {selectedOtherPlayer.level})</p>
 
                 {selectedPlayerDist !== null && selectedPlayerDist > CATCH_RADIUS_M && (
-                  <div className="w-full bg-red-950/40 border border-red-500/20 text-red-400 text-[9px] font-black text-center uppercase p-2 rounded-xl mb-4 italic tracking-tighter">
-                    🔴 Příliš daleko ({Math.round(selectedPlayerDist)}m) - Přijď pod {CATCH_RADIUS_M}m
+                  <div className="w-full bg-red-950/40 border border-red-500/20 text-red-400 text-[10px] font-black text-center uppercase p-3 rounded-2xl mb-6 italic tracking-tight leading-relaxed">
+                    🔴 Výměna a souboj je možný jen při osobním setkání.
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 w-full">
+                <div className="flex flex-col gap-3 w-full">
+                  {selectedPlayerDist !== null && selectedPlayerDist <= CATCH_RADIUS_M && (
+                    <div className="grid grid-cols-2 gap-3 w-full">
+                      <button
+                        onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }}
+                        className="bg-purple-600 active:scale-95 shadow-lg shadow-purple-900/20 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-tighter transition-all"
+                      >
+                        Vyměnit
+                      </button>
+                      <button
+                        onClick={() => {
+                          onStartDuel?.(selectedOtherPlayer.name, selectedOtherPlayer.id);
+                          setSelectedOtherPlayer(null);
+                        }}
+                        className="bg-red-600 active:scale-95 shadow-lg shadow-red-900/20 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-tighter transition-all"
+                      >
+                        Vyzvat
+                      </button>
+                    </div>
+                  )}
                   <button
-                    disabled={selectedPlayerDist === null || selectedPlayerDist > CATCH_RADIUS_M}
-                    onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }}
-                    className={cn("text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter transition-all", (selectedPlayerDist === null || selectedPlayerDist > CATCH_RADIUS_M) ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed" : "bg-purple-600 active:scale-95 shadow-lg shadow-purple-900/20")}
+                    onClick={() => setSelectedOtherPlayer(null)}
+                    className="bg-slate-800 text-slate-400 font-bold py-4 rounded-2xl uppercase text-xs hover:bg-slate-700 active:scale-95 transition-all shadow-inner"
                   >
-                    Vyměnit
+                    Zavřít
                   </button>
-                  <button
-                    disabled={selectedPlayerDist === null || selectedPlayerDist > CATCH_RADIUS_M}
-                    onClick={() => {
-                      onStartDuel?.(selectedOtherPlayer.name, selectedOtherPlayer.id);
-                      setSelectedOtherPlayer(null);
-                    }}
-                    className={cn("text-white font-black py-4 rounded-xl uppercase text-xs tracking-tighter transition-all", (selectedPlayerDist === null || selectedPlayerDist > CATCH_RADIUS_M) ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed" : "bg-red-600 active:scale-95 shadow-lg shadow-red-900/20")}
-                  >
-                    Vyzvat
-                  </button>
-                  <button onClick={() => setSelectedOtherPlayer(null)} className="col-span-2 bg-slate-800 text-slate-400 font-bold py-4 rounded-xl uppercase text-xs hover:bg-slate-700 active:scale-95 transition-all">Zavřít</button>
                 </div>
               </div>
             </motion.div>

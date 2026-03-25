@@ -15,6 +15,7 @@ export const Laboratory = ({
 }) => {
   const [craftingRecipeId, setCraftingRecipeId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [activeCategory, setActiveCategory] = useState<'vše' | 'lektvary' | 'drahokamy'>('vše');
 
   const getItemCount = (type: ResourceType) => {
     return inventory.reduce((acc, slot) => {
@@ -46,168 +47,154 @@ export const Laboratory = ({
     }, interval);
   };
 
+  const filteredRecipes = recipes.filter(recipe => {
+    if (activeCategory === 'vše') return true;
+    if (activeCategory === 'lektvary') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
+    if (activeCategory === 'drahokamy') return recipe.id.includes('gem');
+    return true;
+  });
+
   return (
-    <div className="pb-16 px-6">
+    <div className="pb-32 px-4">
       {/* Premium Header */}
-      <div className="py-8 text-center relative">
-        <div className="absolute top-0 left-1/2 -underline-1/2 size-40 bg-secondary/10 blur-[80px] -z-10" />
-        <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary mb-4">
-          <Beaker size={32} />
+      <div className="py-6 text-center relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 size-32 bg-secondary/10 blur-[60px] -z-10" />
+        <div className="inline-flex items-center justify-center p-2.5 rounded-xl bg-secondary/10 border border-secondary/20 text-secondary mb-3">
+          <Beaker size={24} />
         </div>
-        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Laboratoř</h2>
-        <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-widest opacity-80">Syntéza drahokamů a lektvarů</p>
+        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Laboratoř</h2>
+        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest opacity-80">Syntéza drahokamů a lektvarů</p>
       </div>
 
-      <div className="space-y-8">
-        {recipes.map((recipe, idx) => {
-          const hasSpace = inventory.some(slot => slot === null);
-          const materialsMet = recipe.requirements.every(req => getItemCount(req.type) >= req.count);
-          const ready = materialsMet && hasSpace && !craftingRecipeId;
-          const active = craftingRecipeId === recipe.id;
+      {/* Category Tabs */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+        {(['vše', 'lektvary', 'drahokamy'] as const).map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={cn(
+              "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+              activeCategory === cat
+                ? "bg-secondary border-secondary text-white shadow-lg shadow-secondary/20"
+                : "bg-slate-900/50 border-white/5 text-slate-500 hover:border-white/10"
+            )}
+          >
+            {cat === 'vše' ? 'Všechny' : cat === 'lektvary' ? 'Lektvary' : 'Drahokamy'}
+          </button>
+        ))}
+      </div>
 
-          return (
-            <motion.div
-              key={recipe.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className={cn(
-                "group relative p-6 rounded-[2.5rem] border transition-all duration-500",
-                active ? "ring-2 ring-secondary ring-offset-4 ring-offset-background-dark scale-[1.02]" : "",
-                ready || active
-                  ? "bg-slate-900 border-secondary/40 shadow-2xl shadow-secondary/10"
-                  : "bg-slate-900/40 border-white/5 opacity-70 grayscale-[0.3]"
-              )}
-            >
-              <div className="absolute -top-4 left-6 px-4 py-1.5 rounded-full bg-slate-950 border border-secondary/40 flex items-center gap-2">
-                {active ? <RefreshCw size={12} className="text-secondary animate-spin" /> : <Sparkles size={12} className="text-secondary" />}
-                <span className="text-[10px] font-black text-secondary uppercase tracking-widest">
-                  {active ? "Vyrábím..." : "Recept"}
-                </span>
-              </div>
+      {/* Recipes Grid */}
+      <div className="grid grid-cols-2 gap-3 pb-8">
+        <AnimatePresence mode="popLayout">
+          {filteredRecipes.map((recipe, idx) => {
+            const hasSpace = inventory.some(slot => slot === null);
+            const materialsMet = recipe.requirements.every(req => getItemCount(req.type) >= req.count);
+            const ready = materialsMet && hasSpace && !craftingRecipeId;
+            const active = craftingRecipeId === recipe.id;
 
-              {/* Title & Stats */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex-1">
-                  <h3 className="text-2xl font-black text-white uppercase italic">{recipe.name}</h3>
-                  <p className="text-[11px] text-slate-400 font-bold leading-relaxed pr-8">{recipe.description}</p>
-                </div>
-                <div className="size-20 rounded-3xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500 relative overflow-hidden shrink-0">
-                  <div className={cn("size-14 flex items-center justify-center", active ? "animate-bounce" : "animate-pulse-slow")}>
-                    {RESOURCE_CONFIG[recipe.result.id]?.hasCustomIcon ? (
-                      <img src={`resources/${recipe.result.id}.png`} className="w-full h-full object-contain filter drop-shadow-md" />
-                    ) : (
-                      <span className="text-5xl drop-shadow-md">
-                        {recipe.result.id === 'xp_booster' || recipe.result.id === 'xp_boost' ? '🧪' : (recipe.result.id === 'hp_potion' || recipe.result.id === 'hp_regen') ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒')}
-                      </span>
-                    )}
-                  </div>
-                  {active && (
-                    <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center">
-                      <span className="text-xs font-black text-white">{Math.floor(progress)}%</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="h-px bg-white/5 w-full mb-8" />
-
-              {/* Requirements Grid */}
-              {!active && (
-                <div className="space-y-4 mb-8">
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-secondary" /> Potřebné materiály
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    {recipe.requirements.map(req => {
-                      const count = getItemCount(req.type);
-                      const ok = count >= req.count;
-                      const config = RESOURCE_CONFIG[req.type];
-
-                      return (
-                        <div key={req.type} className={cn(
-                          "flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all truncate min-w-[140px]",
-                          ok ? "bg-emerald-500/5 border-emerald-500/20" : "bg-black/40 border-white/5"
-                        )}>
-                          <div className="size-12 bg-slate-800 rounded-xl flex items-center justify-center text-3xl shadow-inner relative overflow-hidden">
-                            {config?.hasCustomIcon ? (
-                              <img src={`resources/${req.type}.png`} className="w-full h-full object-contain p-1" />
-                            ) : (
-                              <span>{config?.icon}</span>
-                            )}
-                          </div>
-
-                          <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase leading-none">{config.label}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                              <p className={cn("text-sm font-black italic", ok ? "text-emerald-500" : "text-red-500")}>
-                                {count}
-                              </p>
-                              <span className="text-[10px] text-slate-700">/ {req.count}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Progress Bar for Active Recipe */}
-              {active && (
-                <div className="mb-8">
-                  <div className="flex justify-between items-end mb-2">
-                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest">Alchymie v procesu...</p>
-                    <p className="text-xs font-black text-white italic">{Math.floor(progress)}%</p>
-                  </div>
-                  <div className="h-4 bg-black/40 rounded-full border border-white/5 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-secondary to-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.5)]"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <motion.button
-                whileHover={ready ? { scale: 1.02, translateY: -2 } : {}}
-                whileTap={ready ? { scale: 0.98 } : {}}
-                disabled={!ready || active}
-                onClick={() => ready && startCrafting(recipe)}
+            return (
+              <motion.div
+                layout
+                key={recipe.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
                 className={cn(
-                  "w-full py-5 rounded-[1.5rem] font-black uppercase text-sm tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:translate-y-1 shadow-xl",
-                  active
-                    ? "bg-slate-800 text-slate-400 cursor-not-allowed"
-                    : ready
-                      ? "bg-gradient-to-r from-secondary to-orange-500 text-white shadow-secondary/30"
-                      : "bg-slate-800 text-slate-600 cursor-not-allowed grayscale"
+                  "col-span-1 group relative rounded-[2rem] border transition-all duration-300 flex flex-col overflow-hidden",
+                  active ? "ring-2 ring-secondary shadow-[0_0_20px_rgba(13,185,242,0.3)]" : "",
+                  ready || active
+                    ? "bg-slate-900 border-secondary/30"
+                    : "bg-slate-900/40 border-white/5 opacity-80"
                 )}
               >
-                {active ? (
-                  <>
-                    <RefreshCw size={18} className="animate-spin" /> PROBÍHÁ VÝROBA
-                  </>
-                ) : ready ? (
-                  <>
-                    <Beaker size={18} /> VYROBIT TEĎ
-                  </>
-                ) : !hasSpace ? (
-                  <>
-                    <AlertCircle size={18} /> PLNÝ INVENTÁŘ
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle size={18} /> NEDOSTATEK MATERIÁLŮ
-                  </>
-                )}
-              </motion.button>
-            </motion.div>
-          )
-        })}
+                {/* Card Content */}
+                <div className="p-4 flex flex-col h-full">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="size-11 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0">
+                      {RESOURCE_CONFIG[recipe.result.id]?.hasCustomIcon ? (
+                        <img src={`resources/${recipe.result.id}.png`} className="size-7 object-contain" />
+                      ) : (
+                        <span className="text-xl">
+                          {recipe.result.id === 'xp_booster' ? '🧪' : (recipe.result.id === 'hp_potion' ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒'))}
+                        </span>
+                      )}
+                    </div>
+                    {ready && !active && (
+                      <div className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] mt-1.5" />
+                    )}
+                  </div>
+
+                  <h3 className="text-[11px] font-black text-white uppercase italic leading-tight mb-1">
+                    {recipe.name}
+                  </h3>
+                  
+                  <p className="text-[9px] text-slate-500 font-bold mb-3 line-clamp-2 leading-tight h-7">
+                    {recipe.description}
+                  </p>
+
+                  {/* Mini-Hints for Materials */}
+                  {!active && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {recipe.requirements.map(req => {
+                        const count = getItemCount(req.type);
+                        const ok = count >= req.count;
+                        return (
+                          <div key={req.type} className="flex items-center gap-1 bg-black/30 px-1.5 py-0.5 rounded-lg border border-white/5">
+                            <span className="text-[9px] opacity-80">{RESOURCE_CONFIG[req.type]?.icon}</span>
+                            <span className={cn("text-[9px] font-black", ok ? "text-emerald-500" : "text-red-500")}>
+                              {count < req.count ? count : req.count}/{req.count}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Active Crafting Overlay */}
+                  {active && (
+                    <div className="mt-auto mb-2">
+                      <div className="flex justify-between items-end mb-1">
+                        <p className="text-[8px] font-black text-secondary uppercase tracking-widest animate-pulse">Pracuji...</p>
+                        <p className="text-[9px] font-black text-white italic">{Math.floor(progress)}%</p>
+                      </div>
+                      <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-secondary to-orange-500"
+                          animate={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  {!active && (
+                    <button
+                      disabled={!ready}
+                      onClick={() => ready && startCrafting(recipe)}
+                      className={cn(
+                        "mt-auto w-full py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-lg",
+                        ready 
+                          ? "bg-gradient-to-r from-secondary to-blue-600 text-white shadow-secondary/10"
+                          : "bg-slate-800 text-slate-600 cursor-not-allowed"
+                      )}
+                    >
+                      {!hasSpace ? (
+                        <><AlertCircle size={12} /> Plno</>
+                      ) : materialsMet ? (
+                        <><Zap size={12} /> Vyrobit</>
+                      ) : (
+                        <><AlertCircle size={12} /> Chybí</>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
-
-
     </div>
-  )
-}
+  );
+};

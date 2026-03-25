@@ -859,16 +859,17 @@ function App() {
         {/* Duel Modals */}
          {wildEncounter && (
           <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-             <DuelSelectionModal
-               caughtMonsters={caughtMonsters}
-               title="Výběr pro bitvu"
-               description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% energie!"
-               onClose={() => setWildEncounter(null)}
-               onSelect={(m) => {
-                 setWildEncounter(null);
-                 handleStartBattle(wildEncounter, undefined, undefined, m);
-               }}
-             />
+              <DuelSelectionModal
+                caughtMonsters={caughtMonsters}
+                opponent={wildEncounter}
+                title="Výběr pro bitvu"
+                description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% životů!"
+                onClose={() => setWildEncounter(null)}
+                onSelect={(m) => {
+                  setWildEncounter(null);
+                  handleStartBattle(wildEncounter, undefined, undefined, m);
+                }}
+              />
           </div>
         )}
 
@@ -900,6 +901,7 @@ function App() {
             {duel.step === 'PICKING' && (
               <DuelSelectionModal
                 caughtMonsters={caughtMonsters}
+                opponent={duel.opponentMonster}
                 onClose={cancelChallenge}
                 onSelect={(m) => pickMyFighter(m)}
               />
