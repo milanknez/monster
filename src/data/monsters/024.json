@@ -3,7 +3,7 @@
   "name": "Kotvoplak",
   "description": "Mocná vodní příšera, která drží obrovskou kotvu nebo kladivo. Plave pod vodou a dokáže zasáhnout nepřátele s velkou silou. Strašidelná. Pojídá své druhy.",
   "type": "Vodní",
-  "rarity": "Epická",
+  "rarity": "Legendární",
   "stats": {
     "hp": 411,
     "attack": 173,

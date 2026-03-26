@@ -22,7 +22,10 @@ export const COMMON_GRID_M = 100
 export const COMMON_RADIUS_CELLS = 10
 export const OVERPASS_RADIUS_M = 1500
 export const REF_LAT = 50.0755
-export const EPIC_TAGS = ['castle', 'monastery', 'palace', 'fortress', 'cathedral']
+export const EPIC_TAGS = ['monastery', 'cathedral', 'tower', 'ruins', 'temple', 'tvrz', 'abbey', 'basilica', 'monument']
+export const LEGENDARY_CANDIDATE_TAGS = ['castle', 'palace', 'chateau', 'fortress', 'citadel', 'manor']
+// Vesnické POI – garantováno Rare spawn (bez skip chance)
+export const VILLAGE_RURAL_TAGS = ['wayside_cross', 'wayside_shrine', 'wayside', 'chapel', 'memorial', 'boundary_stone', 'milestone', 'village_sign', 'cross']
 
 // Šikovné konstanty pro mřížku
 const LAT_STEP = metersToLatDeg(COMMON_GRID_M)
@@ -68,8 +71,8 @@ export function generateCommonSpawns(playerLat: number, playerLng: number, coold
 
       spawns.push({
         id: realId, // ID fixní pro synchronizaci sežených napříč relacemi
-        lat: jLat, 
-        lng: jLng, 
+        lat: jLat,
+        lng: jLng,
         rarity: 'common',
         monsterId: pickMonster(id, 'common'),    // Seed hashovaný pro náhodu
         level: pickLevel(id, 'common'),          // Seed hashovaný pro náhodu
@@ -122,8 +125,8 @@ export function generateResources(playerLat: number, playerLng: number, cooldown
 
       spawns.push({
         id: `res_${ix}_${iy}`, // ID zachováme přehledné pro cooldowns
-        lat: jLat, 
-        lng: jLng, 
+        lat: jLat,
+        lng: jLng,
         type: rType,
         amount: Math.floor(seededFloat(`ramount_${id}`) * 2) + 1,
         isCollected: isOnCooldown(cooldowns, `res_${ix}_${iy}`)
@@ -164,6 +167,9 @@ export async function fetchPoiData(
   nwr["tourism"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   nwr["amenity"~"place_of_worship|museum|library|theatre"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   nwr["heritage"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  // Vesnické POI (boží muka, kapličky, pomínky)
+  nwr["historic"~"wayside_cross|wayside_shrine|wayside|chapel|memorial|boundary_stone|milestone|village_sign|cross"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["amenity"~"place_of_worship"](around:${OVERPASS_RADIUS_M},${lat},${lng});
   
   // Buildings to avoid
   nwr["building"](around:500,${lat},${lng});
@@ -204,13 +210,20 @@ out center;`;
   const resources: ResourceSpawn[] = []
   const buildings: { lat: number, lng: number }[] = []
   const seenPos = new Set<string>()
+  const legCandidates: { m: SpawnPoint; tags: any }[] = []
 
   for (const el of json.elements ?? []) {
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
 
-    if (el.tags && el.tags.building) {
+    // Přeskočit POUZE čisté budovy bez historického tagu – hrady/zámky mívají building=castle
+    const isHistoricLandmark = el.tags && (
+      LEGENDARY_CANDIDATE_TAGS.some(t => el.tags.historic === t || el.tags.heritage === t) ||
+      EPIC_TAGS.some(t => el.tags.historic === t || el.tags.heritage === t) ||
+      el.tags.name?.toLowerCase().match(/\b(hrad|zámek)\b/)
+    );
+    if (el.tags && el.tags.building && !isHistoricLandmark) {
       buildings.push({ lat: elLat, lng: elLng })
       continue
     }
@@ -224,28 +237,48 @@ out center;`;
     const isCollected = isOnCooldown(cooldowns, id)
 
     if (tags.historic || tags.tourism || tags.amenity === 'place_of_worship' || tags.heritage) {
-      // 20% šance, že u historického místa nic nenaspanujeme (méně nepořádku na mapě)
-      if (seededFloat(id + '_spawn_m') < 0.1) continue
+      const isLegCandidate = LEGENDARY_CANDIDATE_TAGS.some(t => tags.historic === t || tags.heritage === t || tags.castle_type === t) ||
+                            (tags.name?.toLowerCase().match(/\b(hrad|zámek)\b/));
+      const isEpicSite = EPIC_TAGS.some(t => tags.historic === t || tags.heritage === t);
+      const isChurch = tags.amenity === 'place_of_worship' && !isEpicSite && !isLegCandidate;
+      const isVillageRural = VILLAGE_RURAL_TAGS.some(t => tags.historic === t) && !isChurch;
+      const isSpecialSite = isLegCandidate || isEpicSite;
 
-      const isEpicSite = EPIC_TAGS.includes(tags.historic) || EPIC_TAGS.includes(tags.heritage)
-      let rarity: SpawnRarity = 'common'
+      // Legendary kandidáti se vždy zaregistrují; ostatní special sites mají 50% šanci na spawn
+      if (isSpecialSite && !isLegCandidate && seededFloat(id + '_special_skip') < 0.50) continue;
+      // Kostely & vesnické POI – žádný skip, garantovaný spawn
+      // Ostatní historická místa – 10% šance na přeskočení
+      if (!isSpecialSite && !isChurch && !isVillageRural && seededFloat(id + '_spawn_m') < 0.1) continue;
 
-      if (isEpicSite) {
-        rarity = 'epic'
+      let rarity: SpawnRarity = 'common';
+      if (isSpecialSite) {
+        rarity = 'epic'; // Výchozí raritou pro special je Epická (legendární se vybere v Pass 2)
+      } else if (isChurch) {
+        // Kostel: 70% Epic, 30% Rare
+        const cRoll = seededFloat(id + '_church_rarity');
+        rarity = cRoll < 0.70 ? 'epic' : 'rare';
+      } else if (isVillageRural) {
+        // Vesnické POI (boží muka, kapličky…): 85% Rare, 15% Epic
+        const vRoll = seededFloat(id + '_village_rarity');
+        rarity = vRoll < 0.15 ? 'epic' : 'rare';
       } else {
-        const rRoll = seededFloat(id + '_rarity')
-        if (rRoll < 0.25) rarity = 'rare'
-        else if (rRoll < 0.05) rarity = 'epic' // Překvapivá epická i u menší památky
-        else rarity = 'common'
+        const rRoll = seededFloat(id + '_rarity');
+        if (rRoll < 0.26) rarity = 'epic';           // 26% Epická
+        else if (rRoll < 0.76) rarity = 'rare';      // 50% Vzácná
+        else rarity = 'common';                     // 24% Běžná
       }
 
-      monsters.push({
+      const m: SpawnPoint = {
         id, lat: elLat, lng: elLng, rarity,
-        monsterId: pickMonster(id, rarity),
-        level: pickLevel(id, rarity),
+        monsterId: '', // Bude finalizováno v Pass 3
+        level: 0,
         caught: isCollected,
-      })
-    } else {
+      };
+      
+      if (isLegCandidate) legCandidates.push({ m, tags });
+      monsters.push(m);
+    }
+ else {
       // Snížená hustota surovin z POI
       if (seededFloat(id + '_spawn') < 0.8) continue
 
@@ -254,7 +287,7 @@ out center;`;
 
       if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard' || tags.natural === 'water') {
         // Obrovská redukce bylinek z parků a lesů (tráva je všude)
-        if (seededFloat(id + '_herb_nerf') < 0.85) continue; 
+        if (seededFloat(id + '_herb_nerf') < 0.85) continue;
         type = 'herb'
       } else if (tags.power || tags.amenity === 'university' || tags.amenity === 'research_institute') {
         type = 'energy'
@@ -272,6 +305,25 @@ out center;`;
         isCollected
       })
     }
+  }
+
+  // Pass 2: Výběr legendárních vítězů (maximálně 1 na oblast cca 2km)
+  const winnersByGrid: Record<string, { m: SpawnPoint; score: number }> = {};
+  for (const cand of legCandidates) {
+    const gridKey = `${Math.floor(cand.m.lat * 50)}_${Math.floor(cand.m.lng * 50)}`;
+    const score = seededFloat(cand.m.id + "_winner_score");
+    if (!winnersByGrid[gridKey] || score > winnersByGrid[gridKey].score) {
+      winnersByGrid[gridKey] = { m: cand.m, score };
+    }
+  }
+  for (const key in winnersByGrid) {
+    winnersByGrid[key].m.rarity = 'legendary';
+  }
+
+  // Pass 3: Finalizace ID monster a úrovní podle konečné rarity
+  for (const monster of monsters) {
+    monster.monsterId = pickMonster(monster.id, monster.rarity);
+    monster.level = pickLevel(monster.id, monster.rarity);
   }
 
   const result = { monsters, resources, buildings };

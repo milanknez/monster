@@ -3,11 +3,11 @@
   "name": "Donutová Bába",
   "description": "Strašidelná a nevyzpytatelná bába z cukrárny, která vláčí obří donuty jako zbraně. Nikdy neodmítne sladkou odměnu, ale když se rozzlobí, její donutové útoky jsou ničivé.",
   "type": "Přírodní",
-  "rarity": "Epická",
+  "rarity": "Legendární",
   "stats": {
-    "hp": 482,
-    "attack": 170,
-    "defense": 54
+    "hp": 1000,
+    "attack": 390,
+    "defense": 152
   },
   "abilities": [
     {

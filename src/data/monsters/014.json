@@ -3,11 +3,11 @@
   "name": "Bahňáček Lísohlav",
   "description": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
   "type": "Přírodní",
-  "rarity": "Legendární",
+  "rarity": "Epická",
   "stats": {
-    "hp": 977,
-    "attack": 379,
-    "defense": 99
+    "hp": 420,
+    "attack": 139,
+    "defense": 90
   },
   "abilities": [
     {

@@ -3,9 +3,17 @@ import { monsterDB } from '../../data/monsters'
 import type { SpawnPoint, SpawnRarity } from '../../types'
 
 export const RARITY_COLORS: Record<SpawnRarity, { bg: string; border: string; glow: string; badge: string; label: string }> = {
-  common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' },
-  rare: { bg: '#1e0a3c', border: '#9333ea', glow: '#a855f7', badge: '#4c1d95', label: '#d8b4fe' },
-  epic: { bg: '#1c0a00', border: '#ea580c', glow: '#f97316', badge: '#7c2d12', label: '#fed7aa' },
+  common: { bg: '#0f172a', border: '#475569', glow: '#64748b', badge: '#334155', label: '#94a3b8' }, // Light Grey-Blue
+  rare: { bg: '#0a1a3d', border: '#1d4ed8', glow: '#3b82f6', badge: '#1e40af', label: '#dbeafe' }, // Darker Blue
+  epic: { bg: '#2e1065', border: '#a855f7', glow: '#c084fc', badge: '#4c1d95', label: '#e9d5ff' }, // Purple
+  legendary: { bg: '#451a03', border: '#f59e0b', glow: '#fbbf24', badge: '#78350f', label: '#fef1c7' }, // Gold
+}
+
+export const RARITY_SCORE: Record<SpawnRarity, number> = {
+  common: 0,
+  rare: 1,
+  epic: 2,
+  legendary: 3
 }
 
 import { RESOURCE_CONFIG } from '../../data/resources';
@@ -42,6 +50,7 @@ export function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
     const r = (m.rarity || '').toLowerCase()
     if (rarity === 'epic') return r === 'epická' || r === 'legendární' || r === 'epic' || r === 'legendary'
+    if (rarity === 'legendary') return r === 'legendární' || r === 'legendary'
     if (rarity === 'rare') return r === 'vzácná' || r === 'rare'
     return r === 'běžná' || r === 'neobvyklá' || r === 'common' || r === 'uncommon'
   })
@@ -57,30 +66,31 @@ export function pickLevel(seed: string, rarity: SpawnRarity): number {
     if (r < 0.10) return 3
     return r < 0.45 ? 2 : 1
   }
-  if (rarity === 'rare') return 3 + Math.floor(r * 4)
-  return 7 + Math.floor(r * 4)
+  if (rarity === 'rare') return 4 + Math.floor(r * 3) // 4-6
+  if (rarity === 'epic') return 7 + Math.floor(r * 3) // 7-9
+  return 11 + Math.floor(r * 5) // Legendary: 11-15
 }
 
 export function calculateHPCost(level: number, rarity: SpawnRarity) {
   const base = 25
-  const rarityBonus = rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
+  const rarityBonus = rarity === 'legendary' ? 25 : rarity === 'epic' ? 15 : rarity === 'rare' ? 7 : 0
   return base + (level * 2) + rarityBonus
 }
 
 export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
-  const outerSize = spawn.rarity === 'epic' ? 48 : spawn.rarity === 'rare' ? 42 : 36
+  const outerSize = spawn.rarity === 'legendary' ? 50 : (spawn.rarity === 'epic' || spawn.rarity === 'rare') ? 38 : 32
   const innerR = 32
-  
+
   // Silhouette added as background even when locked to show it's a monster
   const silhouette = `<g transform="translate(18, 18) scale(0.64)" opacity="0.4" style="color:${c.label}">${SILHOUETTE_SVG}</g>`
-  
+
   const lockOverlay = isLocked
     ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
     : `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`
-  
+
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
-  
+
   const svg = `<div style="width:${outerSize}px; height:${(outerSize + 10)}px; transform:scale(${scale}); transform-origin: center center;">
     <svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
       <defs>
@@ -93,7 +103,7 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
       <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
     </svg>
   </div>`
-  
+
   return L.divIcon({ html: svg, className: '', iconSize: [outerSize * scale, (outerSize + 10) * scale], iconAnchor: [outerSize / 2 * scale, (outerSize / 2 + 5) * scale] })
 }
 
@@ -101,8 +111,8 @@ export function makeResourceIcon(type: string, isNearby: boolean, scale = 1.0): 
   const conf = RESOURCE_CONFIG[type] || RESOURCE_CONFIG.crystal
   const size = 32
   const pulse = isNearby ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${conf.color}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="32;50;32" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/></circle>` : ''
-  
-  const iconHtml = conf.hasCustomIcon 
+
+  const iconHtml = conf.hasCustomIcon
     ? `<image href="resources/${type}.png" x="25" y="25" width="50" height="50" />`
     : `<text x="50" y="65" text-anchor="middle" font-size="45">${conf.icon}</text>`;
 
@@ -131,7 +141,7 @@ export function makeResourceTooltipHtml(type: string, amount: number): string {
 export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
   const c = RARITY_COLORS[spawn.rarity]
   const locked = spawn.level > playerLevel
-  const rarityLabel = spawn.rarity === 'epic' ? '🏰 Epická' : spawn.rarity === 'rare' ? '🏛 Vzácná' : '⚔️ Běžná'
+  const rarityLabel = spawn.rarity === 'legendary' ? '👑 Legendární' : spawn.rarity === 'epic' ? '🏰 Epická' : spawn.rarity === 'rare' ? '🏛 Vzácná' : '⚔️ Běžná'
   const energyCost = calculateHPCost(spawn.level, spawn.rarity)
   return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ENERGIE</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 Vyžaduje Lv.${spawn.level}</div>` : ''}</div>`
 }
@@ -161,7 +171,7 @@ export function optimizeSpawns<T extends { lat: number, lng: number }>(
   buildings: { lat: number, lng: number }[],
   existingSpawns: { lat: number, lng: number }[] = [],
   avoidMeters: number = 35,
-  spacingMeters: number = 15
+  spacingMeters: number = 20
 ): T[] {
   // 1. Odtlačení spawnu ven z kolizního okruhu budov
   let processed = spawns.map(s => {
@@ -174,13 +184,13 @@ export function optimizeSpawns<T extends { lat: number, lng: number }>(
         let dLng = lng - b.lng;
         if (dLat === 0 && dLng === 0) { dLat = 0.0001; }
         const len = Math.sqrt(dLat * dLat + dLng * dLng);
-        
+
         const cosLat = Math.abs(Math.cos(lat * Math.PI / 180));
         const lngRatio = 1 / (111320 * (cosLat < 0.00001 ? 0.00001 : cosLat));
         const latRatio = 1 / 111320;
-        
+
         const pushM = avoidMeters - d + 3; // +3m rezerva
-        
+
         lat += (dLat / len) * pushM * latRatio;
         lng += (dLng / len) * pushM * lngRatio;
       }
@@ -193,7 +203,7 @@ export function optimizeSpawns<T extends { lat: number, lng: number }>(
   processed.forEach(s => {
     const tooCloseToExisting = existingSpawns.some(es => haversineM(s.lat, s.lng, es.lat, es.lng) < spacingMeters);
     if (tooCloseToExisting) return; // zahodit, stojí blízko POI
-    
+
     const tooCloseToNew = finalList.some(fs => haversineM(s.lat, s.lng, fs.lat, fs.lng) < spacingMeters);
     if (!tooCloseToNew) {
       finalList.push(s);

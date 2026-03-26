@@ -3,11 +3,11 @@
   "name": "Bubliko Vlnař",
   "description": "Vypadá jako kulatá vodní bublina a hrozně ráda skáče do kaluží.",
   "type": "Vodní",
-  "rarity": "Legendární",
+  "rarity": "Epická",
   "stats": {
-    "hp": 1000,
-    "attack": 375,
-    "defense": 119
+    "hp": 460,
+    "attack": 140,
+    "defense": 70
   },
   "abilities": [
     {

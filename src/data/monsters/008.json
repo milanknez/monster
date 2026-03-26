@@ -3,11 +3,11 @@
   "name": "Kořenda Zemitý",
   "description": "Takový starý moudrý dědeček z větviček, který pořád něco bručí o houbách a jehličí.",
   "type": "Přírodní",
-  "rarity": "Legendární",
+  "rarity": "Epická",
   "stats": {
-    "hp": 972,
-    "attack": 404,
-    "defense": 114
+    "hp": 450,
+    "attack": 154,
+    "defense": 74
   },
   "abilities": [
     {

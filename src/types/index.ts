@@ -40,7 +40,7 @@ export interface Boost {
   expiresAt: number;
 }
 
-export type SpawnRarity = 'common' | 'rare' | 'epic'
+export type SpawnRarity = 'common' | 'rare' | 'epic' | 'legendary'
 
 export interface SpawnPoint {
   id: string

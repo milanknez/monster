@@ -18,6 +18,7 @@ import {
   makeResourceIcon,
   makeResourceTooltipHtml,
   RARITY_COLORS,
+  RARITY_SCORE,
   RESOURCE_CONFIG,
   optimizeSpawns
 } from './mapUtils'
@@ -313,13 +314,23 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         // 1. Zafixujeme POI z okolí + nové POI
         prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => poiMap.set(p.id, p))
         poiMonsters.forEach(p => poiMap.set(p.id, p))
-        const poisArray = Array.from(poiMap.values())
 
-        // 2. Vezmeme všechny existující common a optimalizujeme je 
-        // proti nově načteným budovám a POI. Pustíme je do "posouvací" funkce,
-        // která je vystrčí z budov a zajistí 15m rozestup
+        const rawPois = Array.from(poiMap.values())
+
+        // 2. Legendary & Epic nikdy nefiltrujeme – vždy se zobrazí na jejich přesné poloze
+        const highPois = rawPois.filter(p => p.rarity === 'legendary' || p.rarity === 'epic')
+
+        // 3. Rare POI profiltrujeme rozestupem 20m (priorita vyšší raritě)
+        const sortedRare = rawPois
+          .filter(p => p.rarity === 'rare')
+          .sort((a, b) => (RARITY_SCORE[b.rarity] || 0) - (RARITY_SCORE[a.rarity] || 0))
+        const filteredRare = optimizeSpawns(sortedRare, [], highPois, 0, 20)
+
+        const poisArray = [...highPois, ...filteredRare]
+
+        // 4. Common grid – vyhýbá se všem POI o 20m
         const rawCommons = prev.filter(c => c.rarity === 'common')
-        const finalCommons = optimizeSpawns(rawCommons, poiBuildings || [], poisArray, 35, 15)
+        const finalCommons = optimizeSpawns(rawCommons, poiBuildings || [], poisArray, 35, 20)
 
         return [...finalCommons, ...poisArray]
       })
@@ -474,15 +485,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
       setSpawns(prev => {
         const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
-        // Aplikace přesunu + 15m rozestupu přes optimizeSpawns
-        const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 15)
+        // Aplikace přesunu + 20m rozestupu přes optimizeSpawns
+        const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 20)
         return [...optimizedCommon, ...pois]
       })
 
       setResources(prev => {
         const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
-        // Aplikace přesunu + 15m rozestupu
-        const optimizedRes = optimizeSpawns(commonRes, buildingsRef.current, pois, 35, 15)
+        // Aplikace přesunu + 20m rozestupu
+        const optimizedRes = optimizeSpawns(commonRes, buildingsRef.current, pois, 35, 20)
         return [...optimizedRes, ...pois]
       })
 
@@ -563,10 +574,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   }, [firebasePlayers])
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      className="relative w-full flex flex-col overflow-hidden" 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="relative w-full flex flex-col overflow-hidden"
       style={{ height: 'calc(100dvh - 160px)' }}
     >
       <div className="px-4 py-2 flex items-center justify-between bg-background-dark/50 backdrop-blur-sm z-50">
@@ -612,9 +623,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         {/* Legend Overlay */}
         <div className="absolute bottom-4 left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
           {[
-            { label: 'Běžná', color: 'text-blue-500' },
-            { label: 'Vzácná', color: 'text-purple-500' },
-            { label: 'Epická', color: 'text-orange-500' }
+            { label: 'Běžná', color: 'text-slate-400' },
+            { label: 'Vzácná', color: 'text-blue-500' },
+            { label: 'Epická', color: 'text-purple-500' },
+            { label: 'Legendární', color: 'text-amber-500' }
           ].map(l => (
             <span key={l.label} className={cn("text-[7.5px] font-black uppercase tracking-[0.2em] drop-shadow-sm leading-none", l.color)}>
               {l.label}
@@ -645,7 +657,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                 <span>🔋 ENERGIE PŘÍLIŠ NÍZKÁ</span>
               </div>
             ) : (
-              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #c2410c, #f97316)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : 'linear-gradient(135deg, #0891b2, #0db9f2)' }}>
+              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #475569, #64748b)' }}>
                 <div className="flex items-center gap-2">
                   <MapPin size={14} className="animate-bounce" />
                   <span>{caughtMonsters.length === 0 ? 'CHYTIT' : 'BOJOVAT'}: LEVEL {nearbySpawn.level}</span>
