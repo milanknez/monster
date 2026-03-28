@@ -4,9 +4,25 @@
   "description": "Bytost tvořená houbami a plísní se svítícími sporami. Pod širokým kloboukem skrývá obří tlamu plnou hubovitých zubů.",
   "type": "Přírodní",
   "rarity": "Vzácná",
-  "stats": { "hp": 590, "attack": 105, "defense": 130 },
+  "stats": {
+    "hp": 232,
+    "attack": 90,
+    "defense": 32
+  },
   "abilities": [
-    { "name": "Mrak spor", "description": "Uvolní jedovaté spory.", "type": "attack", "chance": 40, "value": 1.6 },
-    { "name": "Houbová regenerace", "description": "Vyléčí se pomocí plísně.", "type": "heal", "chance": 35, "value": 1.4 }
+    {
+      "name": "Mrak spor",
+      "description": "Uvolní jedovaté spory.",
+      "type": "attack",
+      "chance": 40,
+      "value": 1.6
+    },
+    {
+      "name": "Houbová regenerace",
+      "description": "Vyléčí se pomocí plísně.",
+      "type": "heal",
+      "chance": 35,
+      "value": 1.4
+    }
   ]
 }

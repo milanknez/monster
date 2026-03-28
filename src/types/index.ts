@@ -113,6 +113,7 @@ export interface ResourceConfig {
   dropWeight?: number; // Relative weight in its rarity pool (defaults to 10 if missing)
   dropMin?: number;
   dropMax?: number;
+  customIcon?: string;
   specialEffect?: 'none' | 'xp_boost' | 'hp_regen';
   effectDuration?: number; // duration in minutes
 }

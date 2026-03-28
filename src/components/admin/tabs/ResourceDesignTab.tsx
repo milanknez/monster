@@ -1,9 +1,10 @@
-import { Upload, Plus, Trash2, Search, Filter } from 'lucide-react'
+import { Upload, Plus, Trash2, Search, Filter, Image as ImageIcon, Smile } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../../../utils'
 import { ResourceCategory, ItemRarity } from '../../../types'
 import { ResourceIcon } from '../../ui/ResourceIcon'
+import { useEffect } from 'react'
 
 const CATEGORIES: { id: ResourceCategory | 'all', label: string }[] = [
   { id: 'all', label: 'Vše' },
@@ -26,6 +27,21 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
   const [search, setSearch] = useState('');
   const [activeCat, setActiveCat] = useState<ResourceCategory | 'all'>('all');
   const [activeRarity, setActiveRarity] = useState<ItemRarity | 'all'>('all');
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
+
+  const [openPickerId, setOpenPickerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/list-resources')
+      .then(res => res.json())
+      .then(data => setAvailableImages(data))
+      .catch(e => console.error('Failed to list resources', e));
+      
+    // Close picker on outside click
+    const handleClickOutside = () => setOpenPickerId(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const filteredItems = useMemo(() => {
     return Object.entries(resourceConfig)
@@ -125,9 +141,13 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                   <Upload size={14} className="text-white" />
                 </div>
               </div>
-              <input type="file" id={`icon-upload-${rid}`} className="hidden" accept="image/png" onChange={(e) => {
+              <input type="file" id={`icon-upload-${rid}`} className="hidden" accept="image/png" onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) handleResourceImageUpload(rid, file);
+                if (file) {
+                   await handleResourceImageUpload(rid, file);
+                   // Refresh list after upload
+                   fetch('/api/list-resources').then(r => r.json()).then(setAvailableImages);
+                }
               }} />
 
               <div className="flex flex-col w-full xl:w-48 shrink-0">
@@ -160,27 +180,106 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                 </select>
               </div>
 
-              <div className="flex items-center justify-between gap-1 w-full xl:w-40 shrink-0 bg-black/30 rounded-xl p-1 border border-white/5 hover:bg-black/50 transition-colors">
-                <input 
-                  type="color" 
-                  value={conf.color} 
-                  onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, color: e.target.value}})} 
-                  className="size-7 bg-transparent border-none p-0 cursor-pointer overflow-hidden rounded-lg shrink-0" 
-                />
-                <input 
-                  value={conf.icon} 
-                  onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, icon: e.target.value}})} 
-                  className="w-8 bg-transparent border-none text-center text-xs text-white px-0 py-1" 
-                />
-                <label className="flex items-center gap-1 cursor-pointer pr-2 hover:bg-white/5 p-1 rounded-lg transition-colors">
-                  <input 
-                    type="checkbox" 
-                    checked={conf.hasCustomIcon} 
-                    onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, hasCustomIcon: e.target.checked}})} 
-                    className="size-3.5 rounded border-white/10 bg-black accent-primary" 
-                  />
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">PNG</span>
-                </label>
+              <div className="flex flex-col gap-1 w-full xl:w-48 shrink-0 bg-black/30 rounded-2xl p-2 border border-white/5 hover:bg-black/50 transition-all">
+                <div className="flex bg-black/60 rounded-xl p-1 gap-1">
+                  <button 
+                    onClick={() => setResourceConfig({...resourceConfig, [rid]: {...conf, hasCustomIcon: false}})}
+                    className={cn("flex-1 px-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center gap-1", !conf.hasCustomIcon ? "bg-primary text-slate-950" : "text-slate-500 hover:text-white")}
+                  >
+                    <Smile size={10} /> Emoji
+                  </button>
+                  <button 
+                    onClick={() => setResourceConfig({...resourceConfig, [rid]: {...conf, hasCustomIcon: true}})}
+                    className={cn("flex-1 px-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center gap-1", conf.hasCustomIcon ? "bg-primary text-slate-950" : "text-slate-500 hover:text-white")}
+                  >
+                    <ImageIcon size={10} /> PNG
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 px-1 py-0.5 mt-0.5">
+                  {!conf.hasCustomIcon ? (
+                    <div className="flex items-center flex-1 gap-1.5">
+                      <input 
+                        value={conf.icon} 
+                        onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, icon: e.target.value}})} 
+                        className="w-8 bg-black/40 border border-white/10 rounded-lg text-center text-sm py-1" 
+                        placeholder="📦" 
+                      />
+                      <input 
+                        type="color" 
+                        value={conf.color} 
+                        onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, color: e.target.value}})} 
+                        className="size-7 bg-transparent border-none p-0 cursor-pointer overflow-hidden rounded-lg" 
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col w-full gap-1.5">
+                      <div className="flex items-center gap-2 relative">
+                        {/* Custom Dropdown for PNG selection with previews */}
+                        <div className="flex-1 relative" onClick={(e) => e.stopPropagation()}>
+                          <div 
+                            onClick={() => setOpenPickerId(openPickerId === rid ? null : rid)}
+                            className={cn(
+                              "w-full bg-black/40 border rounded-lg px-2 py-1.5 text-[9px] font-bold flex items-center justify-between cursor-pointer hover:bg-black/60 transition-colors",
+                              openPickerId === rid ? "border-primary text-primary" : "border-white/10 text-emerald-400"
+                            )}
+                          >
+                             <span>{conf.customIcon || rid}</span>
+                             <ImageIcon size={10} className="opacity-40" />
+                          </div>
+                          
+                          {/* Dropdown Menu (Grid 8 cols, Smaller icons) */}
+                          <AnimatePresence>
+                            {openPickerId === rid && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                                className="absolute bottom-full mb-2 left-0 w-[280px] max-h-72 overflow-y-auto bg-slate-900 border border-white/10 rounded-[1.2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[200] p-2 custom-scrollbar backdrop-blur-xl origin-bottom-left"
+                              >
+                                <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Galerie PNG (8 sloupců):</p>
+                                <div className="grid grid-cols-8 gap-1">
+                                  {[rid, ...availableImages.filter(img => img !== rid)].map(img => (
+                                    <button
+                                      key={img}
+                                      onClick={() => {
+                                        setResourceConfig({...resourceConfig, [rid]: {...conf, customIcon: img === rid ? undefined : img}});
+                                        setOpenPickerId(null);
+                                      }}
+                                      title={`${img}.png`}
+                                      className={cn(
+                                        "aspect-square rounded-md transition-all border flex items-center justify-center relative overflow-hidden group/item",
+                                        (conf.customIcon || rid) === img 
+                                          ? "bg-primary/20 border-primary shadow-lg shadow-primary/10" 
+                                          : "bg-black/40 border-white/5 hover:border-white/20 hover:bg-black/60"
+                                      )}
+                                    >
+                                      <img src={`/resources/${img}.png`} className="w-full h-full object-contain p-0.5 group-hover/item:scale-110 transition-transform" />
+                                    </button>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                         <button 
+                          onClick={() => document.getElementById(`icon-upload-${rid}`)?.click()}
+                          className="text-[7px] font-black uppercase text-primary/70 hover:text-primary transition-colors flex items-center gap-1"
+                         >
+                           <Upload size={8} /> Nahrát jiný
+                         </button>
+                         <input 
+                          type="color" 
+                          value={conf.color} 
+                          onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, color: e.target.value}})} 
+                          className="size-5 bg-transparent border-none p-0 cursor-pointer overflow-hidden rounded-lg" 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {conf.category === 'material' ? (

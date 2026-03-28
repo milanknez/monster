@@ -5,9 +5,9 @@
   "type": "Vodní",
   "rarity": "Legendární",
   "stats": {
-    "hp": 520,
-    "attack": 195,
-    "defense": 110
+    "hp": 1069,
+    "attack": 300,
+    "defense": 134
   },
   "abilities": [
     {

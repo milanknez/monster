@@ -5,9 +5,9 @@
   "type": "Zemní",
   "rarity": "Vzácná",
   "stats": {
-    "hp": 460,
-    "attack": 130,
-    "defense": 90
+    "hp": 214,
+    "attack": 81,
+    "defense": 28
   },
   "abilities": [
     {

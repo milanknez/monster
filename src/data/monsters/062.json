@@ -4,9 +4,25 @@
   "description": "Kráčející hromada žhoucího uhlí se třemi vřískajícími hlavami tvořenými modrým plamenem. Každá hlava má vlastní řadu ostrých zubů.",
   "type": "Ohnivá",
   "rarity": "Vzácná",
-  "stats": { "hp": 460, "attack": 155, "defense": 60 },
+  "stats": {
+    "hp": 229,
+    "attack": 90,
+    "defense": 33
+  },
   "abilities": [
-    { "name": "Trojitý křik", "description": "Všechny hlavy zařvou a ochromí nepřítele.", "type": "debuff", "chance": 45, "value": 0.6 },
-    { "name": "Modrý žár", "description": "Extrémně horký útok plamenem.", "type": "attack", "chance": 35, "value": 2.2 }
+    {
+      "name": "Trojitý křik",
+      "description": "Všechny hlavy zařvou a ochromí nepřítele.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.6
+    },
+    {
+      "name": "Modrý žár",
+      "description": "Extrémně horký útok plamenem.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.2
+    }
   ]
 }

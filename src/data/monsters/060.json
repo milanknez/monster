@@ -4,9 +4,25 @@
   "description": "Zmutovaný tvor připomínající psa, jehož tělo je tvořeno chladnoucí lávou a popelem. Skrz praskliny v jeho kůži prosvítá žhnoucí jádro a jeho dech tvoří hustý černý dým.",
   "type": "Ohnivá",
   "rarity": "Vzácná",
-  "stats": { "hp": 510, "attack": 145, "defense": 95 },
+  "stats": {
+    "hp": 209,
+    "attack": 94,
+    "defense": 31
+  },
   "abilities": [
-    { "name": "Popelavý kousanec", "description": "Kousnutí, které způsobí popáleniny popelem.", "type": "attack", "chance": 45, "value": 1.8 },
-    { "name": "Kouřová clona", "description": "Vypustí dým, který ho skryje.", "type": "defense", "chance": 30, "value": 1.5 }
+    {
+      "name": "Popelavý kousanec",
+      "description": "Kousnutí, které způsobí popáleniny popelem.",
+      "type": "attack",
+      "chance": 45,
+      "value": 1.8
+    },
+    {
+      "name": "Kouřová clona",
+      "description": "Vypustí dým, který ho skryje.",
+      "type": "defense",
+      "chance": 30,
+      "value": 1.5
+    }
   ]
 }

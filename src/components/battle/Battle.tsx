@@ -338,7 +338,21 @@ export const Battle = ({
 
   const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const s = getFinalStats(attacker), d = getFinalStats(defender);
-    let mult = isSkill ? (attacker.abilities?.[abilityIdx]?.value ?? 1.25) : 0.8;
+    const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
+    
+    // Normal attack multiplier is 0.8
+    let mult = 0.8;
+    
+    if (isSkill && ability) {
+      if (ability.type === 'extra') {
+        // "Extra" type adds its value to the base attack (0.8 + value)
+        mult = 0.8 + (ability.value ?? 0);
+      } else {
+        // Other skills use their value as an absolute multiplier
+        mult = ability.value ?? 1.25;
+      }
+    }
+
     const isCrit = Math.random() < (isSkill ? 0.35 : 0.1);
     let typeMult = 1, isEffective = false, isWeak = false;
     const match = TYPE_MATCHUP[attacker.type];
@@ -360,7 +374,21 @@ export const Battle = ({
 
   const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const s = getFinalStats(attacker), d = getFinalStats(defender);
-    let mult = isSkill ? (attacker.abilities?.[abilityIdx]?.value ?? 1.25) : 0.8;
+    const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
+    
+    // Normal attack multiplier is 0.8
+    let mult = 0.8;
+    
+    if (isSkill && ability) {
+      if (ability.type === 'extra') {
+        // "Extra" type adds its value to the base attack (0.8 + value)
+        mult = 0.8 + (ability.value ?? 0);
+      } else {
+        // Other skills use their value as an absolute multiplier
+        mult = ability.value ?? 1.25;
+      }
+    }
+
     const base = Math.round((s.total.atk * mult - d.total.def * 0.45));
     let dmg = Math.max(Math.floor(s.total.atk * 0.1), base);
     if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;

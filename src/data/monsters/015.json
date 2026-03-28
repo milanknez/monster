@@ -5,9 +5,9 @@
   "type": "Přírodní",
   "rarity": "Legendární",
   "stats": {
-    "hp": 1000,
-    "attack": 390,
-    "defense": 152
+    "hp": 955,
+    "attack": 274,
+    "defense": 133
   },
   "abilities": [
     {

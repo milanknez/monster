@@ -6,6 +6,7 @@ interface ResourceIconProps {
   config: {
     icon: string;
     hasCustomIcon?: boolean;
+    customIcon?: string;
     color?: string;
   };
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -22,9 +23,9 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
   useEffect(() => {
     if (config.hasCustomIcon) {
        setError(false);
-       // We don't want to update version too often to avoid flickering, but once per mount or significant change is fine
+       setV(Date.now());
     }
-  }, [id, config.hasCustomIcon]);
+  }, [id, config.hasCustomIcon, config.customIcon]);
 
   const sizeClasses = {
     sm: 'size-6 text-sm',
@@ -34,9 +35,10 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
   };
 
   if (config.hasCustomIcon && !error) {
+    const fileName = config.customIcon || id;
     return (
       <img 
-        src={`/resources/${id}.png?v=${v}`} 
+        src={`/resources/${fileName}.png?v=${v}`} 
         className={cn(sizeClasses[size], "object-contain", className)} 
         alt={id}
         onError={() => setError(true)}

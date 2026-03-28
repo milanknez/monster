@@ -99,6 +99,19 @@ export default defineConfig({
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
+          } else if (req.method === 'GET' && url.startsWith('/api/list-resources')) {
+            const dir = path.resolve(__dirname, 'public/resources');
+            if (!fs.existsSync(dir)) {
+              res.statusCode = 200;
+              res.end(JSON.stringify([]));
+              return;
+            }
+            const files = fs.readdirSync(dir)
+              .filter(f => f.endsWith('.png'))
+              .map(f => f.replace('.png', ''));
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(files));
           } else if (url.startsWith('/api/generate-image')) {
             if (req.method !== 'POST') {
               res.statusCode = 405;

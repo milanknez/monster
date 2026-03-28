@@ -5,9 +5,9 @@
   "type": "Přírodní",
   "rarity": "Legendární",
   "stats": {
-    "hp": 1800,
-    "attack": 230,
-    "defense": 120
+    "hp": 951,
+    "attack": 298,
+    "defense": 133
   },
   "abilities": [
     {
@@ -29,7 +29,7 @@
       "description": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele.",
       "type": "heal",
       "chance": 20,
-      "value": 2.0
+      "value": 2
     }
   ]
 }

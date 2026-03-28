@@ -4,9 +4,25 @@
   "description": "Tvor pokrytý mrtvými, hnijícími listy, které ztvrdly na ostré čepele. Jeho oči jsou mléčně bílé a beze stop života.",
   "type": "Přírodní",
   "rarity": "Vzácná",
-  "stats": { "hp": 470, "attack": 140, "defense": 75 },
+  "stats": {
+    "hp": 252,
+    "attack": 91,
+    "defense": 31
+  },
   "abilities": [
-    { "name": "Listová bouře", "description": "Vystřelí na nepřítele ostré listy.", "type": "attack", "chance": 45, "value": 2.0 },
-    { "name": "Hnilobný dech", "description": "Oslabí nepříatele pachem smrti.", "type": "debuff", "chance": 30, "value": 0.4 }
+    {
+      "name": "Listová bouře",
+      "description": "Vystřelí na nepřítele ostré listy.",
+      "type": "attack",
+      "chance": 45,
+      "value": 2
+    },
+    {
+      "name": "Hnilobný dech",
+      "description": "Oslabí nepříatele pachem smrti.",
+      "type": "debuff",
+      "chance": 30,
+      "value": 0.4
+    }
   ]
 }

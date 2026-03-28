@@ -96,12 +96,21 @@ export const MonsterEditorTab = ({
 
           <div className="space-y-6">
               <h3 className="text-xs font-black text-primary uppercase tracking-[3px] border-b border-white/10 pb-2">Atributy</h3>
-             {Object.entries(monsterForm.stats).map(([key, val]: any) => (
-                 <div key={key} className="space-y-2">
-                    <div className="flex justify-between text-[11px] font-black uppercase text-slate-400"><span>{key}</span><span className="text-white">{val}</span></div>
-                   <input type="range" min="10" max="250" value={val} onChange={(e) => setMonsterForm({...monsterForm, stats: {...monsterForm.stats, [key]: parseInt(e.target.value)}})} className="w-full accent-primary h-1 bg-white/10 rounded-full appearance-none" />
-                </div>
-             ))}
+             {Object.entries(monsterForm.stats).map(([key, val]: any) => {
+                 const maxVal = key === 'hp' ? 1400 : key === 'attack' ? 500 : 300;
+                 return (
+                  <div key={key} className="space-y-2">
+                     <div className="flex justify-between text-[11px] font-black uppercase text-slate-400"><span>{key}</span><span className="text-white">{val}</span></div>
+                    <input 
+                      type="range" 
+                      min="10" 
+                      max={maxVal} 
+                      value={val} 
+                      onChange={(e) => setMonsterForm({...monsterForm, stats: {...monsterForm.stats, [key]: parseInt(e.target.value)}})} 
+                      className="w-full accent-primary h-1 bg-white/10 rounded-full appearance-none transition-all" 
+                    />
+                 </div>
+              )})}
           </div>
 
           <div className="space-y-6">

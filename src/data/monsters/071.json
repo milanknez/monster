@@ -5,9 +5,9 @@
   "type": "Elektrická",
   "rarity": "Legendární",
   "stats": {
-    "hp": 1250,
-    "attack": 260,
-    "defense": 70
+    "hp": 983,
+    "attack": 323,
+    "defense": 151
   },
   "abilities": [
     {

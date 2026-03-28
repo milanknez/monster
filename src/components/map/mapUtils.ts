@@ -113,7 +113,7 @@ export function makeResourceIcon(type: string, isNearby: boolean, scale = 1.0): 
   const pulse = isNearby ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${conf.color}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="32;50;32" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/></circle>` : ''
 
   const iconHtml = conf.hasCustomIcon
-    ? `<image href="resources/${type}.png" x="25" y="25" width="50" height="50" />`
+    ? `<image href="/resources/${conf.customIcon || type}.png" x="25" y="25" width="50" height="50" />`
     : `<text x="50" y="65" text-anchor="middle" font-size="45">${conf.icon}</text>`;
 
   const svg = `<div style="width:${size * scale}px; height:${size * scale}px; transform:scale(${scale}); transform-origin: center center;">
@@ -125,7 +125,7 @@ export function makeResourceIcon(type: string, isNearby: boolean, scale = 1.0): 
 export function makeResourceTooltipHtml(type: string, amount: number): string {
   const conf = RESOURCE_CONFIG[type] || RESOURCE_CONFIG.crystal
   const iconHtml = conf.hasCustomIcon
-    ? `<img src="resources/${type}.png" style="width:32px;height:32px;object-fit:contain;margin:0 auto 2px auto;" />`
+    ? `<img src="/resources/${conf.customIcon || type}.png" style="width:32px;height:32px;object-fit:contain;margin:0 auto 2px auto;" />`
     : `<div style="font-size:24px;margin-bottom:2px;">${conf.icon}</div>`;
 
   return `

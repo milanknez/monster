@@ -4,9 +4,25 @@
   "description": "Vyhublý, deformovaný tvor s kůží připomínající povrch slunce. Neustále z něj vyzařuje nesnesitelný žár a kouř, který oslepuje okolí.",
   "type": "Ohnivá",
   "rarity": "Vzácná",
-  "stats": { "hp": 490, "attack": 135, "defense": 80 },
+  "stats": {
+    "hp": 226,
+    "attack": 94,
+    "defense": 33
+  },
   "abilities": [
-    { "name": "Sluneční záře", "description": "Oslní nepřítele zábleskem.", "type": "debuff", "chance": 45, "value": 0.5 },
-    { "name": "Plazmový výboj", "description": "Vystřelí kus plazmy ze svého těla.", "type": "attack", "chance": 35, "value": 1.9 }
+    {
+      "name": "Sluneční záře",
+      "description": "Oslní nepřítele zábleskem.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.5
+    },
+    {
+      "name": "Plazmový výboj",
+      "description": "Vystřelí kus plazmy ze svého těla.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.9
+    }
   ]
 }
