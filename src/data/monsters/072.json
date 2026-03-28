@@ -1,0 +1,35 @@
+{
+  "id": "072",
+  "name": "Matka Všeplísně",
+  "description": "Děsivá mutace pavoučí královny s hnijícím ženským torzem, ze kterého vyrůstají masivní houby. Místo očí má stovky svítících vředů a z jejích noh vytéká nákaza, která v mžiku mění živou tkáň v hnilobný prach.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1800,
+    "attack": 230,
+    "defense": 120
+  },
+  "abilities": [
+    {
+      "name": "Nákaza Hnilobou",
+      "description": "Infikuje cíl plísní, která se šíří tělem a drasticky snižuje jeho sílu.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.4
+    },
+    {
+      "name": "Hnilobné Kousnutí",
+      "description": "Zasadí ránu čelistmi plnými jedovatého hnisu.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.5
+    },
+    {
+      "name": "Podhoubí Zkázy",
+      "description": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele.",
+      "type": "heal",
+      "chance": 20,
+      "value": 2.0
+    }
+  ]
+}

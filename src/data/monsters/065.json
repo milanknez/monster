@@ -1,0 +1,12 @@
+{
+  "id": "065",
+  "name": "Kořenohlod Trnitý",
+  "description": "Zmutovaný hybrid rostliny a zvířete s mnoha dřevěnými končetinami a ostrými zuby ve tvaru trnů. Jeho kořeny se dokáží bleskově zavrtat do země.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": { "hp": 540, "attack": 115, "defense": 105 },
+  "abilities": [
+    { "name": "Trnový úder", "description": "Sekne nepřítele trny.", "type": "attack", "chance": 45, "value": 1.7 },
+    { "name": "Kořenový štít", "description": "Vytvoří kolem sebe hradbu z kořenů.", "type": "defense", "chance": 35, "value": 1.8 }
+  ]
+}

@@ -1,4 +1,5 @@
-import { Plus, Trash2, Sword, Shield, Heart, Sparkles, Zap, Info } from 'lucide-react'
+import { Plus, Trash2, Sword, Shield, Heart, Sparkles, Zap, Info, Wand2, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '../../../utils'
 
@@ -8,6 +9,54 @@ export const MonsterEditorTab = ({
   ABILITY_TYPES,
   handleImageUpload, tempImageUrl, imgError, setImgError
 }: any) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [apiKey, setApiKey] = useState(localStorage.getItem('krea_api_key') || '');
+  const [showApiInput, setShowApiInput] = useState(false);
+  const [promptOverride, setPromptOverride] = useState('');
+  const [selectedModel, setSelectedModel] = useState('flux-1-dev');
+
+  const MODELS = [
+    { id: 'flux-1-dev', label: 'Flux HD', desc: 'Nejvyšší kvalita' },
+    { id: 'flux-1-schnell', label: 'Flux Fast', desc: 'Rychlejší generování' },
+    { id: 'nano-banana-pro', label: 'Realtime HD', desc: 'Rychlá a hezká' },
+  ];
+
+  const defaultPrompt = `Whimsical, stylized 3D character design of a legendary ${monsterForm.name}. Lore: ${monsterForm.description}. Type: ${monsterForm.type}, Rarity: ${monsterForm.rarity}. Pixar style, 8k, vibrant colors, cinematic lighting.`;
+
+  const generateAIImage = async () => {
+    if (!apiKey) {
+      alert('Nejdřív vlož Krea.ai API Key!');
+      setShowApiInput(true);
+      return;
+    }
+    localStorage.setItem('krea_api_key', apiKey);
+    
+    setIsGenerating(true);
+    try {
+      const prompt = promptOverride || defaultPrompt;
+      
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: monsterForm.id, prompt, apiKey, model: selectedModel })
+      });
+
+      if (res.ok) {
+        alert('Obrázek vygenerován!');
+        // Trigger reload by a trick or just clearing error
+        setImgError(false);
+      } else {
+        const err = await res.text();
+        alert('Chyba: ' + err);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Selhalo spojení s generátorem');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <motion.div key="monsters" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 xl:grid-cols-2 gap-10">
        
@@ -135,8 +184,66 @@ export const MonsterEditorTab = ({
                    </div>
                 </div>
              </div>
-             <input type="file" id="image-upload-hidden" accept="image/png" className="hidden" onChange={handleImageUpload} />
-              <button onClick={() => (document.getElementById('image-upload-hidden') as HTMLInputElement)?.click()} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Nahradit PNG (256x256)</button>
+              <input type="file" id="image-upload-hidden" accept="image/png" className="hidden" onChange={handleImageUpload} />
+              
+              <div className="space-y-3">
+                 <button onClick={() => (document.getElementById('image-upload-hidden') as HTMLInputElement)?.click()} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Nahradit PNG (256x256)</button>
+                 
+                 <div className="space-y-4 pt-4 border-t border-white/10">
+                    <div className="space-y-2">
+                       <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-black text-slate-500 uppercase">AI Prompt</label>
+                          <button onClick={() => setPromptOverride(defaultPrompt)} className="text-[9px] text-primary/60 hover:text-primary uppercase font-bold">Zrušit změny</button>
+                       </div>
+                       <textarea 
+                         value={promptOverride || defaultPrompt} 
+                         onChange={(e) => setPromptOverride(e.target.value)} 
+                         rows={4} 
+                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary resize-none"
+                         placeholder="Zadej vlastní prompt pro AI..."
+                       />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Výběr Modelu</label>
+                        <select 
+                          value={selectedModel} 
+                          onChange={(e) => setSelectedModel(e.target.value)} 
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white focus:border-primary"
+                        >
+                          {MODELS.map(m => <option key={m.id} value={m.id}>{m.label} – {m.desc}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="relative">
+                       <button 
+                         onClick={generateAIImage} 
+                         disabled={isGenerating}
+                         className={cn(
+                           "w-full py-4 bg-primary/20 hover:bg-primary/30 border border-primary/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+                           isGenerating && "opacity-50 cursor-not-allowed"
+                         )}
+                       >
+                         {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />} 
+                         {isGenerating ? 'Generuji...' : 'Generovat přes Krea.ai'}
+                       </button>
+                       {!apiKey || showApiInput ? (
+                           <div className="mt-2 space-y-2">
+                              <input 
+                                type="password" 
+                                placeholder="Krea.ai API Key" 
+                                value={apiKey} 
+                                onChange={(e) => setApiKey(e.target.value)} 
+                                className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-white" 
+                              />
+                              <button onClick={() => setShowApiInput(false)} className="text-[10px] text-slate-500 uppercase font-black">Skrýt klíč</button>
+                           </div>
+                       ) : (
+                         <button onClick={() => setShowApiInput(true)} className="w-full text-center text-[9px] text-slate-600 mt-1 uppercase font-bold hover:text-slate-400">Upravit API Key</button>
+                       )}
+                    </div>
+                 </div>
+              </div>
           </div>
        </div>
     </motion.div>

@@ -1,0 +1,35 @@
+{
+  "id": "039",
+  "name": "Sopečná Hydra",
+  "description": "Tříhlavá hydra, která žije v kráterech aktivních sopek. Místo krve jí v žilách proudí tekutá láva a každá její hlava ovládá jiný aspekt ohně.",
+  "type": "Ohnivá",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 550,
+    "attack": 210,
+    "defense": 95
+  },
+  "abilities": [
+    {
+      "name": "Trojnásobný dech",
+      "description": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
+      "type": "attack",
+      "chance": 75,
+      "value": 2.2
+    },
+    {
+      "name": "Lávová regenerace",
+      "description": "Využije teplo k zacelení svých ran a posílení útoku.",
+      "type": "heal",
+      "chance": 70,
+      "value": 0.3
+    },
+    {
+      "name": "Soptící hněv",
+      "description": "Způsobí výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
+      "type": "extra",
+      "chance": 65,
+      "value": 1.5
+    }
+  ]
+}

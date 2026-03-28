@@ -1,0 +1,35 @@
+{
+  "id": "070",
+  "name": "Malformátor Všepohlcující",
+  "description": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
+  "type": "Vodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1500,
+    "attack": 280,
+    "defense": 90
+  },
+  "abilities": [
+    {
+      "name": "Pohlcení Existence",
+      "description": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
+      "type": "attack",
+      "chance": 45,
+      "value": 3.2
+    },
+    {
+      "name": "Vřískot Tisíce Úst",
+      "description": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
+      "type": "debuff",
+      "chance": 35,
+      "value": 0.3
+    },
+    {
+      "name": "Korozivní Sliz",
+      "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka.",
+      "type": "defense",
+      "chance": 25,
+      "value": 2.5
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "054",
+  "name": "Slinotvor Malformovaný",
+  "description": "Tento tvor je hromadou svalů a slizu, která se neustále přetváří. Má několik neukotvených očí plovoucích v rosolovitém těle a z každé jeho praskliny vytéká lepkavá, fluoreskující tekutina. Jeho dech páchne po staré hnilobě a jeho kůže je pokryta pulzujícími vřídky, které při prasknutí uvolňují toxický mrak.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 520,
+    "attack": 115,
+    "defense": 125
+  },
+  "abilities": [
+    {
+      "name": "Toxicita Slizu",
+      "description": "Oprská nepřítele svým lepkavým slizem, který ho postupně rozežírá a oslabuje.",
+      "type": "attack",
+      "chance": 45,
+      "value": 1.9
+    },
+    {
+      "name": "Slizká Regenerace",
+      "description": "Část jeho těla se rozpustí a znovu zformuje, čímž si vyléčí utržené rány.",
+      "type": "heal",
+      "chance": 30,
+      "value": 1.5
+    },
+    {
+      "name": "Ochromující Pach",
+      "description": "Uvolní oblak hnilobného plynu, který nepřítele na chvíli zcela ochromí.",
+      "type": "debuff",
+      "chance": 25,
+      "value": 0.5
+    }
+  ]
+}

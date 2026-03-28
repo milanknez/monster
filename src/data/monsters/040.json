@@ -1,0 +1,35 @@
+{
+  "id": "040",
+  "name": "Safírový Kraken",
+  "description": "Obrovský hlavonožec s kůží připomínající hluboký safír. Jeho chapadla jsou pokryta luminiscenčními přísavkami, které dokážou vytvořit elektrické výboje pod vodou.",
+  "type": "Vodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 520,
+    "attack": 195,
+    "defense": 110
+  },
+  "abilities": [
+    {
+      "name": "Hlubinné sevření",
+      "description": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí.",
+      "type": "attack",
+      "chance": 85,
+      "value": 2.05
+    },
+    {
+      "name": "Safírová záře",
+      "description": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.7
+    },
+    {
+      "name": "Elektrické vlnobití",
+      "description": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele.",
+      "type": "extra",
+      "chance": 65,
+      "value": 0.45
+    }
+  ]
+}

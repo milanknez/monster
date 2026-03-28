@@ -1,0 +1,28 @@
+{
+  "id": "046",
+  "name": "Kudlanka Vírníková",
+  "description": "Průsvitná vodní kudlanka s ostrými pilovitými předními končetinami. Dokáže pod vodou vytvořit malý vír, do kterého chytá kořist.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 125,
+    "attack": 52,
+    "defense": 15
+  },
+  "abilities": [
+    {
+      "name": "Pilovitý řez",
+      "description": "Rychle zaútočí svými předními končetinami a rozsekne nepřítele.",
+      "type": "attack",
+      "chance": 85,
+      "value": 1.6
+    },
+    {
+      "name": "Malý vír",
+      "description": "Vytvoří mini vír, který zmýlí nepřítele a na jedno kolo mu sníží obranu.",
+      "type": "debuff",
+      "chance": 70,
+      "value": 0.3
+    }
+  ]
+}

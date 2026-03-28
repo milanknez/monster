@@ -16,7 +16,14 @@ export default defineConfig({
       name: 'save-monster-plugin',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          if (req.method === 'POST' && req.url === '/api/save-monster') {
+          const url = req.url || '';
+          
+          // Debug logging for API requests
+          if (url.startsWith('/api/')) {
+            console.log(`[API Request]: ${req.method} ${url}`);
+          }
+
+          if (req.method === 'POST' && url.startsWith('/api/save-monster')) {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
@@ -45,7 +52,7 @@ export default defineConfig({
                 res.end('Internal Server Error');
               }
             });
-          } else if (req.method === 'POST' && req.url === '/api/save-config') {
+          } else if (req.method === 'POST' && url.startsWith('/api/save-config')) {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
@@ -76,22 +83,80 @@ export default defineConfig({
                 res.end('Internal Server Error');
               }
             });
-          } else if (req.method === 'POST' && req.url?.startsWith('/api/save-monster-image')) {
-            const url = new URL(req.url, `http://${req.headers.host}`);
-            const id = url.searchParams.get('id');
+          } else if (req.method === 'POST' && url.startsWith('/api/save-monster-image')) {
+            const parsedUrl = new URL(url, `http://${req.utils ? req.headers.host : 'localhost'}`);
+            const id = parsedUrl.searchParams.get('id');
             const dir = path.resolve(__dirname, 'public/monsters');
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
-          } else if (req.method === 'POST' && req.url?.startsWith('/api/save-resource-image')) {
-            const url = new URL(req.url, `http://${req.headers.host}`);
-            const id = url.searchParams.get('id');
+          } else if (req.method === 'POST' && url.startsWith('/api/save-resource-image')) {
+            const parsedUrl = new URL(url, `http://${req.utils ? req.headers.host : 'localhost'}`);
+            const id = parsedUrl.searchParams.get('id');
             const dir = path.resolve(__dirname, 'public/resources');
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
+          } else if (url.startsWith('/api/generate-image')) {
+            if (req.method !== 'POST') {
+              res.statusCode = 405;
+              res.end('Method Not Allowed: Use POST via the application to generate images.');
+              return;
+            }
+            console.log('--- AI GENERATION START ---');
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', async () => {
+              try {
+                const { id, prompt, apiKey, model = 'flux-1-dev' } = JSON.parse(body);
+                if (!id || !prompt || !apiKey) { res.statusCode = 400; res.end('Missing params'); return; }
+                
+                // 1. Create Job on Krea.ai
+                const jobRes = await fetch(`https://api.krea.ai/generate/image/bfl/${model}`, {
+                  method: 'POST',
+                  headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ prompt, width: 1024, height: 1024 })
+                }).then(r => r.json());
+
+                if (!jobRes.id && !jobRes.job_id) { res.statusCode = 500; res.end(JSON.stringify(jobRes)); return; }
+                const jobId = jobRes.id || jobRes.job_id;
+
+                // 2. Poll for results
+                let imageUrl = null;
+                for (let i = 0; i < 30; i++) { // Max 90 seconds
+                  await new Promise(r => setTimeout(r, 3000));
+                  const statusRes = await fetch(`https://api.krea.ai/jobs/${jobId}`, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                  }).then(r => r.json());
+
+                  if (statusRes.status === 'done' && statusRes.result?.url) {
+                    imageUrl = statusRes.result.url;
+                    break;
+                  } else if (statusRes.status === 'error') {
+                    res.statusCode = 500; res.end('Krea Error: ' + JSON.stringify(statusRes.error));
+                    return;
+                  }
+                }
+
+                if (!imageUrl) { res.statusCode = 504; res.end('Timeout'); return; }
+
+                // 3. Download and Save
+                const imgRes = await fetch(imageUrl);
+                const dir = path.resolve(__dirname, 'public/monsters');
+                const filePath = path.join(dir, `${id}.png`);
+                const buffer = await imgRes.arrayBuffer();
+                fs.writeFileSync(filePath, Buffer.from(buffer));
+
+                res.statusCode = 200;
+                res.end('OK');
+              } catch (e) {
+                console.error(e);
+                res.statusCode = 500;
+                res.end('AI Generation Failed');
+              }
+            });
           } else {
             next();
           }

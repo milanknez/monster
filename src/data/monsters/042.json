@@ -1,0 +1,28 @@
+{
+  "id": "042",
+  "name": "Osminožka Zubatá",
+  "description": "Malý huňatý pavouček s velkýma modrýma očima a jedním vyčnívajícím zoubkem. Rád plete sítě z cukrové vaty.",
+  "type": "Hmyzí",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 135,
+    "attack": 44,
+    "defense": 18
+  },
+  "abilities": [
+    {
+      "name": "Cukrová síť",
+      "description": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.25
+    },
+    {
+      "name": "Huňatý skok",
+      "description": "Skočí na nepřítele a překvapí ho svou vahou.",
+      "type": "attack",
+      "chance": 65,
+      "value": 1.4
+    }
+  ]
+}

@@ -7,19 +7,13 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from '../../data/monsters'
-import { recipes as initialRecipes } from '../../data/recipes'
-import { GEM_BONUSES as initialGems } from '../../data/gems'
-import { LOOT_CONFIG as initialLoot } from '../../data/loot'
 import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
 import { cn } from '../../utils'
 import { TYPE_COLORS } from '../../utils'
 
 // Tabs
 import { MonsterEditorTab } from './tabs/MonsterEditorTab'
-import { RecipeEditorTab } from './tabs/RecipeEditorTab'
 import { ResourceDesignTab } from './tabs/ResourceDesignTab'
-import { GemEditorTab } from './tabs/GemEditorTab'
-import { LootEditorTab } from './tabs/LootEditorTab'
 
 // --- Constants ---
 const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
@@ -56,7 +50,7 @@ const ABILITY_TYPES = [
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 0.2, desc: '+X% DMG k základu' },
 ]
 
-type EditorTab = 'monsters' | 'recipes' | 'gems' | 'loot' | 'resources';
+type EditorTab = 'monsters' | 'resources';
 
 interface SystemEditorProps {
   onBack: () => void;
@@ -69,9 +63,6 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
   // Data States
   const [monsters, setMonsters] = useState(monsterDB)
-  const [recipes, setRecipes] = useState(initialRecipes)
-  const [gemBonuses, setGemBonuses] = useState(initialGems)
-  const [lootConfig, setLootConfig] = useState(initialLoot)
   const [resourceConfig, setResourceConfig] = useState(initialResources)
 
   // Selection & UI States
@@ -174,7 +165,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       }
     }
 
-    downloadJson(data, `${tab}.ts`, tab === 'recipes' ? 'recipes' : tab === 'gems' ? 'gemBonuses' : tab === 'resources' ? 'resourceConfig' : 'lootPools');
+    downloadJson(data, `${tab}.ts`, tab === 'resources' ? 'resourceConfig' : 'monsters');
   }
 
   const downloadJson = (data: any, filename: string, varName: string) => {
@@ -217,7 +208,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   }
 
   const openJsonEditor = () => {
-    const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : activeTab === 'recipes' ? recipes : activeTab === 'gems' ? gemBonuses : activeTab === 'resources' ? resourceConfig : lootConfig;
+    const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
     setJsonInput(JSON.stringify(data, null, 2));
     setIsJsonModalOpen(true);
   }
@@ -232,10 +223,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         } else {
           setMonsters(parsed);
         }
-      } else if (activeTab === 'recipes') setRecipes(parsed);
-      else if (activeTab === 'gems') setGemBonuses(parsed);
-      else if (activeTab === 'resources') setResourceConfig(parsed);
-      else if (activeTab === 'loot') setLootConfig(parsed);
+      } else if (activeTab === 'resources') setResourceConfig(parsed);
       setIsJsonModalOpen(false);
     } catch (e) {
       alert('Neplatný formát JSON!');
@@ -265,10 +253,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         <div className="p-4 border-b border-white/5 grid grid-cols-5 gap-2">
           {[
             { id: 'monsters', icon: Settings2, label: 'Monstra' },
-            { id: 'recipes', icon: Beaker, label: 'Recepty' },
-            { id: 'resources', icon: Palette, label: 'Ikonky' },
-            { id: 'gems', icon: Gem, label: 'Gemy' },
-            { id: 'loot', icon: Dice5, label: 'Loot' }
+            { id: 'resources', icon: Palette, label: 'Předměty' }
           ].map(t => (
             <button key={t.id} onClick={() => { setActiveTab(t.id as EditorTab); setSelectedMonsterId(null); }} className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border transition-all", activeTab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-black/40 border-white/5 text-slate-500 hover:text-slate-300")}>
               <t.icon size={16} />
@@ -350,13 +335,13 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter">
-                {activeTab === 'monsters' ? 'Editor Příšer' : activeTab === 'recipes' ? 'Laboratoř Receptů' : activeTab === 'gems' ? 'Správce Drahokamů' : activeTab === 'resources' ? 'Resource Design' : 'Loot Tabulky'}
+                {activeTab === 'monsters' ? 'Editor Příšer' : 'Resource Design'}
               </h1>
               <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[11px]">Administrace herních datových struktur</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => activeTab === 'monsters' ? handleSaveMonster() : handleSaveConfig(activeTab, activeTab === 'recipes' ? recipes : activeTab === 'gems' ? gemBonuses : activeTab === 'resources' ? resourceConfig : lootConfig)}
+                onClick={() => activeTab === 'monsters' ? handleSaveMonster() : handleSaveConfig(activeTab, resourceConfig)}
                 className="flex items-center gap-2 px-6 py-3 bg-emerald-600 border border-emerald-500/30 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-500 shadow-xl shadow-emerald-500/10"
               >
                 <Save size={16} /> Uložit Změny
@@ -365,7 +350,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                 <Copy size={16} /> RAW JSON
               </button>
               <button onClick={() => {
-                const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : activeTab === 'recipes' ? recipes : activeTab === 'gems' ? gemBonuses : activeTab === 'resources' ? resourceConfig : lootConfig;
+                const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2))
                 const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr); anchor.setAttribute("download", `${activeTab}.json`); anchor.click();
               }} className="flex items-center gap-2 px-5 py-3 bg-primary text-slate-950 rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
@@ -386,18 +371,12 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                 imgError={imgError} setImgError={setImgError}
               />
             )}
-            {activeTab === 'recipes' && (
-              <RecipeEditorTab recipes={recipes} setRecipes={setRecipes} resourceConfig={resourceConfig} />
-            )}
-            {activeTab === 'gems' && (
-              <GemEditorTab gemBonuses={gemBonuses} setGemBonuses={setGemBonuses} resourceConfig={resourceConfig} />
-            )}
+
+
             {activeTab === 'resources' && (
               <ResourceDesignTab resourceConfig={resourceConfig} setResourceConfig={setResourceConfig} handleResourceImageUpload={handleResourceImageUpload} />
             )}
-            {activeTab === 'loot' && (
-              <LootEditorTab lootConfig={lootConfig} setLootConfig={setLootConfig} resourceConfig={resourceConfig} />
-            )}
+
           </AnimatePresence>
         </div>
       </main>

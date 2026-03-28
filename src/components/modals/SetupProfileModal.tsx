@@ -42,13 +42,13 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProf
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-background-dark/95 backdrop-blur-xl">
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         className="w-full max-w-sm bg-slate-900 border border-primary/30 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(13,185,242,0.15)] relative"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
-        
+
         <div className="p-8 relative z-10">
           <div className="size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 border border-primary/30 mx-auto">
             <User size={32} className="text-primary" />
@@ -66,8 +66,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProf
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-2 text-center">
                 Přezdívka (volitelné)
               </label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Jak vám máme říkat?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -81,8 +81,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProf
                 Kód Pozvánky (pokud máš)
               </label>
               <div className="relative">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="KÓD POZVÁNKY"
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
@@ -93,8 +93,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProf
                 )}
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={handleGoogleLogin}
               disabled={isLoggingIn}
               className="w-full bg-white text-background-dark font-black py-4 rounded-xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"

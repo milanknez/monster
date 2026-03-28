@@ -1,0 +1,12 @@
+{
+  "id": "063",
+  "name": "Plamenošváb Obří",
+  "description": "Zmutovaný hmyz s průhlednými křídly z čistého ohně a masivními kusadly, která jsou rozžhavená doruda.",
+  "type": "Ohnivá",
+  "rarity": "Vzácná",
+  "stats": { "hp": 410, "attack": 160, "defense": 45 },
+  "abilities": [
+    { "name": "Kusadlový stisk", "description": "Sevře nepřítele a popálí ho.", "type": "attack", "chance": 50, "value": 2.1 },
+    { "name": "Ohnivý nálet", "description": "Rychlý útok ze vzduchu.", "type": "extra", "chance": 30, "value": 1.6 }
+  ]
+}

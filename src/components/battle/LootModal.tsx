@@ -3,6 +3,8 @@ import { Trophy, Gift, ChevronRight } from 'lucide-react';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { useGameSound } from '../../data/sounds';
 
+import { ResourceIcon } from '../ui/ResourceIcon';
+
 export interface LootItem {
   id: string;
   type: string;
@@ -83,11 +85,7 @@ export const LootModal = ({
                           style={{ boxShadow: `0 10px 30px -10px ${config.color}33` }}
                         >
                           <div className="size-12 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform">
-                            {config.hasCustomIcon ? (
-                              <img src={`resources/${i.type}.png`} className="w-full h-full object-contain" />
-                            ) : (
-                              <span className="text-4xl drop-shadow-xl">{config.icon}</span>
-                            )}
+                            <ResourceIcon id={i.type} config={config as any} size="lg" className="filter drop-shadow-xl" />
                           </div>
                           <span className="text-[9px] font-black text-white uppercase tracking-wider block opacity-70 text-center">{config.label}</span>
 

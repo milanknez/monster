@@ -5,156 +5,1057 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#0db9f2",
     "label": "Krystal",
     "icon": "💎",
-    "description": "Běžný drahokam sloužící k vylepšování základních atributů a pro stavbu jednoduchých předmětů v laboratoři."
+    "category": "material",
+    "rarity": "Běžná",
+    "description": "Běžný drahokam sloužící k vylepšování základních atributů.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "herb": {
     "color": "#10b981",
     "label": "Bylinka",
     "icon": "🌿",
-    "description": "Přírodní surovina nezbytná pro vaření lékárniček a dalších podpůrných lektvarů."
+    "category": "material",
+    "rarity": "Běžná",
+    "description": "Přírodní surovina pro vaření lektvarů.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "energy": {
     "color": "#f59e0b",
     "label": "Energie",
     "icon": "⚡",
-    "description": "Kondenzovaná elektrická energie z města. Dobijí výdrž a tvoří jádro mnoha technických vylepšení."
+    "category": "material",
+    "rarity": "Běžná",
+    "description": "Kondenzovaná elektrická energie.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "mineral": {
     "color": "#64748b",
     "label": "Minerál",
     "icon": "🪨",
-    "description": "Tvrdý stavební kámen k posilování obrany a fúzi s drahokamy."
-  },
-  "xp_booster": {
-    "color": "#ec4899",
-    "label": "XP Elixír",
-    "icon": "🧪",
-    "description": "[Spustitelné] Dvojitý zisk bodů zkušenosti (XP) na 15 minut pro tvé bojovníky. Klikni podruhé na ikonu pro vypití."
-  },
-  "hp_potion": {
-    "color": "#ef4444",
-    "label": "Lékárnička",
-    "icon": "❤️",
-    "description": "[Spustitelné] Okamžitě vyléčí 50 HP (bodů zdraví). Můžeš použít i přímo ze sáčku uprostřed boje."
-  },
-  "energy_drink": {
-    "color": "#3b82f6",
-    "label": "Energy Drink",
-    "icon": "🎒",
-    "description": "[Spustitelné] Extrémní nabuzení energie, které obnoví 60 % tvé výdrže na mapě. Klinutím vypiješ."
+    "category": "material",
+    "rarity": "Běžná",
+    "description": "Tvrdý stavební kámen.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "magic_crystal": {
     "color": "#a855f7",
     "label": "Magický Krystal",
     "icon": "🔮",
-    "description": "Hutný magický drahokam nezbytný pro nejvzácnější procesy v laboratoři."
+    "category": "material",
+    "rarity": "Vzácná",
+    "description": "Vzácný magický drahokam.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "super_mineral": {
     "color": "#ea580c",
     "label": "Vzácný Minerál",
     "icon": "🌋",
-    "description": "Ohněm kovaný kámen z hor, hledaný pro legendární úpravy armoru."
+    "category": "material",
+    "rarity": "Vzácná",
+    "description": "Ohněm kovaný kámen.",
+    "dropWeight": 50,
+    "dropMin": 2,
+    "dropMax": 5
   },
   "monster_egg": {
     "color": "#a855f7",
     "label": "Tajemné vajíčko",
     "icon": "🥚",
-    "description": "Speciální odměna za pozvání přítele. Vylíhne se na vzácnou příšerku, až tvůj přítel dosáhne 3. úrovně."
+    "category": "consumable",
+    "rarity": "Legendární",
+    "description": "Vylíhne se na vzácnou příšerku.",
+    "dropWeight": 0,
+    "dropMin": 1,
+    "dropMax": 2
+  },
+  "xp_booster": {
+    "color": "#ec4899",
+    "label": "XP Elixír",
+    "icon": "🧪",
+    "category": "consumable",
+    "rarity": "Vzácná",
+    "description": "Dvojitý zisk XP na 15 minut.",
+    "recipe": [
+      {
+        "type": "crystal",
+        "count": 5
+      },
+      {
+        "type": "herb",
+        "count": 2
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 20,
+    "dropMin": 1,
+    "dropMax": 2,
+    "specialEffect": "xp_boost",
+    "effectDuration": 15
+  },
+  "hp_potion": {
+    "color": "#ef4444",
+    "label": "HP Potion",
+    "icon": "🧪",
+    "category": "consumable",
+    "rarity": "Běžná",
+    "description": "Okamžitě vyléčí 50 HP.",
+    "recipe": [
+      {
+        "type": "herb",
+        "count": 5
+      },
+      {
+        "type": "energy",
+        "count": 1
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 20,
+    "dropMin": 1,
+    "dropMax": 2,
+    "stats": {
+      "hp": 50
+    },
+    "statsType": "flat"
   },
   "gem_red_1": {
     "color": "#ef4444",
-    "label": "Rudý Jaspis I",
-    "icon": "🔴"
-  },
-  "gem_red_2": {
-    "color": "#ef4444",
-    "label": "Rudý Jaspis II",
-    "icon": "🔴"
-  },
-  "gem_red_3": {
-    "color": "#ef4444",
-    "label": "Rudý Jaspis III",
-    "icon": "🔴"
-  },
-  "gem_red_4": {
-    "color": "#ef4444",
-    "label": "Rudý Jaspis IV",
-    "icon": "💠"
-  },
-  "gem_red_5": {
-    "color": "#ef4444",
-    "label": "Rudý Jaspis V",
-    "icon": "💠"
-  },
-  "gem_red_6": {
-    "color": "#ef4444",
-    "label": "Rudý Jaspis VI",
-    "icon": "💠"
+    "label": "Rudý Jaspis 1",
+    "icon": "🔴",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "atk": 6
+    },
+    "recipe": [
+      {
+        "type": "mineral",
+        "count": 5
+      },
+      {
+        "type": "energy",
+        "count": 2
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje útok o 6 bodů.",
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_green_1": {
     "color": "#10b981",
-    "label": "Zelený Nefrit I",
-    "icon": "🟢"
-  },
-  "gem_green_2": {
-    "color": "#10b981",
-    "label": "Zelený Nefrit II",
-    "icon": "🟢"
-  },
-  "gem_green_3": {
-    "color": "#10b981",
-    "label": "Zelený Nefrit III",
-    "icon": "🟢"
-  },
-  "gem_green_4": {
-    "color": "#10b981",
-    "label": "Zelený Nefrit IV",
-    "icon": "🌿"
-  },
-  "gem_green_5": {
-    "color": "#10b981",
-    "label": "Zelený Nefrit V",
-    "icon": "🌿"
-  },
-  "gem_green_6": {
-    "color": "#10b981",
-    "label": "Zelený Nefrit VI",
-    "icon": "🌿"
+    "label": "Zelený Nefrit 1",
+    "icon": "🟢",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 15
+    },
+    "recipe": [
+      {
+        "type": "herb",
+        "count": 8
+      },
+      {
+        "type": "crystal",
+        "count": 2
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje zdraví o 15 bodů.",
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_1": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen I",
-    "icon": "⚪"
+    "label": "Bílý Křemen 1",
+    "icon": "⚪",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "def": 4
+    },
+    "recipe": [
+      {
+        "type": "crystal",
+        "count": 6
+      },
+      {
+        "type": "energy",
+        "count": 3
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje obranu o 4 body.",
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_red_2": {
+    "color": "#ef4444",
+    "label": "Rudý Jaspis 2",
+    "icon": "🔴",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "atk": 12
+    },
+    "description": "Zvyšuje útok o 12 bodů.",
+    "recipe": [
+      {
+        "type": "gem_red_1",
+        "count": 2
+      },
+      {
+        "type": "mineral",
+        "count": 5
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_green_2": {
+    "color": "#10b981",
+    "label": "Zelený Nefrit 2",
+    "icon": "🟢",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 30
+    },
+    "description": "Zvyšuje zdraví o 30 bodů.",
+    "recipe": [
+      {
+        "type": "gem_green_1",
+        "count": 2
+      },
+      {
+        "type": "herb",
+        "count": 6
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_2": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen II",
-    "icon": "⚪"
+    "label": "Bílý Křemen 2",
+    "icon": "⚪",
+    "category": "gem",
+    "rarity": "Běžná",
+    "stats": {
+      "def": 8
+    },
+    "description": "Zvyšuje obranu o 8 bodů.",
+    "recipe": [
+      {
+        "type": "gem_white_1",
+        "count": 2
+      },
+      {
+        "type": "crystal",
+        "count": 4
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_red_3": {
+    "color": "#ef4444",
+    "label": "Rudý Jaspis 3",
+    "icon": "🔴",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "atk": 20
+    },
+    "description": "Zvyšuje útok o 20 bodů.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_green_3": {
+    "color": "#10b981",
+    "label": "Zelený Nefrit 3",
+    "icon": "🟢",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "hp": 50
+    },
+    "description": "Zvyšuje zdraví o 50 bodů.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_3": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen III",
-    "icon": "⚪"
+    "label": "Bílý Křemen 3",
+    "icon": "⚪",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "def": 15
+    },
+    "description": "Zvyšuje obranu o 15 bodů.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_red_4": {
+    "color": "#ef4444",
+    "label": "Rudý Jaspis 4",
+    "icon": "💠",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "atk": 5
+    },
+    "statsType": "perc",
+    "recipe": [
+      {
+        "type": "super_mineral",
+        "count": 2
+      },
+      {
+        "type": "magic_crystal",
+        "count": 2
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje útok o 5 %.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_green_4": {
+    "color": "#10b981",
+    "label": "Zelený Nefrit 4",
+    "icon": "🌿",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "hp": 5
+    },
+    "statsType": "perc",
+    "recipe": [
+      {
+        "type": "herb",
+        "count": 20
+      },
+      {
+        "type": "magic_crystal",
+        "count": 3
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje zdraví o 5 %.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_4": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen IV",
-    "icon": "💎"
+    "label": "Bílý Křemen 4",
+    "icon": "💎",
+    "category": "gem",
+    "rarity": "Vzácná",
+    "stats": {
+      "def": 5
+    },
+    "statsType": "perc",
+    "recipe": [
+      {
+        "type": "magic_crystal",
+        "count": 4
+      },
+      {
+        "type": "mineral",
+        "count": 10
+      }
+    ],
+    "recipeAmount": 1,
+    "description": "Zvyšuje obranu o 5 %.",
+    "dropWeight": 2,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_red_5": {
+    "color": "#ef4444",
+    "label": "Rudý Jaspis 5",
+    "icon": "💠",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "atk": 10
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje útok o 10 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_green_5": {
+    "color": "#10b981",
+    "label": "Zelený Nefrit 5",
+    "icon": "🌿",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "hp": 10
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje zdraví o 10 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_5": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen V",
-    "icon": "💎"
+    "label": "Bílý Křemen 5",
+    "icon": "💎",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "def": 10
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje obranu o 10 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_red_6": {
+    "color": "#ef4444",
+    "label": "Rudý Jaspis 6",
+    "icon": "💠",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "atk": 15
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje útok o 15 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "gem_green_6": {
+    "color": "#10b981",
+    "label": "Zelený Nefrit 6",
+    "icon": "🌿",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "hp": 15
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje zdraví o 15 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
   },
   "gem_white_6": {
     "color": "#e2e8f0",
-    "label": "Bílý Křemen VI",
-    "icon": "💎"
+    "label": "Bílý Křemen 6",
+    "icon": "💎",
+    "category": "gem",
+    "rarity": "Epická",
+    "stats": {
+      "def": 15
+    },
+    "statsType": "perc",
+    "description": "Zvyšuje obranu o 15 %.",
+    "dropWeight": 0.5,
+    "dropMin": 1,
+    "dropMax": 1
   },
-  "new_res": {
-    "label": "Drink",
+  "loot_1": {
+    "label": "Ostnatý Štít",
+    "icon": "🛡️",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 5
+    },
+    "rarity": "Běžná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_2": {
+    "label": "Démonské Drápy",
+    "icon": "💅",
+    "stats": {
+      "hp": 0,
+      "atk": 5,
+      "def": 0
+    },
+    "rarity": "Běžná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_3": {
+    "label": "Rytířská Přilba",
+    "icon": "🪖",
+    "stats": {
+      "hp": 20,
+      "atk": 0,
+      "def": 3
+    },
+    "rarity": "Vzácná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_4": {
+    "label": "Lehké Boty",
+    "icon": "🥾",
+    "stats": {
+      "hp": 10,
+      "atk": 0,
+      "def": 2
+    },
+    "rarity": "Běžná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_5": {
+    "label": "Hůlka Magů",
+    "icon": "🪄",
+    "stats": {
+      "hp": 0,
+      "atk": 8,
+      "def": 0
+    },
+    "rarity": "Vzácná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_6": {
+    "label": "Krystalický Úlomek",
+    "icon": "💎",
+    "stats": {
+      "hp": 0,
+      "atk": 5,
+      "def": 5
+    },
+    "rarity": "Vzácná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_7": {
+    "label": "Ohnivý Rubín",
+    "icon": "🔴",
+    "stats": {
+      "hp": 0,
+      "atk": 10,
+      "def": 0
+    },
+    "rarity": "Epická",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_8": {
+    "label": "Vodní Safír",
+    "icon": "🔵",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 10
+    },
+    "rarity": "Epická",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_9": {
+    "label": "Temný Ametyst",
+    "icon": "🟣",
+    "stats": {
+      "hp": 50,
+      "atk": 0,
+      "def": 0
+    },
+    "rarity": "Epická",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_10": {
+    "label": "Dračí krev",
+    "icon": "🛡️",
+    "stats": {
+      "hp": 100,
+      "atk": 0,
+      "def": 0
+    },
+    "rarity": "Legendární",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_11": {
+    "label": "Prastarý Artefakt",
+    "icon": "✨",
+    "stats": {
+      "hp": 150,
+      "atk": 50,
+      "def": 5
+    },
+    "rarity": "Legendární",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_12": {
+    "label": "Ostrý Tesák",
+    "icon": "🦷",
+    "stats": {
+      "hp": 0,
+      "atk": 4,
+      "def": 0
+    },
+    "rarity": "Běžná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_13": {
+    "label": "Těžký Palcát",
+    "icon": "🔨",
+    "stats": {
+      "hp": 0,
+      "atk": 12,
+      "def": -2
+    },
+    "rarity": "Vzácná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_14": {
+    "label": "Magická Truhla",
+    "icon": "💍",
+    "stats": {
+      "hp": 100,
+      "atk": 0,
+      "def": 0
+    },
+    "rarity": "Legendární",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_15": {
+    "label": "Ocelová Rukavice",
+    "icon": "🥊",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 6
+    },
+    "rarity": "Běžná",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "loot_16": {
+    "label": "Asasínská Čepel",
+    "icon": "🗡️",
+    "stats": {
+      "hp": 0,
+      "atk": 10,
+      "def": 0
+    },
+    "rarity": "Epická",
+    "color": "#94a3b8",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "description": "[Relikvie] Trvale vylepší tvé monstrum.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_1": {
+    "label": "Zlomený zub",
+    "color": "#e2e8f0",
+    "icon": "🦷",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 5,
+      "def": 0
+    },
+    "description": "[Relikvie] Ostrý úlomek tesáku, který stále vyzařuje divokou energii.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_2": {
+    "label": "Stará kost",
+    "color": "#f8fafc",
+    "icon": "🦴",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 5
+    },
+    "description": "[Relikvie] Zbělený pozůstatek neznámého tvora, neuvěřitelně pevný.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_3": {
+    "label": "Prasklá lebka",
+    "color": "#cbd5e1",
+    "icon": "💀",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 15,
+      "atk": 0,
+      "def": 0
+    },
+    "description": "[Relikvie] Stará lebka, která v sobě nese vzpomínky na minulé souboje.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_4": {
+    "label": "Zrezivělý řetěz",
+    "color": "#94a3b8",
+    "icon": "⛓️",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 8
+    },
+    "description": "[Relikvie] Kus těžkého řetězu, který kdysi poutal mocná monstra.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_5": {
+    "label": "Tajemný přívěšek",
+    "color": "#fcd34d",
+    "icon": "📿",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 10,
+      "atk": 0,
+      "def": 0
+    },
+    "description": "[Relikvie] Jednoduchý amulet, který v blízkosti nebezpečí slabě vibruje.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_6": {
+    "label": "Stará mince",
+    "color": "#fbbf24",
+    "icon": "🪙",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 5,
+      "atk": 0,
+      "def": 0
+    },
+    "description": "[Relikvie] Měděná mince z dob, kdy světu vládli jiní králové.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_7": {
+    "label": "Prázdná ulita",
+    "color": "#93c5fd",
+    "icon": "🐚",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 12
+    },
+    "description": "[Relikvie] Křehká skořápka, v níž je slyšet vzdálené hučení oceánu.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_8": {
+    "label": "Ostrý kámen",
+    "color": "#64748b",
+    "icon": "🪨",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 6,
+      "def": 0
+    },
+    "description": "[Relikvie] Pazourek opracovaný do nebezpečně ostrého hrotu.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_9": {
+    "label": "Dřevěné dřívko",
+    "color": "#78350f",
+    "icon": "🪵",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 4,
+      "def": 0
+    },
+    "description": "[Relikvie] Kousek dřeva ze stromu bleskem zasaženého, stále hřeje.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_10": {
+    "label": "Starý pergamen",
+    "color": "#fde68a",
+    "icon": "📜",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 8,
+      "atk": 0,
+      "def": 0
+    },
+    "description": "[Relikvie] Zašlý útržek mapy k zapomenutým pokladům.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_11": {
+    "label": "Dřevěný štít",
+    "color": "#92400e",
+    "icon": "🛡️",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 10
+    },
+    "description": "[Relikvie] Improvizovaná ochrana vyrobená z pevného dubu.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_12": {
+    "label": "Malý lektvar",
     "color": "#ef4444",
-    "icon": "❓",
-    "hasCustomIcon": true
+    "icon": "🧪",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 20,
+      "atk": 0,
+      "def": 0
+    },
+    "description": "[Relikvie] Zbytek magického elixíru, který dodává ohromnou vitalitu.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_13": {
+    "label": "Zrezivělý hřebík",
+    "color": "#475569",
+    "icon": "📍",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 7,
+      "def": 0
+    },
+    "description": "[Relikvie] Dlouhý hřeb s ostrou špičkou, smrtící v rukou monstra.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_14": {
+    "label": "Stará rukavice",
+    "color": "#78350f",
+    "icon": "🧤",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 0,
+      "def": 5
+    },
+    "description": "[Relikvie] Opotřebovaná kožená rukavice, která stále drží tvar.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_15": {
+    "label": "Tupá dýka",
+    "color": "#334155",
+    "icon": "🗡️",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 0,
+      "atk": 10,
+      "def": 0
+    },
+    "description": "[Relikvie] Zbraň, která už dávno neřeže, ale hrot má stále ostrý.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "item_16": {
+    "label": "Psí tlapka",
+    "color": "#8b4513",
+    "icon": "🐾",
+    "hasCustomIcon": true,
+    "category": "relic",
+    "rarity": "Běžná",
+    "stats": {
+      "hp": 5,
+      "atk": 5,
+      "def": 5
+    },
+    "description": "[Relikvie] Symbol věrnosti a vytrvalosti, vyřezaný z tvrdého dřeva.",
+    "dropWeight": 15,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "mana_potion": {
+    "color": "#3b82f6",
+    "label": "Mana Potion",
+    "icon": "🧪",
+    "category": "consumable",
+    "rarity": "Běžná",
+    "description": "Obnoví 60 bodů many (výdrže).",
+    "recipe": [
+      {
+        "type": "energy",
+        "count": 4
+      },
+      {
+        "type": "mineral",
+        "count": 2
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 20,
+    "dropMin": 1,
+    "dropMax": 2,
+    "stats": {
+      "energy": 60
+    },
+    "statsType": "flat"
   }
 };

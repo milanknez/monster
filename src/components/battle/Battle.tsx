@@ -8,9 +8,8 @@ import {
   Hourglass 
 } from 'lucide-react';
 import type { Monster, LootTableEntry } from '../../types';
-import { cn, GEM_BONUSES, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
-import { LOOT_CONFIG } from '../../data/loot';
-
+import { cn, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
+import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
 import { useGameSound } from '../../data/sounds';
 
@@ -199,44 +198,55 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
 const getFinalStats = (m: Monster) => {
   const stats = { atk: m.stats?.attack || 10, def: m.stats?.defense || 10, hp: m.stats?.hp || 100 };
   const levelBonus = (val: number) => Math.floor(val * (m.level - 1) * 0.1);
-  const getGemBonus = (baseVal: number, type: string) => {
-    if (!m.gems) return 0;
-    const targetPrefix = type === 'atk' ? 'gem_red' : type === 'def' ? 'gem_white' : 'gem_green';
-    return m.gems.reduce((total, gemId) => {
-      if (gemId?.startsWith(targetPrefix)) {
-        const g = GEM_BONUSES[gemId];
-        if (g) return total + (g.isPerc ? Math.floor(baseVal * (g.value / 100)) : g.value);
+  
+  const getEquipmentBonus = (slots: (string | null)[] | undefined, type: 'atk' | 'def' | 'hp', baseVal: number) => {
+    if (!slots) return 0;
+    return slots.reduce((total, id) => {
+      if (id) {
+        const cfg = RESOURCE_CONFIG[id];
+        if (cfg?.stats?.[type]) {
+          const val = cfg.stats[type]!;
+          return total + (cfg.statsType === 'perc' ? Math.floor(baseVal * (val / 100)) : val);
+        }
       }
       return total;
     }, 0);
   };
+
   const leveling = { 
     atk: levelBonus(stats.atk), 
     def: levelBonus(stats.def), 
     hp: levelBonus(stats.hp) 
   };
   const gems = {
-    atk: getGemBonus(stats.atk, 'atk'),
-    def: getGemBonus(stats.def, 'def'),
-    hp: getGemBonus(stats.hp, 'hp')
+    atk: getEquipmentBonus(m.gems, 'atk', stats.atk),
+    def: getEquipmentBonus(m.gems, 'def', stats.def),
+    hp: getEquipmentBonus(m.gems, 'hp', stats.hp)
   };
+  const items = {
+    atk: getEquipmentBonus(m.items, 'atk', stats.atk),
+    def: getEquipmentBonus(m.items, 'def', stats.def),
+    hp: getEquipmentBonus(m.items, 'hp', stats.hp)
+  };
+
   const total = { 
-    atk: stats.atk + leveling.atk + gems.atk, 
-    def: stats.def + leveling.def + gems.def, 
-    hp: stats.hp + leveling.hp + gems.hp 
+    atk: stats.atk + leveling.atk + gems.atk + items.atk, 
+    def: stats.def + leveling.def + gems.def + items.def, 
+    hp: stats.hp + leveling.hp + gems.hp + items.hp 
   };
-  return { base: stats, leveling, gems, total };
+  return { base: stats, leveling, gems, items, total };
 };
 
 // --- Main Component ---
 export const Battle = ({
   playerMonster, enemyMonster, opponentName, incomingEmote, pvpRole, 
-  incomingAttack, inventory, onSendEmote, onSendAttack, onUseItem, 
+  incomingAttack, isXpBoosted, inventory, onSendEmote, onSendAttack, onUseItem, 
   onWin, onLose, onBack, onCatch, onCatchFail
 }: {
   playerMonster: Monster, enemyMonster: Monster, opponentName?: string, 
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
   incomingAttack?: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean, timestamp: number } | null,
+  isXpBoosted?: boolean,
   inventory?: { type: string, count: number }[],
   onSendEmote?: (emote: string) => void,
   onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
@@ -416,46 +426,59 @@ export const Battle = ({
           setEnemyAnim('lose'); 
           setPlayerAnim('win'); 
           playVictory();
-          setWinXP(80 + enemyMonster.level * 15); 
+          setWinXP((80 + enemyMonster.level * 15) * (isXpBoosted ? 2 : 1)); 
           
-          // GENERATE LOOT FROM CONFIG
+          // NEW DYNAMIC LOOT GENERATION
           const generatedLoot: any[] = [];
-          const numDrops = Math.floor(Math.random() * 2) + 1; // 1-2 items
-          const pickedTypes = new Set<string>();
           
-          for (let i = 0; i < numDrops; i++) {
-            const table: LootTableEntry[] = LOOT_CONFIG.battle_win.filter(e => !pickedTypes.has(e.type));
-            if (table.length === 0) break;
-            
-            const totalWeight = table.reduce((sum: number, e: LootTableEntry) => sum + e.weight, 0);
-            let r = Math.random() * totalWeight;
-            let picked = table[0];
-            for (const entry of table) {
-              if (r < entry.weight) { picked = entry; break; }
-              r -= entry.weight;
-            }
-            pickedTypes.add(picked.type);
+          const isEpic = (enemyMonster.rarity || '').toLowerCase().includes('epic') || (enemyMonster.rarity || '').toLowerCase().includes('epick');
+          const isRare = (enemyMonster.rarity || '').toLowerCase().includes('rare') || (enemyMonster.rarity || '').toLowerCase().includes('vzácn');
+          const isCommon = !isEpic && !isRare;
 
-            // Tady omezíme šanci na maximální počet!
-            // Math.pow(Math.random(), 2) zajistí, že menší čísla padají častěji.
-            // Příklad (1-3): Math.random()^2 dává převážně 0-0.2, takže zůstane u minima.
-            const range = picked.max - picked.min + 1;
-            const extra = Math.floor(Math.pow(Math.random(), 2) * range);
-            const count = picked.min + extra;
+          const getLootFromPool = (rarity: string, weightFactor = 1) => {
+             const pool = Object.keys(RESOURCE_CONFIG)
+                .filter(id => RESOURCE_CONFIG[id].rarity === rarity)
+                .map(id => ({ id, weight: RESOURCE_CONFIG[id].dropWeight ?? 10 }));
+             
+             if (pool.length === 0) return null;
+             const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+             let r = Math.random() * totalWeight;
+             for (const item of pool) {
+                if (r < item.weight) return item.id;
+                r -= item.weight;
+             }
+             return pool[0].id;
+          };
 
-            generatedLoot.push({ 
-              id: Math.random().toString(), 
-              type: picked.type, 
-              count, 
-              collected: false 
-            });
+          const addLootItem = (targetRarity: string) => {
+             const id = getLootFromPool(targetRarity);
+             if (!id) return;
+             const cfg = RESOURCE_CONFIG[id];
+             const min = cfg.dropMin ?? 1;
+             const max = cfg.dropMax ?? 1;
+             const count = min + Math.floor(Math.random() * (max - min + 1));
+             generatedLoot.push({ id: id + '_' + Math.random(), type: id, count, collected: false });
+          };
+
+          // Loot Logic:
+          // Common Monster: 1-2 Common items, 10% chance for 1 Rare
+          if (isCommon) {
+             const count = Math.random() < 0.3 ? 2 : 1;
+             for(let i=0; i<count; i++) addLootItem('Běžná');
+             if (Math.random() < 0.1) addLootItem('Vzácná');
+          } 
+          // Rare Monster: 2-3 Common items, 1 Rare guaranteed, 5% chance for 1 Epic
+          else if (isRare) {
+             for(let i=0; i<2; i++) addLootItem('Běžná');
+             addLootItem('Vzácná');
+             if (Math.random() < 0.05) addLootItem('Epická');
           }
-          
-          // Rare bonus chance (10%)
-          if (Math.random() < 0.1) {
-            const rareTable: LootTableEntry[] = LOOT_CONFIG.rare_bonus;
-            const picked = rareTable[Math.floor(Math.random() * rareTable.length)];
-            generatedLoot.push({ id: 'rare_'+Math.random(), type: picked.type, count: 1, collected: false });
+          // Epic Monster: 2-3 Common, 1-2 Rare, 1 Epic guaranteed, 2% chance for 1 Legendary
+          else if (isEpic) {
+             for(let i=0; i<2; i++) addLootItem('Běžná');
+             addLootItem('Vzácná');
+             addLootItem('Epická');
+             if (Math.random() < 0.02) addLootItem('Legendární');
           }
 
           setLoot(generatedLoot);
@@ -791,26 +814,40 @@ export const Battle = ({
                   <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] right-0 w-52 bg-slate-900/98 backdrop-blur-3xl border border-white/10 p-4 rounded-2xl shadow-3xl z-[9999] space-y-3">
                     <h4 className="text-[10px] font-black text-blue-400 mb-1 uppercase text-center tracking-widest opacity-60">Batoh</h4>
                     <div className="flex flex-col gap-2.5">
-                      {(inventory?.filter(i => ['hp_potion', 'energy_drink'].includes(i.type)).length || 0) === 0 ? (
+                      {(inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).length || 0) === 0 ? (
                         <p className="text-[9px] text-slate-500 font-bold uppercase py-4 text-center">Žádné lektvary k dispozici</p>
                       ) : (
-                        inventory?.filter(i => ['hp_potion', 'energy_drink'].includes(i.type)).map(i => (
+                        inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).map(i => {
+                          const cfg = RESOURCE_CONFIG[i.type];
+                          return (
                           <button key={i.type} onClick={() => { 
-                             if (i.type === 'energy_drink') { setPlayerEnergy(p => Math.min(100, p + 60)); addPopup(60, false, { isHeal: true }); }
-                             if (i.type === 'hp_potion') { 
-                               const h = Math.round(playerMaxHP * 0.5); 
-                               setPlayerHP(p => Math.min(playerMaxHP, p + h)); 
-                               addPopup(h, false, { isHeal: true }); 
+                             if (cfg?.stats) {
+                                if (cfg.stats.hp) {
+                                   const amount = cfg.statsType === 'perc' ? Math.round(playerMaxHP * (cfg.stats.hp / 100)) : cfg.stats.hp;
+                                   setPlayerHP(p => Math.min(playerMaxHP, p + amount));
+                                   addPopup(amount, false, { isHeal: true });
+                                   addLog(`Použit ${cfg.label}: +${amount} HP`);
+                                }
+                                if (cfg.stats.energy) {
+                                   const amount = cfg.statsType === 'perc' ? Math.round(100 * (cfg.stats.energy / 100)) : cfg.stats.energy;
+                                   setPlayerEnergy(p => Math.min(100, p + amount));
+                                   addPopup(amount, false, { isHeal: true, color: 'text-cyan-400' });
+                                   addLog(`Použit ${cfg.label}: +${amount} Mana`);
+                                }
+                                playHeal?.();
                              }
                              onUseItem?.(i.type); 
                              setShowItems(false); 
                              setShowSkills(false); 
                              setTurn('enemy'); 
                           }} className="flex justify-between items-center p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[10px] font-bold text-white uppercase hover:bg-blue-500/10 transition-colors">
-                            <span>{i.type.replace('_', ' ')}</span>
+                            <div className="flex items-center gap-2">
+                               <span className="text-sm">{cfg?.icon || '📦'}</span>
+                               <span>{cfg?.label || i.type.replace('_', ' ')}</span>
+                            </div>
                             <span className="text-[9px] text-blue-300 bg-blue-500/20 px-2.5 py-0.5 rounded-lg">{i.count}x</span>
                           </button>
-                        ))
+                        )})
                       )}
                     </div>
                   </motion.div>

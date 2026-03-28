@@ -1,0 +1,28 @@
+{
+  "id": "043",
+  "name": "Stonožka Roháček",
+  "description": "Pestrobarevná stonožka s malými zakroucenými rohy na každém článku těla. Je velmi rychlá a miluje závody v trávě.",
+  "type": "Hmyzí",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 130,
+    "attack": 48,
+    "defense": 15
+  },
+  "abilities": [
+    {
+      "name": "Sprintér",
+      "description": "Zvýší svou rychlost a příští útok doručí dříve.",
+      "type": "buff",
+      "chance": 80,
+      "value": 0.2
+    },
+    {
+      "name": "Rohový náraz",
+      "description": "Udeří svými malými rohy a způsobí střední poškození.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.45
+    }
+  ]
+}

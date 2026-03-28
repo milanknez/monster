@@ -1,0 +1,35 @@
+{
+  "id": "057",
+  "name": "Žaboun Sliznatý",
+  "description": "Zmutovaná obří žába s třemi páry očí a zakrnělými černými křídly na zádech. Její kůže neustále produkuje jedovatý modrý sliz a její mrštný jazyk je vybaven ostrými háčky.",
+  "type": "Vodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 480,
+    "attack": 140,
+    "defense": 70
+  },
+  "abilities": [
+    {
+      "name": "Slizká Sprcha",
+      "description": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
+      "type": "attack",
+      "chance": 40,
+      "value": 1.8
+    },
+    {
+      "name": "Jazykový Výpad",
+      "description": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.9
+    },
+    {
+      "name": "Plachtění",
+      "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku.",
+      "type": "defense",
+      "chance": 25,
+      "value": 1.7
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "059",
+  "name": "Bleskovec Víceoký",
+  "description": "Levitující koule čisté energie s desítkami malých očí po celém obvodu. Uprostřed má jednu vertikální tlamu a dokáže se v mžiku teleportovat na krátké vzdálenosti díky bleskovému impulsu.",
+  "type": "Elektrická",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 400,
+    "attack": 165,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Blesková Tlama",
+      "description": "Kousnutí s prvkem vysokého napětí, které proniká i brněním.",
+      "type": "attack",
+      "chance": 40,
+      "value": 2.3
+    },
+    {
+      "name": "Oko Blesku",
+      "description": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb.",
+      "type": "debuff",
+      "chance": 35,
+      "value": 0.6
+    },
+    {
+      "name": "Plazmový Puls",
+      "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků.",
+      "type": "defense",
+      "chance": 25,
+      "value": 1.4
+    }
+  ]
+}

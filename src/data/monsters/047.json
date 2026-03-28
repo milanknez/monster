@@ -1,0 +1,28 @@
+{
+  "id": "047",
+  "name": "Žabička Trnoploutvá",
+  "description": "Malá tyrkysová žába s blánami zakončenými ostrými drápky. Má na zádech řadu svítících trnů a ráda skáče na nic netušící kolemjdoucí.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 160,
+    "attack": 40,
+    "defense": 20
+  },
+  "abilities": [
+    {
+      "name": "Drápový skok",
+      "description": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.45
+    },
+    {
+      "name": "Trnový odraz",
+      "description": "Zpevní se a trny na zádech odrazí část poškození zpět.",
+      "type": "defense",
+      "chance": 75,
+      "value": 0.35
+    }
+  ]
+}

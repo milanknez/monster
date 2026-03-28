@@ -1,0 +1,12 @@
+{
+  "id": "061",
+  "name": "Ohňohuba Sliznatá",
+  "description": "Rosolovitá masa tekuté lávy s mnoha nepravidelně rozmístěnými oky. Z její obří tlamy neustále odkapává tekutý oheň, který zapaluje vše v okolí.",
+  "type": "Ohnivá",
+  "rarity": "Vzácná",
+  "stats": { "hp": 580, "attack": 120, "defense": 110 },
+  "abilities": [
+    { "name": "Lávový plivanec", "description": "Plivne kus tekutého ohně.", "type": "attack", "chance": 40, "value": 2.0 },
+    { "name": "Žhnoucí tělo", "description": "Každý, kdo se ho dotkne, se popálí.", "type": "defense", "chance": 35, "value": 0.5 }
+  ]
+}

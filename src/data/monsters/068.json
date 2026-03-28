@@ -1,0 +1,12 @@
+{
+  "id": "068",
+  "name": "Větvořez Parazitický",
+  "description": "Stromovité monstrum s dlouhýma pavoučíma nohama ze dřeva a druhým parazitickým výrůstkem v podobě dravého květu.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": { "hp": 440, "attack": 150, "defense": 65 },
+  "abilities": [
+    { "name": "Větvený útok", "description": "Seknutí mnoha větvemi naráz.", "type": "attack", "chance": 40, "value": 2.3 },
+    { "name": "Parazitické kousnutí", "description": "Kousnutí druhou hlavou.", "type": "extra", "chance": 35, "value": 1.7 }
+  ]
+}

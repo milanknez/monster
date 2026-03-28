@@ -1,0 +1,28 @@
+{
+  "id": "041",
+  "name": "Mešníček Chlupatý",
+  "description": "Malý, kulatý tvoreček pokrytý měkkým zeleným mechem. Místo uší má dva dubové lístky a neustále hledá čerstvou ranní rosu.",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 140,
+    "attack": 42,
+    "defense": 20
+  },
+  "abilities": [
+    {
+      "name": "Rosný dotek",
+      "description": "Vystříkne kapku magické rosy, která osvěží spojence nebo lehce oslabí nepřítele.",
+      "type": "heal",
+      "chance": 65,
+      "value": 0.15
+    },
+    {
+      "name": "Mechové maskování",
+      "description": "Splyne s okolím a sníží šanci nepřítele na zásah.",
+      "type": "buff",
+      "chance": 75,
+      "value": 0.2
+    }
+  ]
+}

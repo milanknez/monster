@@ -1,0 +1,35 @@
+{
+  "id": "053",
+  "name": "Chramtal Zubatý",
+  "description": "Malý, kulatý tvor tvořený převážně hustou černou srstí a neuvěřitelně velkou tlamou. Jeho čelisti ukrývají řady neproporcionálně velkých a ostrých zubů, kterými dokáže rozdrtit i ten nejtvrdší kámen. Přestože působí na první pohled roztomile, jeho nenasytnost nezná mezí a dokáže v mžiku pozřít věci dvakrát větší než je on sám.",
+  "type": "Zemní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 460,
+    "attack": 130,
+    "defense": 90
+  },
+  "abilities": [
+    {
+      "name": "Drtivý Stisk",
+      "description": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
+      "type": "attack",
+      "chance": 45,
+      "value": 2.2
+    },
+    {
+      "name": "Zlověstné Cvaknutí",
+      "description": "Hlasitě zcvakne čelistmi, čímž vyvolá tlakovou vlnu a sníží obranu nepřítele.",
+      "type": "debuff",
+      "chance": 30,
+      "value": 0.4
+    },
+    {
+      "name": "Svinutí do Kuličky",
+      "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu.",
+      "type": "defense",
+      "chance": 25,
+      "value": 1.6
+    }
+  ]
+}

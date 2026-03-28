@@ -27,22 +27,26 @@ export const getTotalXPForLevel = (lvl: number) => {
   return 125 * n * n + 875 * n;
 };
 
-import { GEM_BONUSES } from '../data/gems';
-export { GEM_BONUSES };
-
+import { RESOURCE_CONFIG } from '../data/resources';
 
 export const getMonsterMaxHP = (monster: any) => {
   if (!monster || !monster.stats) return 100;
   const base = monster.stats.hp || 100;
   const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
-  const gemBonus = (monster.gems || []).reduce((acc: number, gid: string) => {
-    if (gid?.startsWith('gem_green')) {
-      const g = GEM_BONUSES[gid];
-      if (g) return acc + (g.isPerc ? Math.floor(base * (g.value / 100)) : g.value);
-    }
-    return acc;
-  }, 0);
-  return base + levelBonus + gemBonus;
+  
+  const getEqBonus = (slots: (string | null)[]) => {
+    return (slots || []).reduce((acc: number, id: string | null) => {
+      if (id) {
+        const cfg = RESOURCE_CONFIG[id] as any;
+        if (cfg?.stats?.hp) {
+          return acc + (cfg.statsType === 'perc' ? Math.floor(base * (cfg.stats.hp / 100)) : cfg.stats.hp);
+        }
+      }
+      return acc;
+    }, 0);
+  };
+
+  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items);
 };
 
 export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect: string }> = {

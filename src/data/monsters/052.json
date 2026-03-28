@@ -1,0 +1,35 @@
+{
+  "id": "052",
+  "name": "Mandragora Křičivá",
+  "description": "Magická rostlina, jejíž kořen připomíná nevzhledné lidské mládě. Zatímco v klidu jen tiše podřimuje v květináči, po vytažení ze země spustí ohlušující vřískot, který dokáže omráčit i dospělého kouzelníka. Její listy jsou však ceněnou ingrediencí pro přípravu léčivých lektvarů.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 480,
+    "attack": 95,
+    "defense": 120
+  },
+  "abilities": [
+    {
+      "name": "Ohlušující Jekot",
+      "description": "Vypustí pronikavý výkřik, který nepřítele ochromí a sníží jeho přesnost.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.6
+    },
+    {
+      "name": "Šlehnutí Listem",
+      "description": "Rychle šlehne svými tuhými listy a způsobí řezné rány.",
+      "type": "attack",
+      "chance": 35,
+      "value": 1.5
+    },
+    {
+      "name": "Hojivá Míza",
+      "description": "Uvolní regenerační esenci z kořenů, která jí postupně doplňuje zdraví.",
+      "type": "heal",
+      "chance": 20,
+      "value": 1.4
+    }
+  ]
+}

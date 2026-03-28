@@ -35,8 +35,78 @@ import monster034 from './monsters/034.json';
 import monster035 from './monsters/035.json';
 import monster036 from './monsters/036.json';
 import monster037 from './monsters/037.json';
+import monster038 from './monsters/038.json';
+import monster039 from './monsters/039.json';
+import monster040 from './monsters/040.json';
+import monster041 from './monsters/041.json';
+import monster042 from './monsters/042.json';
+import monster043 from './monsters/043.json';
+import monster044 from './monsters/044.json';
+import monster045 from './monsters/045.json';
+import monster046 from './monsters/046.json';
+import monster047 from './monsters/047.json';
+import monster048 from './monsters/048.json';
+import monster049 from './monsters/049.json';
+import monster050 from './monsters/050.json';
+import monster051 from './monsters/051.json';
+import monster052 from './monsters/052.json';
+import monster053 from './monsters/053.json';
+import monster054 from './monsters/054.json';
+import monster055 from './monsters/055.json';
+import monster056 from './monsters/056.json';
+import monster057 from './monsters/057.json';
+import monster058 from './monsters/058.json';
+import monster059 from './monsters/059.json';
+import monster060 from './monsters/060.json';
+import monster061 from './monsters/061.json';
+import monster062 from './monsters/062.json';
+import monster063 from './monsters/063.json';
+import monster064 from './monsters/064.json';
+import monster065 from './monsters/065.json';
+import monster066 from './monsters/066.json';
+import monster067 from './monsters/067.json';
+import monster068 from './monsters/068.json';
+import monster069 from './monsters/069.json';
+import monster070 from './monsters/070.json';
+import monster071 from './monsters/071.json';
+import monster072 from './monsters/072.json';
 
 export const monsterDB = [
+  monster072,
+  monster071,
+  monster070,
+  monster069,
+  monster068,
+  monster067,
+  monster066,
+  monster065,
+  monster064,
+  monster063,
+  monster062,
+  monster061,
+  monster060,
+  monster059,
+  monster058,
+  monster057,
+  monster056,
+  monster055,
+  monster054,
+  monster053,
+  monster052,
+  monster051,
+  monster050,
+  monster049,
+  monster048,
+  monster047,
+  monster046,
+  monster045,
+  monster044,
+  monster043,
+  monster042,
+  monster041,
+  monster040,
+  monster039,
+  monster038,
   monster037,
   monster036,
   monster035,

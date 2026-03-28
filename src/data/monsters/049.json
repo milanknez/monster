@@ -1,0 +1,28 @@
+{
+  "id": "049",
+  "name": "Vážka Strašilka",
+  "description": "Obrovská vážka s kovově lesklým tělem a čtyřmi křídly, která při letu vydávají skřípavý zvuk. Má velké čelisti a čtyři páry očí, které vidí vše v okolí.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 135,
+    "attack": 55,
+    "defense": 12
+  },
+  "abilities": [
+    {
+      "name": "Skřípavý nálet",
+      "description": "Rychle proletí kolem nepřítele a sekne ho svými křídly.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.6
+    },
+    {
+      "name": "Čelistní stisk",
+      "description": "Zakousne se do nepřítele svými silnými čelistmi.",
+      "type": "attack",
+      "chance": 65,
+      "value": 1.4
+    }
+  ]
+}

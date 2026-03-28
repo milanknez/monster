@@ -1,0 +1,28 @@
+{
+  "id": "045",
+  "name": "Bubla Krab",
+  "description": "Malý modrý krab, který místo bublin vyfukuje ostré krystaly. Má jedno klepeto mnohem větší než druhé a neustále jím cvaká.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 145,
+    "attack": 46,
+    "defense": 35
+  },
+  "abilities": [
+    {
+      "name": "Krystalový výfuk",
+      "description": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele.",
+      "type": "extra",
+      "chance": 20,
+      "value": 0.2
+    },
+    {
+      "name": "Cvak ruku",
+      "description": "Uskřípne nepřítele svým velkým klepetem a způsobí střední poškození.",
+      "type": "attack",
+      "chance": 65,
+      "value": 1.5
+    }
+  ]
+}

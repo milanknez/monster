@@ -2,15 +2,7 @@ import { Plus, Trash2, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '../../../utils'
 
-const ResourceIcon = ({ id, config, size = "md" }: { id: string, config: any, size?: "sm" | "md" | "lg" }) => {
-  const sizeClass = size === "sm" ? "size-6 text-sm" : size === "md" ? "size-10 text-xl" : "size-14 text-3xl";
-  if (config.hasCustomIcon) {
-    return (
-      <img src={`/resources/${id}.png?v=${Date.now()}`} className={cn(sizeClass, "object-contain")} alt={id} />
-    );
-  }
-  return <div className={cn(sizeClass, "flex items-center justify-center")}>{config.icon}</div>;
-}
+import { ResourceIcon } from '../../ui/ResourceIcon'
 
 export const RecipeEditorTab = ({ recipes, setRecipes, resourceConfig }: any) => {
   return (

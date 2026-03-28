@@ -1,0 +1,28 @@
+{
+  "id": "048",
+  "name": "Medúzka Vlasatá",
+  "description": "Malá růžová medúza s dlouhými chapadly, která připomínají svítící vlasy. Její dotek způsobuje brnění a dočasné ochromení.",
+  "type": "Vodní",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 130,
+    "attack": 42,
+    "defense": 30
+  },
+  "abilities": [
+    {
+      "name": "Elektrický dotek",
+      "description": "Zasáhne nepřítele svými chapadly a způsobí mu slabý elektrický šok.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.3
+    },
+    {
+      "name": "Ochromující záře",
+      "description": "Vystřelí záblesk světla, který má šanci nepřítele na jedno kolo ochromit.",
+      "type": "extra",
+      "chance": 60,
+      "value": 0.2
+    }
+  ]
+}

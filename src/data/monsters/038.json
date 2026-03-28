@@ -1,0 +1,28 @@
+{
+  "id": "038",
+  "name": "Krystalový Šnek",
+  "description": "Obrovský šnek s ulitou tvořenou z čistých ametystových krystalů. Jeho sliz za sebou zanechává cestu z mrazivého světla, která zpomaluje každého, kdo do ní vstoupí.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 460,
+    "attack": 120,
+    "defense": 165
+  },
+  "abilities": [
+    {
+      "name": "Krystalová barikáda",
+      "description": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu.",
+      "type": "defense",
+      "chance": 75,
+      "value": 1.75
+    },
+    {
+      "name": "Mrazivý sliz",
+      "description": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.45
+    }
+  ]
+}

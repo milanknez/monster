@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Beaker, Sparkles, AlertCircle, RefreshCw, Zap } from 'lucide-react';
-import { recipes } from '../../data/recipes';
 import type { InventoryItem, Recipe, ResourceType } from '../../types';
 import { cn } from '../../utils';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { ResourceIcon } from '../ui/ResourceIcon';
 
 import { useGameSound } from '../../data/sounds';
 
@@ -52,12 +52,21 @@ export const Laboratory = ({
     }, interval);
   };
 
-  const filteredRecipes = recipes.filter(recipe => {
-    if (activeCategory === 'vše') return true;
-    if (activeCategory === 'lektvary') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
-    if (activeCategory === 'drahokamy') return recipe.id.includes('gem');
-    return true;
-  });
+  const filteredRecipes = Object.entries(RESOURCE_CONFIG)
+    .filter(([id, config]) => config.recipe && config.recipe.length > 0)
+    .map(([id, config]) => ({
+      id,
+      name: config.label || id,
+      description: config.description || '',
+      requirements: config.recipe! as any,
+      result: { type: 'item' as const, id, amount: config.recipeAmount || 1 }
+    }))
+    .filter(recipe => {
+      if (activeCategory === 'vše') return true;
+      if (activeCategory === 'lektvary') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
+      if (activeCategory === 'drahokamy') return recipe.id.includes('gem');
+      return true;
+    });
 
   return (
     <div className="px-4">
@@ -94,7 +103,7 @@ export const Laboratory = ({
         <AnimatePresence mode="popLayout">
           {filteredRecipes.map((recipe, idx) => {
             const hasSpace = inventory.some(slot => slot === null);
-            const materialsMet = recipe.requirements.every(req => getItemCount(req.type) >= req.count);
+            const materialsMet = recipe.requirements.every((req: any) => getItemCount(req.type) >= req.count);
             const ready = materialsMet && hasSpace && !craftingRecipeId;
             const active = craftingRecipeId === recipe.id;
 
@@ -118,13 +127,7 @@ export const Laboratory = ({
                 <div className="p-4 flex flex-col h-full">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="size-11 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0">
-                      {RESOURCE_CONFIG[recipe.result.id]?.hasCustomIcon ? (
-                        <img src={`resources/${recipe.result.id}.png`} className="size-7 object-contain" />
-                      ) : (
-                        <span className="text-xl">
-                          {recipe.result.id === 'xp_booster' ? '🧪' : (recipe.result.id === 'hp_potion' ? '❤️' : (RESOURCE_CONFIG[recipe.result.id]?.icon || '🎒'))}
-                        </span>
-                      )}
+                      <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" />
                     </div>
                     {ready && !active && (
                       <div className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] mt-1.5" />
@@ -142,7 +145,7 @@ export const Laboratory = ({
                   {/* Mini-Hints for Materials */}
                   {!active && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                      {recipe.requirements.map(req => {
+                      {recipe.requirements.map((req: any) => {
                         const count = getItemCount(req.type);
                         const ok = count >= req.count;
                         return (

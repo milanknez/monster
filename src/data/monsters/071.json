@@ -1,0 +1,35 @@
+{
+  "id": "071",
+  "name": "Archivář Zkaženosti",
+  "description": "Bývalý strážce vědění, jehož tělo zmutovalo v hybrid hmyzu a člověka prorostlý prastarými svitky. Má šest hmyzích očí, čtyři páry rukou zakončených kostěnými hroty a jeho kůže je popsána runami, které dýchají temnou magií a elektrickými výboji.",
+  "type": "Elektrická",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1250,
+    "attack": 260,
+    "defense": 70
+  },
+  "abilities": [
+    {
+      "name": "Kletba Nevědění",
+      "description": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením.",
+      "type": "debuff",
+      "chance": 40,
+      "value": 0.2
+    },
+    {
+      "name": "Runový Výboj",
+      "description": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.8
+    },
+    {
+      "name": "Energetické Pokřivení",
+      "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným.",
+      "type": "defense",
+      "chance": 25,
+      "value": 2.2
+    }
+  ]
+}

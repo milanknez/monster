@@ -1,0 +1,35 @@
+{
+  "id": "050",
+  "name": "Baboškrabka Zlověstná",
+  "description": "Prastará a děsivá bytost obývající nejhlubší hvozdy. Tato legendární Baba Jaga má rozcuchané, špinavé šedé vlasy, na nose velkou bradavici a z hrbaté postavy jí trčí kostěné ostny. Vládne mocnou lopatou ukovanou z meteoru a očarovanou kořeny světa. Její smích věští zkázu každému, kdo naruší klid přírody.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 950,
+    "attack": 210,
+    "defense": 65
+  },
+  "abilities": [
+    {
+      "name": "Úder Epickou Lopatou",
+      "description": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
+      "type": "attack",
+      "chance": 45,
+      "value": 2.8
+    },
+    {
+      "name": "Kletba Hlubokého Lesa",
+      "description": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí.",
+      "type": "debuff",
+      "chance": 30,
+      "value": 0.5
+    },
+    {
+      "name": "Hnilobný Závan",
+      "description": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
+      "type": "attack",
+      "chance": 25,
+      "value": 1.5
+    }
+  ]
+}

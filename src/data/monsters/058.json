@@ -1,0 +1,35 @@
+{
+  "id": "058",
+  "name": "Jiskrohlod Zmutovaný",
+  "description": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
+  "type": "Elektrická",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 430,
+    "attack": 150,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Elektrický Výboj",
+      "description": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
+      "type": "attack",
+      "chance": 45,
+      "value": 2.1
+    },
+    {
+      "name": "Statické Nabití",
+      "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok.",
+      "type": "buff",
+      "chance": 30,
+      "value": 0.4
+    },
+    {
+      "name": "Zkrat",
+      "description": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
+      "type": "debuff",
+      "chance": 25,
+      "value": 0.3
+    }
+  ]
+}

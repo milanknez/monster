@@ -1,0 +1,28 @@
+{
+  "id": "044",
+  "name": "Beruška Bradavička",
+  "description": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
+  "type": "Hmyzí",
+  "rarity": "Běžná",
+  "stats": {
+    "hp": 150,
+    "attack": 38,
+    "defense": 22
+  },
+  "abilities": [
+    {
+      "name": "Bradavičkové světlo",
+      "description": "Vystřelí silný záblesk, který oslní nepřítele.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.2
+    },
+    {
+      "name": "Tvrdá krovka",
+      "description": "Zpevní svou ochranu a sníží příchozí poškození o 30%.",
+      "type": "defense",
+      "chance": 75,
+      "value": 0.3
+    }
+  ]
+}

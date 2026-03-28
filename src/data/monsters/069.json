@@ -1,0 +1,12 @@
+{
+  "id": "069",
+  "name": "Květomorous Děsivý",
+  "description": "Nádherný květ, který po otevření odhalí strašlivou, zmutovanou tvář s řadami zubů, z nichž kape lepkavý nektar.",
+  "type": "Přírodní",
+  "rarity": "Vzácná",
+  "stats": { "hp": 420, "attack": 170, "defense": 40 },
+  "abilities": [
+    { "name": "Lepkavé sevření", "description": "Uvězní nepřítele v nektaru.", "type": "debuff", "chance": 45, "value": 0.6 },
+    { "name": "Smrtící pyl", "description": "Vystřelí pyl, který působí halucinace.", "type": "attack", "chance": 35, "value": 2.1 }
+  ]
+}

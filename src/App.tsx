@@ -38,14 +38,14 @@ import { useMonsters } from './hooks/useMonsters'
 import { useP2PTrade } from './hooks/useP2PTrade'
 import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
-import { 
-  auth, 
-  onAuthStateChanged, 
-  saveUserBackup, 
-  loadUserBackup, 
-  registerReferral, 
+import {
+  auth,
+  onAuthStateChanged,
+  saveUserBackup,
+  loadUserBackup,
+  registerReferral,
   checkEmailInvitation,
-  watchReferrals, 
+  watchReferrals,
   claimReferralReward,
   deleteReferral,
   logout,
@@ -134,12 +134,12 @@ function AppContent() {
   )
 
 
-  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, equipGem } = useMonsters(addToast);
+  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, updateMonsterStats, equipGem, equipItem } = useMonsters(addToast);
 
   // Synchronize selectedMonster with caughtMonsters (for regeneration & updates)
   useEffect(() => {
     if (selectedMonster) {
-      const updated = caughtMonsters.find(m => 
+      const updated = caughtMonsters.find(m =>
         (m as any).caughtAt === (selectedMonster as any).caughtAt && m.id === selectedMonster.id
       );
       if (updated && JSON.stringify(updated) !== JSON.stringify(selectedMonster)) {
@@ -151,14 +151,14 @@ function AppContent() {
   const { p2pTrade, setP2pTrade, handleCompleteTrade } = useP2PTrade(playerName, addToast, userUid)
   const activeMonster = caughtMonsters[0] || null
   const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, userUid, activeBattle?.opponentUid)
-  
+
   // --- FIREBASE AUTH & SYNC ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         setUserUid(firebaseUser.uid);
-        
+
         // Online Backup Recovery
         const backup = await loadUserBackup(firebaseUser.uid);
         if (backup && !playerName) {
@@ -174,18 +174,18 @@ function AppContent() {
           if (backup.totalXP) localStorage.setItem('monster_collector_xp', backup.totalXP.toString());
           if (backup.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(backup.caughtMonsters));
           if (backup.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
-          
+
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
         } else if (!backup && !playerName && firebaseUser.email) {
           // New user! Check if they were invited by email
           const referrerUidMatch = await checkEmailInvitation(firebaseUser.email);
           if (referrerUidMatch) {
-             registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || 'Nový lovec', firebaseUser.email);
-             addToast({ 
-                title: 'Odměna za pozvánku', 
-                message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.', 
-                type: 'xp' 
-             });
+            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || 'Nový lovec', firebaseUser.email);
+            addToast({
+              title: 'Odměna za pozvánku',
+              message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.',
+              type: 'xp'
+            });
           }
         }
       } else {
@@ -279,50 +279,50 @@ function AppContent() {
 
     (window as any).addMonster = (mId: string, lvl = 5) => {
       const base = monsterDB.find(m => m.id === mId) || monsterDB[0];
-      const monsterToSave = { 
-        ...base, 
-        level: lvl, 
-        caughtAt: Date.now(), 
-        totalXP: 0, 
+      const monsterToSave = {
+        ...base,
+        level: lvl,
+        caughtAt: Date.now(),
+        totalXP: 0,
         currentHP: base.stats?.hp || 100,
         image: `/monsters/${base.id}.png`,
         gems: [null, null, null]
       };
-      saveMonster(monsterToSave as any, () => {});
+      saveMonster(monsterToSave as any, () => { });
       addToast({ title: '🧬 Monstrum přidáno!', message: `${base.name} (Lv.${lvl}) se připojilo k tobě!`, type: 'success' });
     };
 
     (window as any).forceWildEncounter = () => {
-       const wildEnemy: Monster = {
-         id: 'obsidian_golem',
-         level: 7,
-         caughtAt: 0,
-         totalXP: 0,
-         name: 'Obsidiánový Golem',
-         rarity: 'epic',
-         type: 'Kamenná',
-         image: '',
-         description: 'Testovací boss pro odchyt.',
-         stats: { hp: 150, attack: 45, defense: 30 }
-       };
-       setWildEncounter(wildEnemy);
-       addToast({ title: 'Simulace!', message: 'Byl vyvolán divoký golem k otestování chytání.', type: 'info' });
+      const wildEnemy: Monster = {
+        id: 'obsidian_golem',
+        level: 7,
+        caughtAt: 0,
+        totalXP: 0,
+        name: 'Obsidiánový Golem',
+        rarity: 'epic',
+        type: 'Kamenná',
+        image: '',
+        description: 'Testovací boss pro odchyt.',
+        stats: { hp: 150, attack: 45, defense: 30 }
+      };
+      setWildEncounter(wildEnemy);
+      addToast({ title: 'Simulace!', message: 'Byl vyvolán divoký golem k otestování chytání.', type: 'info' });
     };
 
     (window as any).healMe = () => {
-       healHP(999);
-       if (caughtMonsters.length > 0) {
-         updateMonsterHP(0, 999);
-       }
-       if (selectedMonster) {
-         const idx = caughtMonsters.findIndex(m => 
-           (m as any).caughtAt === (selectedMonster as any).caughtAt && m.id === selectedMonster.id
-         );
-         if (idx !== -1 && idx !== 0) {
-            updateMonsterHP(idx, 999);
-         }
-       }
-       addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvého parťáka.', type: 'success' });
+      healHP(999);
+      if (caughtMonsters.length > 0) {
+        updateMonsterHP(0, 999);
+      }
+      if (selectedMonster) {
+        const idx = caughtMonsters.findIndex(m =>
+          (m as any).caughtAt === (selectedMonster as any).caughtAt && m.id === selectedMonster.id
+        );
+        if (idx !== -1 && idx !== 0) {
+          updateMonsterHP(idx, 999);
+        }
+      }
+      addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvého parťáka.', type: 'success' });
     };
 
     return () => {
@@ -386,20 +386,30 @@ function AppContent() {
       return;
     }
 
-    switch (type) {
-      case 'xp_booster':
-        activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + 30 * 60 * 1000 });
-        addToast({ title: 'Boost aktivován!', message: 'Získáváš 2x XP po dobu 30 minut.', type: 'boost' });
-        break;
-      case 'hp_potion':
-        healHP(50);
-        if (caughtMonsters.length > 0) updateMonsterHP(0, 50);
-        activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + 15 * 60 * 1000 });
-        addToast({ title: 'Lékárnička použita!', message: 'Okamžitě vyléčeno 50 HP (ty i monstrum) a zvýšena regenerace.', type: 'success' });
-        break;
-      case 'energy_drink':
-        addToast({ title: 'Energy Drink!', message: 'Cítíš se skvěle! Tvoje energie byla plně obnovena.', type: 'info' });
-        break;
+    const cfg = RESOURCE_CONFIG[type];
+    if (!cfg) return;
+
+    // Apply immediate stat heals
+    if (cfg.stats?.hp) {
+      const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp; // Since max HP is 100 (for player)
+      healHP(amount);
+      if (caughtMonsters.length > 0) updateMonsterHP(0, amount);
+      addToast({ title: `${cfg.label} použit`, message: `Vyléčeno ${cfg.statsType === 'perc' ? cfg.stats.hp + '%' : amount} HP.`, type: 'success' });
+    }
+    if (cfg.stats?.energy) {
+      addToast({ title: `${cfg.label} použit`, message: 'Energie (Mana) byla doplněna.', type: 'info' });
+    }
+
+    // Apply special effects
+    if (cfg.specialEffect && cfg.specialEffect !== 'none') {
+       const mins = cfg.effectDuration || 15;
+       if (cfg.specialEffect === 'xp_boost') {
+          activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+          addToast({ title: 'XP Boost aktivován!', message: `Získáváš 2x XP po dobu ${mins} minut.`, type: 'boost' });
+       } else if (cfg.specialEffect === 'hp_regen') {
+          activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+          addToast({ title: 'HP Regen aktivován!', message: `Tvoje regenerace zdraví je posílena na ${mins} minut.`, type: 'success' });
+       }
     }
   };
 
@@ -582,16 +592,25 @@ function AppContent() {
             incomingEmote={incomingEmote}
             incomingAttack={incomingAttack}
             inventory={inventory.filter(i => i !== null) as any}
+            isXpBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
             onUseItem={(type) => {
-               if (type === 'hp_potion') {
-                  healHP(50);
-                  if (caughtMonsters.length > 0) updateMonsterHP(activeBattle.playerIdx, 50);
-                  addToast({ title: 'Lékárnička použita v boji!', message: 'Léčí tě i monstrum (50 HP).', type: 'success' });
-                  consumeResources([{ type: 'hp_potion', count: 1 }]);
-               } else if (type === 'energy_drink') {
-                  addToast({ title: 'Energy Drink v boji!', message: 'Tvoje energie byla posílena o 60%!', type: 'success' });
-                  consumeResources([{ type: 'energy_drink', count: 1 }]);
-               }
+              const cfg = RESOURCE_CONFIG[type];
+              if (!cfg) return;
+              consumeResources([{ type: type as any, count: 1 }]);
+              
+              if (cfg.stats?.hp && caughtMonsters.length > 0) {
+                 const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp;
+                 updateMonsterHP(activeBattle.playerIdx, amount);
+              }
+              
+              if (cfg.specialEffect && cfg.specialEffect !== 'none') {
+                 const mins = cfg.effectDuration || 15;
+                 if (cfg.specialEffect === 'xp_boost') {
+                    activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+                 } else if (cfg.specialEffect === 'hp_regen') {
+                    activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+                 }
+              }
             }}
             onSendEmote={(emote) => {
               if (activeBattle.opponentUid) {
@@ -617,14 +636,14 @@ function AppContent() {
               setActiveTab('home');
             }}
             onCatch={(monster) => {
-               saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, (xp) => {
-                 setNewMonster(monster);
-                 addXP(xp);
-               });
-               setActiveBattle(null);
+              saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, (xp) => {
+                setNewMonster(monster);
+                addXP(xp);
+              });
+              setActiveBattle(null);
             }}
             onCatchFail={() => {
-               addToast({ title: 'Uniklo to!', message: 'Monstrum se vysmeklo. Zkus mu ubrat více HP!', type: 'info' });
+              addToast({ title: 'Uniklo to!', message: 'Monstrum se vysmeklo. Zkus mu ubrat více HP!', type: 'info' });
             }}
             onBack={() => {
               if (activeBattle.opponentUid) {
@@ -676,38 +695,75 @@ function AppContent() {
               onUsePotion={(type: string) => {
                 const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                 if (idx !== -1) {
-                   if (type === 'hp_potion') {
-                      updateMonsterHP(idx, 100); 
-                      consumeResources([{ type: 'hp_potion', count: 1 }]);
-                      addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
-                   }
+                  if (type === 'hp_potion') {
+                    updateMonsterHP(idx, 100);
+                    consumeResources([{ type: 'hp_potion', count: 1 }]);
+                    addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
+                  }
+                }
+              }}
+              onUseLoot={(type: string) => {
+                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                if (idx !== -1) {
+                  const itemConfig = RESOURCE_CONFIG[type];
+                  if (itemConfig?.stats) {
+                    updateMonsterStats(idx, itemConfig.stats);
+                    consumeResources([{ type: type as any, count: 1 }]);
+                    addToast({
+                      title: 'Statistiky zvýšeny!',
+                      message: `${selectedMonster.name} získalo trvalé vylepšení: ${itemConfig.label}!`,
+                      type: 'success'
+                    });
+                  }
                 }
               }}
               onEquipGem={(gemIdx, type) => {
                 const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                 if (idx !== -1) {
-                   const oldGem = caughtMonsters[idx].gems?.[gemIdx];
-                   
-                   equipGem(idx, gemIdx, type);
-                   // Update visual state
-                   const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
-                   newGems[gemIdx] = type;
-                   const updated = { ...caughtMonsters[idx], gems: newGems };
-                   setSelectedMonster(updated);
+                  const oldGem = caughtMonsters[idx].gems?.[gemIdx];
 
-                   if (type) consumeResources([{ type: type as any, count: 1 }]);
-                   if (oldGem) addResource(oldGem as any, 1);
-                   
-                   addToast({ 
-                      title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut', 
-                      message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
-                      type: 'success' 
-                   });
+                  equipGem(idx, gemIdx, type);
+                  // Update visual state
+                  const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
+                  newGems[gemIdx] = type;
+                  const updated = { ...caughtMonsters[idx], gems: newGems };
+                  setSelectedMonster(updated);
+
+                  if (type) consumeResources([{ type: type as any, count: 1 }]);
+                  if (oldGem) addResource(oldGem as any, 1);
+
+                  addToast({
+                    title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut',
+                    message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
+                    type: 'success'
+                  });
+                }
+              }}
+              onEquipItem={(itemIdx, type) => {
+                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                if (idx !== -1) {
+                  const oldItem = caughtMonsters[idx].items?.[itemIdx];
+                  equipItem(idx, itemIdx, type);
+
+                  // Update visual state
+                  const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
+                  newItems[itemIdx] = type;
+                  const updated = { ...caughtMonsters[idx], items: newItems };
+                  setSelectedMonster(updated);
+
+                  if (type) consumeResources([{ type: type as any, count: 1 }]);
+                  if (oldItem) addResource(oldItem as any, 1);
+
+                  addToast({
+                    title: type ? 'Předmět osazen' : 'Předmět odebrán',
+                    message: type ? 'Relikvie posílila tvé monstrum!' : 'Předmět byl vrácen do batohu.',
+                    type: 'success'
+                  });
                 }
               }}
               onRelease={() => {
-                const idx = caughtMonsters.findIndex(m => 
-                  ((m as any).caughtAt === (selectedMonster as any).caughtAt) && 
+                const idx = caughtMonsters.findIndex(m =>
+                  ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
                   (m.id === selectedMonster.id)
                 );
                 if (idx !== -1) {
@@ -715,13 +771,13 @@ function AppContent() {
                   setSelectedMonster(null);
                   addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
                 } else {
-                   // Fallback if caughtAt is missing for some reason
-                   const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
-                   if (fallbackIdx !== -1) {
-                      removeMonster(selectedMonster.id);
-                      setSelectedMonster(null);
-                      addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
-                   }
+                  // Fallback if caughtAt is missing for some reason
+                  const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
+                  if (fallbackIdx !== -1) {
+                    removeMonster(selectedMonster.id);
+                    setSelectedMonster(null);
+                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
+                  }
                 }
               }}
             />
@@ -776,18 +832,18 @@ function AppContent() {
               )}
 
               {activeTab === 'codex' && (
-              <motion.div
-                key="codex"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-              >
-                <Laboratory
-                  inventory={inventory}
-                  onCraft={handleCraft}
-                />
-              </motion.div>
-            )}
+                <motion.div
+                  key="codex"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <Laboratory
+                    inventory={inventory}
+                    onCraft={handleCraft}
+                  />
+                </motion.div>
+              )}
 
               {activeTab === 'inventory' && (
                 <Inventory
@@ -894,14 +950,14 @@ function AppContent() {
               try {
                 const user = await signInWithGoogle();
                 if (user) {
-                   addToast({ title: 'Přihlášeno!', message: `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
+                  addToast({ title: 'Přihlášeno!', message: `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
                 }
               } catch (err: any) {
                 console.error(err);
-                addToast({ 
-                  title: 'Chyba přihlášení', 
-                  message: `[${err.code || 'unknown'}]: ${err.message || 'Zkus to prosím znovu.'}`, 
-                  type: 'error' 
+                addToast({
+                  title: 'Chyba přihlášení',
+                  message: `[${err.code || 'unknown'}]: ${err.message || 'Zkus to prosím znovu.'}`,
+                  type: 'error'
                 });
               }
             }}
@@ -994,19 +1050,19 @@ function AppContent() {
         )}
 
         {/* Duel Modals */}
-         {wildEncounter && (
+        {wildEncounter && (
           <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-              <DuelSelectionModal
-                caughtMonsters={caughtMonsters}
-                opponent={wildEncounter}
-                title="Výběr pro bitvu"
-                description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% životů!"
-                onClose={() => setWildEncounter(null)}
-                onSelect={(m) => {
-                  setWildEncounter(null);
-                  handleStartBattle(wildEncounter, undefined, undefined, m);
-                }}
-              />
+            <DuelSelectionModal
+              caughtMonsters={caughtMonsters}
+              opponent={wildEncounter}
+              title="Výběr pro bitvu"
+              description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% životů!"
+              onClose={() => setWildEncounter(null)}
+              onSelect={(m) => {
+                setWildEncounter(null);
+                handleStartBattle(wildEncounter, undefined, undefined, m);
+              }}
+            />
           </div>
         )}
 
@@ -1133,12 +1189,12 @@ function AppContent() {
         )}
 
       </AnimatePresence>
-      
+
       {/* New Monster Celebration Modal */}
       <AnimatePresence>
         {newMonster && (
-          <NewMonsterModal 
-            monster={newMonster} 
+          <NewMonsterModal
+            monster={newMonster}
             onClose={() => setNewMonster(null)}
             onAdd={(m) => {
               // We've already saved it in handleBattleWin or onCatch
@@ -1148,10 +1204,10 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      <InviteModal 
-        isOpen={isInviteModalOpen} 
-        onClose={() => setIsInviteModalOpen(false)} 
-        referralCode={userUid} 
+      <InviteModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        referralCode={userUid}
       />
     </div>
   )
@@ -1159,7 +1215,7 @@ function AppContent() {
   async function handleProfileComplete(name: string, referralCode?: string) {
     setPlayerName(name)
     localStorage.setItem('monster_collector_player_name', name)
-    
+
     if (referralCode && userUid) {
       await registerReferral(referralCode, userUid, name);
       addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
@@ -1170,19 +1226,19 @@ function AppContent() {
     try {
       if (!userUid) return;
       await claimReferralReward(userUid, invitedUid);
-      
+
       const rarePool = monsterDB.filter(m => {
-          const r = (m.rarity || '').toLowerCase();
-          return r === 'vzácná' || r === 'rare';
+        const r = (m.rarity || '').toLowerCase();
+        return r === 'vzácná' || r === 'rare';
       });
       const randomMonster = rarePool[Math.floor(Math.random() * rarePool.length)];
-      
+
       if (randomMonster) {
         const monsterWithMeta: Monster = {
           ...randomMonster,
           level: 1,
           image: '', // Visuals are handled by ID
-          currentHP: undefined, 
+          currentHP: undefined,
           totalXP: 0,
           abilities: (randomMonster.abilities || []).map(a => ({
             ...a,
@@ -1196,7 +1252,7 @@ function AppContent() {
         addToast({ title: 'Vajíčko vylíhnuto!', message: `Získal jsi vzácného ${randomMonster.name}!`, type: 'success' });
       }
     } catch (error) {
-       console.error(error);
+      console.error(error);
     }
   }
 

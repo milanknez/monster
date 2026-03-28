@@ -1,0 +1,35 @@
+{
+  "id": "051",
+  "name": "Mother Kitty",
+  "description": "Zanedbaná postava v potrhaných vrstvách oblečení, kterou vždy doprovází legie divokých, hladových koček. Žije ve stínech velkoměsta a její kočky nejsou jen mazlíčci, ale prodloužená ruka její pomstychtivé vůle.",
+  "type": "Temná",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 850,
+    "attack": 195,
+    "defense": 45
+  },
+  "abilities": [
+    {
+      "name": "Kočičí Armáda",
+      "description": "Vypustí hejno hladových koček, které nepřítele poškrábou a pokoušou.",
+      "type": "attack",
+      "chance": 50,
+      "value": 2.2
+    },
+    {
+      "name": "Pronikavé Mňoukání",
+      "description": "Děsivý jekot koček ochromí nepřítele hrůzou.",
+      "type": "debuff",
+      "chance": 30,
+      "value": 0.7
+    },
+    {
+      "name": "Infikované Drápy",
+      "description": "Útok, který kromě zranění způsobí i otravu špínou z ulic.",
+      "type": "attack",
+      "chance": 20,
+      "value": 1.6
+    }
+  ]
+}
