@@ -1,4 +1,4 @@
- import monster001 from './monsters/001.json';
+import monster001 from './monsters/001.json';
 import monster002 from './monsters/002.json';
 import monster003 from './monsters/003.json';
 import monster004 from './monsters/004.json';

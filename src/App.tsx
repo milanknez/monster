@@ -96,7 +96,7 @@ function AppContent() {
   // --- HOOKS ---
   const { toasts, addToast, removeToast } = useToasts()
   const { activeBoosts, activateBoost: baseActivateBoost } = useBoosts()
-  const { inventory, addResource, consumeResources, swapItems, discardItem } = useInventory()
+  const { inventory, maxSlots, upgradeCapacity, addResource, consumeResources, swapItems, discardItem } = useInventory()
   const {
     totalXP,
     showLevelUp,
@@ -236,6 +236,22 @@ function AppContent() {
     return () => unsubscribe();
   }, [userUid]);
 
+  // --- DEBUG TOOLS ---
+  useEffect(() => {
+    (window as any).addMonster = (id: string) => {
+      const found = monsterDB.find(m => m.id === id);
+      if (found) {
+        // Create a copy with full HP
+        const copy: any = { ...found, caughtAt: Date.now(), currentHP: (found.stats?.hp || 100) * 10 }; 
+        saveMonster(copy, (xp) => addXP(xp));
+        addToast({ title: 'Debug', message: `Příšera ${found.name} (ID: ${id}) přidána!`, type: 'xp' });
+        console.log(`✅ Příšera ${found.name} přidána do sbírky.`);
+      } else {
+        console.error(`❌ Příšera s ID ${id} neexistuje v databázi.`);
+      }
+    };
+  }, [saveMonster, addToast, addXP]);
+
   // Sync Referral Levels (Real-time check of invited friends)
   useEffect(() => {
     if (referrals.length === 0) return;
@@ -346,6 +362,12 @@ function AppContent() {
     if (item?.price && !payingItem) {
       setPayingItem({ boost, title: item.title, price: item.price })
       return
+    }
+    if ((boost.type as string) === 'inventory_upgrade') {
+      upgradeCapacity(boost.multiplier);
+      addToast({ title: 'Batoh Vylepšen!', message: `Kapacita batohu byla zvýšena na ${boost.multiplier} slotů!`, type: 'success' });
+      setPayingItem(null);
+      return;
     }
     baseActivateBoost(boost, checkpointHP)
   }
@@ -909,6 +931,7 @@ function AppContent() {
                   key="store"
                   onActivateBoost={activateBoost}
                   activeBoosts={activeBoosts}
+                  maxSlots={maxSlots}
                 />
               )}
             </motion.div>
@@ -1268,7 +1291,7 @@ function AppContent() {
           image: '', // Visuals are handled by ID
           currentHP: undefined,
           totalXP: 0,
-          abilities: (randomMonster.abilities || []).map(a => ({
+          abilities: (randomMonster.abilities || []).map((a: any) => ({
             ...a,
             type: a.type as any
           }))

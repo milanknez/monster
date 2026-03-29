@@ -12,10 +12,10 @@
   "abilities": [
     {
       "name": "Kořenové sevření",
-      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii.",
-      "type": "buff",
+      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+      "type": "curse",
       "chance": 75,
-      "value": 0.2
+      "value": 0.15
     },
     {
       "name": "Dech pralesa",

@@ -10,7 +10,7 @@ export interface Monster {
     name: string;
     description: string;
     icon?: string;
-    type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra';
+    type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra' | 'curse' | 'regen';
     chance?: number;
     value?: number;
   }[];

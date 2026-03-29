@@ -5,22 +5,41 @@ const MAX_SLOTS = 16
 const MAX_STACK = 20
 
 export function useInventory() {
+  const [maxSlots, setMaxSlots] = useState(() => {
+    return parseInt(localStorage.getItem('monster_collector_inv_capacity') || '16')
+  })
+
+  // Watch for external capacity changes
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'monster_collector_inv_capacity' && e.newValue) {
+        setMaxSlots(parseInt(e.newValue))
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   const [inventory, setInventory] = useState<(InventoryItem | null)[]>(() => {
     try {
       const saved = localStorage.getItem('monster_collector_inventory_v2')
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) return parsed.slice(0, MAX_SLOTS)
+        // Check current capacity directly from storage to be sync
+        const currentCap = parseInt(localStorage.getItem('monster_collector_inv_capacity') || '16')
+        if (Array.isArray(parsed)) {
+          const arr = parsed.slice(0, currentCap)
+          while(arr.length < currentCap) arr.push(null)
+          return arr
+        }
       }
-      // Migrate from old format (V1 was object-based or small array)
       const old = localStorage.getItem('monster_collector_inventory')
       if (old) {
-        const parsedOld = JSON.parse(old)
-        // Basic migration if it was a simple list of types
-        // For simplicity, starting fresh or assuming it's an empty 20 slots
+        // migration logic
       }
     } catch (e) { }
-    return Array(MAX_SLOTS).fill(null)
+    const initialCap = parseInt(localStorage.getItem('monster_collector_inv_capacity') || '16')
+    return Array(initialCap).fill(null)
   })
 
   // Save to LocalStorage
@@ -142,8 +161,20 @@ export function useInventory() {
     return needed.every(n => getItemCount(n.type) >= n.count)
   }, [getItemCount])
 
+  const upgradeCapacity = useCallback((newSize: number) => {
+    setMaxSlots(newSize)
+    localStorage.setItem('monster_collector_inv_capacity', newSize.toString())
+    setInventory(prev => {
+      const next = [...prev]
+      while(next.length < newSize) next.push(null)
+      return next
+    })
+  }, [])
+
   return {
     inventory,
+    maxSlots,
+    upgradeCapacity,
     addResource,
     consumeResources,
     getItemCount,

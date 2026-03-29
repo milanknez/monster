@@ -19,10 +19,10 @@
     },
     {
       "name": "Statické Nabití",
-      "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok.",
-      "type": "buff",
+      "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+      "type": "curse",
       "chance": 30,
-      "value": 0.4
+      "value": 0.15
     },
     {
       "name": "Zkrat",

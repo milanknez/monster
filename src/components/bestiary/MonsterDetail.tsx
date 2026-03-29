@@ -414,7 +414,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
                 <div className="bg-white/5 p-4 rounded-3xl border border-white/5 relative z-10">
                   <div className="flex items-center justify-between mb-3 px-1">
-                    <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Drahokamy (Sockety)</h3>
+                    <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Vybavení (Relikvie a Gemy)</h3>
                   </div>
 
                   <div className="flex items-center justify-center gap-4">
@@ -455,7 +455,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           <button onClick={() => setActiveSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
                           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vylepšení</p>
                           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {inventory?.filter(i => i?.type.startsWith('gem_') && i?.count > 0).map(i => (
+                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => (
                               <motion.button
                                 key={i?.type}
                                 whileTap={{ scale: 0.9 }}
@@ -468,79 +468,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                 <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm relative z-10">{i?.count}x</span>
                               </motion.button>
                             ))}
-                            {(!inventory || inventory.filter(i => i?.type.startsWith('gem_') && i?.count > 0).length === 0) && (
+                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('item_')) && i?.count > 0).length === 0) && (
                               <div className="w-full text-center py-4 flex flex-col items-center gap-2">
-                                <div className="text-3xl opacity-30">🧪</div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné drahokamy v batohu</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="bg-white/5 p-4 rounded-3xl border border-white/5 relative z-10 mt-4">
-                  <div className="flex items-center justify-between mb-3 px-1">
-                    <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Nasazené Relikvie (Socket)</h3>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-4">
-                    {Array.from({ length: 3 }).map((_, idx) => {
-                      const currentItem = monster.items?.[idx];
-                      const isPicking = activeItemSlotIdx === idx;
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => setActiveItemSlotIdx(idx)}
-                          className={cn(
-                            "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
-                            currentItem ? "bg-slate-800 border-white/20 shadow-xl" : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
-                            isPicking && "ring-4 ring-slate-500/50 border-slate-500/60"
-                          )}
-                        >
-                          {currentItem ? (
-                            <>
-                              <div className="size-14 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <ResourceIcon id={currentItem} config={RESOURCE_CONFIG[currentItem]} size="lg" className="filter drop-shadow-md" />
-                              </div>
-                              <button onClick={(e) => { e.stopPropagation(); onEquipItem?.(idx, null); }} className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20">
-                                <Trash2 size={10} />
-                              </button>
-                            </>
-                          ) : (
-                            <Plus size={20} className="text-white/20" />
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  <AnimatePresence>
-                    {activeItemSlotIdx !== null && (
-                      <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 16 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
-                        <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
-                          <button onClick={() => setActiveItemSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
-                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeItemSlotIdx + 1}: Vyber si předmět</p>
-                          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {inventory?.filter(i => i?.type.startsWith('item_') && i?.count > 0).map(i => (
-                              <motion.button
-                                key={i?.type}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => { onEquipItem?.(activeItemSlotIdx, i?.type || null); setActiveItemSlotIdx(null); }}
-                                className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative overflow-hidden"
-                              >
-                                <div className="size-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <ResourceIcon id={i?.type || ''} config={RESOURCE_CONFIG[i?.type || '']} size="md" className="filter drop-shadow-md" />
-                                </div>
-                                <span className="text-[7px] font-black text-slate-400 bg-slate-400/10 px-1 rounded-sm relative z-10">{i?.count}x</span>
-                              </motion.button>
-                            ))}
-                            {(!inventory || inventory.filter(i => i?.type.startsWith('item_') && i?.count > 0).length === 0) && (
-                              <div className="w-full text-center py-4 flex flex-col items-center gap-2">
-                                <div className="text-3xl opacity-30">🦴</div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné relikvie v batohu</p>
+                                <div className="text-3xl opacity-30">📦</div>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné vybavení v batohu</p>
                               </div>
                             )}
                           </div>

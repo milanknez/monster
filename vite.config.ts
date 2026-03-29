@@ -23,7 +23,9 @@ export default defineConfig({
             console.log(`[API Request]: ${req.method} ${url}`);
           }
 
-          if (req.method === 'POST' && url.startsWith('/api/save-monster')) {
+          const pathname = url.split('?')[0];
+
+          if (req.method === 'POST' && pathname === '/api/save-monster') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
@@ -52,7 +54,7 @@ export default defineConfig({
                 res.end('Internal Server Error');
               }
             });
-          } else if (req.method === 'POST' && url.startsWith('/api/save-config')) {
+          } else if (req.method === 'POST' && pathname === '/api/save-config') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', () => {
@@ -83,23 +85,23 @@ export default defineConfig({
                 res.end('Internal Server Error');
               }
             });
-          } else if (req.method === 'POST' && url.startsWith('/api/save-monster-image')) {
-            const parsedUrl = new URL(url, `http://${req.utils ? req.headers.host : 'localhost'}`);
+          } else if (req.method === 'POST' && pathname === '/api/save-monster-image') {
+            const parsedUrl = new URL(url, `http://${req.headers?.host || 'localhost'}`);
             const id = parsedUrl.searchParams.get('id');
             const dir = path.resolve(__dirname, 'public/monsters');
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
-          } else if (req.method === 'POST' && url.startsWith('/api/save-resource-image')) {
-            const parsedUrl = new URL(url, `http://${req.utils ? req.headers.host : 'localhost'}`);
+          } else if (req.method === 'POST' && pathname === '/api/save-resource-image') {
+            const parsedUrl = new URL(url, `http://${req.headers?.host || 'localhost'}`);
             const id = parsedUrl.searchParams.get('id');
             const dir = path.resolve(__dirname, 'public/resources');
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
-          } else if (req.method === 'GET' && url.startsWith('/api/list-resources')) {
+          } else if (req.method === 'GET' && pathname === '/api/list-resources') {
             const dir = path.resolve(__dirname, 'public/resources');
             if (!fs.existsSync(dir)) {
               res.statusCode = 200;

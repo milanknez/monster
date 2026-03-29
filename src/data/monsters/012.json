@@ -12,9 +12,9 @@
   "abilities": [
     {
       "name": "Hřejivé obětí",
-      "description": "Zahřeje svého spojence a dodá mu trochu ztracené odvahy (a zdraví).",
-      "type": "heal",
-      "chance": 70,
+      "description": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
+      "type": "curse",
+      "chance": 25,
       "value": 0.2
     },
     {

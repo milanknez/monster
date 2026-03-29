@@ -1,4 +1,4 @@
-import { Plus, Trash2, Sword, Shield, Heart, Sparkles, Zap, Info, Wand2, Loader2 } from 'lucide-react'
+import { Plus, Trash2, Sword, Shield, Heart, Sparkles, Zap, Info, Wand2, Loader2, Skull, Leaf } from 'lucide-react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '../../../utils'
@@ -125,7 +125,13 @@ export const MonsterEditorTab = ({
                       <div className="space-y-1">
                          <div className="flex items-center gap-1">
                             <label className="text-[10px] font-black text-slate-500 uppercase">Typ</label>
-                            {ab.type === 'attack' ? <Sword size={8} className="text-primary/60" /> : ab.type === 'defense' ? <Shield size={8} className="text-primary/60" /> : ab.type === 'heal' ? <Heart size={8} className="text-primary/60" /> : ab.type === 'buff' ? <Sparkles size={8} className="text-primary/60" /> : ab.type === 'extra' ? <Zap size={8} className="text-primary/60" /> : <Info size={8} className="text-primary/60" />}
+                            {ab.type === 'attack' ? <Sword size={8} className="text-primary/60" /> : 
+                              ab.type === 'defense' ? <Shield size={8} className="text-primary/60" /> : 
+                              ab.type === 'heal' ? <Heart size={8} className="text-primary/60" /> : 
+                              ab.type === 'regen' ? <Leaf size={8} className="text-emerald-500/60" /> : 
+                              ab.type === 'curse' ? <Skull size={8} className="text-purple-500/60" /> : 
+                              ab.type === 'extra' ? <Zap size={8} className="text-primary/60" /> : 
+                              <Info size={8} className="text-primary/60" />}
                          </div>
 
                          <select value={ab.type || 'attack'} onChange={(e) => {

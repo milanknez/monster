@@ -6,6 +6,7 @@ import type { Boost } from '../../types'
 interface StoreProps {
   onActivateBoost: (boost: Boost, item?: any) => void
   activeBoosts: Boost[]
+  maxSlots: number
 }
 
 const STORE_ITEMS = [
@@ -22,7 +23,8 @@ const STORE_ITEMS = [
     bgClass: 'bg-blue-500/10',
     borderClass: 'border-blue-500/20',
     gradient: 'from-blue-600/20 to-cyan-500/0',
-    price: null
+    price: '1 Kč',
+    disabled: false
   },
   {
     id: 'hp_50',
@@ -37,7 +39,8 @@ const STORE_ITEMS = [
     bgClass: 'bg-emerald-500/10',
     borderClass: 'border-emerald-500/20',
     gradient: 'from-emerald-600/20 to-teal-500/0',
-    price: null
+    price: '1 Kč',
+    disabled: false
   },
   {
     id: 'hp_100',
@@ -86,11 +89,44 @@ const STORE_ITEMS = [
     gradient: 'from-yellow-600/20 to-amber-500/0',
     price: '1 Kč',
     disabled: true
+  },
+  {
+    id: 'inv_20',
+    title: 'PROSTOR',
+    subtitle: 'LOVECKÝ BATOH',
+    description: 'Trvale zvětší kapacitu batohu na 20 slotů.',
+    badge: '20 MÍST',
+    icon: Zap, // Using Zap because ShoppingBag requires importing
+    type: 'inventory_upgrade',
+    multiplier: 20,
+    colorClass: 'text-stone-400',
+    bgClass: 'bg-stone-500/10',
+    borderClass: 'border-stone-500/20',
+    gradient: 'from-stone-600/20 to-neutral-500/0',
+    price: '1 Kč',
+    disabled: false
+  },
+  {
+    id: 'inv_24',
+    title: 'EXPANZE',
+    subtitle: 'EXPEDIČNÍ BATOH',
+    description: 'Trvale zvětší kapacitu batohu na 24 slotů.',
+    badge: '24 MÍST',
+    icon: TrendingUp, // Using TrendingUp
+    type: 'inventory_upgrade',
+    multiplier: 24,
+    colorClass: 'text-amber-500',
+    bgClass: 'bg-amber-500/10',
+    borderClass: 'border-amber-500/20',
+    gradient: 'from-amber-600/20 to-orange-500/0',
+    price: '1 Kč',
+    disabled: false
   }
 ]
 
-export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
+export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) => {
   const isBoostActive = (type: string, multiplier: number) => {
+    if (type === 'inventory_upgrade') return maxSlots >= multiplier;
     return activeBoosts.some(b => b.type === type && b.multiplier === multiplier && b.expiresAt > Date.now())
   }
 
@@ -117,7 +153,7 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
           </div>
         </div>
         <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed max-w-[80%]">
-          Všechny moduly jsou v této fázi dostupné bez poplatku za Aether kredity.
+          Všechny moduly jsou k dostání za testovací platbu 1 Kč přes platební portál.
         </p>
       </div>
 
@@ -177,19 +213,26 @@ export const Store = ({ onActivateBoost, activeBoosts }: StoreProps) => {
                 {/* Status / Tlačítko */}
                 <div className="pt-2">
                   {isActive ? (
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[7px] font-black uppercase">
-                        <span className="text-primary italic">Aktivní modul</span>
-                        <span className="text-slate-500">24h</span>
+                    item.type === 'inventory_upgrade' ? (
+                      <div className="w-full py-1 rounded-lg border text-center transition-all bg-emerald-500/10 border-emerald-500/30 text-emerald-400 flex items-center justify-center gap-2">
+                        <CheckCircle2 size={10} />
+                        <span className="text-[8px] font-black uppercase tracking-[0.15em]">Zakoupeno</span>
                       </div>
-                      <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${timePercent}%` }}
-                          className="h-full bg-primary shadow-[0_0_8px_#0db9f2]"
-                        />
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[7px] font-black uppercase">
+                          <span className="text-primary italic">Aktivní modul</span>
+                          <span className="text-slate-500">24h</span>
+                        </div>
+                        <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${timePercent}%` }}
+                            className="h-full bg-primary shadow-[0_0_8px_#0db9f2]"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )
                   ) : (
                     <div className={cn(
                       "w-full py-1 rounded-lg border text-center transition-all flex items-center justify-center gap-2",

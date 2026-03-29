@@ -12,9 +12,9 @@
   "abilities": [
     {
       "name": "Smradlavý výbuch",
-      "description": "Vyvolá oblaka zápachu za sebou, snižuje sílu a rychlost nepřátel na jedno kolo.",
-      "type": "buff",
-      "chance": 75,
+      "description": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, ",
+      "type": "curse",
+      "chance": 85,
       "value": 0.2
     },
     {

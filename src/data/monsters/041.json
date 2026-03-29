@@ -19,10 +19,10 @@
     },
     {
       "name": "Mechové maskování",
-      "description": "Splyne s okolím a sníží šanci nepřítele na zásah.",
-      "type": "buff",
+      "description": "Splyne s okolím a sníží šanci nepřítele na zásah. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+      "type": "curse",
       "chance": 75,
-      "value": 0.2
+      "value": 0.15
     }
   ]
 }

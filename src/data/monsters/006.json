@@ -19,10 +19,10 @@
     },
     {
       "name": "Tanec ve větru",
-      "description": "Zvýší mrštnost a šanci na vyhnutí se útoku.",
-      "type": "buff",
+      "description": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+      "type": "curse",
       "chance": 75,
-      "value": 0.2
+      "value": 0.15
     }
   ]
 }

@@ -45,8 +45,9 @@ const RARITY_EMOJIS: Record<string, string> = {
 const ABILITY_TYPES = [
   { id: 'attack', label: '⚔️ Útočná speciální', defaultChance: 30, defaultVal: 1.5, desc: 'Dmg 1.5x - 2x' },
   { id: 'defense', label: '🛡️ Obrana', defaultChance: 15, defaultVal: 0.25, desc: 'Snížení dmg 20-30%' },
-  { id: 'buff', label: '✨ Buff', defaultChance: 15, defaultVal: 0.2, desc: '+20% Atk/Speed' },
-  { id: 'heal', label: '❤️ Heal / Regen', defaultChance: 20, defaultVal: 0.15, desc: '+10-20% HP' },
+  { id: 'heal', label: '❤️ Léčení (Instantní)', defaultChance: 20, defaultVal: 0.15, desc: '+15% HP hned' },
+  { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 25, defaultVal: 0.1, desc: '+10% HP / kolo' },
+  { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 25, defaultVal: 0.2, desc: '0.2*Atk DMG / kolo' },
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 0.2, desc: '+X% DMG k základu' },
 ]
 

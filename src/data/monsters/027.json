@@ -12,10 +12,10 @@
   "abilities": [
     {
       "name": "Mazlivý sev",
-      "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo.",
-      "type": "buff",
+      "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+      "type": "curse",
       "chance": 75,
-      "value": 0.2
+      "value": 0.15
     },
     {
       "name": "Plyšový štít",
