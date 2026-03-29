@@ -1,5 +1,5 @@
 import { ArrowLeft, Zap, Settings, MapPin } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, getPlayerRank } from '../../utils';
 
 interface HeaderProps {
   title?: string
@@ -10,6 +10,7 @@ interface HeaderProps {
   avatarSeed?: string
   onSettingsClick?: () => void
   onLocationClick?: () => void
+  caughtCount?: number
 }
 
 export const Header = ({ 
@@ -20,7 +21,8 @@ export const Header = ({
   avatarStyle = "avataaars",
   avatarSeed = "seed",
   onSettingsClick,
-  onLocationClick
+  onLocationClick,
+  caughtCount = 0
 }: HeaderProps) => (
   <header className="flex items-center justify-between p-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
     <div className="flex items-center gap-3 flex-1">
@@ -29,12 +31,15 @@ export const Header = ({
           <ArrowLeft size={24} className="text-slate-100" />
         </button>
       ) : (
-        <div className="size-11 rounded-full border-2 border-primary overflow-hidden bg-slate-800 p-0.5">
+        <button 
+          onClick={onSettingsClick}
+          className="size-11 rounded-full border-2 border-primary overflow-hidden bg-slate-800 p-0.5 active:scale-95 transition-transform"
+        >
           <div 
             className="w-full h-full rounded-full bg-cover bg-center" 
             style={{ backgroundImage: `url('https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${encodeURIComponent(avatarSeed)}')` }} 
           />
-        </div>
+        </button>
       )}
       <div className="flex flex-col flex-1">
         <h1 className={cn("font-black tracking-wider text-slate-100 uppercase", showBack ? "text-lg" : "text-sm text-primary")}>
@@ -43,7 +48,9 @@ export const Header = ({
         {!showBack && (
           <div className="flex items-center gap-1">
             <Zap size={12} className="text-primary fill-primary" />
-            <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Elitní Průzkumník</span>
+            <span className="text-[10px] font-bold text-primary tracking-widest uppercase italic">
+              {getPlayerRank(caughtCount)}
+            </span>
           </div>
         )}
       </div>

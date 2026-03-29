@@ -81,8 +81,13 @@ function AppContent() {
   const [isDuelAcceptingPicker, setIsDuelAcceptingPicker] = useState(false)
 
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
+  const [playerEmail, setPlayerEmail] = useState<string | null>(() => localStorage.getItem('monster_collector_player_email'))
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
   const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
+  const [lastSync, setLastSync] = useState<number | null>(() => {
+    const s = localStorage.getItem('monster_collector_last_sync');
+    return s ? parseInt(s) : null;
+  })
 
   const [isEditorMode, setIsEditorMode] = useState(() => {
     return new URLSearchParams(window.location.search).get('editor') === '1'
@@ -199,8 +204,9 @@ function AppContent() {
   // Periodic Online Backup
   useEffect(() => {
     if (!user || !userUid) return;
-    const interval = setInterval(() => {
-      saveUserBackup(userUid, {
+    const interval = setInterval(async () => {
+      const now = Date.now();
+      await saveUserBackup(userUid, {
         playerName,
         avatarStyle,
         avatarSeed,
@@ -208,8 +214,10 @@ function AppContent() {
         currentLevel,
         caughtMonsters,
         inventory,
-        lastSync: Date.now()
+        lastSync: now
       });
+      setLastSync(now);
+      localStorage.setItem('monster_collector_last_sync', now.toString());
     }, 60000); // Back up every minute
     return () => clearInterval(interval);
   }, [user, userUid, playerName, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
@@ -448,8 +456,8 @@ function AppContent() {
       addResource(l.type, l.count);
     });
 
-    // 3. Award some global XP to player
-    addXP(25);
+    // 3. Award some global XP to player (80% match with monster xp)
+    addXP(Math.round(xp * 0.8));
 
     setActiveBattle(null);
 
@@ -635,11 +643,11 @@ function AppContent() {
               setActiveBattle(null);
               setActiveTab('home');
             }}
-            onCatch={(monster) => {
-              saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, (xp) => {
+            onCatch={(monster, xp) => {
+              saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, () => {
                 setNewMonster(monster);
                 addXP(xp);
-              });
+              }, false);
               setActiveBattle(null);
             }}
             onCatchFail={() => {
@@ -681,6 +689,7 @@ function AppContent() {
           avatarSeed={avatarSeed}
           onSettingsClick={() => setIsSettingsOpen(true)}
           onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
+          caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
         />
       )}
 
@@ -944,8 +953,17 @@ function AppContent() {
               localStorage.setItem('monster_collector_avatar_style', style)
               localStorage.setItem('monster_collector_avatar_seed', seed)
             }}
-            userEmail={user?.email}
+            googleEmail={user?.email}
+            playerEmail={playerEmail}
+            isGoogleLinked={!!user}
+            onUpdateEmail={(email) => {
+              setPlayerEmail(email)
+              localStorage.setItem('monster_collector_player_email', email)
+            }}
             onLogout={() => logout()}
+            caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
+            totalMonsters={monsterDB.length}
+            lastSync={lastSync}
             onLogin={async () => {
               try {
                 const user = await signInWithGoogle();
@@ -953,10 +971,16 @@ function AppContent() {
                   addToast({ title: 'Přihlášeno!', message: `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
                 }
               } catch (err: any) {
-                console.error(err);
+                console.error("Firebase Login Error:", err);
+                let msg = 'Zkus to prosím znovu.';
+                if (err.code === 'auth/popup-blocked') msg = 'Prohlížeč zablokoval vyskakovací okno.';
+                if (err.code === 'auth/popup-closed-by-user') msg = 'Okno přihlášení bylo zavřeno před dokončením.';
+                if (err.code === 'auth/unauthorized-domain') msg = 'Tato doména není ve Firebase povolená.';
+                if (err.code === 'auth/operation-not-allowed') msg = 'Metoda Google není ve Firebase povolená.';
+
                 addToast({
                   title: 'Chyba přihlášení',
-                  message: `[${err.code || 'unknown'}]: ${err.message || 'Zkus to prosím znovu.'}`,
+                  message: `[${err.code || 'error'}]: ${msg}`,
                   type: 'error'
                 });
               }
@@ -1212,12 +1236,16 @@ function AppContent() {
     </div>
   )
 
-  async function handleProfileComplete(name: string, referralCode?: string) {
+  async function handleProfileComplete(name: string, email?: string, referralCode?: string) {
     setPlayerName(name)
     localStorage.setItem('monster_collector_player_name', name)
+    if (email) {
+      setPlayerEmail(email)
+      localStorage.setItem('monster_collector_player_email', email)
+    }
 
     if (referralCode && userUid) {
-      await registerReferral(referralCode, userUid, name);
+      await registerReferral(referralCode, userUid, name, email);
       addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
     }
   }

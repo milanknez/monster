@@ -110,7 +110,7 @@ export const DailyQuests = ({
       color: 'text-primary',
       bg: 'bg-primary/10',
       completed: (dailyDistance / 1000) >= 2.0,
-      reward: 750
+      reward: 250
     },
   ]
 

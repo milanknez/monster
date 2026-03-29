@@ -129,6 +129,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const buildingsRef = useRef<{ lat: number, lng: number }[]>([])
   const [isAutoCenter, setIsAutoCenter] = useState(true)
   const isAutoCenterRef = useRef(isAutoCenter)
+  const [isTooFast, setIsTooFast] = useState(false)
 
   const selectedPlayerDist = useMemo(() => {
     if (!playerPos || !selectedOtherPlayer) return null
@@ -423,6 +424,20 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       const now = Date.now()
       if (lastPosRef.current && lastPosTimeRef.current) {
         const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
+        const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
+        
+        // Use GPS raw speed if available, otherwise calculate from distance
+        const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined) 
+           ? pos.coords.speed 
+           : (timeDiff > 0 ? traveled / timeDiff : 0)
+        
+        // Speed Lock: 25 km/h = ~7 m/s
+        if (speed > 7 && traveled > 10) { 
+           setIsTooFast(true) 
+        } else if (speed < 5) { // Needs to slow down a lot to unlock
+           setIsTooFast(false)
+        }
+
         if (traveled >= 4 && traveled <= 150) onDistanceUpdate(traveled)
       }
       lastPosRef.current = [lat, lng]
@@ -616,6 +631,26 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           </div>
         </div>
       </div>
+      
+      {/* Speed Warning Overlay */}
+      <AnimatePresence>
+        {isTooFast && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20 }}
+            className="absolute inset-x-6 top-16 z-[3000] bg-red-600/90 text-white rounded-2xl p-4 flex items-center justify-center gap-3 backdrop-blur-md shadow-2xl border-2 border-red-500/50"
+          >
+            <div className="size-10 bg-white/20 rounded-full flex items-center justify-center">
+               <Navigation className="animate-pulse" size={20} />
+            </div>
+            <div className="text-left">
+               <p className="font-black uppercase text-xs leading-none mb-1">Jedeš moc rychle!</p>
+               <p className="text-[9px] font-bold opacity-80 uppercase leading-none">Za jízdy není dovoleno chytat příšery.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
@@ -636,7 +671,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       </div>
 
       <AnimatePresence>
-        {nearbyResource && !nearbySpawn && !isInteractionBlocked && (
+        {nearbyResource && !nearbySpawn && !isInteractionBlocked && !isTooFast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
             <button onClick={handleGather} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-500 border-b-4 border-black/20 shadow-2xl transition-all active:scale-95">
               <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30"><Package size={16} /><span>SEBRAT: {RESOURCE_CONFIG[nearbyResource.type]?.label || 'Surovinu'}</span></div>
@@ -644,7 +679,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             </button>
           </motion.div>
         )}
-        {nearbySpawn && !isInteractionBlocked && (
+        {nearbySpawn && !isInteractionBlocked && !isTooFast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
             {nearbySpawn.level > playerLevel ? (
               <div className="w-full py-5 rounded-2xl bg-red-950/90 backdrop-blur-md border-b-4 border-red-500/50 text-red-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">

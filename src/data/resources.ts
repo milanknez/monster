@@ -132,6 +132,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 1",
     "icon": "🔴",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -157,6 +159,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 1",
     "icon": "🟢",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -182,6 +186,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 1",
     "icon": "⚪",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -207,6 +213,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 2",
     "icon": "🔴",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -232,6 +240,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 2",
     "icon": "🟢",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -257,6 +267,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 2",
     "icon": "⚪",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_1",
     "category": "gem",
     "rarity": "Běžná",
     "stats": {
@@ -282,6 +294,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 3",
     "icon": "🔴",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -296,6 +310,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 3",
     "icon": "🟢",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -310,6 +326,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 3",
     "icon": "⚪",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -324,6 +342,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 4",
     "icon": "💠",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -350,6 +370,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 4",
     "icon": "🌿",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -376,6 +398,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 4",
     "icon": "💎",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_2",
     "category": "gem",
     "rarity": "Vzácná",
     "stats": {
@@ -402,6 +426,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 5",
     "icon": "💠",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -417,6 +443,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 5",
     "icon": "🌿",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -432,6 +460,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 5",
     "icon": "💎",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -447,6 +477,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#ef4444",
     "label": "Rudý Jaspis 6",
     "icon": "💠",
+    "hasCustomIcon": true,
+    "customIcon": "gem_ruby_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -462,6 +494,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#10b981",
     "label": "Zelený Nefrit 6",
     "icon": "🌿",
+    "hasCustomIcon": true,
+    "customIcon": "gem_emerald_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -477,6 +511,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#e2e8f0",
     "label": "Bílý Křemen 6",
     "icon": "💎",
+    "hasCustomIcon": true,
+    "customIcon": "gem_white_3",
     "category": "gem",
     "rarity": "Epická",
     "stats": {
@@ -625,7 +661,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_9": {
-    "label": "Temný Ametyst",
+    "label": "Temná Sekera",
     "icon": "🟣",
     "stats": {
       "hp": 50,
@@ -676,7 +712,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_12": {
-    "label": "Ostrý Tesák",
+    "label": "tesákův luk",
     "icon": "🦷",
     "stats": {
       "hp": 0,
@@ -693,7 +729,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_13": {
-    "label": "Těžký Palcát",
+    "label": "meč skázy",
     "icon": "🔨",
     "stats": {
       "hp": 0,
@@ -727,7 +763,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_15": {
-    "label": "Ocelová Rukavice",
+    "label": "báby svitek",
     "icon": "🥊",
     "stats": {
       "hp": 0,
@@ -744,7 +780,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_16": {
-    "label": "Asasínská Čepel",
+    "label": "Asasínská relikvie",
     "icon": "🗡️",
     "stats": {
       "hp": 0,
@@ -761,7 +797,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "item_1": {
-    "label": "Zlomený zub",
+    "label": "zub času",
     "color": "#e2e8f0",
     "icon": "🦷",
     "hasCustomIcon": true,
@@ -812,7 +848,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "item_4": {
-    "label": "Zrezivělý řetěz",
+    "label": "ocelový řetěz",
     "color": "#94a3b8",
     "icon": "⛓️",
     "hasCustomIcon": true,
@@ -897,7 +933,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "item_9": {
-    "label": "Dřevěné dřívko",
+    "label": "Dřevěný špalek",
     "color": "#78350f",
     "icon": "🪵",
     "hasCustomIcon": true,

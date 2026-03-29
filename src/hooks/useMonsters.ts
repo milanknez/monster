@@ -108,13 +108,17 @@ export function useMonsters(addToast: (toast: any) => void) {
       return updated
     })
 
-    if (success && shouldGiveXP) {
-      onGiveXP(250)
-      addToast({
-        title: 'Monstrum chyceno',
-        message: `${monster.name} chycen!`,
-        type: 'success'
-      })
+    if (success) {
+      if (shouldGiveXP) {
+        onGiveXP(250)
+        addToast({
+          title: 'Monstrum chyceno',
+          message: `${monster.name} chycen!`,
+          type: 'success'
+        })
+      } else {
+        onGiveXP(0) // Trigger callback to show results without adding extra XP
+      }
     }
     return success
   }
@@ -144,11 +148,11 @@ export function useMonsters(addToast: (toast: any) => void) {
       // 1 -> 2: 200 XP
       // 2 -> 3: 400 XP
       // This is a simple formula for now
-      let nextLvlXP = m.level * 250
+      let nextLvlXP = m.level * 350
       while (m.totalXP >= nextLvlXP) {
         m.totalXP -= nextLvlXP
         m.level++
-        nextLvlXP = m.level * 250
+        nextLvlXP = m.level * 350
       }
 
       if (m.level > oldLevel) {

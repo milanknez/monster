@@ -252,7 +252,7 @@ export const Battle = ({
   onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
-  onCatch?: (monster: Monster) => void, onCatchFail?: () => void
+  onCatch?: (monster: Monster, xp: number) => void, onCatchFail?: () => void
 }) => {
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -527,7 +527,8 @@ export const Battle = ({
        if (success) { 
           setEnemyAnim('win');
           playCatch(true);
-          setTimeout(() => onCatch?.(enemyMonster), 1000); 
+          const catchXp = Math.round((80 + enemyMonster.level * 15) * (isXpBoosted ? 2 : 1) * 1.2);
+          setTimeout(() => onCatch?.(enemyMonster, catchXp), 1000); 
        } else { 
           setCatchAnim(false); 
           playCatch(false);
