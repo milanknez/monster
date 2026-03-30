@@ -44,23 +44,8 @@ export const Inventory = ({
       animate={{ opacity: 1 }}
     >
       {/* Header Info */}
-      <div className="p-6 pb-2 relative">
-        <div className="flex items-center gap-3 mb-1">
-          <Package size={16} className="text-emerald-500" />
-          <p className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.3em]">Můj Inventář</p>
-        </div>
-        <h2 className="text-3xl font-black text-white uppercase italic">Batoh</h2>
-        
-        {/* Simple Top-Right Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onOpenCodex}
-          className="absolute top-6 right-6 size-12 bg-slate-900 border border-secondary/30 rounded-2xl flex items-center justify-center text-secondary shadow-lg shadow-secondary/5 group transition-all"
-        >
-          <Beaker size={24} className="group-hover:rotate-12 transition-transform" />
-          <div className="absolute -top-1 -right-1 size-2 bg-secondary rounded-full animate-pulse" />
-        </motion.button>
+      <div className="p-4 pb-0 relative">
+        {/* Title removed as requested - moved to global header */}
       </div>
 
       <div className="h-4" />
@@ -101,12 +86,51 @@ export const Inventory = ({
       {/* Slots Grid (4x5) */}
       <section className="px-6">
         <div className="flex justify-between items-end mb-4 pr-1">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kapacita ({inventory.filter(i => i).length} / 16)</h3>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kapacita ({inventory.filter(i => i).length} / {inventory.length})</h3>
           <p className="text-[9px] font-bold text-slate-600 uppercase">Max stack: 20x</p>
         </div>
 
+        {/* Selected Item Info at the Top */}
+        <div className="mb-4 min-h-[5rem]">
+          <AnimatePresence mode="wait">
+            {draggedIdx !== null && inventory[draggedIdx] ? (
+              <motion.div 
+                key="selected"
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col mb-3 bg-slate-800/80 p-4 rounded-2xl border border-white/10 shadow-lg relative"
+              >
+                 <div className="flex justify-between items-start">
+                    <div className="flex flex-col">
+                       <span className="text-sm font-black text-white uppercase tracking-widest">
+                         {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type}
+                       </span>
+                       <span className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                         {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || 'Žádný popis.'}
+                       </span>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
+                      className="p-2 ml-4 shrink-0 bg-red-950 border border-red-500/30 rounded-xl text-red-500 shadow-md shadow-red-500/10 active:scale-95 transition-all"
+                      title="Zahodit"
+                    >
+                      <Trash2 size={16} />
+                    </motion.button>
+                 </div>
+              </motion.div>
+            ) : (
+               <motion.div key="empty" className="h-[4.5rem] flex flex-col items-center justify-center text-slate-600 bg-slate-900/40 rounded-2xl border border-white/5 border-dashed">
+                  <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">Klikni na předmět pro detaily</p>
+                  <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">Kliknutím vybereš, dalším klikem jinam přesuneš</p>
+               </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <div className="grid grid-cols-4 gap-3 bg-slate-900/20 p-4 rounded-[2.5rem] border border-white/5">
-          {inventory.slice(0, 16).map((item, idx) => {
+          {inventory.map((item, idx) => {
             const config = item ? RESOURCE_CONFIG[item.type] : null;
             const usable = item && isConsumable(item.type);
             const isSelected = draggedIdx === idx;
@@ -153,7 +177,10 @@ export const Inventory = ({
                   className={cn(
                     "aspect-square rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center group relative",
                     item 
-                      ? "bg-slate-800 border-white/10 shadow-lg cursor-pointer active:scale-95" 
+                      ? (config?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer active:scale-95" :
+                         config?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)] cursor-pointer active:scale-95" :
+                         config?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)] cursor-pointer active:scale-95" :
+                         "bg-slate-800 border-white/10 shadow-lg cursor-pointer active:scale-95")
                       : "bg-slate-900/60 border-slate-800/40 shadow-inner overflow-hidden",
                     isSelected ? "ring-2 ring-primary scale-105 z-30 shadow-[0_0_15px_rgba(13,185,242,0.4)]" : "",
                     usable && !isSelected && "hover:border-emerald-500/50"
@@ -185,36 +212,6 @@ export const Inventory = ({
             )
           })}
         </div>
-        
-         {draggedIdx !== null ? (
-           <div className="mt-8 px-6">
-             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center mb-3 bg-slate-800/80 p-4 rounded-2xl border border-white/10 shadow-lg">
-                <span className="text-sm font-black text-white uppercase tracking-widest text-center">
-                  {inventory[draggedIdx] ? (RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type) : ''}
-                </span>
-                <span className="text-[10px] text-slate-400 mt-2 text-center leading-relaxed">
-                  {inventory[draggedIdx] ? (RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || '') : ''}
-                </span>
-             </motion.div>
-             <motion.button
-               initial={{ scale: 0.9, opacity: 0, y: 10 }}
-               animate={{ scale: 1, opacity: 1, y: 0 }}
-               whileTap={{ scale: 0.95 }}
-               onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
-               className="w-full py-4 bg-red-950/80 border border-red-500 rounded-2xl flex items-center justify-center gap-3 text-red-500 font-black uppercase tracking-widest shadow-2xl shadow-red-500/10 active:scale-95 transition-all"
-             >
-               <Trash2 size={20} />
-               <span>Zahodit {inventory[draggedIdx] ? `(${inventory[draggedIdx]!.count}x)` : ''}</span>
-             </motion.button>
-           </div>
-         ) : (
-           <div className="mt-8 text-center text-slate-600">
-              <p className="text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2">
-                 Klikem vyber & přesuň
-              </p>
-              <p className="text-[8px] uppercase font-bold tracking-wider mt-1 opacity-50 italic">Vyber předmět a pak klikni na jiný slot pro prohození</p>
-           </div>
-         )}
       </section>
     </motion.div>
   );

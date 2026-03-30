@@ -20,6 +20,7 @@ interface LootModalProps {
   onOpenChest: () => void;
   onCollect: (id: string) => void;
   onComplete: () => void;
+  isInventoryFull?: boolean;
 }
 
 export const LootModal = ({
@@ -29,7 +30,8 @@ export const LootModal = ({
   isChestOpened,
   onOpenChest,
   onCollect,
-  onComplete
+  onComplete,
+  isInventoryFull
 }: LootModalProps) => {
   const { playNotification, playClick } = useGameSound();
 
@@ -54,6 +56,20 @@ export const LootModal = ({
           >
             <Trophy size={60} className="text-primary mx-auto mb-6 drop-shadow-[0_0_25px_#0db9f2]" />
             <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">VÍTĚZSTVÍ!</h2>
+            
+            {/* XP Badge */}
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 px-5 py-2.5 rounded-full mb-8 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/10"
+            >
+              <div className="size-6 bg-emerald-500 rounded-lg flex items-center justify-center text-black shadow-lg">
+                <Trophy size={14} fill="currentColor" />
+              </div>
+              <span className="text-lg font-black text-emerald-400 tabular-nums tracking-tight">+{winXP} XP</span>
+              <span className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest ml-1">Získáno</span>
+            </motion.div>
 
             <div className="relative mb-8 flex justify-center min-h-[160px] w-full">
               {!isChestOpened ? (
@@ -97,18 +113,21 @@ export const LootModal = ({
                       );
                     })}
                   </AnimatePresence>
-                  {loot.every(l => l.collected) && (
-                    <div className="col-span-2 flex justify-center mt-4">
-                      <motion.button
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        onClick={onComplete}
-                        className="py-2 px-6 text-xs bg-primary text-black font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-primary/20"
-                      >
-                        Pokračovat <ChevronRight size={14} />
-                      </motion.button>
-                    </div>
-                  )}
+                  <div className="col-span-2 flex flex-col items-center mt-4 pt-4 border-t border-white/5 relative z-10 w-full">
+                    {isInventoryFull && (
+                      <div className="mb-2 text-red-400 font-bold bg-red-500/10 px-3 py-1 rounded-full text-[9px] uppercase tracking-widest border border-red-500/20">
+                        Tvůj batoh je plný
+                      </div>
+                    )}
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={onComplete}
+                      className="py-2.5 px-6 mt-1 text-xs bg-primary text-black font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                    >
+                      {loot.every(l => l.collected) ? 'Pokračovat' : 'Sebrat vše & Odejít'} <ChevronRight size={18} />
+                    </motion.button>
+                  </div>
                 </div>
               )}
             </div>

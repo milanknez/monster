@@ -27,6 +27,22 @@ const STORE_ITEMS = [
     disabled: false
   },
   {
+    id: 'xp_15x',
+    title: 'XP ENHANCER',
+    subtitle: 'KOGNITIVNÍ MODUL',
+    description: 'Zisk 1.5× více zkušeností.',
+    badge: '×1.5 XP',
+    icon: Zap,
+    type: 'xp_boost',
+    multiplier: 1.5,
+    colorClass: 'text-cyan-400',
+    bgClass: 'bg-cyan-400/10',
+    borderClass: 'border-cyan-400/20',
+    gradient: 'from-cyan-600/20 to-blue-500/0',
+    price: '1 Kč',
+    disabled: false
+  },
+  {
     id: 'hp_50',
     title: 'REGEN ADRENALIN',
     subtitle: 'BIO-STIMULANT',

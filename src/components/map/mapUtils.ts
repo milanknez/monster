@@ -48,16 +48,23 @@ export function seededFloat(seed: string): number {
 
 export function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
-    const r = (m.rarity || '').toLowerCase()
-    if (rarity === 'epic') return r === 'epická' || r === 'legendární' || r === 'epic' || r === 'legendary'
-    if (rarity === 'legendary') return r === 'legendární' || r === 'legendary'
-    if (rarity === 'rare') return r === 'vzácná' || r === 'rare'
-    return r === 'běžná' || r === 'neobvyklá' || r === 'common' || r === 'uncommon'
-  })
-  const arr = pool.length ? pool : monsterDB
-  const mSeed = seed + '_species'
-  const index = Math.floor(seededFloat(mSeed) * arr.length)
-  return arr[index].id
+    const raw = (m.rarity || '').toLowerCase();
+    const r = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    if (rarity === 'epic') return r.includes('epick') || r.includes('epic');
+    if (rarity === 'legendary') return r.includes('legend');
+    if (rarity === 'rare') return r.includes('vzacn') || r.includes('rare');
+    
+    return r.includes('bezn') || r.includes('neobvykl') || 
+           r.includes('common') || r.includes('uncommon');
+  });
+  
+  if (pool.length === 0) return monsterDB[0].id;
+  
+  // Mix seed with rarity to ensure different pools have different distributions
+  const mSeed = `${seed}_${rarity}_${pool.length}_sp`;
+  const index = Math.floor(seededFloat(mSeed) * pool.length);
+  return pool[index].id;
 }
 
 export function pickLevel(seed: string, rarity: SpawnRarity): number {

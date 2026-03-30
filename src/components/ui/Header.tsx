@@ -1,4 +1,4 @@
-import { ArrowLeft, Zap, Settings, MapPin } from 'lucide-react';
+import { ArrowLeft, Zap, Settings, MapPin, Beaker } from 'lucide-react';
 import { cn, getPlayerRank } from '../../utils';
 
 interface HeaderProps {
@@ -10,6 +10,8 @@ interface HeaderProps {
   avatarSeed?: string
   onSettingsClick?: () => void
   onLocationClick?: () => void
+  onAvatarClick?: () => void
+  onCodexClick?: () => void
   caughtCount?: number
 }
 
@@ -22,6 +24,8 @@ export const Header = ({
   avatarSeed = "seed",
   onSettingsClick,
   onLocationClick,
+  onAvatarClick,
+  onCodexClick,
   caughtCount = 0
 }: HeaderProps) => (
   <header className="flex items-center justify-between p-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
@@ -32,7 +36,7 @@ export const Header = ({
         </button>
       ) : (
         <button 
-          onClick={onSettingsClick}
+          onClick={onAvatarClick}
           className="size-11 rounded-full border-2 border-primary overflow-hidden bg-slate-800 p-0.5 active:scale-95 transition-transform"
         >
           <div 
@@ -56,6 +60,14 @@ export const Header = ({
       </div>
     </div>
     <div className="flex gap-2">
+      {onCodexClick && (
+        <button 
+          onClick={onCodexClick}
+          className="p-2 rounded-xl bg-secondary/10 hover:bg-secondary/20 transition-all border border-secondary/20 active:scale-90"
+        >
+          <Beaker size={20} className="text-secondary" />
+        </button>
+      )}
       {onLocationClick && (
         <button 
           onClick={onLocationClick}

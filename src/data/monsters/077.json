@@ -1,0 +1,30 @@
+{
+  "id": "077",
+  "name": "Jiskřivý Netopýr",
+  "type": "Ohnivá",
+  "rarity": "Běžná",
+  "description": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
+  "stats": {
+    "hp": 122,
+    "attack": 40,
+    "defense": 21,
+    "speed": 16,
+    "magic": 12
+  },
+  "abilities": [
+    {
+      "name": "Spalující žár",
+      "description": "Vystřelí ohnivou kouli, která silně popálí cíl.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.8
+    },
+    {
+      "name": "Žhavý krunýř",
+      "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění.",
+      "type": "defense",
+      "chance": 60,
+      "value": 0.3
+    }
+  ]
+}

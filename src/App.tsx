@@ -3,7 +3,7 @@ import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw, Sword 
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
-import { cn } from './utils'
+import { cn, getTotalXPForLevel } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
 
 import { Header } from './components/ui/Header'
@@ -23,11 +23,13 @@ import { WorldMap, type WorldMapHandle } from './components/map/WorldMap'
 import { SetupProfileModal } from './components/modals/SetupProfileModal'
 import { TradeSelectionModal } from './components/modals/TradeSelectionModal'
 import { SettingsModal } from './components/modals/SettingsModal'
+import { pickLevel, pickMonster } from './components/map/mapUtils'
 import { Store } from './components/bestiary/Store'
 import { SystemEditor } from './components/admin/SystemEditor'
 import { GooglePayModal } from './components/modals/GooglePayModal'
 import { DuelSelectionModal } from './components/modals/DuelSelectionModal'
 import { ToastContainer } from './components/ui/Toast'
+import { DebugBar } from './components/ui/DebugBar'
 
 // Hooks
 import { useToasts } from './hooks/useToasts'
@@ -72,9 +74,10 @@ function AppContent() {
 
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
-  const [wildEncounter, setWildEncounter] = useState<Monster | null>(null)
-  const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender' } | null>(null)
+  const [wildEncounter, setWildEncounter] = useState<{ monster: Monster, spawnId?: string } | null>(null)
+  const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender', spawnId?: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
+  const [isSpeedLimitDisabled, setIsSpeedLimitDisabled] = useState(() => localStorage.getItem('monster_debug_no_speed') === 'true')
 
   // Duel selection state
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
@@ -92,6 +95,85 @@ function AppContent() {
   const [isEditorMode, setIsEditorMode] = useState(() => {
     return new URLSearchParams(window.location.search).get('editor') === '1'
   })
+
+  const [isDebugMode, setIsDebugMode] = useState(false)
+  const [avatarClickCount, setAvatarClickCount] = useState(0)
+  const [lastAvatarClick, setLastAvatarClick] = useState(0)
+
+  const handleAvatarClick = () => {
+    const now = Date.now();
+    const isFastEnough = (now - lastAvatarClick < 400); 
+    
+    if (!isFastEnough) {
+      setAvatarClickCount(1);
+      setIsSettingsOpen(true);
+    } else {
+      const newCount = avatarClickCount + 1;
+      setAvatarClickCount(newCount);
+      if (newCount >= 6) {
+        setIsDebugMode(prev => !prev);
+        addToast({ 
+          title: 'Debug Mode', 
+          message: !isDebugMode ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.', 
+          type: 'success' 
+        });
+        setAvatarClickCount(0);
+        setIsSettingsOpen(false);
+      }
+    }
+    setLastAvatarClick(now);
+  };
+
+  const handleCheat = (cheatId: string) => {
+    if (cheatId.startsWith('addMonster:')) {
+      const id = cheatId.split(':')[1];
+      (window as any).addMonster?.(id);
+    } else if (cheatId === 'healMe') {
+      (window as any).healMe?.();
+    } else if (cheatId === 'addGems') {
+      (window as any).addGems?.();
+    } else if (cheatId === 'giveXP') {
+      (window as any).giveXP?.(5000);
+    } else if (cheatId.startsWith('spawn:')) {
+      const rarity = cheatId.split(':')[1] as any;
+      setActiveTab('world');
+      setTimeout(() => {
+        if ((window as any).spawnCustomMonster) {
+           const seed = 'debug_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+           // Použijeme pickMonster, který správně filtruje rarity (Běžná, Epická...)
+           const mId = (pickMonster as any)(seed, rarity);
+           const finalLvl = (pickLevel as any)(seed, rarity);
+
+           (window as any).spawnCustomMonster(mId, finalLvl, rarity);
+        } else {
+          addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě!', type: 'error' });
+        }
+      }, 500);
+    } else if (cheatId === 'spawnMapMonster') {
+      setActiveTab('world');
+      // Wait a bit for the map to mount and set the window function
+      setTimeout(() => {
+        if ((window as any).spawnMapMonster) {
+          (window as any).spawnMapMonster();
+        } else {
+          addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě a máš GPS signál!', type: 'error' });
+        }
+      }, 500);
+    } else if (cheatId === 'triggerLevelUp') {
+      (window as any).triggerLevelUp?.();
+    } else if (cheatId === 'addPotions') {
+      addResource('hp_potion', 10);
+      addResource('mana_potion', 10);
+      addToast({ title: 'Alchymie!', message: 'Získal jsi 10x HP a 10x Mana lektvar.', type: 'success' });
+    } else if (cheatId === 'addTestMonster') {
+      (window as any).addTestMonster?.('084', 10);
+    } else if (cheatId === 'toggleSpeedLimit') {
+      const newVal = !isSpeedLimitDisabled;
+      setIsSpeedLimitDisabled(newVal);
+      localStorage.setItem('monster_debug_no_speed', newVal.toString());
+      addToast({ title: 'Rychlostní limit', message: newVal ? 'VYPNUT! Můžeš chytat i v raketě. 🚀' : 'ZAPNUT! Bezpečnost především. 🛡️', type: newVal ? 'success' : 'info' });
+    }
+  };
 
   // --- HOOKS ---
   const { toasts, addToast, removeToast } = useToasts()
@@ -329,7 +411,7 @@ function AppContent() {
         description: 'Testovací boss pro odchyt.',
         stats: { hp: 150, attack: 45, defense: 30 }
       };
-      setWildEncounter(wildEnemy);
+      setWildEncounter({ monster: wildEnemy });
       addToast({ title: 'Simulace!', message: 'Byl vyvolán divoký golem k otestování chytání.', type: 'info' });
     };
 
@@ -443,7 +525,7 @@ function AppContent() {
     }
   };
 
-  const handleStartBattle = (enemy: Monster, opponentName?: string, opponentUid?: string, mySelectedMonster?: Monster, pvpRole?: 'challenger' | 'defender') => {
+  const handleStartBattle = (enemy: Monster, opponentName?: string, opponentUid?: string, mySelectedMonster?: Monster, pvpRole?: 'challenger' | 'defender', spawnId?: string) => {
     if (caughtMonsters.length === 0) {
       addToast({ title: 'Nemáš monstrum', message: 'Musíš si nejdříve chytit své první monstrum!', type: 'info' });
       return;
@@ -464,11 +546,15 @@ function AppContent() {
       addToast({ title: 'Mrtvá monstra', message: 'Všechna tvá monstra jsou unavená. Musíš je vylečit!', type: 'error' });
       return;
     }
-    setActiveBattle({ enemy, playerIdx: pIdx, opponentName, opponentUid, pvpRole });
+    setActiveBattle({ enemy, playerIdx: pIdx, opponentName, opponentUid, pvpRole, spawnId });
   };
 
   const handleBattleWin = (xp: number, loot: { type: any, count: number }[]) => {
     if (!activeBattle) return;
+
+    if (activeBattle.spawnId) {
+      (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
+    }
 
     // 1. Award XP to the monster that fought
     giveMonsterXP(activeBattle.playerIdx, xp);
@@ -478,10 +564,11 @@ function AppContent() {
       addResource(l.type, l.count);
     });
 
-    // 3. Award some global XP to player (80% match with monster xp)
-    addXP(Math.round(xp * 0.8));
+    // 3. Award global XP to player
+    addXP(xp);
 
     setActiveBattle(null);
+    setActiveTab('world');
 
     // Group loot for nicer toast display
     const groupedLoot = loot.reduce((acc: Record<string, number>, item) => {
@@ -534,7 +621,13 @@ function AppContent() {
   }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, p2pTrade?.step, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast, setP2pTrade]);
 
   useEffect(() => {
-    (window as any).triggerLevelUp = (lvl?: number) => setShowLevelUp(lvl || currentLevel + 1);
+    (window as any).triggerLevelUp = (lvl?: number) => {
+      const targetLevel = lvl || currentLevel + 1;
+      const neededXP = getTotalXPForLevel(targetLevel);
+      const diff = neededXP - totalXP;
+      if (diff > 0) addXP(diff);
+      setShowLevelUp(targetLevel);
+    };
     (window as any).simulateP2P_IncomingRequest = (name = 'Tester') => setP2pTrade({ step: 'INCOMING_REQ', partnerName: name });
     (window as any).simulateP2P_PartnerAccepted = () => setP2pTrade(prev => prev ? { ...prev, step: 'SELECTING' } : null);
     (window as any).simulateP2P_PartnerOffered = (id = '001', lvl = 5) => {
@@ -612,6 +705,15 @@ function AppContent() {
   return (
     <div className={cn("min-h-screen font-display flex flex-col", activeTab !== 'world' && "pb-32")}>
       <AnimatePresence>
+        {isDebugMode && (
+          <DebugBar 
+            key="debug-bar"
+            onClose={() => setIsDebugMode(false)}
+            onCheat={handleCheat}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
         {activeBattle && (
           <Battle
             key="battle-overlay"
@@ -622,7 +724,8 @@ function AppContent() {
             incomingEmote={incomingEmote}
             incomingAttack={incomingAttack}
             inventory={inventory.filter(i => i !== null) as any}
-            isXpBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+            isInventoryFull={inventory.every(i => i !== null)}
+            xpMultiplier={activeBoosts.find(b => b.type === 'xp_boost' && b.expiresAt > Date.now())?.multiplier || 1}
             onUseItem={(type) => {
               const cfg = RESOURCE_CONFIG[type];
               if (!cfg) return;
@@ -652,34 +755,53 @@ function AppContent() {
                 sendTradeSignal(userUid, activeBattle.opponentUid, { type: 'DAT', fromName: playerName || 'Neznámý', data: JSON.stringify(attackData) });
               }
             }}
-            onWin={handleBattleWin}
+            onWin={(xp, loot) => {
+              if (activeBattle?.spawnId) {
+                (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
+              }
+              handleBattleWin(xp, loot);
+            }}
             onLose={(xp) => {
               updateMonsterHP(activeBattle.playerIdx, -999);
               if (!activeBattle.pvpRole) {
                 // Přidání XP pro prohru v PVE
                 giveMonsterXP(activeBattle.playerIdx, xp);
-                addToast({ title: 'Těsná prohra', message: `Tvé monstrum se sice vyčerpalo, ale získává ${xp} XP za zkušenosti ze zápasu!`, type: 'info' });
+                addXP(xp); // Now also give to player!
+                addToast({ title: 'Těsná prohra', message: `Získal jsi ${xp} XP za zkušenosti ze zápasu!`, type: 'info' });
               } else {
                 addToast({ title: 'Prohra', message: 'Tvé monstrum bylo poraženo v duelu.', type: 'error' });
               }
               setActiveBattle(null);
-              setActiveTab('home');
+              setActiveTab('world');
             }}
-            onCatch={(monster, xp) => {
+            onCatch={(monster, xp, spawnId) => {
+              if (activeBattle?.spawnId || spawnId) {
+                (window as any).markMonsterAsCaught?.(activeBattle?.spawnId || spawnId);
+              }
+              // 1. Award XP to the monster that fought
+              giveMonsterXP(activeBattle.playerIdx, xp);
+              
+              // 2. Add the new monster to the collection
               saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, () => {
                 setNewMonster(monster);
+                // 3. Award XP to the player 
                 addXP(xp);
               }, false);
               setActiveBattle(null);
+              setActiveTab('world');
             }}
             onCatchFail={() => {
               addToast({ title: 'Uniklo to!', message: 'Monstrum se vysmeklo. Zkus mu ubrat více HP!', type: 'info' });
             }}
             onBack={() => {
-              if (activeBattle.opponentUid) {
+              if (activeBattle?.spawnId) {
+                (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
+              }
+              if (activeBattle?.opponentUid) {
                 sendTradeSignal(userUid, activeBattle.opponentUid, { type: 'DCN', fromName: playerName || 'Neznámý', data: '' });
               }
               setActiveBattle(null);
+              setActiveTab('world');
             }}
           />
         )}
@@ -710,7 +832,9 @@ function AppContent() {
           avatarStyle={avatarStyle}
           avatarSeed={avatarSeed}
           onSettingsClick={() => setIsSettingsOpen(true)}
+          onAvatarClick={handleAvatarClick}
           onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
+          onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
           caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
         />
       )}
@@ -730,21 +854,6 @@ function AppContent() {
                     updateMonsterHP(idx, 100);
                     consumeResources([{ type: 'hp_potion', count: 1 }]);
                     addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
-                  }
-                }
-              }}
-              onUseLoot={(type: string) => {
-                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                if (idx !== -1) {
-                  const itemConfig = RESOURCE_CONFIG[type];
-                  if (itemConfig?.stats) {
-                    updateMonsterStats(idx, itemConfig.stats);
-                    consumeResources([{ type: type as any, count: 1 }]);
-                    addToast({
-                      title: 'Statistiky zvýšeny!',
-                      message: `${selectedMonster.name} získalo trvalé vylepšení: ${itemConfig.label}!`,
-                      type: 'success'
-                    });
                   }
                 }
               }}
@@ -892,14 +1001,14 @@ function AppContent() {
                 <WorldMap
                   ref={worldMapRef}
                   key="world"
-                  onCatch={(m) => {
+                  onCatch={(m, spawnId) => {
                     if (caughtMonsters.length === 0) {
                       saveMonster(m, (xp) => {
                         addXP(xp);
                         setNewMonster(m);
                       });
                     } else {
-                      setWildEncounter(m);
+                      setWildEncounter({ monster: m, spawnId });
                     }
                   }}
                   onStartTrade={(name, uid) => {
@@ -923,6 +1032,7 @@ function AppContent() {
                     if (uid) sendChallenge(uid, name || 'Runner');
                   }}
                   addToast={addToast}
+                  ignoreSpeedLimit={isSpeedLimitDisabled}
                 />
               )}
 
@@ -1101,13 +1211,15 @@ function AppContent() {
           <div className="fixed inset-0 z-[4000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
             <DuelSelectionModal
               caughtMonsters={caughtMonsters}
-              opponent={wildEncounter}
+              opponent={wildEncounter.monster}
               title="Výběr pro bitvu"
               description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% životů!"
               onClose={() => setWildEncounter(null)}
               onSelect={(m) => {
+                const monsterToFight = wildEncounter.monster;
+                const sid = wildEncounter.spawnId;
                 setWildEncounter(null);
-                handleStartBattle(wildEncounter, undefined, undefined, m);
+                handleStartBattle(monsterToFight, undefined, undefined, m, undefined, sid);
               }}
             />
           </div>

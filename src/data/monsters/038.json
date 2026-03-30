@@ -6,8 +6,8 @@
   "rarity": "Epická",
   "stats": {
     "hp": 460,
-    "attack": 120,
-    "defense": 165
+    "attack": 100,
+    "defense": 100
   },
   "abilities": [
     {

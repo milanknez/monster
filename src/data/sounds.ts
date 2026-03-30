@@ -22,9 +22,11 @@ export const SOUND_FILES = {
   ],
 
   CRITICAL: '/sounds/critical.ogg',
+  SLASH: '/sounds/attack1.ogg',
   HEAL: '/sounds/heal.ogg',
   VICTORY: '/sounds/victory.ogg',
   DEFEAT: '/sounds/defeat.ogg',
+  DEATH: '/sounds/hit3.ogg',
   LEVEL_UP: '/sounds/level_up.ogg',
   
   // WORLD
@@ -63,8 +65,10 @@ export const useGameSound = () => {
 
   const [playCritical] = useSound(SOUND_FILES.CRITICAL, { ...config, volume: volume * 1.3 });
   const [playHeal] = useSound(SOUND_FILES.HEAL, { ...config, volume: volume * 1.0 });
+  const [playSlash] = useSound(SOUND_FILES.SLASH, { ...config, volume: volume * 1.1 });
   const [playVictory] = useSound(SOUND_FILES.VICTORY, { ...config, volume: volume * 1.2 });
   const [playDefeat] = useSound(SOUND_FILES.DEFEAT, { ...config, volume: volume * 1.1 });
+  const [playDeath] = useSound(SOUND_FILES.DEATH, { ...config, volume: volume * 1.3 });
   const [playLevelUp] = useSound(SOUND_FILES.LEVEL_UP, { ...config, volume: volume * 1.1 });
   
   const [playCatchSuccess] = useSound(SOUND_FILES.CATCH_SUCCESS, { ...config, volume: volume * 1.0 });
@@ -90,8 +94,10 @@ export const useGameSound = () => {
     playHit: () => playHits[Math.floor(Math.random() * playHits.length)](),
     playCritical,
     playHeal,
+    playSlash,
     playVictory,
     playDefeat,
+    playDeath,
     playLevelUp,
     playCatch: (success: boolean) => success ? playCatchSuccess() : playCatchFail(),
     playLabStart,

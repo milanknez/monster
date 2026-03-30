@@ -1,0 +1,30 @@
+{
+  "id": "083",
+  "name": "Bleskový Kolibřík",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "description": "Téměř neviditelný ptáček zanechávající stopy jisker.",
+  "stats": {
+    "hp": 148,
+    "attack": 40,
+    "defense": 13,
+    "speed": 18,
+    "magic": 12
+  },
+  "abilities": [
+    {
+      "name": "Bleskový řetězec",
+      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.6
+    },
+    {
+      "name": "Klektavý šok",
+      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+      "type": "curse",
+      "chance": 70,
+      "value": 0.15
+    }
+  ]
+}

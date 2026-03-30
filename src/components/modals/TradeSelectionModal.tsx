@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { X, ArrowLeftRight } from 'lucide-react';
 import { cn } from '../../utils';
 import type { Monster } from '../../types';
+import { RESOURCE_CONFIG } from '../../data/resources';
 
 export const TradeSelectionModal = ({ 
   caughtMonsters, 
@@ -42,8 +43,32 @@ export const TradeSelectionModal = ({
               className="bg-slate-900 border border-white/5 rounded-2xl p-4 flex items-center justify-between active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-4">
-                <div className="size-14 bg-black/40 rounded-xl p-2 border border-white/5">
+                <div className="size-14 bg-black/40 rounded-xl p-2 border border-white/5 relative">
                   <img src={monster.image} className="w-full h-full object-contain" />
+                  
+                  {/* Jewel Sockets */}
+                  <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex flex-row gap-[1px] bg-slate-900/60 p-[3px] px-1 rounded-full backdrop-blur-sm border border-white/5 shadow-lg">
+                    {[0, 1, 2].map((i) => {
+                      const gemId = monster.gems?.[i];
+                      const gemConfig = gemId ? RESOURCE_CONFIG[gemId] : null;
+
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "size-[0.25rem] rotate-45 border transition-all duration-500",
+                            gemId
+                              ? "shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                              : "bg-slate-900 border-white/10"
+                          )}
+                          style={{
+                            backgroundColor: gemConfig?.color || (gemId ? '#fff' : 'transparent'),
+                            borderColor: gemId ? 'rgba(255,255,255,0.6)' : undefined
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
                 <div>
                   <h4 className="font-black text-slate-100 uppercase tracking-tight">{monster.name}</h4>

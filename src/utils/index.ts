@@ -27,12 +27,21 @@ export const getTotalXPForLevel = (lvl: number) => {
   return 125 * n * n + 275 * n;
 };
 
+export const getMonsterMinLevel = (rarity: string) => {
+  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (r.indexOf('legend') !== -1) return 11;
+  if (r.indexOf('epic') !== -1 || r.indexOf('epick') !== -1) return 7;
+  if (r.indexOf('vzacn') !== -1 || r.indexOf('rare') !== -1) return 4;
+  return 1;
+};
+
 import { RESOURCE_CONFIG } from '../data/resources';
 
 export const getMonsterMaxHP = (monster: any) => {
   if (!monster || !monster.stats) return 100;
   const base = monster.stats.hp || 100;
-  const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
+  const minLvl = getMonsterMinLevel(monster.rarity || '');
+  const levelBonus = Math.floor(base * Math.max(0, monster.level - minLvl) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {

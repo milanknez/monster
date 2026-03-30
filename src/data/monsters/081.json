@@ -1,0 +1,30 @@
+{
+  "id": "081",
+  "name": "Statický Obláček",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "description": "Vzteklý malý bouřkový mráček nabitý statickou elektřinou.",
+  "stats": {
+    "hp": 146,
+    "attack": 46,
+    "defense": 12,
+    "speed": 14,
+    "magic": 10
+  },
+  "abilities": [
+    {
+      "name": "Bleskový řetězec",
+      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.6
+    },
+    {
+      "name": "Klektavý šok",
+      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+      "type": "curse",
+      "chance": 70,
+      "value": 0.15
+    }
+  ]
+}

@@ -5,12 +5,13 @@ import {
   FlaskConical, Trophy, Package, ChevronRight, Smile, 
   RefreshCw, Star, Heart, Aperture, ArrowUpRight, 
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle, 
-  Hourglass, Skull
+  Hourglass, Skull, Moon, Lock
 } from 'lucide-react';
 import type { Monster, LootTableEntry } from '../../types';
-import { cn, getMonsterMaxHP, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
+import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
+import { DefeatModal } from './DefeatModal';
 import { useGameSound } from '../../data/sounds';
 
 // --- Types ---
@@ -50,32 +51,39 @@ const HealthBar = ({ current, max, label, colorClass, shadowColor }: { current: 
   </div>
 );
 
-const MonsterPodium = ({ isPlayer }: { isPlayer?: boolean }) => (
-  <div className="absolute -bottom-6 flex items-center justify-center w-full pointer-events-none">
-    <div 
-      className={cn(
-        "absolute w-40 h-40 rounded-full border-2 blur-[1.5px] opacity-30",
-        isPlayer ? "bg-primary/20 border-primary" : "bg-red-500/20 border-red-500"
-      )} 
-      style={{ 
-        boxShadow: `0 0 40px ${isPlayer ? 'rgba(13,185,242,0.8)' : 'rgba(239,68,68,0.8)'}`,
-        transform: 'rotateX(78deg)' 
-      }}
-    />
-    <div className="absolute w-32 h-32 flex items-center justify-center" style={{ transform: 'rotateX(78deg)', transformStyle: 'preserve-3d' }}>
-      <motion.div 
-        animate={{ rotateZ: isPlayer ? -360 : 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        className={cn("absolute inset-0 border-2 border-dashed rounded-full opacity-40", isPlayer ? "border-primary/60" : "border-red-400/60")}
+const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: string }) => {
+  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  let color = isPlayer ? 'rgba(13,185,242,0.8)' : 'rgba(239,68,68,0.8)';
+  let bg = isPlayer ? 'bg-primary/20 border-primary' : 'bg-red-500/20 border-red-500';
+  
+  if (r.includes('legend')) { color = 'rgba(245,158,11,0.8)'; bg = 'bg-amber-500/20 border-amber-500'; }
+  else if (r.includes('epic') || r.includes('epick')) { color = 'rgba(168,85,247,0.8)'; bg = 'bg-purple-500/20 border-purple-500'; }
+  else if (r.includes('vzacn') || r.includes('rare')) { color = 'rgba(59,130,246,0.8)'; bg = 'bg-blue-500/20 border-blue-500'; }
+
+  return (
+    <div className="absolute -bottom-6 flex items-center justify-center w-full pointer-events-none">
+      <div 
+        className={cn("absolute w-40 h-40 rounded-full border-2 blur-[1.5px] opacity-30", bg)} 
+        style={{ 
+          boxShadow: `0 0 40px ${color}`,
+          transform: 'rotateX(78deg)' 
+        }}
       />
-      <motion.div 
-        animate={{ rotateZ: isPlayer ? 360 : -360 }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-        className={cn("absolute inset-4 border border-dotted rounded-full opacity-30", isPlayer ? "border-primary/40" : "border-red-400/40")}
-      />
+      <div className="absolute w-32 h-32 flex items-center justify-center" style={{ transform: 'rotateX(78deg)', transformStyle: 'preserve-3d' }}>
+        <motion.div 
+          animate={{ rotateZ: isPlayer ? -360 : 360 }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          className={cn("absolute inset-0 border-2 border-dashed rounded-full opacity-40", isPlayer ? "border-primary/60" : "border-red-400/60")}
+        />
+        <motion.div 
+          animate={{ rotateZ: isPlayer ? 360 : -360 }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+          className={cn("absolute inset-4 border border-dotted rounded-full opacity-30", isPlayer ? "border-primary/40" : "border-red-400/40")}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PopupLayer = ({ popups }: { popups: DamagePopup[] }) => (
   <div className="absolute top-0 w-full flex flex-col items-center pointer-events-none z-[400]">
@@ -133,22 +141,47 @@ const EffectBadges = ({ effects }: { effects: StatusEffect[] }) => (
   </div>
 );
 
+const RarityBadge = ({ rarity }: { rarity: string }) => {
+  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  let color = "transparent";
+  
+  if (r.includes('legend')) { color = "#f59e0b"; }
+  else if (r.includes('epic') || r.includes('epick')) { color = "#a855f7"; }
+  else if (r.includes('vzacn') || r.includes('rare')) { color = "#3b82f6"; }
+  else return null; 
+  
+  return (
+    <div className="absolute top-0 left-0 w-8 h-8 pointer-events-none z-[60] overflow-hidden rounded-tl-xl transition-all duration-700">
+       <div className="absolute top-0 left-0 w-[140%] h-[140%] -translate-x-[50%] -translate-y-[50%] rotate-45" style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}33 100%)`, border: `1px solid ${color}66` }} />
+       <div className="absolute top-0 left-0 w-2 h-2 bg-white/20 blur-[1px] -rotate-45 -translate-x-1 -translate-y-1" />
+    </div>
+  );
+};
+
 const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'player' | 'enemy', subType: string }) => {
-  const isHeal = subType === 'heal';
-  const count = isHeal ? 15 : 12; 
+  const isHeal = subType === 'heal' || subType === 'regen';
+  const isCurse = subType === 'curse';
+  const isDefense = subType === 'defense';
+  const isMelee = subType === 'attack';
+  
+  const count = isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 2 : 12; 
   const particles = [...Array(count)].map((_, i) => ({
     id: i,
-    delay: i * 0.04,
-    rotation: Math.random() * 360,
-    scale: isHeal ? (2.0 + Math.random() * 1.5) : (3.5 + Math.random() * 1.5),
-    speed: isHeal ? (1.5 + Math.random() * 1.0) : (0.8 + Math.random() * 0.4)
+    delay: i * (isMelee ? 0.6 : (isCurse || isDefense ? 0.02 : 0.04)),
+    rotation: isMelee ? 0 : Math.random() * 360,
+    scale: isHeal ? (2.0 + Math.random() * 1.5) : (isCurse || isDefense) ? (1.5 + Math.random() * 2) : isMelee ? 3.5 : (3.5 + Math.random() * 1.5),
+    speed: isHeal ? (1.5 + Math.random() * 1.0) : (isCurse || isDefense) ? (1.5 + Math.random() * 1.0) : isMelee ? 0.4 : (0.8 + Math.random() * 0.4),
+    offset: Math.random() * 100
   }));
 
-  const getIcon = (t: string) => {
+  const getIcon = (idx: number) => {
     const s = 64;
-    if (isHeal || subType === 'regen') return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
-    if (subType === 'curse') return <ShieldIcon className="text-purple-500 fill-purple-500/60 rotate-180" size={s} />;
-    const lt = t.toLowerCase();
+    if (isHeal) return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
+    if (isCurse) return <Skull className="text-purple-600 fill-purple-900/40 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]" size={s} />;
+    if (isDefense) return <ShieldIcon className="text-blue-400 fill-blue-500/40 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]" size={s} />;
+    if (isMelee) return <div className={cn("w-[2px] h-12 bg-white/90 shadow-[0_0_12px_rgba(255,255,255,1)] rounded-full", idx % 2 === 1 ? "rotate-[45deg]" : "rotate-[-45deg]")} />;
+    
+    const lt = type.toLowerCase();
     if (lt.includes('ohn') || lt.includes('fire')) return <Flame className="text-orange-500 fill-orange-500/60" size={s} />;
     if (lt.includes('vod') || lt.includes('wat')) return <Droplets className="text-blue-500 fill-blue-500/60" size={s} />;
     if (lt.includes('ele') || lt.includes('zap')) return <Zap className="text-yellow-400 fill-yellow-400/60" size={s} />;
@@ -173,8 +206,8 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
            initial={{ 
               opacity: 0, 
               scale: 0,
-              left: startCoords.left, 
-              top: startCoords.top,
+              left: (isCurse || isMelee) ? targetCoords.left : startCoords.left, 
+              top: (isCurse || isMelee) ? targetCoords.top : startCoords.top,
               x: '-50%',
               y: '-50%'
            }}
@@ -184,6 +217,25 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
               top: [startCoords.top, `calc(${startCoords.top} - 35%)`],
               left: [startCoords.left, `calc(${startCoords.left} + ${(Math.random() - 0.5) * 20}%)`],
               rotate: [p.rotation, p.rotation + 45]
+           } : isCurse ? {
+              opacity: [0, 0.8, 1, 0.8, 0],
+              scale: [0.2, p.scale, p.scale * 1.5, 0],
+              x: ['-50%', `${-50 + Math.cos(p.rotation) * 80}%`, `${-50 + Math.cos(p.rotation + 180) * 120}%`],
+              y: ['-50%', `${-50 + Math.sin(p.rotation) * 80}%`, `${-50 + Math.sin(p.rotation + 180) * 120}%`],
+              rotate: [p.rotation, p.rotation + 360],
+              filter: ["blur(0px)", "blur(2px)", "blur(5px)", "blur(0px)"]
+           } : isDefense ? {
+              opacity: [0, 0.9, 1, 0.9, 0],
+              scale: [0, p.scale * 1.2, p.scale * 2.5],
+              x: ['-50%', `${-50 + Math.cos(p.rotation) * 90}%`],
+              y: ['-50%', `${-50 + Math.sin(p.rotation) * 90}%`],
+              rotate: [p.rotation, p.rotation + 180],
+           } : isMelee ? {
+              opacity: [0, 1, 1, 0],
+              scale: [0.2, p.scale, p.scale, 0.2],
+              x: p.id % 2 === 0 ? ['-250%', '250%'] : ['250%', '-250%'],
+              y: p.id % 2 === 0 ? ['-150%', '150%'] : ['150%', '-150%'],
+              rotate: p.id % 2 === 0 ? 120 : -60
            } : { 
               opacity: [0, 1, 1, 1, 0],
               scale: [0.5, p.scale, p.scale, 0],
@@ -191,12 +243,22 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
               top: [startCoords.top, targetCoords.top],
               rotate: [p.rotation, p.rotation + 720]
            }}
-           transition={{ duration: p.speed, delay: p.delay, ease: isHeal ? "easeOut" : "easeInOut" }}
+           transition={{ duration: p.speed, delay: p.delay, ease: (isHeal || isDefense || isMelee) ? "easeOut" : "easeInOut" }}
            className="absolute drop-shadow-[0_0_30px_rgba(255,255,255,0.9)]"
         >
-          {getIcon(type)}
+          {getIcon(p.id)}
         </motion.div>
       ))}
+      
+      {/* Central "Casting" Flash for Curse/Defense/Melee */}
+      {(isCurse || isDefense || isMelee) && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0, left: isCurse || isMelee ? targetCoords.left : startCoords.left, top: isCurse || isMelee ? targetCoords.top : startCoords.top, x: '-50%', y: '-50%' }}
+          animate={{ opacity: [0, 0.8, 0], scale: [0, 2, 4] }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className={cn("absolute size-40 rounded-full blur-3xl z-[-1]", isCurse ? "bg-purple-600/30" : isMelee ? "bg-white/25" : "bg-blue-600/30")}
+        />
+      )}
     </div>
   );
 };
@@ -204,7 +266,7 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
 // --- Helpers ---
 const getFinalStats = (m: Monster) => {
   const stats = { atk: m.stats?.attack || 10, def: m.stats?.defense || 10, hp: m.stats?.hp || 100 };
-  const levelBonus = (val: number) => Math.floor(val * (m.level - 1) * 0.1);
+  const levelBonus = (val: number) => Math.floor(val * Math.max(0, m.level - getMonsterMinLevel(m.rarity)) * 0.1);
   
   const getEquipmentBonus = (slots: (string | null)[] | undefined, type: 'atk' | 'def' | 'hp', baseVal: number) => {
     if (!slots) return 0;
@@ -247,19 +309,20 @@ const getFinalStats = (m: Monster) => {
 // --- Main Component ---
 export const Battle = ({
   playerMonster, enemyMonster, opponentName, incomingEmote, pvpRole, 
-  incomingAttack, isXpBoosted, inventory, onSendEmote, onSendAttack, onUseItem, 
+  incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem, 
   onWin, onLose, onBack, onCatch, onCatchFail
 }: {
   playerMonster: Monster, enemyMonster: Monster, opponentName?: string, 
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
   incomingAttack?: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean, timestamp: number } | null,
-  isXpBoosted?: boolean,
+  xpMultiplier?: number,
+  isInventoryFull?: boolean,
   inventory?: { type: string, count: number }[],
   onSendEmote?: (emote: string) => void,
   onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
-  onCatch?: (monster: Monster, xp: number) => void, onCatchFail?: () => void
+  onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void
 }) => {
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -272,15 +335,17 @@ export const Battle = ({
   const [showItems, setShowItems] = useState(false);
   const [showSkills, setShowSkills] = useState(false);
   const [showLoot, setShowLoot] = useState(false);
+  const [showDefeat, setShowDefeat] = useState(false);
   const [isChestOpened, setIsChestOpened] = useState(false);
   const [loot, setLoot] = useState<LootItem[]>([]);
   const [activeBurst, setActiveBurst] = useState<{ id: number, type: string, fromSide: 'player' | 'enemy', subType: any } | null>(null);
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
+  const [itemUsedInTurn, setItemUsedInTurn] = useState(false);
   const [turnTime, setTurnTime] = useState(50);
 
   const { 
-    playAttack, playHit, playCritical, playHeal, 
-    playVictory, playDefeat, playCatch, playClick,
+    playAttack, playHit, playCritical, playHeal, playSlash,
+    playVictory, playDefeat, playDeath, playCatch, playClick,
     playBattleMusic, stopBattleMusic, playSpell
   } = useGameSound();
 
@@ -288,6 +353,10 @@ export const Battle = ({
     playBattleMusic();
     return () => stopBattleMusic();
   }, [playBattleMusic, stopBattleMusic]);
+
+  useEffect(() => {
+    if (turn === 'player') setItemUsedInTurn(false);
+  }, [turn]);
 
   // --- Turn Timer ---
   useEffect(() => {
@@ -413,7 +482,7 @@ export const Battle = ({
     setShowItems(false);
     setPlayerAnim('attack');
     if (isSkill) {
-      playSpell();
+      if (ability?.type !== 'attack') playSpell();
       setActiveBurst({ id: Date.now(), type: playerMonster.type, fromSide: 'player', subType: ability?.type });
       setTimeout(() => setActiveBurst(null), 3000);
     } else {
@@ -449,6 +518,10 @@ export const Battle = ({
         setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 0.2, casterAtk: s.total.atk }]); 
         dmg = 0; addLog("Uvržena kletba!"); 
       }
+      else if (isSkill && ability?.type === 'attack') {
+        setTimeout(() => playSlash(), 100);
+        setTimeout(() => playSlash(), 700);
+      }
       else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 0.1 }]); dmg = 0; addLog("Aktivována regenerace!"); }
       if (dmg > 0) { 
         setEnemyHP(p => Math.max(0, p - dmg)); 
@@ -470,10 +543,11 @@ export const Battle = ({
       setTimeout(() => {
         setEnemyAnim('idle'); setPlayerAnim('idle');
         if (enemyHP - dmg <= 0) { 
+          playDeath();
           setEnemyAnim('lose'); 
           setPlayerAnim('win'); 
           playVictory();
-          setWinXP((80 + enemyMonster.level * 15) * (isXpBoosted ? 2 : 1)); 
+          setWinXP(Math.round((80 + enemyMonster.level * 15) * xpMultiplier)); 
           
           // NEW DYNAMIC LOOT GENERATION
           const generatedLoot: any[] = [];
@@ -482,12 +556,21 @@ export const Battle = ({
           const isRare = (enemyMonster.rarity || '').toLowerCase().includes('rare') || (enemyMonster.rarity || '').toLowerCase().includes('vzácn');
           const isCommon = !isEpic && !isRare;
 
-          const getLootFromPool = (rarity: string, weightFactor = 1) => {
+          const getLootFromPool = (rarity: string, category?: string) => {
              const pool = Object.keys(RESOURCE_CONFIG)
-                .filter(id => RESOURCE_CONFIG[id].rarity === rarity)
+                .filter(id => {
+                  const cfg = RESOURCE_CONFIG[id];
+                  const matchRarity = cfg.rarity === rarity;
+                  const matchCategory = !category || cfg.category === category;
+                  return matchRarity && matchCategory;
+                })
                 .map(id => ({ id, weight: RESOURCE_CONFIG[id].dropWeight ?? 10 }));
              
-             if (pool.length === 0) return null;
+             if (pool.length === 0) {
+               // Fallback if no items in that category exist for that rarity
+               if (category) return getLootFromPool(rarity);
+               return null;
+             }
              const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
              let r = Math.random() * totalWeight;
              for (const item of pool) {
@@ -497,8 +580,8 @@ export const Battle = ({
              return pool[0].id;
           };
 
-          const addLootItem = (targetRarity: string) => {
-             const id = getLootFromPool(targetRarity);
+          const addLootItem = (targetRarity: string, category?: string) => {
+             const id = getLootFromPool(targetRarity, category);
              if (!id) return;
              const cfg = RESOURCE_CONFIG[id];
              const min = cfg.dropMin ?? 1;
@@ -508,23 +591,37 @@ export const Battle = ({
           };
 
           // Loot Logic:
-          // Common Monster: 1-2 Common items, 10% chance for 1 Rare
           if (isCommon) {
-             const count = Math.random() < 0.3 ? 2 : 1;
-             for(let i=0; i<count; i++) addLootItem('Běžná');
-             if (Math.random() < 0.1) addLootItem('Vzácná');
+             // 80% Resource (material)
+             if (Math.random() < 0.8) addLootItem('Běžná', 'material');
+             // 10% Gem or Relic (or just small chance for anything extra)
+             if (Math.random() < 0.1) {
+                const rand = Math.random();
+                if (rand < 0.5) addLootItem('Běžná', 'gem');
+                else addLootItem('Běžná', 'relic');
+             }
+             // Bonus material chance
+             if (Math.random() < 0.15) addLootItem('Běžná', 'material');
           } 
-          // Rare Monster: 2-3 Common items, 1 Rare guaranteed, 5% chance for 1 Epic
           else if (isRare) {
-             for(let i=0; i<2; i++) addLootItem('Běžná');
-             addLootItem('Vzácná');
-             if (Math.random() < 0.05) addLootItem('Epická');
+             addLootItem('Běžná', 'material');
+             addLootItem('Vzácná', 'material');
+             if (Math.random() < 0.3) {
+                const rand = Math.random();
+                if (rand < 0.4) addLootItem('Běžná', 'relic');
+                else if (rand < 0.8) addLootItem('Vzácná', 'gem');
+                else addLootItem('Vzácná', 'relic');
+             }
           }
-          // Epic Monster: 2-3 Common, 1-2 Rare, 1 Epic guaranteed, 2% chance for 1 Legendary
           else if (isEpic) {
-             for(let i=0; i<2; i++) addLootItem('Běžná');
-             addLootItem('Vzácná');
-             addLootItem('Epická');
+             addLootItem('Vzácná', 'material');
+             addLootItem('Vzácná', 'material');
+             addLootItem('Epická', 'material');
+             if (Math.random() < 0.5) {
+                const rand = Math.random();
+                if (rand < 0.5) addLootItem('Vzácná', 'relic');
+                else addLootItem('Epická', 'relic');
+             }
              if (Math.random() < 0.02) addLootItem('Legendární');
           }
 
@@ -546,7 +643,7 @@ export const Battle = ({
        if (success) { 
           setEnemyAnim('win');
           playCatch(true);
-          const catchXp = Math.round((80 + enemyMonster.level * 15) * (isXpBoosted ? 2 : 1) * 1.2);
+          const catchXp = Math.round((80 + enemyMonster.level * 15) * xpMultiplier * 1.2);
           setTimeout(() => { onCatch?.(enemyMonster, catchXp); setCatchAnim(false); }, 1000); 
        } else { 
           setCatchAnim(false); 
@@ -576,7 +673,7 @@ export const Battle = ({
 
         setEnemyAnim('attack');
         if (isSkill) {
-          playSpell();
+          if (ability?.type !== 'attack') playSpell();
           setActiveBurst({ id: Date.now(), type: enemyMonster.type, fromSide: 'enemy', subType: ability?.type });
           setTimeout(() => setActiveBurst(null), 3000);
         } else {
@@ -612,6 +709,10 @@ export const Battle = ({
             setPlayerEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 0.2, casterAtk: s.total.atk }]); 
             dmg = 0; addLog(`${enemyMonster.name} na tebe uvrhl kletbu!`); 
           }
+          if (isSkill && ability?.type === 'attack') {
+             setTimeout(() => playSlash(), 100);
+             setTimeout(() => playSlash(), 700);
+          }
           else if (ability?.type === 'regen') { setEnemyEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 0.1 }]); dmg = 0; addLog(`${enemyMonster.name} regeneruje!`); }
 
           if (dmg > 0) {
@@ -626,9 +727,12 @@ export const Battle = ({
           setTimeout(() => {
             setEnemyAnim('idle'); setPlayerAnim('idle'); 
             if (playerHP - dmg <= 0) { 
+              playDeath();
               setPlayerAnim('lose'); 
               playDefeat();
-              setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); 
+              const loseXP = Math.floor((80 + enemyMonster.level * 15) / 3);
+              setWinXP(loseXP);
+              setTimeout(() => setShowDefeat(true), 1200); 
             } else setTurn('player');
           }, 400);
         }, 400);
@@ -659,7 +763,7 @@ export const Battle = ({
            if (incomingAttack.isCrit) playCritical(); else playHit();
            if (shieldTurns > 0) setShieldTurns(p => p - 1);
            if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
-           setTimeout(() => { setPlayerAnim('idle'); setEnemyAnim('idle'); if (playerHP - incomingAttack.dmg <= 0) { setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player'); }, 400);
+           setTimeout(() => { setPlayerAnim('idle'); setEnemyAnim('idle'); if (playerHP - incomingAttack.dmg <= 0) { playDeath(); setPlayerAnim('lose'); setTimeout(() => onLose(Math.floor((80 + enemyMonster.level * 15) / 3)), 1200); } else setTurn('player'); }, 400);
         }, 400);
      }
   }, [incomingAttack, pvpRole, playerHP, shieldTurns, enemyShieldTurns, onLose]);
@@ -706,7 +810,8 @@ export const Battle = ({
 
          {/* ENEMY (TOP RIGHT) */}
          <div className="absolute top-[6%] right-[6%] flex flex-col items-end w-full max-w-[180px] z-20">
-            <div className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1">
+            <div className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1 relative">
+               <RarityBadge rarity={enemyMonster.rarity || ''} />
                <div className="flex justify-between items-center mb-1">
                  <div className="flex items-center gap-1.5"><TypeIcon type={enemyMonster.type} /><span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span></div>
                  <span className="text-[8px] font-black text-red-500">Lv {enemyMonster.level}</span>
@@ -752,11 +857,12 @@ export const Battle = ({
              </div>
             <motion.div 
               style={{ rotateX: '15deg', rotateY: '-15deg', transformStyle: 'preserve-3d', transformOrigin: 'bottom' }} 
-              animate={enemyAnim === 'attack' ? { z: [0, 80, 0], y: [0, 50, 0], x: [0, -30, 0] } : enemyAnim === 'hit' ? { rotateZ: [0, 8, -8, 0], x: [0, 15, -15, 0] } : { y: [0, -4, 0] }} 
+              animate={enemyAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 350, 0], y: [0, 240, 0], x: [0, -180, 0], scale: [1, 1.5, 1] } : { z: [0, 80, 0], y: [0, 50, 0], x: [0, -30, 0] }) : enemyAnim === 'hit' ? { rotateZ: [0, 8, -8, 0], x: [0, 15, -15, 0] } : { y: [0, -4, 0] }} 
+              transition={enemyAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : 0.4 } : undefined}
               className="relative flex justify-center items-end h-28 w-28"
             >
                 <AnimatePresence>{incomingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -80 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-white text-3xl p-2 rounded-2xl shadow-3xl border-2 border-slate-200">{incomingEmote}</motion.div>}</AnimatePresence>
-                <div className="absolute bottom-4 w-full flex justify-center"><MonsterPodium /></div>
+                <div className="absolute bottom-4 w-full flex justify-center"><MonsterPodium rarity={enemyMonster.rarity || ''} /></div>
                 <AnimatePresence>
                   {enemyShieldTurns > 0 && (
                     <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-32 rounded-full border-4 border-red-500/50 bg-[radial-gradient(circle,rgba(239,68,68,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(239,68,68,0.5)] flex items-center justify-center translate-y-4">
@@ -790,11 +896,12 @@ export const Battle = ({
           <div className="absolute bottom-[18%] left-[6%] flex flex-col items-start w-full max-w-[220px] z-30">
             <motion.div 
                style={{ rotateX: '-15deg', rotateY: '15deg', transformStyle: 'preserve-3d', transformOrigin: 'bottom' }} 
-               animate={playerAnim === 'attack' ? { z: [0, 180, 0], y: [0, -100, 0], x: [0, 40, 0] } : playerAnim === 'hit' ? { rotateZ: [0, -10, 10, 0], x: [0, -20, 20, 0] } : playerAnim === 'win' ? { y: [-15, 0, -15, 0], scale: [1, 1.05, 1] } : { y: [0, -6, 0] }} 
+               animate={playerAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 500, 0], y: [0, -400, 0], x: [0, 280, 0], scale: [1, 1.7, 1] } : { z: [0, 180, 0], y: [0, -100, 0], x: [0, 40, 0] }) : playerAnim === 'hit' ? { rotateZ: [0, -10, 10, 0], x: [0, -20, 20, 0] } : playerAnim === 'win' ? { y: [-15, 0, -15, 0], scale: [1, 1.05, 1] } : { y: [0, -6, 0] }} 
+               transition={playerAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : 0.4 } : undefined}
                className="relative flex justify-center items-end h-36 w-36 mb-4"
             >
                <AnimatePresence>{outgoingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -100 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-slate-900 text-3xl p-2 rounded-2xl shadow-3xl border-2 border-primary/40">{outgoingEmote}</motion.div>}</AnimatePresence>
-               <div className="absolute bottom-6 w-full flex justify-center"><MonsterPodium isPlayer /></div>
+               <div className="absolute bottom-6 w-full flex justify-center"><MonsterPodium isPlayer rarity={playerMonster.rarity || ''} /></div>
                <AnimatePresence>
                  {shieldTurns > 0 && (
                    <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-48 rounded-full border-4 border-primary/50 bg-[radial-gradient(circle,rgba(59,130,246,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(59,130,246,0.5)] flex items-center justify-center translate-y-4">
@@ -823,7 +930,8 @@ export const Battle = ({
                <img src={playerMonster.image || `/monsters/${playerMonster.id}.png`} className="w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2" />
                <PopupLayer popups={popups.filter(p => p.isPlayerSide)} />
             </motion.div>
-            <div className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1">
+            <div className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
+               <RarityBadge rarity={playerMonster.rarity || ''} />
                <div className="flex justify-between items-center whitespace-nowrap overflow-visible">
                   <div className="flex items-center gap-1.5 min-w-0"><TypeIcon type={playerMonster.type} /><span className="text-[12px] font-black text-white uppercase truncate">{playerMonster.name}</span></div>
                   <span className="text-[8px] font-black text-primary ml-2 shrink-0">Lv {playerMonster.level}</span>
@@ -978,7 +1086,7 @@ export const Battle = ({
                              onUseItem?.(i.type); 
                              setShowItems(false); 
                              setShowSkills(false); 
-                             setTurn('enemy'); 
+                             setItemUsedInTurn(true); 
                           }} className="flex justify-between items-center p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[10px] font-bold text-white uppercase hover:bg-blue-500/10 transition-colors">
                             <div className="flex items-center gap-2">
                                <span className="text-sm">{cfg?.icon || '📦'}</span>
@@ -993,16 +1101,16 @@ export const Battle = ({
                 )}
               </AnimatePresence>
               <motion.button 
-                whileTap={{ scale: 0.94, y: 4 }} 
+                whileTap={!(turn !== 'player' || playerAnim !== 'idle' || catchAnim || itemUsedInTurn) ? { scale: 0.94, y: 4 } : {}} 
                 onClick={() => { setShowItems(!showItems); setShowSkills(false); }} 
-                disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
+                disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim || itemUsedInTurn} 
                 className={cn(
                   "w-full h-16 rounded-xl flex flex-col items-center justify-center border transition-all shadow-xl translate-y-[-2px] active:translate-y-[0px] relative z-[7001]", 
-                  turn === 'player' && !catchAnim ? "bg-blue-500/10 border-blue-500/40 text-blue-400 shadow-[0_8px_0_rgba(59,130,246,0.2)] active:shadow-none" : "bg-slate-900/40 border-white/5 opacity-30 text-slate-500"
+                  turn === 'player' && !catchAnim && !itemUsedInTurn ? "bg-blue-500/10 border-blue-500/40 text-blue-400 shadow-[0_8px_0_rgba(59,130,246,0.2)] active:shadow-none" : "bg-slate-900/40 border-white/5 opacity-30 text-slate-500"
                 )}
               >
-                <Package size={20} />
-                <span className="text-[9px] font-black uppercase mt-1">Inven.</span>
+                {itemUsedInTurn ? <Lock size={18} className="opacity-60" /> : <Package size={20} />}
+                <span className="text-[9px] font-black uppercase mt-1">{itemUsedInTurn ? 'Použito' : 'Inven.'}</span>
               </motion.button>
            </div>
 
@@ -1054,9 +1162,15 @@ export const Battle = ({
         loot={loot}
         winXP={winXP}
         isChestOpened={isChestOpened}
+        isInventoryFull={isInventoryFull}
         onOpenChest={() => setIsChestOpened(true)}
         onCollect={(id) => setLoot(p => p.map(x => x.id === id ? { ...x, collected: true } : x))}
         onComplete={() => onWin(winXP, loot)}
+      />
+      <DefeatModal
+        isOpen={showDefeat}
+        winXP={winXP}
+        onComplete={() => onLose(winXP)}
       />
       <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} />}</AnimatePresence>
     </motion.div>

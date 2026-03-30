@@ -48,7 +48,7 @@ if (typeof window !== 'undefined') {
 // NearbyPlayer interface is now imported from '../../types'
 
 export interface WorldMapProps {
-  onCatch: (monster: Monster) => void
+  onCatch: (monster: Monster, spawnId?: string) => void
   onStartTrade: (targetPlayerName?: string, targetUid?: string) => void
   onStartDuel: (targetPlayerName?: string, targetUid?: string) => void
   tradeSignal?: string | null
@@ -66,6 +66,7 @@ export interface WorldMapProps {
   onGather: (type: ResourceType, amount: number) => void
   activeMonster: Monster | null
   addToast?: (toast: { title: string; message: string; type: 'success' | 'info' | 'error' | 'boost' }) => void
+  ignoreSpeedLimit?: boolean
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -93,7 +94,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   onGather,
   onStartDuel,
   activeMonster,
-  addToast
+  addToast,
+  ignoreSpeedLimit = false
 }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -166,35 +168,39 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         setSpawns(prev => {
           const newM: SpawnPoint = {
             id: 'dev_spawn_' + Date.now(),
-            lat: playerPos[0] + 0.00001,
-            lng: playerPos[1] + 0.00001,
+            lat: playerPos[0] + 0.00018, // cca 20m north for better visibility
+            lng: playerPos[1] + 0.00018, // cca 20m east
             rarity: 'epic',
             monsterId: 'obsidian_golem',
             level: 7,
             caught: false
           };
           const next = [...prev, newM];
+          setTimeout(() => setNearbySpawn(newM), 100); 
           return next;
         });
-        console.log("🔥 Epický Golem Lv.7 naspawněn naproti tobě!");
+        addToast?.({ title: 'Goleme, vstaň!', message: 'Epický boss se objevil v tvé blízkosti!', type: 'success' });
       }
     };
 
     (window as any).spawnCustomMonster = (mId: string, lvl: number, rar: SpawnRarity = 'common') => {
       if (playerPos) {
-        setSpawns(prev => [
-          ...prev,
-          {
+        setSpawns(prev => {
+          const newM: SpawnPoint = {
             id: 'custom_spawn_' + Date.now(),
-            lat: playerPos[0] + 0.00005,
-            lng: playerPos[1] + 0.00005,
+            lat: playerPos[0] + 0.00015,
+            lng: playerPos[1] + 0.00015,
             rarity: rar,
             monsterId: mId,
             level: lvl,
             caught: false
-          }
-        ]);
-        console.log(`🧨 Monstrum ${mId} (Lv.${lvl}, ${rar}) naspawněno u tebe!`);
+          };
+          const next = [...prev, newM];
+          setTimeout(() => setNearbySpawn(newM), 100);
+          return next;
+        });
+        const mName = monsterDB.find(m => m.id === mId)?.name || mId;
+        addToast?.({ title: 'Detekce!', message: `${mName} (Lv.${lvl}) naspawnováno u tebe!`, type: 'info' });
       }
     };
 
@@ -432,9 +438,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
            : (timeDiff > 0 ? traveled / timeDiff : 0)
         
         // Speed Lock: 25 km/h = ~7 m/s
-        if (speed > 7 && traveled > 10) { 
+        if (!ignoreSpeedLimit && speed > 7 && traveled > 10) { 
            setIsTooFast(true) 
-        } else if (speed < 5) { // Needs to slow down a lot to unlock
+        } else if (ignoreSpeedLimit || speed < 5) { // Needs to slow down a lot to unlock
            setIsTooFast(false)
         }
 
@@ -499,11 +505,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       const commonRes = generateResources(lat, lng, cooldowns)
 
       setSpawns(prev => {
-        const pois = prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }))
-        // Aplikace přesunu + 20m rozestupu přes optimizeSpawns
-        const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 20)
-        return [...optimizedCommon, ...pois]
-      })
+        // Keep non-common monsters OR monsters spawned by dev tools (dev_, custom_, cheat_)
+        const pois = prev.filter(p => 
+          (p.rarity !== 'common' || p.id.startsWith('dev_') || p.id.startsWith('custom_') || p.id.startsWith('cheat_')) 
+          && haversineM(lat, lng, p.lat, p.lng) < 2000
+        ).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }));
+
+        const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 20);
+        return [...optimizedCommon, ...pois];
+      });
 
       setResources(prev => {
         const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
@@ -534,17 +544,26 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
   const handleCatch = () => {
     if (!nearbySpawn) return
-    // Level check is now handled in the UI directly
     const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
     if (playerHP < cost) { setEnergyBlocked(true); setTimeout(() => setEnergyBlocked(false), 2000); return }
     const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
     onConsumeHP(cost)
-    onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster)
-    const nC = { ...cooldownsRef.current, [nearbySpawn.id]: Date.now() + RESPAWN_COOLDOWN_MS }
-    cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
-    setSpawns(prev => prev.map(s => s.id === nearbySpawn.id ? { ...s, caught: true } : s))
+    
+    // We NO LONGER mark it as caught here immediately.
+    // Instead we pass the ID to App so it can decide later.
+    onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster, nearbySpawn.id)
     setNearbySpawn(null)
   }
+
+  useEffect(() => {
+    (window as any).markMonsterAsCaught = (spawnId: string) => {
+      const nC = { ...cooldownsRef.current, [spawnId]: Date.now() + RESPAWN_COOLDOWN_MS }
+      cooldownsRef.current = nC; 
+      localStorage.setItem('map_cooldowns', JSON.stringify(nC))
+      setSpawns(prev => prev.map(s => s.id === spawnId ? { ...s, caught: true } : s))
+    };
+    return () => { delete (window as any).markMonsterAsCaught; };
+  }, []);
 
   const handleGather = () => {
     if (!nearbyResource) return

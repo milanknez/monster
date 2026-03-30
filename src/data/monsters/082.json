@@ -1,0 +1,30 @@
+{
+  "id": "082",
+  "name": "Výbojový Krysař",
+  "type": "Elektrická",
+  "rarity": "Běžná",
+  "description": "Chlupatý hlodavec s neustále naježenou srstí probíjející blesky.",
+  "stats": {
+    "hp": 149,
+    "attack": 38,
+    "defense": 12,
+    "speed": 13,
+    "magic": 8
+  },
+  "abilities": [
+    {
+      "name": "Bleskový řetězec",
+      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.6
+    },
+    {
+      "name": "Klektavý šok",
+      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+      "type": "curse",
+      "chance": 70,
+      "value": 0.15
+    }
+  ]
+}

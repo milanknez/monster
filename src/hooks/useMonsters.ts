@@ -79,48 +79,40 @@ export function useMonsters(addToast: (toast: any) => void) {
   }, [caughtMonsters])
 
   const saveMonster = (monster: Monster, onGiveXP: (xp: number) => void, shouldGiveXP = true) => {
-    let success = false
-    setCaughtMonsters(prev => {
-      const existingCount = prev.filter(m => m.id === monster.id).length
-      if (existingCount >= 3) {
-        addToast({ title: 'Batoh je plný', message: `Už máš 3x ${monster.name}.`, type: 'info' })
-        return prev
-      }
-
-      const dbData = monsterDB.find(d => d.id === monster.id)
-      const baseStats = dbData?.stats || monster.stats
-      const baseLevel = monster.level || 1
-
-      const enriched: Monster = {
-        ...monster,
-        stats: baseStats,
-        level: baseLevel,
-        caughtAt: monster.caughtAt || Date.now(),
-        totalXP: monster.totalXP || 0,
-      }
-
-      // Calculate TRUE Max HP including bonuses for initial health
-      const max = getMonsterMaxHP(enriched)
-      enriched.currentHP = monster.currentHP !== undefined ? monster.currentHP : max
-
-      const updated = [enriched, ...prev]
-      success = true
-      return updated
-    })
-
-    if (success) {
-      if (shouldGiveXP) {
-        onGiveXP(250)
-        addToast({
-          title: 'Monstrum chyceno',
-          message: `${monster.name} chycen!`,
-          type: 'success'
-        })
-      } else {
-        onGiveXP(0) // Trigger callback to show results without adding extra XP
-      }
+    const existingCount = caughtMonsters.filter(m => m.id === monster.id).length
+    if (existingCount >= 3) {
+      addToast({ title: 'Batoh je plný', message: `Už máš 3x ${monster.name}.`, type: 'info' })
+      return false
     }
-    return success
+
+    const dbData = monsterDB.find(d => d.id === monster.id)
+    const baseStats = dbData?.stats || monster.stats
+    const baseLevel = monster.level || 1
+
+    const enriched: Monster = {
+      ...monster,
+      stats: baseStats,
+      level: baseLevel,
+      caughtAt: monster.caughtAt || Date.now(),
+      totalXP: monster.totalXP || 0,
+    }
+
+    const max = getMonsterMaxHP(enriched)
+    enriched.currentHP = monster.currentHP !== undefined ? monster.currentHP : max
+
+    setCaughtMonsters(prev => [enriched, ...prev])
+    
+    if (shouldGiveXP) {
+      onGiveXP(250)
+      addToast({
+        title: 'Monstrum chyceno',
+        message: `${monster.name} chycen!`,
+        type: 'success'
+      })
+    } else {
+      onGiveXP(0) // Trigger callback to show results without adding extra XP
+    }
+    return true
   }
 
   const removeMonster = (id: string, caughtAt?: number) => {
@@ -144,15 +136,13 @@ export function useMonsters(addToast: (toast: any) => void) {
       const oldLevel = m.level
       m.totalXP = (m.totalXP || 0) + xp
 
-      // Leveling: XP needed = lvl * 200
-      // 1 -> 2: 200 XP
-      // 2 -> 3: 400 XP
-      // This is a simple formula for now
-      let nextLvlXP = m.level * 350
-      while (m.totalXP >= nextLvlXP) {
-        m.totalXP -= nextLvlXP
+      // Unified Leveling Logic (matches UI: next level at level * 250 cumulative)
+      // 1 -> 2: 250 XP
+      // 2 -> 3: 500 XP
+      // 3 -> 4: 750 XP
+      // 4 -> 5: 1000 XP
+      while (m.totalXP >= m.level * 250) {
         m.level++
-        nextLvlXP = m.level * 350
       }
 
       if (m.level > oldLevel) {

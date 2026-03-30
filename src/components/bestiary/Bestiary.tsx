@@ -251,9 +251,18 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                     src={`/monsters/${m.id}.png`}
                     className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                   />
-                  <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none">
+                  <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none mb-1">
                     <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{m.name}</p>
                     <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", theme.text)}>{m.rarity}</p>
+                  </div>
+
+                  {/* XP Level Bar at the very bottom */}
+                  <div className="absolute bottom-1 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20 pointer-events-none">
+                     <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(100, ((m.totalXP || 0) / (m.level * 250)) * 100)}%` }}
+                        className={cn("h-full rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]", theme.bg)}
+                     />
                   </div>
                 </>
               ) : (

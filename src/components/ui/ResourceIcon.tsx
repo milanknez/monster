@@ -21,11 +21,11 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
   
   // Update version on config change to potentially refresh stale images
   useEffect(() => {
-    if (config.hasCustomIcon) {
+    if (config?.hasCustomIcon) {
        setError(false);
        setV(Date.now());
     }
-  }, [id, config.hasCustomIcon, config.customIcon]);
+  }, [id, config?.hasCustomIcon, config?.customIcon]);
 
   const sizeClasses = {
     sm: 'size-6 text-sm',
@@ -34,7 +34,7 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
     xl: 'size-20 text-5xl'
   };
 
-  if (config.hasCustomIcon && !error) {
+  if (config?.hasCustomIcon && !error) {
     const fileName = config.customIcon || id;
     return (
       <img 
@@ -48,7 +48,7 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
 
   return (
     <div className={cn(sizeClasses[size], "flex items-center justify-center", className)}>
-      {config.icon || '📦'}
+      {config?.icon || '📦'}
     </div>
   );
 };

@@ -1,3 +1,15 @@
+import monster084 from './monsters/084.json';
+import monster083 from './monsters/083.json';
+import monster082 from './monsters/082.json';
+import monster081 from './monsters/081.json';
+import monster080 from './monsters/080.json';
+import monster079 from './monsters/079.json';
+import monster078 from './monsters/078.json';
+import monster077 from './monsters/077.json';
+import monster076 from './monsters/076.json';
+import monster075 from './monsters/075.json';
+import monster074 from './monsters/074.json';
+import monster073 from './monsters/073.json';
 import monster001 from './monsters/001.json';
 import monster002 from './monsters/002.json';
 import monster003 from './monsters/003.json';
@@ -72,6 +84,18 @@ import monster071 from './monsters/071.json';
 import monster072 from './monsters/072.json';
 
 export const monsterDB = [
+  monster084,
+  monster083,
+  monster082,
+  monster081,
+  monster080,
+  monster079,
+  monster078,
+  monster077,
+  monster076,
+  monster075,
+  monster074,
+  monster073,
   monster072,
   monster071,
   monster070,

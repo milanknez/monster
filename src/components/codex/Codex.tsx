@@ -106,7 +106,9 @@ export const Laboratory = ({
             const materialsMet = recipe.requirements.every((req: any) => getItemCount(req.type) >= req.count);
             const ready = materialsMet && hasSpace && !craftingRecipeId;
             const active = craftingRecipeId === recipe.id;
-
+            const config = RESOURCE_CONFIG[recipe.result.id];
+            const rarity = config?.rarity || 'Běžná';
+            
             return (
               <motion.div
                 layout
@@ -120,13 +122,22 @@ export const Laboratory = ({
                   active ? "ring-2 ring-secondary shadow-[0_0_20px_rgba(13,185,242,0.3)]" : "",
                   ready || active
                     ? "bg-slate-900 border-secondary/30"
-                    : "bg-slate-900/40 border-white/5 opacity-80"
+                    : "bg-slate-900/40 border-white/5 opacity-80",
+                  rarity === 'Legendární' ? "border-amber-500/50" :
+                  rarity === 'Epická' ? "border-purple-500/50" :
+                  rarity === 'Vzácná' ? "border-blue-500/50" : ""
                 )}
               >
                 {/* Card Content */}
                 <div className="p-4 flex flex-col h-full">
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="size-11 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0">
+                    <div className={cn(
+                      "size-11 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 shadow-lg",
+                      rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-amber-500/5" :
+                      rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
+                      rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
+                      "bg-slate-800 border-white/10"
+                    )}>
                       <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" />
                     </div>
                     {ready && !active && (

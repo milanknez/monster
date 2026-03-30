@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { X, Sword, Heart, Flame, Droplets, Leaf, Zap, Skull } from 'lucide-react';
 import { cn, getMonsterMaxHP, TYPE_COLORS } from '../../utils';
 import type { Monster } from '../../types';
+import { RESOURCE_CONFIG } from '../../data/resources';
 
 export const DuelSelectionModal = ({ 
   caughtMonsters, 
@@ -145,10 +146,34 @@ export const DuelSelectionModal = ({
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 pointer-events-none" />
                     
-                    {/* Level Badge */}
-                    <div className="absolute top-3 left-3 z-20">
+                    {/* Level Badge & Gems */}
+                    <div className="absolute top-3 left-3 z-20 flex flex-col items-center">
                       <div className="h-6 px-2 rounded-lg bg-slate-950/80 text-[10px] font-black flex items-center justify-center border border-white/10 shadow-lg text-white uppercase italic tracking-tighter">
                         LVL {monster.level}
+                      </div>
+
+                      {/* Jewel Sockets */}
+                      <div className="flex flex-row gap-0.5 mt-1.5 bg-slate-900/40 p-1 px-1.5 rounded-full backdrop-blur-sm border border-white/5 shadow-lg">
+                        {[0, 1, 2].map((i) => {
+                          const gemId = monster.gems?.[i];
+                          const gemConfig = gemId ? RESOURCE_CONFIG[gemId] : null;
+
+                          return (
+                            <div
+                              key={i}
+                              className={cn(
+                                "size-[0.45rem] rotate-45 border transition-all duration-500",
+                                gemId
+                                  ? "shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                                  : "bg-slate-900 border-white/10"
+                              )}
+                              style={{
+                                backgroundColor: gemConfig?.color || (gemId ? '#fff' : 'transparent'),
+                                borderColor: gemId ? 'rgba(255,255,255,0.6)' : undefined
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
 

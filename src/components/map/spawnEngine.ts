@@ -70,13 +70,13 @@ export function generateCommonSpawns(playerLat: number, playerLng: number, coold
       const realId = `grid_${ix}_${iy}`;
 
       spawns.push({
-        id: realId, // ID fixní pro synchronizaci sežených napříč relacemi
+        id: realId, 
         lat: jLat,
         lng: jLng,
         rarity: 'common',
-        monsterId: pickMonster(id, 'common'),    // Seed hashovaný pro náhodu
-        level: pickLevel(id, 'common'),          // Seed hashovaný pro náhodu
-        caught: isOnCooldown(cooldowns, realId), // Cooldown fixní na mřížku
+        monsterId: pickMonster(id, 'common'),    
+        level: pickLevel(id, 'common'),          
+        caught: isOnCooldown(cooldowns, realId), 
       })
     }
   }

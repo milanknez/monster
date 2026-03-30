@@ -1,0 +1,28 @@
+{
+  "id": "078",
+  "name": "Listový Kudlanka",
+  "type": "Přírodní",
+  "rarity": "Běžná",
+  "description": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
+  "stats": {
+    "hp": 135,
+    "attack": 48,
+    "defense": 15
+  },
+  "abilities": [
+    {
+      "name": "Divoké šlahouny",
+      "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.7
+    },
+    {
+      "name": "Fotosyntéza",
+      "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
+      "type": "regen",
+      "chance": 65,
+      "value": 0.15
+    }
+  ]
+}

@@ -9,8 +9,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "description": "Běžný drahokam sloužící k vylepšování základních atributů.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 2
   },
   "herb": {
     "color": "#10b981",
@@ -20,8 +20,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "description": "Přírodní surovina pro vaření lektvarů.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 2
   },
   "energy": {
     "color": "#f59e0b",
@@ -31,8 +31,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "description": "Kondenzovaná elektrická energie.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 2
   },
   "mineral": {
     "color": "#64748b",
@@ -42,8 +42,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "description": "Tvrdý stavební kámen.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 2
   },
   "magic_crystal": {
     "color": "#a855f7",
@@ -53,8 +53,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Vzácná",
     "description": "Vzácný magický drahokam.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 1
   },
   "super_mineral": {
     "color": "#ea580c",
@@ -64,8 +64,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Vzácná",
     "description": "Ohněm kovaný kámen.",
     "dropWeight": 50,
-    "dropMin": 2,
-    "dropMax": 5
+    "dropMin": 1,
+    "dropMax": 1
   },
   "monster_egg": {
     "color": "#a855f7",

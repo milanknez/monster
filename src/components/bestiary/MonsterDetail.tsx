@@ -20,17 +20,15 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   onUpgrade?: () => void; 
   inventory?: any[]; 
   onUsePotion?: (type: string) => void; 
-  onUseLoot?: (type: string) => void;
   onEquipGem?: (idx: number, gemType: string | null) => void; 
   onEquipItem?: (idx: number, itemType: string | null) => void;
   onRelease?: () => void 
 }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onUseLoot, onEquipGem, onEquipItem, onRelease }, ref) => {
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onRelease }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [activeItemSlotIdx, setActiveItemSlotIdx] = useState<number | null>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
-    const [showLootModal, setShowLootModal] = useState(false);
     if (!monster) return null;
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
 
@@ -278,27 +276,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   })}
                 </div>
 
-                {/* UPGRADE BUTTON SECTION */}
-                <div className="px-1 -mt-2">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowLootModal(true)}
-                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-600/20 to-amber-900/40 border border-amber-500/30 rounded-2xl shadow-xl group overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-shimmer-fast opacity-[0.05] pointer-events-none" />
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-amber-500/20 rounded-xl text-amber-500 border border-amber-500/20">
-                        <Trophy size={20} className="group-hover:rotate-12 transition-transform" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-none mb-1">Dračí Kořist</p>
-                        <p className="text-sm font-black text-white uppercase tracking-tighter leading-none">Trvalá Vylepšení</p>
-                      </div>
-                    </div>
-                    <ChevronRight size={20} className="text-amber-500 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </div>
+                {/* UPGRADE BUTTON SECTION removed per user request */}
 
                 <div className="relative z-[20] mt-2">
                   <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
@@ -420,6 +398,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   <div className="flex items-center justify-center gap-4">
                     {Array.from({ length: 3 }).map((_, idx) => {
                       const currentGem = monster.gems?.[idx];
+                      const gemConfig = currentGem ? RESOURCE_CONFIG[currentGem] : null;
                       const isPicking = activeSlotIdx === idx;
                       return (
                         <div
@@ -427,7 +406,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           onClick={() => setActiveSlotIdx(idx)}
                           className={cn(
                             "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
-                            currentGem ? "bg-slate-800 border-white/20 shadow-xl" : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
+                            currentGem ? (
+                              gemConfig?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.3)]" :
+                              gemConfig?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.3)]" :
+                              gemConfig?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.3)]" :
+                              "bg-slate-800 border-white/20 shadow-xl"
+                            ) : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
                             isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
                           )}
                         >
@@ -453,25 +437,32 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 16 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
                         <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
                           <button onClick={() => setActiveSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
-                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vylepšení</p>
+                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vybavení</p>
                           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => (
+                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_')) && i?.count > 0).map(i => (
                               <motion.button
                                 key={i?.type}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
-                                className="flex-shrink-0 size-16 bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 active:bg-slate-700 transition-colors shadow-lg group relative overflow-hidden"
+                                className={cn(
+                                  "flex-shrink-0 size-16 rounded-xl border flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-lg group relative overflow-hidden",
+                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)]" :
+                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)]" :
+                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]" :
+                                  "bg-slate-800 border-white/5"
+                                )}
                               >
                                 <div className="size-10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                   <ResourceIcon id={i?.type || ''} config={RESOURCE_CONFIG[i?.type || '']} size="md" className="filter drop-shadow-md" />
                                 </div>
                                 <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm relative z-10">{i?.count}x</span>
+                                <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                               </motion.button>
                             ))}
-                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('item_')) && i?.count > 0).length === 0) && (
+                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_')) && i?.count > 0).length === 0) && (
                               <div className="w-full text-center py-4 flex flex-col items-center gap-2">
                                 <div className="text-3xl opacity-30">📦</div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">Nemáš žádné vybavení v batohu</p>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">V batohu nemáš žádné drahokamy ani relikvie</p>
                               </div>
                             )}
                           </div>
@@ -535,54 +526,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {showLootModal && (
-            <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col bg-black/80 backdrop-blur-xl">
-              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="w-full max-w-lg bg-slate-900 border-t-4 border-amber-500/50 rounded-t-[3rem] p-8 pb-12 shadow-[0_-20px_50px_rgba(245,158,11,0.2)]">
-                <div className="flex justify-between items-center mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-amber-500/20 rounded-2xl text-amber-500 border border-amber-500/20"><Trophy size={24} /></div>
-                    <div>
-                      <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">Dračí Poklad</h2>
-                      <p className="text-[10px] font-bold text-amber-500/60 uppercase tracking-widest mt-1">Trvalé vylepšení statistik</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setShowLootModal(false)} className="size-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-slate-400 transition-colors"><X size={20} /></button>
-                </div>
-                <div className="grid grid-cols-1 gap-4 max-h-[50vh] overflow-y-auto pr-2 scrollbar-hide">
-                  {inventory?.filter(i => i?.type.startsWith('loot_') && i?.count > 0).map(item => {
-                    const config = RESOURCE_CONFIG[item.type];
-                    return (
-                      <motion.button key={item?.type} whileTap={{ scale: 0.97 }} onClick={() => { item?.type && onUseLoot?.(item.type); setShowLootModal(false); }} className="group relative flex items-center gap-5 p-5 bg-gradient-to-br from-amber-600/10 to-amber-900/10 border border-amber-500/20 rounded-[2rem] hover:border-amber-500/40 transition-all text-left overflow-hidden">
-                        <div className="size-20 flex-shrink-0 bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                          <ResourceIcon id={item.type} config={config} size="lg" className="filter drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-lg font-black text-white uppercase tracking-tight">{config?.label}</p>
-                            <p className="bg-amber-500 text-background-dark text-[10px] font-black px-2 py-0.5 rounded-full">{item?.count}x</p>
-                          </div>
-                          <div className="flex gap-4">
-                            {config?.stats?.atk ? <div className="flex items-center gap-1 text-red-400 font-black text-[10px]"><Sword size={10} /> +{config.stats.atk}</div> : null}
-                            {config?.stats?.def ? <div className="flex items-center gap-1 text-blue-400 font-black text-[10px]"><Shield size={10} /> +{config.stats.def}</div> : null}
-                            {config?.stats?.hp ? <div className="flex items-center gap-1 text-emerald-400 font-black text-[10px]"><Heart size={10} /> +{config.stats.hp}</div> : null}
-                          </div>
-                        </div>
-                      </motion.button>
-                    )
-                  })}
-                  {(!inventory || inventory.filter(i => i?.type.startsWith('loot_') && i?.count > 0).length === 0) && (
-                    <div className="py-12 text-center">
-                      <div className="size-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50 border border-white/5"><Trophy size={32} className="text-slate-600" /></div>
-                      <p className="text-sm font-black text-slate-500 uppercase tracking-widest italic px-8">Tvůj vak na vzácný loot je prázdný. Zkus ulovit nějakou epickou příšeru!</p>
-                    </div>
-                  )}
-                </div>
-                <button onClick={() => setShowLootModal(false)} className="w-full mt-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95 text-xs opacity-50">Zpět k monstru</button>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+
 
         <AnimatePresence>
           {confirmRelease && (
