@@ -310,7 +310,7 @@ const getFinalStats = (m: Monster) => {
 export const Battle = ({
   playerMonster, enemyMonster, opponentName, incomingEmote, pvpRole, 
   incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem, 
-  onWin, onLose, onBack, onCatch, onCatchFail
+  onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster
 }: {
   playerMonster: Monster, enemyMonster: Monster, opponentName?: string, 
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
@@ -322,7 +322,8 @@ export const Battle = ({
   onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
-  onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void
+  onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void,
+  isNewMonster?: boolean
 }) => {
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -1128,6 +1129,9 @@ export const Battle = ({
                 <div className="relative">
                   <Aperture size={20} className="text-amber-400 animate-spin-slow drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" />
                   <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-110" />
+                  {isNewMonster && (
+                    <div className="absolute -top-1 -right-1 size-2.5 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] border border-white/20 animate-pulse z-10" />
+                  )}
                 </div>
                 <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
                    <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>

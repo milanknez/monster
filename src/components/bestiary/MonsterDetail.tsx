@@ -22,9 +22,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   onUsePotion?: (type: string) => void; 
   onEquipGem?: (idx: number, gemType: string | null) => void; 
   onEquipItem?: (idx: number, itemType: string | null) => void;
-  onRelease?: () => void 
+  onRelease?: () => void;
+  canRelease?: boolean;
 }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onRelease }, ref) => {
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onRelease, canRelease = true }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [activeItemSlotIdx, setActiveItemSlotIdx] = useState<number | null>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
@@ -439,7 +440,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           <button onClick={() => setActiveSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
                           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vybavení</p>
                           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_')) && i?.count > 0).map(i => (
+                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => (
                               <motion.button
                                 key={i?.type}
                                 whileTap={{ scale: 0.9 }}
@@ -459,7 +460,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                 <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                               </motion.button>
                             ))}
-                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_')) && i?.count > 0).length === 0) && (
+                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).length === 0) && (
                               <div className="w-full text-center py-4 flex flex-col items-center gap-2">
                                 <div className="text-3xl opacity-30">📦</div>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase italic">V batohu nemáš žádné drahokamy ani relikvie</p>
@@ -477,12 +478,25 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         </div>
 
         <div className="px-6 mt-12 mb-8 pb-12">
-          <button onClick={() => setConfirmRelease(true)} className="w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all active:scale-95 border-2 border-red-500/30 bg-red-950/20 shadow-2xl hover:border-red-500/50">
-            <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
+          <button 
+            onClick={() => {
+              if (canRelease) setConfirmRelease(true);
+            }} 
+            className={cn(
+              "w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all border-2 shadow-2xl",
+              canRelease 
+                ? "active:scale-95 border-red-500/30 bg-red-950/20 hover:border-red-500/50" 
+                : "opacity-40 grayscale border-slate-700 bg-slate-800/20 cursor-not-allowed"
+            )}
+          >
+            <div className={cn("absolute inset-0 transition-colors", canRelease ? "bg-red-500/5 group-hover:bg-red-500/10" : "bg-slate-900/5")} />
             <div className="relative z-10 flex items-center justify-center gap-3">
-              <Trash2 size={20} className="text-red-500 group-hover:scale-110 transition-transform" />
+              <Trash2 size={20} className={cn("transition-transform", canRelease ? "text-red-500 group-hover:scale-110" : "text-slate-500")} />
               <div className="text-left">
-                <p className="text-sm font-black text-red-500 uppercase tracking-widest leading-none mb-0.5">Propustit na svobodu</p>
+                <p className={cn("text-sm font-black uppercase tracking-widest leading-none mb-0.5", canRelease ? "text-red-500" : "text-slate-500")}>
+                  {canRelease ? "Propustit na svobodu" : "Poslední Monstrum"}
+                </p>
+                {!canRelease && <p className="text-[8px] font-bold text-slate-600 uppercase">Nemůžeš propustit svou poslední příšeru</p>}
               </div>
             </div>
           </button>

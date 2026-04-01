@@ -74,10 +74,11 @@ function AppContent() {
 
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
-  const [wildEncounter, setWildEncounter] = useState<{ monster: Monster, spawnId?: string } | null>(null)
+  const [wildEncounter, setWildEncounter] = useState<{ monster: Monster, spawnId?: string, rarity?: string } | null>(null)
   const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender', spawnId?: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
   const [isSpeedLimitDisabled, setIsSpeedLimitDisabled] = useState(() => localStorage.getItem('monster_debug_no_speed') === 'true')
+  const [currentPosition, setCurrentPosition] = useState<{lat: number, lng: number} | null>(null);
 
   // Duel selection state
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
@@ -99,6 +100,16 @@ function AppContent() {
   const [isDebugMode, setIsDebugMode] = useState(false)
   const [avatarClickCount, setAvatarClickCount] = useState(0)
   const [lastAvatarClick, setLastAvatarClick] = useState(0)
+  const [unlockedQuests, setUnlockedQuests] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_unlocked_quests');
+      if (saved) {
+         const { date, ids } = JSON.parse(saved);
+         if (date === new Date().toDateString()) return ids;
+      }
+    } catch { }
+    return [1, 2, 3]; // Základní úkoly
+  });
 
   const handleAvatarClick = () => {
     const now = Date.now();
@@ -465,14 +476,84 @@ function AppContent() {
     return 0
   })
 
-  const handleMove = useCallback((meters: number) => {
+  const [dailyStats, setDailyStats] = useState(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_daily_stats')
+      if (saved) {
+        const { duels, epics, legendaries, date } = JSON.parse(saved)
+        if (date === new Date().toDateString()) return { duels: duels || 0, epics: epics || 0, legendaries: legendaries || 0 }
+      }
+    } catch { }
+    return { duels: 0, epics: 0, legendaries: 0 }
+  })
+
+  const updateDailyStat = useCallback((type: 'duels' | 'epics' | 'legendaries') => {
+    setDailyStats(prev => {
+      const next = { ...prev, [type]: prev[type] + 1 }
+      localStorage.setItem('monster_collector_daily_stats', JSON.stringify({
+        ...next,
+        date: new Date().toDateString()
+      }))
+      return next
+    })
+  }, [])
+
+  // Push notifikace pro nové úkoly
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayTimestamp = today.getTime();
+    const todayDateStr = today.toDateString();
+
+    const currentUnlocked = [1, 2, 3];
+    const monstersTodayCount = caughtMonsters.filter(m => m.caughtAt && m.caughtAt >= todayTimestamp).length;
+    
+    if (currentLevel >= 4) currentUnlocked.push(4); // Vyzývatel
+    if (currentLevel >= 4 && monstersTodayCount >= 5) currentUnlocked.push(5); // Lovec epiků
+    if (currentLevel >= 6 && dailyStats.epics >= 3) currentUnlocked.push(6); // Legendární přemožitel
+
+    const newUnlocks = currentUnlocked.filter(id => !unlockedQuests.includes(id));
+    if (newUnlocks.length > 0) {
+      newUnlocks.forEach(id => {
+         const questNames: any = { 
+           4: 'Souboj s hráčem', 
+           5: 'Lovec epiků (+3 Epické)', 
+           6: 'Legendární přemožitel' 
+         };
+         addToast({ 
+           title: 'Nový úkol k dispozici! 📜', 
+           message: `Byl odemčen denní protokol: ${questNames[id] || 'Neznámý'}`, 
+           type: 'xp' 
+         });
+      });
+      setUnlockedQuests(currentUnlocked);
+      localStorage.setItem('monster_collector_unlocked_quests', JSON.stringify({
+        date: todayDateStr,
+        ids: currentUnlocked
+      }));
+    }
+  }, [currentLevel, dailyStats, caughtMonsters, unlockedQuests, addToast]);
+
+  const handleMove = useCallback((lat: number, lng: number, meters: number) => {
+    setCurrentPosition({ lat, lng });
+    const today = new Date().toDateString();
     setDailyDistance((prev: number) => {
       const newVal = prev + meters
       localStorage.setItem('monster_collector_distance', JSON.stringify({
         dist: newVal,
-        date: new Date().toDateString()
+        date: today
       }))
       return newVal
+    })
+    
+    // Also reset daily stats if day changed (fallback)
+    setDailyStats(prev => {
+      const saved = localStorage.getItem('monster_collector_daily_stats')
+      if (saved) {
+        const { date } = JSON.parse(saved)
+        if (date !== today) return { duels: 0, epics: 0, legendaries: 0 }
+      }
+      return prev
     })
   }, [])
 
@@ -759,6 +840,8 @@ function AppContent() {
               if (activeBattle?.spawnId) {
                 (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
               }
+              if (wildEncounter?.rarity === 'Epická') updateDailyStat('epics');
+              if (wildEncounter?.rarity === 'Legendární') updateDailyStat('legendaries');
               handleBattleWin(xp, loot);
             }}
             onLose={(xp) => {
@@ -782,7 +865,14 @@ function AppContent() {
               giveMonsterXP(activeBattle.playerIdx, xp);
               
               // 2. Add the new monster to the collection
-              saveMonster({ ...monster, currentHP: undefined, totalXP: 0 }, () => {
+              saveMonster({ 
+                ...monster, 
+                currentHP: undefined, 
+                totalXP: 0,
+                lat: currentPosition?.lat,
+                lng: currentPosition?.lng,
+                caughtAt: Date.now()
+              }, () => {
                 setNewMonster(monster);
                 // 3. Award XP to the player 
                 addXP(xp);
@@ -845,6 +935,7 @@ function AppContent() {
             <MonsterDetail
               key="detail"
               monster={selectedMonster}
+              canRelease={caughtMonsters.length > 1}
               onBack={() => setSelectedMonster(null)}
               inventory={inventory}
               onUsePotion={(type: string) => {
@@ -953,6 +1044,8 @@ function AppContent() {
                   <DailyQuests
                     caughtMonsters={caughtMonsters}
                     dailyDistance={dailyDistance}
+                    playerLevel={currentLevel}
+                    dailyStats={dailyStats}
                     onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                     referrals={referrals}

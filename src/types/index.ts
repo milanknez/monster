@@ -15,6 +15,8 @@ export interface Monster {
     value?: number;
   }[];
   caughtAt?: number;
+  lat?: number;
+  lng?: number;
 
   // Base stats from data
   stats?: {

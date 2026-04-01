@@ -55,7 +55,7 @@ export interface WorldMapProps {
   onBleSignal?: (type: string, targetName: string, fromName: string, data: string) => void
   playerHP: number
   onConsumeHP: (amount: number) => void
-  onDistanceUpdate: (meters: number) => void
+  onDistanceUpdate: (lat: number, lng: number, meters: number) => void
   isInteractionBlocked?: boolean
   caughtMonsters: Monster[]
   playerName: string
@@ -444,7 +444,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
            setIsTooFast(false)
         }
 
-        if (traveled >= 4 && traveled <= 150) onDistanceUpdate(traveled)
+        if (traveled >= 4 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
       }
       lastPosRef.current = [lat, lng]
       lastPosTimeRef.current = now
@@ -675,7 +675,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
+        <div className="absolute bottom-24 left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
           {[
             { label: 'Běžná', color: 'text-slate-400' },
             { label: 'Vzácná', color: 'text-blue-500' },

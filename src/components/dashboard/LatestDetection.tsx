@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Activity, Bolt } from 'lucide-react';
-import { cn, TYPE_COLORS } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterAttack, formatLocation } from '../../utils';
 import type { Monster } from '../../types';
 
 export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster | null, onSelect: (m: Monster) => void }) => (
@@ -30,7 +30,7 @@ export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster 
         <div className="flex-1">
           <div className="flex justify-between items-start mb-1">
             <h4 className="font-black text-lg text-slate-100 tracking-tight uppercase">
-              {lastCaught ? lastCaught.name.replace(' ', '_') : "IGNIS_DRACON"}
+              {lastCaught ? lastCaught.name : "IGNIS DRACON"}
             </h4>
             <span className={cn(
               "px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter",
@@ -40,13 +40,15 @@ export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster 
               {lastCaught ? lastCaught.rarity : "VZÁCNÝ"} EXEMPLÁŘ
             </span>
           </div>
-          <p className="text-xs text-slate-500 font-medium">
-            {lastCaught ? "Právě detekováno" : "Detekováno před 2h"} • Sektor 7-G
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+            {lastCaught?.caughtAt 
+              ? new Date(lastCaught.caughtAt).toLocaleDateString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) 
+              : "2h zpět"} • {formatLocation(lastCaught?.lat, lastCaught?.lng)}
           </p>
           <div className="flex gap-3 mt-3">
             <div className="flex items-center gap-1">
               <Activity size={12} className="text-primary" />
-              <span className="text-[10px] font-bold text-slate-400">{lastCaught ? lastCaught.level * 5 : 85} ATK</span>
+              <span className="text-[10px] font-bold text-slate-400">{lastCaught ? getMonsterAttack(lastCaught) : 85} ATK</span>
             </div>
             <div className="flex items-center gap-1">
               <Bolt size={12} className="text-primary" />

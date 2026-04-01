@@ -196,13 +196,27 @@ export const DuelSelectionModal = ({
                     />
 
                     {/* Name and Type */}
-                    <div className="absolute bottom-3 left-3 right-3 z-20">
+                    <div className="absolute bottom-5 left-3 right-3 z-20">
                       <div className="flex items-center gap-1.5">
                         <div className="p-1 rounded bg-black/40 backdrop-blur-sm border border-white/5">
                           <TypeIcon type={monster.type} size={12} />
                         </div>
                         <p className="text-white text-[10px] font-black uppercase tracking-tight truncate drop-shadow-md">{monster.name}</p>
                       </div>
+                    </div>
+
+                    {/* XP Progress Bar */}
+                    <div className="absolute bottom-2 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20">
+                       <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(100, ((monster.totalXP || 0) / (monster.level * 250)) * 100)}%` }}
+                          className={cn(
+                            "h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]",
+                            monster.rarity === 'Legendární' ? "bg-amber-500" : 
+                            monster.rarity === 'Epická' ? "bg-purple-500" : 
+                            monster.rarity === 'Vzácná' ? "bg-blue-500" : "bg-primary"
+                          )}
+                       />
                     </div>
 
                     {/* Disabled Overlay */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer, UserPlus, Sparkles } from 'lucide-react';
+import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer, UserPlus, Sparkles, Sword } from 'lucide-react';
 import { cn } from '../../utils';
 
 import { Monster } from '../../types';
@@ -12,6 +12,8 @@ interface DailyQuestsProps {
   dailyDistance: number;
   onClaimReward: (xp: number) => void;
   isXPBoosted: boolean;
+  playerLevel: number;
+  dailyStats: { duels: number, epics: number, legendaries: number };
   referrals?: ReferralEntry[];
   onInvite: () => void;
   onHatch: (uid: string) => void;
@@ -23,6 +25,8 @@ export const DailyQuests = ({
   dailyDistance,
   onClaimReward,
   isXPBoosted,
+  playerLevel,
+  dailyStats,
   referrals = [],
   onInvite,
   onHatch,
@@ -112,7 +116,57 @@ export const DailyQuests = ({
       completed: (dailyDistance / 1000) >= 2.0,
       reward: 250
     },
-  ]
+    {
+      id: 4,
+      title: 'Vyzývatel',
+      desc: 'Vyzvi hráče na souboj',
+      progress: Math.min(dailyStats.duels, 1),
+      total: 1,
+      icon: Sword,
+      color: 'text-red-500',
+      bg: 'bg-red-500/10',
+      completed: dailyStats.duels >= 1,
+      reward: 400,
+      minLevel: 4
+    },
+    {
+      id: 5,
+      title: 'Lovec epiků',
+      desc: 'Poraž 3 epické nestvůry',
+      progress: Math.min(dailyStats.epics, 3),
+      total: 3,
+      icon: Sparkles,
+      color: 'text-orange-500',
+      bg: 'bg-orange-500/10',
+      completed: dailyStats.epics >= 3,
+      reward: 1200,
+      minLevel: 4,
+      requires: 1 // Efektivní lovec (Catch 5)
+    },
+    {
+      id: 6,
+      title: 'Legendární přemožitel',
+      desc: 'Poraž legendární nestvůru',
+      progress: Math.min(dailyStats.legendaries, 1),
+      total: 1,
+      icon: Trophy,
+      color: 'text-amber-500',
+      bg: 'bg-amber-500/10',
+      completed: dailyStats.legendaries >= 1,
+      reward: 2500,
+      minLevel: 6,
+      requires: 5 // Lovec epiků
+    }
+  ];
+
+  const visibleQuests = quests.filter(q => {
+    if (q.minLevel && playerLevel < q.minLevel) return false;
+    if (q.requires) {
+      const parent = quests.find(pq => pq.id === q.requires);
+      if (!parent || !parent.completed) return false;
+    }
+    return true;
+  });
 
   const { playLevelUp } = useGameSound();
 
@@ -134,7 +188,7 @@ export const DailyQuests = ({
           </div>
         </div>
         <div className="space-y-3">
-          {quests.map((quest, idx) => {
+          {visibleQuests.map((quest, idx) => {
             const Icon = quest.icon;
             return (
               <motion.div

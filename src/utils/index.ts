@@ -55,7 +55,37 @@ export const getMonsterMaxHP = (monster: any) => {
     }, 0);
   };
 
-  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items);
+  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items || []);
+};
+
+export const getMonsterAttack = (monster: any) => {
+  if (!monster || !monster.stats) return 10;
+  const base = monster.stats.attack || 10;
+  const minLvl = getMonsterMinLevel(monster.rarity || '');
+  const levelBonus = Math.floor(base * (monster.level - minLvl) * 0.1);
+  
+  const getEqBonus = (slots: (string | null)[]) => {
+    return (slots || []).reduce((acc: number, id: string | null) => {
+      if (id) {
+        const cfg = RESOURCE_CONFIG[id] as any;
+        if (cfg?.stats?.atk) {
+          return acc + (cfg.statsType === 'perc' ? Math.floor(base * (cfg.stats.atk / 100)) : cfg.stats.atk);
+        }
+      }
+      return acc;
+    }, 0);
+  };
+
+  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items || []);
+};
+
+export const formatLocation = (lat?: number, lng?: number) => {
+  if (lat === undefined || lng === undefined) return 'Neznámý Sektor';
+  // Simple sector logic based on coordinates
+  const sectorX = Math.floor(Math.abs(lat * 100) % 26);
+  const sectorY = Math.floor(Math.abs(lng * 100) % 26);
+  const letter = String.fromCharCode(65 + sectorX);
+  return `SEKTOR ${letter}-${sectorY}`;
 };
 
 export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect: string }> = {

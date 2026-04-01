@@ -539,7 +539,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -556,7 +556,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+5 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -573,7 +573,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+20 HP, +3 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+20 HP, +3 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -590,7 +590,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 HP, +2 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+10 HP, +2 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -607,7 +607,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+8 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+8 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -624,7 +624,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 ATK, +5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+5 ATK, +5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -641,7 +641,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+10 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -658,7 +658,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+10 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -675,7 +675,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+50 HP).",
+    "description": "Trvale vylepší tvé monstrum (+50 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -692,7 +692,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+100 HP).",
+    "description": "Trvale vylepší tvé monstrum (+100 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -709,7 +709,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+150 HP, +50 ATK, +5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+150 HP, +50 ATK, +5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -726,7 +726,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+4 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+4 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -743,7 +743,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+12 ATK, +-2 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+12 ATK, +-2 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -760,7 +760,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+100 HP).",
+    "description": "Trvale vylepší tvé monstrum (+100 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -777,7 +777,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+6 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+6 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -794,7 +794,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "color": "#94a3b8",
     "hasCustomIcon": true,
     "category": "relic",
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+10 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -811,7 +811,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 5,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+5 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -828,7 +828,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 5
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -845,7 +845,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+15 HP).",
+    "description": "Trvale vylepší tvé monstrum (+15 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -862,7 +862,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 8
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+8 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+8 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -879,7 +879,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 HP).",
+    "description": "Trvale vylepší tvé monstrum (+10 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -896,7 +896,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 HP).",
+    "description": "Trvale vylepší tvé monstrum (+5 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -913,7 +913,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 12
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+12 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+12 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -930,7 +930,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 6,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+6 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+6 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -947,7 +947,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 4,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+4 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+4 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -964,7 +964,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+8 HP).",
+    "description": "Trvale vylepší tvé monstrum (+8 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -981,7 +981,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 10
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+10 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -998,7 +998,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+20 HP).",
+    "description": "Trvale vylepší tvé monstrum (+20 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -1015,7 +1015,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 7,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+7 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+7 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -1032,7 +1032,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 0,
       "def": 5
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -1049,7 +1049,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 10,
       "def": 0
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+10 ATK).",
+    "description": "Trvale vylepší tvé monstrum (+10 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
@@ -1066,7 +1066,7 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
       "atk": 5,
       "def": 5
     },
-    "description": "[Relikvie] Trvale vylepší tvé monstrum (+5 HP, +5 ATK, +5 DEF).",
+    "description": "Trvale vylepší tvé monstrum (+5 HP, +5 ATK, +5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
