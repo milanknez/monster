@@ -50,6 +50,8 @@ interface SettingsModalProps {
   totalMonsters: number;
   onUpdateEmail?: (email: string) => void;
   lastSync: number | null;
+  isBatterySaver: boolean;
+  onToggleBatterySaver: () => void;
 }
 
 export const SettingsModal = ({ 
@@ -69,7 +71,9 @@ export const SettingsModal = ({
   caughtCount,
   totalMonsters,
   onUpdateEmail,
-  lastSync
+  lastSync,
+  isBatterySaver,
+  onToggleBatterySaver
 }: SettingsModalProps) => {
   const { isMuted, setIsMuted } = useSoundSystem();
   const [tempName, setTempName] = useState(playerName);
@@ -267,6 +271,12 @@ export const SettingsModal = ({
                       </div>
                       
                       <div className="space-y-3">
+                        <Toggle 
+                          label="Šetřič baterie (Méně přesná GPS)" 
+                          active={isBatterySaver} 
+                          onToggle={onToggleBatterySaver} 
+                          icon={<Shield size={14} className="text-primary" />}
+                        />
                         <Toggle 
                           label="Push notifikace" 
                           active={notifications} 

@@ -67,6 +67,7 @@ export interface WorldMapProps {
   activeMonster: Monster | null
   addToast?: (toast: { title: string; message: string; type: 'success' | 'info' | 'error' | 'boost' }) => void
   ignoreSpeedLimit?: boolean
+  isBatterySaver?: boolean
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -95,7 +96,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   onStartDuel,
   activeMonster,
   addToast,
-  ignoreSpeedLimit = false
+  ignoreSpeedLimit = false,
+  isBatterySaver = false
 }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -424,116 +426,106 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   useEffect(() => {
     if (!('geolocation' in navigator) || !mapRef.current) return
 
-    const watchId = navigator.geolocation.watchPosition((pos) => {
-      const { latitude: lat, longitude: lng } = pos.coords
-      if (!isFinite(lat) || !isFinite(lng)) return
-      const now = Date.now()
-      if (lastPosRef.current && lastPosTimeRef.current) {
-        const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
-        const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
-        
-        // Use GPS raw speed if available, otherwise calculate from distance
-        const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined) 
-           ? pos.coords.speed 
-           : (timeDiff > 0 ? traveled / timeDiff : 0)
-        
-        // Speed Lock: 25 km/h = ~7 m/s
-        if (!ignoreSpeedLimit && speed > 7 && traveled > 10) { 
-           setIsTooFast(true) 
-        } else if (ignoreSpeedLimit || speed < 5) { // Needs to slow down a lot to unlock
-           setIsTooFast(false)
+    let watchId: number | null = null;
+
+    const startWatching = () => {
+      if (watchId !== null) return;
+      watchId = navigator.geolocation.watchPosition((pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords
+        if (!isFinite(lat) || !isFinite(lng)) return
+        const now = Date.now()
+        if (lastPosRef.current && lastPosTimeRef.current) {
+          const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
+          const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
+          
+          const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined) 
+             ? pos.coords.speed 
+             : (timeDiff > 0 ? traveled / timeDiff : 0)
+          
+          if (!ignoreSpeedLimit && speed > 7 && traveled > 10) { 
+             setIsTooFast(true) 
+          } else if (ignoreSpeedLimit || speed < 5) {
+             setIsTooFast(false)
+          }
+
+          if (traveled >= 4 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
+        }
+        lastPosRef.current = [lat, lng]
+        lastPosTimeRef.current = now
+        setPlayerPos([lat, lng]); setStatusMsg('')
+
+        if (!playerMarkerRef.current) {
+          playerMarkerRef.current = L.marker([lat, lng], {
+            icon: makePlayerIcon(),
+            zIndexOffset: 1000,
+            interactive: true
+          }).addTo(mapRef.current!)
+
+          mapRef.current!.setView([lat, lng], 17)
+        } else {
+          playerMarkerRef.current.setLatLng([lat, lng])
+          if (isAutoCenterRef.current && mapRef.current) {
+            isInternalMoveRef.current = true
+            mapRef.current.panTo([lat, lng], { animate: true })
+          }
         }
 
-        if (traveled >= 4 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
-      }
-      lastPosRef.current = [lat, lng]
-      lastPosTimeRef.current = now
-      setPlayerPos([lat, lng]); setStatusMsg('')
+        const cooldowns = loadCooldowns()
+        const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
+        const commonRes = generateResources(lat, lng, cooldowns)
 
-      if (!playerMarkerRef.current) {
-        playerMarkerRef.current = L.marker([lat, lng], {
-          icon: makePlayerIcon(),
-          zIndexOffset: 1000,
-          interactive: true
-        }).addTo(mapRef.current!)
+        setSpawns(prev => {
+          const pois = prev.filter(p => 
+            (p.rarity !== 'common' || p.id.startsWith('dev_') || p.id.startsWith('custom_') || p.id.startsWith('cheat_')) 
+            && haversineM(lat, lng, p.lat, p.lng) < 2000
+          ).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }));
 
-        // --- Cheat: 6x click spawns random monster ---
-        let cheatClicks = 0;
-        let cheatTimeout: any = null;
-        playerMarkerRef.current.on('click', (e: L.LeafletMouseEvent) => {
-          L.DomEvent.stopPropagation(e);
-          cheatClicks++;
-          if (cheatTimeout) clearTimeout(cheatTimeout);
-          cheatTimeout = setTimeout(() => { cheatClicks = 0; }, 5000);
-
-          if (cheatClicks >= 6) {
-            cheatClicks = 0;
-            const randomM = monsterDB[Math.floor(Math.random() * monsterDB.length)];
-            const offsetLat = (Math.random() - 0.5) * 0.00006;
-            const offsetLng = (Math.random() - 0.5) * 0.00006;
-            setSpawns(prev => [
-              ...prev,
-              {
-                id: 'cheat_' + Date.now(),
-                lat: lat + offsetLat,
-                lng: lng + offsetLng,
-                rarity: 'common',
-                monsterId: randomM.id,
-                level: playerLevel,
-                caught: false
-              }
-            ]);
-            addToast?.({
-              title: 'Cheat aktivován',
-              message: 'Divoké monstrum se objevilo u tebe!',
-              type: 'success'
-            });
-          }
+          const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 20);
+          return [...optimizedCommon, ...pois];
         });
 
-        mapRef.current!.setView([lat, lng], 17)
-      } else {
-        playerMarkerRef.current.setLatLng([lat, lng])
-        if (isAutoCenterRef.current && mapRef.current) {
-          isInternalMoveRef.current = true
-          mapRef.current.panTo([lat, lng], { animate: true })
-        }
-      }
+        setResources(prev => {
+          const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
+          const optimizedRes = optimizeSpawns(commonRes, buildingsRef.current, pois, 35, 20)
+          return [...optimizedRes, ...pois]
+        })
 
-      const cooldowns = loadCooldowns()
-      const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
-      const commonRes = generateResources(lat, lng, cooldowns)
-
-      setSpawns(prev => {
-        // Keep non-common monsters OR monsters spawned by dev tools (dev_, custom_, cheat_)
-        const pois = prev.filter(p => 
-          (p.rarity !== 'common' || p.id.startsWith('dev_') || p.id.startsWith('custom_') || p.id.startsWith('cheat_')) 
-          && haversineM(lat, lng, p.lat, p.lng) < 2000
-        ).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }));
-
-        const optimizedCommon = optimizeSpawns(commonMonsters, buildingsRef.current, pois, 35, 20);
-        return [...optimizedCommon, ...pois];
-      });
-
-      setResources(prev => {
-        const pois = prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }))
-        // Aplikace přesunu + 20m rozestupu
-        const optimizedRes = optimizeSpawns(commonRes, buildingsRef.current, pois, 35, 20)
-        return [...optimizedRes, ...pois]
+        if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
+        overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
+      }, (err) => {
+        setStatusMsg('GPS nedostupná');
+        console.warn("Geolocation watch error:", err);
+      }, { 
+        enableHighAccuracy: !isBatterySaver,
+        maximumAge: isBatterySaver ? 5000 : 1000,
+        timeout: 10000 
       })
+    };
 
-      if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
-      overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
-    }, (err) => {
-      setStatusMsg('GPS nedostupná');
-      console.warn("Geolocation watch error:", err);
-    }, { enableHighAccuracy: true })
+    const stopWatching = () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopWatching();
+      } else {
+        startWatching();
+      }
+    };
+
+    startWatching();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      stopWatching();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current);
     }
-  }, [onDistanceUpdate]) // REMOVED isAutoCenter from dependencies
+  }, [onDistanceUpdate, isBatterySaver, ignoreSpeedLimit])
 
   useEffect(() => {
     if (!playerPos || !mapRef.current) return

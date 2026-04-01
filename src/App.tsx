@@ -110,6 +110,7 @@ function AppContent() {
     } catch { }
     return [1, 2, 3]; // Základní úkoly
   });
+  const [isBatterySaver, setIsBatterySaver] = useState(() => localStorage.getItem('monster_battery_saver') === 'true')
 
   const handleAvatarClick = () => {
     const now = Date.now();
@@ -1126,6 +1127,7 @@ function AppContent() {
                   }}
                   addToast={addToast}
                   ignoreSpeedLimit={isSpeedLimitDisabled}
+                  isBatterySaver={isBatterySaver}
                 />
               )}
 
@@ -1190,6 +1192,12 @@ function AppContent() {
             caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
             totalMonsters={monsterDB.length}
             lastSync={lastSync}
+            isBatterySaver={isBatterySaver}
+            onToggleBatterySaver={() => {
+              const newVal = !isBatterySaver;
+              setIsBatterySaver(newVal);
+              localStorage.setItem('monster_battery_saver', String(newVal));
+            }}
             onLogin={async () => {
               try {
                 const user = await signInWithGoogle();
