@@ -1,0 +1,28 @@
+{
+  "id": "098",
+  "name": "Kostičkový Opravář",
+  "description": "Oživlá stavebnicová figurka se žlutou kůží, které místo jedné ruky vyrostl obří hydraulický klíč. Její tělo je poskládané z náhodných barevných kostek a z prasklin unikají nebezpečné elektrické výboje.",
+  "type": "Elektrická",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 360,
+    "attack": 140,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Utažení matky",
+      "description": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.95
+    },
+    {
+      "name": "Odpálený kondenzátor",
+      "description": "Vystřelí salvu jisker, které dočasně zvýší jeho útočnou sílu i rychlost.",
+      "type": "buff",
+      "chance": 70,
+      "value": 0.4
+    }
+  ]
+}

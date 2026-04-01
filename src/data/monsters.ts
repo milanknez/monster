@@ -1,3 +1,5 @@
+import monster098 from './monsters/098.json';
+import monster097 from './monsters/097.json';
 import monster096 from './monsters/096.json';
 import monster095 from './monsters/095.json';
 import monster094 from './monsters/094.json';
@@ -96,6 +98,8 @@ import monster071 from './monsters/071.json';
 import monster072 from './monsters/072.json';
 
 export const monsterDB = [
+  monster098,
+  monster097,
   monster096,
   monster095,
   monster094,

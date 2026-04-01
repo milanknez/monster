@@ -1,0 +1,28 @@
+{
+  "id": "097",
+  "name": "Zoubková víla",
+  "description": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 950,
+    "attack": 210,
+    "defense": 110
+  },
+  "abilities": [
+    {
+      "name": "Totální extrakce",
+      "description": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
+      "type": "attack",
+      "chance": 85,
+      "value": 3.0
+    },
+    {
+      "name": "Prokletí bezzubých",
+      "description": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
+      "type": "curse",
+      "chance": 80,
+      "value": 0.5
+    }
+  ]
+}
