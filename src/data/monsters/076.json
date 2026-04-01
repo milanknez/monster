@@ -3,13 +3,11 @@
   "name": "Popelavý Soptík",
   "type": "Ohnivá",
   "rarity": "Běžná",
-  "description": "Dětinská ještěrka žijící v popelu poblíž sopek.",
+  "description": "Oheň milující mlok žijící v popelu poblíž sopek.",
   "stats": {
     "hp": 153,
     "attack": 45,
-    "defense": 13,
-    "speed": 10,
-    "magic": 8
+    "defense": 13
   },
   "abilities": [
     {

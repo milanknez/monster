@@ -6,10 +6,8 @@
   "description": "Brouk s velmi tvrdým krunýřem z chladnoucí magmy.",
   "stats": {
     "hp": 148,
-    "attack": 35,
-    "defense": 13,
-    "speed": 6,
-    "magic": 8
+    "attack": 25,
+    "defense": 43
   },
   "abilities": [
     {

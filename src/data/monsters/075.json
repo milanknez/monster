@@ -1,6 +1,6 @@
 {
   "id": "075",
-  "name": "Žhavý Ježek",
+  "name": "Pyrožek teplomyl",
   "type": "Ohnivá",
   "rarity": "Běžná",
   "description": "Drobný bodlináč, jehož bodliny jsou ve skutečnosti drobné rozpálené uhlíky. Rád se schovává v ohništích.",
@@ -21,7 +21,7 @@
       "name": "Žhavý krunýř",
       "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění.",
       "type": "defense",
-      "chance": 60,
+      "chance": 80,
       "value": 0.3
     }
   ]

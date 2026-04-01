@@ -1,15 +1,13 @@
 {
   "id": "077",
-  "name": "Jiskřivý Netopýr",
+  "name": "Flarbat Ohnivák",
   "type": "Ohnivá",
   "rarity": "Běžná",
   "description": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
   "stats": {
     "hp": 122,
     "attack": 40,
-    "defense": 21,
-    "speed": 16,
-    "magic": 12
+    "defense": 21
   },
   "abilities": [
     {
