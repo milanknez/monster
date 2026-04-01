@@ -1,0 +1,28 @@
+{
+  "id": "091",
+  "name": "Pizza Inferno",
+  "description": "Zuhelnatělý trojúhelník pizzy s pepperoni očima, které vás neustále sledují. Místo sýra po ní stéká vařící láva a z okraje trčí kosti.",
+  "type": "Ohnivá",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 370,
+    "attack": 140,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Lávový déšť",
+      "description": "Potřísní nepřítele vařícím sýrem a lávou z povrchu.",
+      "type": "attack",
+      "chance": 75,
+      "value": 2.15
+    },
+    {
+      "name": "Lávová aura",
+      "description": "Rozžhaví sýr na svém povrchu, což zvýší sílu ohnivých útoků po zbytek boje.",
+      "type": "buff",
+      "chance": 70,
+      "value": 0.35
+    }
+  ]
+}

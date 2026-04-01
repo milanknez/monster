@@ -1,0 +1,28 @@
+{
+  "id": "085",
+  "name": "Energetický Brokolit",
+  "description": "Temná zmutovaná brokolice se zubatými okraji a mnoha žlutýma očima, které sledují každý váš pohyb. Její stonky jiskří smrtící elektřinou.",
+  "type": "Elektrická",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 380,
+    "attack": 125,
+    "defense": 55
+  },
+  "abilities": [
+    {
+      "name": "Jehličnatý výboj",
+      "description": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.9
+    },
+    {
+      "name": "Bleskové ochromení",
+      "description": "Vysílá vlny statické elektřiny, které oslabují svaly a snižují sílu útoku nepřítele.",
+      "type": "curse",
+      "chance": 65,
+      "value": 0.3
+    }
+  ]
+}

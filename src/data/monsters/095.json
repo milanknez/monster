@@ -1,0 +1,28 @@
+{
+  "id": "095",
+  "name": "Banánový Bumerang",
+  "description": "Přezrálý banán s velkým podlitým okem uprostřed. Jeho okraje jsou ostré jako břitva a jeho slupky připomínají dravčí pařáty.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 330,
+    "attack": 150,
+    "defense": 45
+  },
+  "abilities": [
+    {
+      "name": "Seknutí slupkou",
+      "description": "Rychle zaútočí ostrými okraji slupek, které způsobují krvácení.",
+      "type": "attack",
+      "chance": 85,
+      "value": 2.1
+    },
+    {
+      "name": "Nabroušení slupek",
+      "description": "Zpevní své okraje na úroveň diamantu, čímž extrémně zvýší poškození příštích útoků.",
+      "type": "buff",
+      "chance": 65,
+      "value": 0.45
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "094",
+  "name": "Mutagenní Mrkev",
+  "description": "Zkroucený kořen, který se vertikálně rozestoupil, aby vytvořil tlamu plnou nepravidelných tesáků. Její listy se změnily v mrštné pařáty.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 390,
+    "attack": 135,
+    "defense": 55
+  },
+  "abilities": [
+    {
+      "name": "Kořenové sevření",
+      "description": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny.",
+      "type": "attack",
+      "chance": 80,
+      "value": 2.0
+    },
+    {
+      "name": "Půdní infuze",
+      "description": "Zaboří kořeny do země a okamžitě načerpá minerály pro bleskové vyléčení ran.",
+      "type": "heal",
+      "chance": 70,
+      "value": 150
+    }
+  ]
+}

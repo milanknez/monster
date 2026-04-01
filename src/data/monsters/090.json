@@ -1,0 +1,28 @@
+{
+  "id": "090",
+  "name": "Kapající Kobliha",
+  "description": "Plesnivý donut s pavoučíma nohama z tuhého těsta. Uprostřed má temný vodní vír, který do sebe vtahuje vše živé.",
+  "type": "Vodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 400,
+    "attack": 115,
+    "defense": 70
+  },
+  "abilities": [
+    {
+      "name": "Abysvální sirup",
+      "description": "Vystříkne lepkavou temnou polevu, která pohlcuje životní sílu.",
+      "type": "attack",
+      "chance": 70,
+      "value": 1.8
+    },
+    {
+      "name": "Cukrová regenerace",
+      "description": "Nasává sladkou polevu zpět do svých ran, čímž si obnovuje ztracené zdraví.",
+      "type": "regen",
+      "chance": 80,
+      "value": 0.1
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "087",
+  "name": "Plazmový Meloun",
+  "description": "Rozšklebený meloun, v jehož nitru pulzuje fialové plazma. Místo sladké dužiny má tlamu plnou černých semen ostrých jako břitva.",
+  "type": "Elektrická",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 450,
+    "attack": 110,
+    "defense": 65
+  },
+  "abilities": [
+    {
+      "name": "Plazmová exploze",
+      "description": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
+      "type": "attack",
+      "chance": 70,
+      "value": 2.0
+    },
+    {
+      "name": "Plazmová obnova",
+      "description": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví.",
+      "type": "regen",
+      "chance": 65,
+      "value": 0.15
+    }
+  ]
+}

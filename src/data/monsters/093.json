@@ -1,0 +1,28 @@
+{
+  "id": "093",
+  "name": "Vulkanický Párek",
+  "description": "Rozšklebený, rudě žhnoucí párek se stovkami nožiček jako stonožka. Po celé délce má řadu ostrých uhelných zubů a kape z něj lávový kečup.",
+  "type": "Ohnivá",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 420,
+    "attack": 120,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Uzený šleh",
+      "description": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.85
+    },
+    {
+      "name": "Žíravá uzenost",
+      "description": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu.",
+      "type": "curse",
+      "chance": 80,
+      "value": 0.4
+    }
+  ]
+}

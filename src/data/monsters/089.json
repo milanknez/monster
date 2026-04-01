@@ -1,0 +1,28 @@
+{
+  "id": "089",
+  "name": "Ledová Tříšťka",
+  "description": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
+  "type": "Vodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 320,
+    "attack": 155,
+    "defense": 40
+  },
+  "abilities": [
+    {
+      "name": "Mrazivý řez",
+      "description": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
+      "type": "attack",
+      "chance": 85,
+      "value": 2.2
+    },
+    {
+      "name": "Hluboké zmrazení",
+      "description": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
+      "type": "curse",
+      "chance": 65,
+      "value": 0.35
+    }
+  ]
+}

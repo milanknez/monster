@@ -1,0 +1,28 @@
+{
+  "id": "092",
+  "name": "Chilli Raketa",
+  "description": "Vysušená červená paprička s tváří plnou jehličnatých zubů. Z jejího konce šlehá neutichající ohnivý proud, který ji pohání vpřed jako střelu.",
+  "type": "Ohnivá",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 310,
+    "attack": 160,
+    "defense": 35
+  },
+  "abilities": [
+    {
+      "name": "Kapsaicinový náraz",
+      "description": "Narazí do nepřítele v plné rychlosti a vyvolá ohnivou explozi.",
+      "type": "attack",
+      "chance": 85,
+      "value": 2.4
+    },
+    {
+      "name": "Adrenalinový žár",
+      "description": "Vstříkne do herního pole pálivý koncentrát, který zvýší jeho rychlost a dravost.",
+      "type": "buff",
+      "chance": 75,
+      "value": 0.3
+    }
+  ]
+}

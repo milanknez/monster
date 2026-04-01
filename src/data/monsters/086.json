@@ -1,0 +1,28 @@
+{
+  "id": "086",
+  "name": "Statický Toast",
+  "description": "Zuhelnatělý kus toustu, který se probral k životu s neuhasitelným hladem. Jeho široká tlama je plná ostrých spálených drobků.",
+  "type": "Elektrická",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 340,
+    "attack": 145,
+    "defense": 45
+  },
+  "abilities": [
+    {
+      "name": "Vysokonapěťový stisk",
+      "description": "Zakousne se do nepřítele a pustí do něj silný elektrický proud.",
+      "type": "attack",
+      "chance": 80,
+      "value": 2.1
+    },
+    {
+      "name": "Křupavé nabití",
+      "description": "Pohltí statickou elektřinu z okolí a dočasně drasticky zvýší svou útočnou sílu.",
+      "type": "buff",
+      "chance": 70,
+      "value": 0.4
+    }
+  ]
+}

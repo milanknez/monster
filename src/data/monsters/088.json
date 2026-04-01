@@ -1,0 +1,28 @@
+{
+  "id": "088",
+  "name": "Chapadlová Rolka",
+  "description": "Kousek sushi, který odmítl být sněden. Z rýže vyrašila slizká chapadla s ostny a syrový losos na vrchu začal sledovat okolí lidským okem.",
+  "type": "Vodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 360,
+    "attack": 130,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Injekce wasabi",
+      "description": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.95
+    },
+    {
+      "name": "Slizká past",
+      "description": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele.",
+      "type": "curse",
+      "chance": 75,
+      "value": 0.4
+    }
+  ]
+}

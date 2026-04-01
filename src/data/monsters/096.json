@@ -1,0 +1,28 @@
+{
+  "id": "096",
+  "name": "Květákový Král",
+  "description": "Bledý mutantní květák, jehož povrch připomíná lidský mozek. Skrývá v sobě desítky malých zubatých tlam a jeho listy jsou ostré jako pily.",
+  "type": "Přírodní",
+  "rarity": "Epická",
+  "stats": {
+    "hp": 480,
+    "attack": 105,
+    "defense": 75
+  },
+  "abilities": [
+    {
+      "name": "Parazitární spóry",
+      "description": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
+      "type": "attack",
+      "chance": 75,
+      "value": 1.7
+    },
+    {
+      "name": "Mozková mlha",
+      "description": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku.",
+      "type": "curse",
+      "chance": 75,
+      "value": 0.35
+    }
+  ]
+}
