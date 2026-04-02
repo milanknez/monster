@@ -103,7 +103,7 @@ export function useMonsters(addToast: (toast: any) => void) {
     setCaughtMonsters(prev => [enriched, ...prev])
     
     if (shouldGiveXP) {
-      onGiveXP(250)
+      onGiveXP(150)
       addToast({
         title: 'Monstrum chyceno',
         message: `${monster.name} chycen!`,

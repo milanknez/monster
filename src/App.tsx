@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw, Sword } from 'lucide-react'
+import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw, Sword, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { TutorialOverlay, BATTLE_TUTORIAL_STEPS, HOME_TUTORIAL_STEPS, WORLD_TUTORIAL_STEPS, COLLECTION_TUTORIAL_STEPS, INVENTORY_TUTORIAL_STEPS, CODEX_TUTORIAL_STEPS } from './components/battle/TutorialOverlay'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
 import { cn, getTotalXPForLevel } from './utils'
@@ -98,6 +99,8 @@ function AppContent() {
   })
 
   const [isDebugMode, setIsDebugMode] = useState(false)
+  const [curTutorialStep, setCurTutorialStep] = useState(0)
+  const [tutorialType, setTutorialType] = useState<'home' | 'world' | 'collection' | 'inventory' | 'codex' | null>(null)
   const [avatarClickCount, setAvatarClickCount] = useState(0)
   const [lastAvatarClick, setLastAvatarClick] = useState(0)
   const [unlockedQuests, setUnlockedQuests] = useState<number[]>(() => {
@@ -204,7 +207,7 @@ function AppContent() {
         const saved = localStorage.getItem('monster_collector_xp')
         if (saved !== null) return parseInt(saved)
         const caught = localStorage.getItem('monster_collector_caught')
-        if (caught) return JSON.parse(caught).length * 250
+        if (caught) return JSON.parse(caught).length * 150
       } catch { return 0 }
       return 0
     })(),
@@ -534,6 +537,26 @@ function AppContent() {
       }));
     }
   }, [currentLevel, dailyStats, caughtMonsters, unlockedQuests, addToast]);
+  
+  // --- TUTORIAL TRIGGERS ---
+  useEffect(() => {
+    // 1. Based on specific tab visibility AND profile completion
+    if (!playerName) return; // Wait for name setup
+
+    if (activeTab === 'home' && !localStorage.getItem('monster_tutorial_home_done') && !tutorialType) {
+      setTutorialType('home');
+      setCurTutorialStep(0);
+    } else if (activeTab === 'world' && !localStorage.getItem('monster_tutorial_world_done') && !tutorialType) {
+      setTutorialType('world');
+      setCurTutorialStep(0);
+    } else if (activeTab === 'inventory' && !localStorage.getItem('monster_tutorial_inventory_done') && !tutorialType) {
+      setTutorialType('inventory');
+      setCurTutorialStep(0);
+    } else if ((activeTab === 'vault' || activeTab === 'codex') && !localStorage.getItem('monster_tutorial_collection_done') && !tutorialType) {
+      setTutorialType('collection');
+      setCurTutorialStep(0);
+    }
+  }, [activeTab, tutorialType, playerName]);
 
   const handleMove = useCallback((lat: number, lng: number, meters: number) => {
     setCurrentPosition({ lat, lng });
@@ -808,6 +831,7 @@ function AppContent() {
             inventory={inventory.filter(i => i !== null) as any}
             isInventoryFull={inventory.every(i => i !== null)}
             xpMultiplier={activeBoosts.find(b => b.type === 'xp_boost' && b.expiresAt > Date.now())?.multiplier || 1}
+            isTutorial={!localStorage.getItem('monster_tutorial_done')}
             onUseItem={(type) => {
               const cfg = RESOURCE_CONFIG[type];
               if (!cfg) return;
@@ -838,6 +862,7 @@ function AppContent() {
               }
             }}
             onWin={(xp, loot) => {
+              localStorage.setItem('monster_tutorial_done', 'true');
               if (activeBattle?.spawnId) {
                 (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
               }
@@ -859,6 +884,7 @@ function AppContent() {
               setActiveTab('world');
             }}
             onCatch={(monster, xp, spawnId) => {
+              localStorage.setItem('monster_tutorial_done', 'true');
               if (activeBattle?.spawnId || spawnId) {
                 (window as any).markMonsterAsCaught?.(activeBattle?.spawnId || spawnId);
               }
@@ -1386,6 +1412,39 @@ function AppContent() {
           price: payingItem?.price || ''
         }}
       />
+
+      <AnimatePresence>
+        {tutorialType && (
+          <TutorialOverlay 
+            step={curTutorialStep}
+            steps={
+              tutorialType === 'home' ? HOME_TUTORIAL_STEPS :
+              tutorialType === 'world' ? WORLD_TUTORIAL_STEPS :
+              tutorialType === 'collection' ? COLLECTION_TUTORIAL_STEPS :
+              tutorialType === 'inventory' ? INVENTORY_TUTORIAL_STEPS :
+              tutorialType === 'codex' ? CODEX_TUTORIAL_STEPS :
+              []
+            }
+            onNext={() => {
+              const mapping: any = { 
+                home: HOME_TUTORIAL_STEPS, 
+                world: WORLD_TUTORIAL_STEPS, 
+                collection: COLLECTION_TUTORIAL_STEPS, 
+                inventory: INVENTORY_TUTORIAL_STEPS,
+                codex: CODEX_TUTORIAL_STEPS
+              };
+              const steps = mapping[tutorialType as any] || [];
+              if (curTutorialStep < steps.length - 1) {
+                setCurTutorialStep(p => p + 1);
+              } else {
+                localStorage.setItem(`monster_tutorial_${tutorialType}_done`, 'true');
+                setTutorialType(null);
+                setCurTutorialStep(0);
+              }
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       <ToastContainer
         toasts={toasts}

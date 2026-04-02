@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TutorialOverlay } from './TutorialOverlay';
 import { 
   Sword, Shield as ShieldIcon, Zap, Sparkles, X, Wand2, 
   FlaskConical, Trophy, Package, ChevronRight, Smile, 
@@ -310,7 +311,7 @@ const getFinalStats = (m: Monster) => {
 export const Battle = ({
   playerMonster, enemyMonster, opponentName, incomingEmote, pvpRole, 
   incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem, 
-  onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster
+  onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster, isTutorial
 }: {
   playerMonster: Monster, enemyMonster: Monster, opponentName?: string, 
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
@@ -323,8 +324,9 @@ export const Battle = ({
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
   onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void,
-  isNewMonster?: boolean
+  isNewMonster?: boolean, isTutorial?: boolean
 }) => {
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [screenShake, setScreenShake] = useState(false);
@@ -344,6 +346,10 @@ export const Battle = ({
   const [itemUsedInTurn, setItemUsedInTurn] = useState(false);
   const [turnTime, setTurnTime] = useState(50);
 
+  // Tutorial phase is purely informational at the start now
+  const isTutorialActive = isTutorial && tutorialStep < 9;
+  const isTutorialPaused = isTutorialActive;
+
   const { 
     playAttack, playHit, playCritical, playHeal, playSlash,
     playVictory, playDefeat, playDeath, playCatch, playClick,
@@ -361,7 +367,7 @@ export const Battle = ({
 
   // --- Turn Timer ---
   useEffect(() => {
-    if (showLoot || playerAnim !== 'idle' || enemyAnim !== 'idle') return;
+    if (showLoot || playerAnim !== 'idle' || enemyAnim !== 'idle' || isTutorialActive) return;
     const timer = setInterval(() => {
       setTurnTime(prev => {
         if (prev <= 1) {
@@ -375,14 +381,14 @@ export const Battle = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [showLoot, turn, playerAnim, enemyAnim]);
+  }, [showLoot, turn, playerAnim, enemyAnim, isTutorialActive, isTutorialPaused]);
 
   useEffect(() => {
     setTurnTime(pvpRole ? 50 : 30);
   }, [turn, pvpRole]);
 
   const playerMaxHP = getMonsterMaxHP(playerMonster);
-  const enemyMaxHP = getMonsterMaxHP(enemyMonster);
+  const enemyMaxHP = isTutorial ? Math.round(getMonsterMaxHP(enemyMonster) / 2) : getMonsterMaxHP(enemyMonster);
   const [playerHP, setPlayerHP] = useState<number>(playerMonster.currentHP ?? playerMaxHP);
   const [enemyHP, setEnemyHP] = useState<number>(enemyMonster.currentHP ?? enemyMaxHP);
   const [playerEnergy, setPlayerEnergy] = useState<number>(20);
@@ -415,6 +421,10 @@ export const Battle = ({
 
   const calculateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const s = getFinalStats(attacker), d = getFinalStats(defender);
+
+    if (isTutorial && attacker === enemyMonster) { s.total.atk *= 0.5; }
+    if (isTutorial && defender === enemyMonster) { d.total.def *= 0.5; }
+
     const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
     
     // Normal attack multiplier is 0.8
@@ -451,6 +461,10 @@ export const Battle = ({
 
   const estimateDamage = useCallback((attacker: Monster, defender: Monster, isSkill = false, abilityIdx: number = -1) => {
     const s = getFinalStats(attacker), d = getFinalStats(defender);
+
+    if (isTutorial && attacker === enemyMonster) { s.total.atk *= 0.5; }
+    if (isTutorial && defender === enemyMonster) { d.total.def *= 0.5; }
+
     const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
     
     // Normal attack multiplier is 0.8
@@ -481,6 +495,13 @@ export const Battle = ({
     if (isSkill && playerEnergy < cost) return;
     setShowSkills(false);
     setShowItems(false);
+    
+    // Tutorial progress
+    if (isTutorial) {
+      if (tutorialStep === 3) setTutorialStep(4);
+      else if (tutorialStep === 4) setTutorialStep(5);
+    }
+
     setPlayerAnim('attack');
     if (isSkill) {
       if (ability?.type !== 'attack') playSpell();
@@ -524,26 +545,36 @@ export const Battle = ({
         setTimeout(() => playSlash(), 700);
       }
       else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 0.1 }]); dmg = 0; addLog("Aktivována regenerace!"); }
-      if (dmg > 0) { 
-        setEnemyHP(p => Math.max(0, p - dmg)); 
-        setEnemyAnim('hit'); 
-        addPopup(dmg, true, res); 
-        triggerShake(res.isCrit || isSkill);
-        
-        if (res.isCrit) playCritical();
-        else playHit();
-        
-        if (res.isEffective && Math.random() < 0.6) {
-           if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Nepřítel byl zapálen!"); }
-           else if (playerMonster.type === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog("Nepřítel byl zpomalen!"); }
-           else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Nepřítel byl ochromen!"); }
+
+      // Tutorial logic: Prevent death, force 1 HP
+      if (isTutorial && enemyHP - dmg <= 0) {
+        setEnemyHP(0);
+        if (tutorialStep < 6) {
+          setTutorialStep(6); // Move to Catching step
+          setTurn('player'); // Force player turn for catching
         }
+      } else if (dmg > 0) {
+        setEnemyHP(p => Math.max(0, p - dmg));
+      }
+
+      setEnemyAnim('hit'); 
+      addPopup(dmg, true, res); 
+      triggerShake(res.isCrit || isSkill);
+        
+      if (res.isCrit) playCritical();
+      else playHit();
+      
+      if (res.isEffective && Math.random() < 0.6) {
+         if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Nepřítel byl zapálen!"); }
+         else if (playerMonster.type === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog("Nepřítel byl zpomalen!"); }
+         else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Nepřítel byl ochromen!"); }
       }
       setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
       if (pvpRole && onSendAttack) onSendAttack({ ...res, isSkill });
       setTimeout(() => {
         setEnemyAnim('idle'); setPlayerAnim('idle');
-        if (enemyHP - dmg <= 0) { 
+        const wouldDie = enemyHP - dmg <= 0;
+        if (wouldDie) { 
           playDeath();
           setEnemyAnim('lose'); 
           setPlayerAnim('win'); 
@@ -635,7 +666,8 @@ export const Battle = ({
   };
 
   const executeCatch = () => {
-    if (turn !== 'player' || playerAnim !== 'idle' || enemyHP <= 0 || catchAnim) return;
+    if (turn !== 'player' || playerAnim !== 'idle' || catchAnim) return;
+    if (enemyHP <= 0) return;
     setCatchAnim(true);
     setTimeout(() => {
        const hpRatio = enemyHP / enemyMaxHP;
@@ -657,7 +689,8 @@ export const Battle = ({
   };
 
   useEffect(() => {
-    if (turn === 'enemy' && enemyHP > 0 && playerHP > 0 && !pvpRole && !npcAttackTriggeredRef.current) {
+    // PAUSE NPC turn logic during tutorial if we are showing information
+    if (turn === 'enemy' && enemyHP > 0 && playerHP > 0 && !pvpRole && !npcAttackTriggeredRef.current && !isTutorialPaused) {
       npcAttackTriggeredRef.current = true;
       const timer = setTimeout(() => {
         if (enemyEffects.some(e => e.type === 'paralyze')) {
@@ -740,7 +773,7 @@ export const Battle = ({
       }, 1500); // Shorter delay for better flow
       return () => clearTimeout(timer);
     }
-  }, [turn, pvpRole]); // SIGNIFICANTLY REDUCED DEPENDENCIES to prevent cancellation by passive regen
+  }, [turn, pvpRole, isTutorialPaused]); // Added isTutorialPaused to resume combat after tutorial
 
 
   const lastAttackTime = useRef<number>(0);
@@ -811,7 +844,7 @@ export const Battle = ({
 
          {/* ENEMY (TOP RIGHT) */}
          <div className="absolute top-[6%] right-[6%] flex flex-col items-end w-full max-w-[180px] z-20">
-            <div className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1 relative">
+            <div id="tutorial-enemy-stats" className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1 relative">
                <RarityBadge rarity={enemyMonster.rarity || ''} />
                <div className="flex justify-between items-center mb-1">
                  <div className="flex items-center gap-1.5"><TypeIcon type={enemyMonster.type} /><span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span></div>
@@ -931,7 +964,7 @@ export const Battle = ({
                <img src={playerMonster.image || `/monsters/${playerMonster.id}.png`} className="w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2" />
                <PopupLayer popups={popups.filter(p => p.isPlayerSide)} />
             </motion.div>
-            <div className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
+             <div id="tutorial-player-stats" className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
                <RarityBadge rarity={playerMonster.rarity || ''} />
                <div className="flex justify-between items-center whitespace-nowrap overflow-visible">
                   <div className="flex items-center gap-1.5 min-w-0"><TypeIcon type={playerMonster.type} /><span className="text-[12px] font-black text-white uppercase truncate">{playerMonster.name}</span></div>
@@ -964,7 +997,7 @@ export const Battle = ({
                    <EffectBadges effects={playerEffects} />
                 </div>
                 {/* Timer for Player turn */}
-                {turn === 'player' && (
+                {turn === 'player' && !isTutorial && (
                   <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="absolute -right-16 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5">
                     <div className="relative">
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
@@ -986,6 +1019,7 @@ export const Battle = ({
         <div className="grid grid-cols-4 gap-3">
            {/* Attack */}
            <motion.button 
+             id="tutorial-attack"
              whileTap={{ scale: 0.94, y: 4 }} 
              onClick={() => executeAttack(-1)} 
              disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
@@ -1044,6 +1078,7 @@ export const Battle = ({
                 ) 
               })}</div></motion.div>}</AnimatePresence>
               <motion.button 
+                id="tutorial-skills"
                 whileTap={{ scale: 0.94, y: 4 }} 
                 onClick={() => { setShowSkills(!showSkills); setShowItems(false); }} 
                 disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
@@ -1102,6 +1137,7 @@ export const Battle = ({
                 )}
               </AnimatePresence>
               <motion.button 
+                id="tutorial-inventory"
                 whileTap={!(turn !== 'player' || playerAnim !== 'idle' || catchAnim || itemUsedInTurn) ? { scale: 0.94, y: 4 } : {}} 
                 onClick={() => { setShowItems(!showItems); setShowSkills(false); }} 
                 disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim || itemUsedInTurn} 
@@ -1118,6 +1154,7 @@ export const Battle = ({
            {/* Special (Catch or Shield) */}
            {!pvpRole ? (
               <motion.button 
+                id="tutorial-catch"
                 whileTap={{ scale: 0.94, y: 4 }} 
                 onClick={executeCatch} 
                 disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
@@ -1177,6 +1214,16 @@ export const Battle = ({
         onComplete={() => onLose(winXP)}
       />
       <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} />}</AnimatePresence>
+
+      <AnimatePresence>
+        {isTutorialActive && (
+          <TutorialOverlay 
+            step={tutorialStep} 
+            onNext={() => setTutorialStep(prev => prev + 1)} 
+            enemyName={enemyMonster.name}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
