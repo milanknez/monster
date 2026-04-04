@@ -2,7 +2,7 @@ import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, Info, Trophy, ChevronRight } from 'lucide-react';
 
-import { cn, TYPE_COLORS, getMonsterMaxHP, TYPE_MATCHUP } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterMaxHP, TYPE_MATCHUP, getTotalXPForLevel } from '../../utils';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { ResourceIcon } from '../ui/ResourceIcon';
 import type { Monster } from '../../types';
@@ -77,7 +77,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         className="w-full min-h-screen bg-background-dark pb-20"
       >
         <div className={cn(
-          "w-full rounded-b-[2.5rem] p-3 pt-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-t-0 overflow-hidden relative",
+          "w-full rounded-b-[2.5rem] p-3 pt-[calc(2rem+env(safe-area-inset-top))] shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-t-0 overflow-hidden relative",
           monster.type === 'Ohnivá' ? "border-[#4a1a1a] bg-[#2a0a0a]" :
             monster.type === 'Vodní' ? "border-[#1a2a4a] bg-[#0a1a2a]" :
               monster.type === 'Přírodní' ? "border-[#1a3a1a] bg-[#0a2a0a]" :
@@ -102,17 +102,32 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   {monster.name}
                 </h2>
                 <div className="w-full">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">XP k další úrovni</span>
-                    <span className="text-[8px] font-black text-white/50 tabular-nums leading-none">{Math.round(monster.totalXP || 0)} / {monster.level * 250}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, ((monster.totalXP || 0) / (monster.level * 250)) * 100)}%` }}
-                      className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
-                    />
-                  </div>
+                  {(() => {
+                    const currentLVL = monster.level;
+                    const baseXP = getTotalXPForLevel(currentLVL);
+                    const nextXP = getTotalXPForLevel(currentLVL + 1);
+                    const currentXPInLevel = Math.max(0, (monster.totalXP || 0) - baseXP);
+                    const neededXPInLevel = nextXP - baseXP;
+                    const progress = Math.min(100, (currentXPInLevel / neededXPInLevel) * 100);
+
+                    return (
+                      <>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">XP k další úrovni</span>
+                          <span className="text-[8px] font-black text-white/50 tabular-nums leading-none">
+                            {Math.round(currentXPInLevel)} <span className="opacity-30">/</span> {Math.round(neededXPInLevel)}
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
+                          />
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               <div className={cn("size-10 rounded-xl flex items-center justify-center border shadow-lg", colors.bg, colors.border)}>

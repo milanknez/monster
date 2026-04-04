@@ -1,0 +1,35 @@
+{
+  "id": "103",
+  "name": "Mrtvolný Loutkář",
+  "description": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
+  "type": "Temná",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1250,
+    "attack": 320,
+    "defense": 420
+  },
+  "abilities": [
+    {
+      "name": "Zvrácená Marioneta",
+      "description": "Odrazí 50 % utrženého poškození zpět na útočníka.",
+      "type": "reflect",
+      "chance": 50,
+      "value": 0.5
+    },
+    {
+      "name": "Vlákna Osudu",
+      "description": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
+      "type": "debuff",
+      "chance": 35,
+      "value": 0.4
+    },
+    {
+      "name": "Armáda Stínů",
+      "description": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
+      "type": "attack",
+      "chance": 25,
+      "value": 3.1
+    }
+  ]
+}

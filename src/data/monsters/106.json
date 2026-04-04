@@ -1,0 +1,35 @@
+{
+  "id": "106",
+  "name": "Noční Můra z Propasti",
+  "description": "Strážce nejhlubších propastí, kde vládne absolutní temnota. Její kůže je tvrdá jako diamant a chladnější než led ve vzdáleném kosmu.",
+  "type": "Ledová",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1250,
+    "attack": 250,
+    "defense": 550
+  },
+  "abilities": [
+    {
+      "name": "Absolutní Nula",
+      "description": "Vypustí mráz, který zmrazí i čas, čímž dočasně sníží nepřítelovu přesnost.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.4
+    },
+    {
+      "name": "Kryoštípačka",
+      "description": "Brutální ledový úder, který zanechá nepřítele hluboce podchlazeného.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.4
+    },
+    {
+      "name": "Zmrzlá Aura",
+      "description": "Ledová bariéra kolem monstra odrazí část poškození zpět.",
+      "type": "reflect",
+      "chance": 25,
+      "value": 0.4
+    }
+  ]
+}

@@ -2,34 +2,69 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Check, X, CreditCard, ShieldCheck, Fingerprint } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '../../utils'
+import { purchaseService } from '../../lib/purchases'
 
 interface GooglePayModalProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: () => void
+  onConfirm: (result?: any) => void
   item: {
+    id: string
     title: string
     price: string
   }
+  userEmail?: string | null
 }
 
-export const GooglePayModal = ({ isOpen, onClose, onConfirm, item }: GooglePayModalProps) => {
+export const GooglePayModal = ({ isOpen, onClose, onConfirm, item, userEmail }: GooglePayModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
-  const handlePay = () => {
+  const handlePay = async () => {
     setIsProcessing(true)
-    // Simulace síťového požadavku
-    setTimeout(() => {
+    
+    // Zkusíme real purchase pokud jsme v Capacitoru
+    try {
+      if ((window as any).CdvPurchase || (window as any).store) {
+        // Skutečný Google Play Nákup
+        purchaseService.setHandler({
+          onSuccess: (result) => {
+             setIsProcessing(false)
+             setIsSuccess(true)
+             setTimeout(() => {
+                onConfirm(result)
+                onClose()
+             }, 1500)
+          },
+          onError: (err) => {
+             setIsProcessing(false)
+             // Show only the first line — the human-readable part
+             const friendlyMsg = err.split('\n')[0]
+             alert('Chyba platby: ' + friendlyMsg)
+          }
+        })
+        
+        await purchaseService.purchase(item.id)
+      } else {
+        // Simulace pro vývoj (v prohlížeči)
+        setTimeout(() => {
+          setIsProcessing(false)
+          setIsSuccess(true)
+          setTimeout(() => {
+            onConfirm()
+            onClose()
+          }, 1500)
+        }, 2000)
+      }
+    } catch (e: any) {
       setIsProcessing(false)
-      setIsSuccess(true)
-      // Po úspěchu zavřeme a potvrdíme
-      setTimeout(() => {
-        onConfirm()
-        onClose()
-      }, 1500)
-    }, 2000)
+      // Show only the first line — the human-readable part
+      const friendlyMsg = (e.message || 'Neznámá chyba').split('\n')[0]
+      alert('Platba selhala: ' + friendlyMsg)
+    }
   }
+
+  const displayEmail = userEmail || 'nastavte.email@gmail.com'
 
   return (
     <AnimatePresence>
@@ -52,7 +87,7 @@ export const GooglePayModal = ({ isOpen, onClose, onConfirm, item }: GooglePayMo
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[32px] overflow-hidden"
           >
-            <div className="p-6 pb-10 space-y-6 max-w-md mx-auto">
+            <div className="p-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] space-y-6 max-w-md mx-auto">
               {/* Header */}
               <div className="flex justify-between items-center border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2">
@@ -105,8 +140,8 @@ export const GooglePayModal = ({ isOpen, onClose, onConfirm, item }: GooglePayMo
                       <CreditCard size={20} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-slate-900 font-bold text-sm">Visa •••• 1234</p>
-                      <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider">milan.knez@gmail.com</p>
+                      <p className="text-slate-900 font-bold text-sm">G-Pay •••• Vyberte kartu</p>
+                      <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider">{displayEmail}</p>
                     </div>
                     <div className="text-[10px] font-black text-primary uppercase">Změnit</div>
                   </div>
@@ -153,3 +188,4 @@ export const GooglePayModal = ({ isOpen, onClose, onConfirm, item }: GooglePayMo
     </AnimatePresence>
   )
 }
+

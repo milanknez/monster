@@ -1,0 +1,35 @@
+{
+  "id": "104",
+  "name": "Hnijící Přízrak",
+  "description": "Beztvará masa hnijícího masa a řas z prastarých bažin, která se neustále přeskupuje a vylučuje leptavé toxické výpary.",
+  "type": "Přírodní",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1150,
+    "attack": 380,
+    "defense": 300
+  },
+  "abilities": [
+    {
+      "name": "Morová Mlha",
+      "description": "Zamoří bojiště, čímž trvale snižuje obranu soupeře každým kolem.",
+      "type": "debuff",
+      "chance": 40,
+      "value": 0.3
+    },
+    {
+      "name": "Slizké Chapadlo",
+      "description": "Prudký úder, který zanechá leptavou látku rozežírající zbroj.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.6
+    },
+    {
+      "name": "Vlna Hniloby",
+      "description": "Plošně poškodí nepřítele a část sil použije k vlastnímu zacelení.",
+      "type": "heal",
+      "chance": 25,
+      "value": 1.2
+    }
+  ]
+}

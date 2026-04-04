@@ -48,7 +48,7 @@ export const BATTLE_TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     t: "Strategie: Odchyt 🕸️",
-    m: "Pokud chceš monstrum získat, musíš ho nejdříve oslabit (dostat HP do červených čísel). Čím méně má HP, tím vyšší je šance na úspěch!",
+    m: "Pokud chceš monstrum získat, musíš ho nejdříve oslabit (dostat HP k nule). Čím méně má HP, tím vyšší je šance na úspěch!",
     pos: "center",
     spotlight: "enemy-stats"
   },

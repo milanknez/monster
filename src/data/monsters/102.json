@@ -1,0 +1,35 @@
+{
+  "id": "102",
+  "name": "Krvavý Šeptal",
+  "description": "Vysoká, vyhublá postava v potrhaném rudém rouchu. Nemá ústa, přesto jeho hlas slyšíte přímo ve své hlavě, jak vám našeptává nevýslovné hrůzy a váš nevyhnutelný konec.",
+  "type": "Temná",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1050,
+    "attack": 550,
+    "defense": 120
+  },
+  "abilities": [
+    {
+      "name": "Hlas Šílenství",
+      "description": "Způsobí nepříteli psychický kolaps a ochromí ho na několik kol.",
+      "type": "debuff",
+      "chance": 45,
+      "value": 0.6
+    },
+    {
+      "name": "Krvavý Rituál",
+      "description": "Otevře rány nepřítele a vysaje z něj veškerou zbývající energii.",
+      "type": "attack",
+      "chance": 35,
+      "value": 2.8
+    },
+    {
+      "name": "Pach Smrti",
+      "description": "Šíří kolem sebe auru strachu, která zvyšuje jeho vlastní útočnou sílu.",
+      "type": "buff",
+      "chance": 25,
+      "value": 0.4
+    }
+  ]
+}

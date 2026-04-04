@@ -178,7 +178,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             caught: false
           };
           const next = [...prev, newM];
-          setTimeout(() => setNearbySpawn(newM), 100); 
+          setTimeout(() => setNearbySpawn(newM), 100);
           return next;
         });
         addToast?.({ title: 'Goleme, vstaň!', message: 'Epický boss se objevil v tvé blízkosti!', type: 'success' });
@@ -437,15 +437,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         if (lastPosRef.current && lastPosTimeRef.current) {
           const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
           const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
-          
-          const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined) 
-             ? pos.coords.speed 
-             : (timeDiff > 0 ? traveled / timeDiff : 0)
-          
-          if (!ignoreSpeedLimit && speed > 7 && traveled > 10) { 
-             setIsTooFast(true) 
+
+          const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined)
+            ? pos.coords.speed
+            : (timeDiff > 0 ? traveled / timeDiff : 0)
+
+          if (!ignoreSpeedLimit && speed > 7 && traveled > 10) {
+            setIsTooFast(true)
           } else if (ignoreSpeedLimit || speed < 5) {
-             setIsTooFast(false)
+            setIsTooFast(false)
           }
 
           if (traveled >= 4 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
@@ -475,8 +475,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         const commonRes = generateResources(lat, lng, cooldowns)
 
         setSpawns(prev => {
-          const pois = prev.filter(p => 
-            (p.rarity !== 'common' || p.id.startsWith('dev_') || p.id.startsWith('custom_') || p.id.startsWith('cheat_')) 
+          const pois = prev.filter(p =>
+            (p.rarity !== 'common' || p.id.startsWith('dev_') || p.id.startsWith('custom_') || p.id.startsWith('cheat_'))
             && haversineM(lat, lng, p.lat, p.lng) < 2000
           ).map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }));
 
@@ -495,10 +495,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       }, (err) => {
         setStatusMsg('GPS nedostupná');
         console.warn("Geolocation watch error:", err);
-      }, { 
+      }, {
         enableHighAccuracy: !isBatterySaver,
         maximumAge: isBatterySaver ? 5000 : 1000,
-        timeout: 10000 
+        timeout: 10000
       })
     };
 
@@ -540,7 +540,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (playerHP < cost) { setEnergyBlocked(true); setTimeout(() => setEnergyBlocked(false), 2000); return }
     const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
     onConsumeHP(cost)
-    
+
     // We NO LONGER mark it as caught here immediately.
     // Instead we pass the ID to App so it can decide later.
     onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster, nearbySpawn.id)
@@ -550,7 +550,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   useEffect(() => {
     (window as any).markMonsterAsCaught = (spawnId: string) => {
       const nC = { ...cooldownsRef.current, [spawnId]: Date.now() + RESPAWN_COOLDOWN_MS }
-      cooldownsRef.current = nC; 
+      cooldownsRef.current = nC;
       localStorage.setItem('map_cooldowns', JSON.stringify(nC))
       setSpawns(prev => prev.map(s => s.id === spawnId ? { ...s, caught: true } : s))
     };
@@ -642,22 +642,22 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           </div>
         </div>
       </div>
-      
+
       {/* Speed Warning Overlay */}
       <AnimatePresence>
         {isTooFast && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
             className="absolute inset-x-6 top-16 z-[3000] bg-red-600/90 text-white rounded-2xl p-4 flex items-center justify-center gap-3 backdrop-blur-md shadow-2xl border-2 border-red-500/50"
           >
             <div className="size-10 bg-white/20 rounded-full flex items-center justify-center">
-               <Navigation className="animate-pulse" size={20} />
+              <Navigation className="animate-pulse" size={20} />
             </div>
             <div className="text-left">
-               <p className="font-black uppercase text-xs leading-none mb-1">Jedeš moc rychle!</p>
-               <p className="text-[9px] font-bold opacity-80 uppercase leading-none">Za jízdy není dovoleno chytat příšery.</p>
+              <p className="font-black uppercase text-xs leading-none mb-1">Jedeš moc rychle!</p>
+              <p className="text-[9px] font-bold opacity-80 uppercase leading-none">Za jízdy není dovoleno chytat příšery.</p>
             </div>
           </motion.div>
         )}

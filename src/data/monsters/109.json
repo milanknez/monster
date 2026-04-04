@@ -1,0 +1,35 @@
+{
+  "id": "109",
+  "name": "Démonický Pán Popela",
+  "description": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
+  "type": "Ohnivá",
+  "rarity": "Legendární",
+  "stats": {
+    "hp": 1200,
+    "attack": 510,
+    "defense": 320
+  },
+  "abilities": [
+    {
+      "name": "Pekelné Sežehnutí",
+      "description": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
+      "type": "attack",
+      "chance": 45,
+      "value": 3.7
+    },
+    {
+      "name": "Uhelná Bouře",
+      "description": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
+      "type": "debuff",
+      "chance": 35,
+      "value": 0.3
+    },
+    {
+      "name": "Sopečný Výbuch",
+      "description": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
+      "type": "attack",
+      "chance": 25,
+      "value": 2.2
+    }
+  ]
+}

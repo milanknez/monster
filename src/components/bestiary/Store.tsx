@@ -23,11 +23,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-blue-500/10',
     borderClass: 'border-blue-500/20',
     gradient: 'from-blue-600/20 to-cyan-500/0',
-    price: '1 Kč',
+    price: '20 Kč',
     disabled: false
   },
   {
-    id: 'xp_15x',
+    id: 'xp15x',
     title: 'XP ENHANCER',
     subtitle: 'KOGNITIVNÍ MODUL',
     description: 'Zisk 1.5× více zkušeností.',
@@ -39,11 +39,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-cyan-400/10',
     borderClass: 'border-cyan-400/20',
     gradient: 'from-cyan-600/20 to-blue-500/0',
-    price: '1 Kč',
+    price: '30 Kč',
     disabled: false
   },
   {
-    id: 'hp_50',
+    id: 'hp50',
     title: 'REGEN ADRENALIN',
     subtitle: 'BIO-STIMULANT',
     description: 'Zrychlí regeneraci energie o 50%.',
@@ -55,11 +55,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-emerald-500/10',
     borderClass: 'border-emerald-500/20',
     gradient: 'from-emerald-600/20 to-teal-500/0',
-    price: '1 Kč',
+    price: '20 Kč',
     disabled: false
   },
   {
-    id: 'hp_100',
+    id: 'hp100',
     title: 'HYPER REGEN',
     subtitle: 'NANO-RESTORER',
     description: 'Okamžitá 2× rychlejší obnova energie.',
@@ -71,11 +71,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-purple-500/10',
     borderClass: 'border-purple-500/20',
     gradient: 'from-purple-600/20 to-fuchsia-500/0',
-    price: null,
-    disabled: true
+    price: '35 Kč',
+    disabled: false
   },
   {
-    id: 'hp_300',
+    id: 'hp300',
     title: 'AETHER CORE',
     subtitle: 'JÁDRO ENERGIE',
     description: 'Maximální stimulace. 4× rychlejší regen.',
@@ -91,7 +91,7 @@ const STORE_ITEMS = [
     disabled: true
   },
   {
-    id: 'premium_ultra',
+    id: 'premiumultra',
     title: 'ULTRA CORE',
     subtitle: 'PREMIUM MODUL',
     description: 'Ultimátní balíček všech vylepšení v jednom.',
@@ -103,11 +103,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-yellow-400/10',
     borderClass: 'border-yellow-400/20',
     gradient: 'from-yellow-600/20 to-amber-500/0',
-    price: '1 Kč',
+    price: '99 Kč', // Placeholder because it's disabled, but setting typical price
     disabled: true
   },
   {
-    id: 'inv_20',
+    id: 'inv20',
     title: 'PROSTOR',
     subtitle: 'LOVECKÝ BATOH',
     description: 'Trvale zvětší kapacitu batohu na 20 slotů.',
@@ -119,11 +119,11 @@ const STORE_ITEMS = [
     bgClass: 'bg-stone-500/10',
     borderClass: 'border-stone-500/20',
     gradient: 'from-stone-600/20 to-neutral-500/0',
-    price: '1 Kč',
+    price: '40 Kč',
     disabled: false
   },
   {
-    id: 'inv_24',
+    id: 'inv24',
     title: 'EXPANZE',
     subtitle: 'EXPEDIČNÍ BATOH',
     description: 'Trvale zvětší kapacitu batohu na 24 slotů.',
@@ -135,7 +135,7 @@ const STORE_ITEMS = [
     bgClass: 'bg-amber-500/10',
     borderClass: 'border-amber-500/20',
     gradient: 'from-amber-600/20 to-orange-500/0',
-    price: '1 Kč',
+    price: '60 Kč',
     disabled: false
   }
 ]
@@ -162,20 +162,21 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
           <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">Logistická Podpora</p>
           <div className="flex items-center gap-3">
             <h2 className="text-slate-100 text-2xl font-black uppercase tracking-tighter italic">Sektorový Obchod</h2>
-            <div className="bg-white/5 px-2 py-0.5 rounded border border-white/10 flex items-center gap-1.5">
-              <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[9px] font-black text-slate-400 uppercase">Provozní</span>
-            </div>
           </div>
         </div>
-        <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed max-w-[80%]">
-          Všechny moduly jsou k dostání za testovací platbu 1 Kč přes platební portál.
-        </p>
+        
+        {/* IAP Debug Info - visible only when needed or temporarily for testing */}
+        <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg w-fit">
+          <div className="size-1.5 rounded-full bg-slate-500 animate-pulse" />
+          <span className="text-[9px] font-black text-slate-500 uppercase">
+             STATUS IAP: {(window as any).purchaseService?.getStatus() || 'Načítání...'}
+          </span>
+        </div>
       </div>
 
       {/* Grid s dlaždicemi */}
       <div className="grid grid-cols-2 gap-4 p-4 mt-2">
-        {STORE_ITEMS.map((item, idx) => {
+        {[...STORE_ITEMS].sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1)).map((item, idx) => {
           const isActive = isBoostActive(item.type, item.multiplier)
           const timePercent = getRemainingTimePercent(item.type, item.multiplier)
 

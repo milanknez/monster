@@ -62,6 +62,7 @@ import { User as FirebaseUser } from 'firebase/auth'
 import { InviteModal } from './components/modals/InviteModal'
 import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
 import { SoundProvider } from './context/SoundContext'
+import { initNotifications, scheduleTestNotification } from './lib/notifications'
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home')
@@ -77,7 +78,7 @@ function AppContent() {
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
   const [wildEncounter, setWildEncounter] = useState<{ monster: Monster, spawnId?: string, rarity?: string } | null>(null)
   const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender', spawnId?: string } | null>(null)
-  const [payingItem, setPayingItem] = useState<{ boost: Boost, title: string, price: string } | null>(null)
+  const [payingItem, setPayingItem] = useState<{ id: string, boost: Boost, title: string, price: string } | null>(null)
   const [isSpeedLimitDisabled, setIsSpeedLimitDisabled] = useState(() => localStorage.getItem('monster_debug_no_speed') === 'true')
   const [currentPosition, setCurrentPosition] = useState<{lat: number, lng: number} | null>(null);
 
@@ -116,27 +117,7 @@ function AppContent() {
   const [isBatterySaver, setIsBatterySaver] = useState(() => localStorage.getItem('monster_battery_saver') === 'true')
 
   const handleAvatarClick = () => {
-    const now = Date.now();
-    const isFastEnough = (now - lastAvatarClick < 400); 
-    
-    if (!isFastEnough) {
-      setAvatarClickCount(1);
-      setIsSettingsOpen(true);
-    } else {
-      const newCount = avatarClickCount + 1;
-      setAvatarClickCount(newCount);
-      if (newCount >= 6) {
-        setIsDebugMode(prev => !prev);
-        addToast({ 
-          title: 'Debug Mode', 
-          message: !isDebugMode ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.', 
-          type: 'success' 
-        });
-        setAvatarClickCount(0);
-        setIsSettingsOpen(false);
-      }
-    }
-    setLastAvatarClick(now);
+    setIsSettingsOpen(true);
   };
 
   const handleCheat = (cheatId: string) => {
@@ -187,6 +168,8 @@ function AppContent() {
       setIsSpeedLimitDisabled(newVal);
       localStorage.setItem('monster_debug_no_speed', newVal.toString());
       addToast({ title: 'Rychlostní limit', message: newVal ? 'VYPNUT! Můžeš chytat i v raketě. 🚀' : 'ZAPNUT! Bezpečnost především. 🛡️', type: newVal ? 'success' : 'info' });
+    } else if (cheatId === 'debugIAP') {
+      if ((window as any).debugIAP) (window as any).debugIAP();
     }
   };
 
@@ -298,26 +281,36 @@ function AppContent() {
     return () => unsubscribe();
   }, [playerName]);
 
-  // Periodic Online Backup
   useEffect(() => {
-    if (!user || !userUid) return;
-    const interval = setInterval(async () => {
-      const now = Date.now();
-      await saveUserBackup(userUid, {
-        playerName,
-        avatarStyle,
-        avatarSeed,
-        totalXP,
-        currentLevel,
-        caughtMonsters,
-        inventory,
-        lastSync: now
-      });
-      setLastSync(now);
-      localStorage.setItem('monster_collector_last_sync', now.toString());
-    }, 60000); // Back up every minute
-    return () => clearInterval(interval);
+    if (user && userUid) {
+      const interval = setInterval(async () => {
+        const now = Date.now();
+        await saveUserBackup(userUid, {
+          playerName,
+          avatarStyle,
+          avatarSeed,
+          totalXP,
+          currentLevel,
+          caughtMonsters,
+          inventory,
+          lastSync: now
+        });
+        setLastSync(now);
+        localStorage.setItem('monster_collector_last_sync', now.toString());
+      }, 60000); // Back up every minute
+      return () => clearInterval(interval);
+    }
   }, [user, userUid, playerName, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
+
+  // Initialize notifications (Local & Push)
+  useEffect(() => {
+    if (userUid) {
+      initNotifications(userUid);
+      
+      // Initialize IAP Store
+      import('./lib/purchases').then(m => m.purchaseService.init());
+    }
+  }, [userUid]);
 
   // Watch Referrals
   useEffect(() => {
@@ -457,7 +450,7 @@ function AppContent() {
 
   const activateBoost = (boost: Boost, item?: any) => {
     if (item?.price && !payingItem) {
-      setPayingItem({ boost, title: item.title, price: item.price })
+      setPayingItem({ id: item.id, boost, title: item.title, price: item.price })
       return
     }
     if ((boost.type as string) === 'inventory_upgrade') {
@@ -1160,7 +1153,13 @@ function AppContent() {
               {activeTab === 'store' && (
                 <Store
                   key="store"
-                  onActivateBoost={activateBoost}
+                  onActivateBoost={(boost, item) => {
+                    if (item && item.price) {
+                      setPayingItem({ id: item.id, boost, title: item.title, price: item.price });
+                    } else {
+                      activateBoost(boost);
+                    }
+                  }}
                   activeBoosts={activeBoosts}
                   maxSlots={maxSlots}
                 />
@@ -1223,6 +1222,16 @@ function AppContent() {
               const newVal = !isBatterySaver;
               setIsBatterySaver(newVal);
               localStorage.setItem('monster_battery_saver', String(newVal));
+            }}
+            isDebugMode={isDebugMode}
+            onToggleDebug={() => {
+              const newVal = !isDebugMode;
+              setIsDebugMode(newVal);
+              addToast({ 
+                title: 'Debug Mode', 
+                message: newVal ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.', 
+                type: 'success' 
+              });
             }}
             onLogin={async () => {
               try {
@@ -1401,16 +1410,21 @@ function AppContent() {
       <GooglePayModal
         isOpen={!!payingItem}
         onClose={() => setPayingItem(null)}
-        onConfirm={() => {
+        onConfirm={(result) => {
           if (payingItem) {
-            activateBoost(payingItem.boost)
-            setPayingItem(null)
+            if (result && typeof result === 'object' && result.type) {
+               activateBoost(result as Boost);
+            } else if (result && typeof result === 'string') {
+               if (result === 'inv20') upgradeCapacity(20);
+               else if (result === 'inv24') upgradeCapacity(24);
+            } else {
+               activateBoost(payingItem.boost);
+            }
+            setPayingItem(null);
           }
         }}
-        item={{
-          title: payingItem?.title || '',
-          price: payingItem?.price || ''
-        }}
+        item={payingItem || { id: '', title: '', price: '' }}
+        userEmail={playerEmail}
       />
 
       <AnimatePresence>

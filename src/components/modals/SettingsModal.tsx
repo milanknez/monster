@@ -52,6 +52,8 @@ interface SettingsModalProps {
   lastSync: number | null;
   isBatterySaver: boolean;
   onToggleBatterySaver: () => void;
+  isDebugMode?: boolean;
+  onToggleDebug?: () => void;
 }
 
 export const SettingsModal = ({ 
@@ -73,7 +75,9 @@ export const SettingsModal = ({
   onUpdateEmail,
   lastSync,
   isBatterySaver,
-  onToggleBatterySaver
+  onToggleBatterySaver,
+  isDebugMode,
+  onToggleDebug
 }: SettingsModalProps) => {
   const { isMuted, setIsMuted } = useSoundSystem();
   const [tempName, setTempName] = useState(playerName);
@@ -81,6 +85,25 @@ export const SettingsModal = ({
   const [notifications, setNotifications] = useState(true);
   const [vibration, setVibration] = useState(true);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
+  
+  // Debug toggle logic
+  const [debugClicks, setDebugClicks] = useState(0);
+  const [lastDebugClick, setLastDebugClick] = useState(0);
+
+  const handleAvatarClick = () => {
+    const now = Date.now();
+    if (now - lastDebugClick < 500) {
+      const newCount = debugClicks + 1;
+      setDebugClicks(newCount);
+      if (newCount >= 6) {
+        onToggleDebug?.();
+        setDebugClicks(0);
+      }
+    } else {
+      setDebugClicks(1);
+    }
+    setLastDebugClick(now);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -107,18 +130,6 @@ export const SettingsModal = ({
 
   const confirmReset = () => {
     setShowConfirmReset(true);
-  };
-
-  const handleLogout = () => {
-    if (window.confirm('Opravdu se chceš odhlásit?')) {
-      onLogout();
-      onClose();
-    }
-  };
-
-  const handleLogin = async () => {
-    await onLogin();
-    onClose();
   };
 
   return (
@@ -208,8 +219,8 @@ export const SettingsModal = ({
                       </div>
                       
                       <div className="flex flex-col items-center gap-4">
-                        <div className="relative group">
-                          <div className="size-24 rounded-full border-4 border-primary/30 p-1 bg-slate-800 overflow-hidden ring-4 ring-primary/10 shadow-[0_0_20px_rgba(13,185,242,0.2)]">
+                        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                          <div className="size-24 rounded-full border-4 border-primary/30 p-1 bg-slate-800 overflow-hidden ring-4 ring-primary/10 shadow-[0_0_20px_rgba(13,185,242,0.2)] active:scale-95 transition-transform">
                             <img 
                               src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`} 
                               alt="Avatar" 
@@ -381,6 +392,18 @@ export const SettingsModal = ({
                             </div>
                           </div>
                         </button>
+
+                        {isDebugMode && (
+                          <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-2">
+                             <div className="flex items-center gap-2 text-primary">
+                               <Shield size={14} />
+                               <span className="text-[10px] font-black uppercase tracking-wider">IAP Debug Status</span>
+                             </div>
+                             <p className="text-[10px] text-slate-400 font-bold leading-relaxed whitespace-pre-wrap break-all">
+                               {(window as any).purchaseService?.getStatus() || 'Service not found'}
+                             </p>
+                          </div>
+                        )}
                       </div>
                     </section>
                   </motion.div>

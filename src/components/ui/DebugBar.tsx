@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical } from 'lucide-react';
+import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DebugBarProps {
@@ -22,8 +22,8 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'addMonster:001', label: 'Monstrum #001', icon: Star, color: 'text-yellow-400' },
     { id: 'addMonster:075', label: 'Monstrum #075 (New)', icon: Star, color: 'text-purple-400' },
     { id: 'triggerLevelUp', label: 'Level Up Hráč', icon: Database, color: 'text-blue-400' },
-    { id: 'addTestMonster', label: 'Testovací Monstrum', icon: Gift, color: 'text-pink-400' },
-    { id: 'toggleSpeedLimit', label: 'Turbo Mode (No Speed Limit)', icon: Zap, color: 'text-orange-500' },
+    { id: 'testNotification', label: 'Test Notifikace', icon: Bell, color: 'text-indigo-400' },
+    { id: 'debugIAP', label: 'Stav Obchodu (IAP DR)', icon: ShoppingBag, color: 'text-yellow-400' },
   ];
 
   const handleCheatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -43,7 +43,7 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(0,180,255,0.15),transparent)] pointer-events-none" />
       
-      <div className="px-4 py-2 flex items-center justify-between gap-3 max-w-lg mx-auto">
+      <div className="px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))] flex items-center justify-between gap-3 max-w-lg mx-auto">
         <div className="flex items-center gap-2">
           <Shield size={16} className="text-primary animate-pulse" />
           <span className="text-[10px] font-black tracking-tighter uppercase italic text-primary/80">

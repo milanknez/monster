@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "924150763137",
+    "firebase_url": "https://monster-app-3062e-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "monster-app-3062e",
+    "storage_bucket": "monster-app-3062e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924150763137:android:c188f1e9f510dc87c38780",
+        "android_client_info": {
+          "package_name": "com.monster.collector"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCThrnPN28Z8El74BSKkdCyGyo32oGN3qo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

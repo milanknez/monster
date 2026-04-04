@@ -119,8 +119,8 @@ export const DuelSelectionModal = ({
                         ? "opacity-50 grayscale border-slate-800 bg-slate-900/40 pointer-events-none" 
                         : "cursor-pointer active:scale-95",
                       !isDisabled && (
-                        monster.rarity === 'Vzácná' ? "border-purple-500/40 bg-purple-500/10 shadow-purple-500/10 hover:border-purple-500/60" :
-                        monster.rarity === 'Epická' ? "border-orange-500/40 bg-orange-500/10 shadow-orange-500/10 hover:border-orange-500/60" :
+                        monster.rarity === 'Vzácná' ? "border-blue-500/40 bg-blue-500/10 shadow-blue-500/10 hover:border-blue-500/60" :
+                        monster.rarity === 'Epická' ? "border-purple-500/40 bg-purple-500/10 shadow-purple-500/10 hover:border-purple-500/60" :
                         monster.rarity === 'Legendární' ? "border-amber-500/40 bg-amber-500/10 shadow-amber-500/10 hover:border-amber-500/60" :
                         colors.border + " " + colors.bg + " hover:border-white/20"
                       )
@@ -134,7 +134,7 @@ export const DuelSelectionModal = ({
                             "absolute size-4 border-2",
                             corner.includes('top') ? "top-0" : "bottom-0",
                             corner.includes('left') ? "left-0" : "right-0",
-                            monster.rarity === 'Vzácná' ? "border-purple-400" : monster.rarity === 'Epická' ? "border-orange-400" : "border-amber-400",
+                            monster.rarity === 'Vzácná' ? "border-blue-400" : monster.rarity === 'Epická' ? "border-purple-400" : "border-amber-400",
                             corner === 'top-left' && "border-r-0 border-b-0 rounded-tl-[2rem]",
                             corner === 'top-right' && "border-l-0 border-b-0 rounded-tr-[2rem]",
                             corner === 'bottom-left' && "border-r-0 border-t-0 rounded-bl-[2rem]",
