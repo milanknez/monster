@@ -26,7 +26,7 @@ export interface Monster {
   };
   
   currentHP?: number;
-  totalXP?: number;
+  xp?: number;
   
   // Progression
   evolvesInto?: string[]; 

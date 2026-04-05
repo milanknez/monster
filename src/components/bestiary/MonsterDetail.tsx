@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, Info, Trophy, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf, Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical, Sparkles, Info, Trophy, ChevronRight, Activity } from 'lucide-react';
 
 import { cn, TYPE_COLORS, getMonsterMaxHP, TYPE_MATCHUP, getTotalXPForLevel } from '../../utils';
 import { RESOURCE_CONFIG } from '../../data/resources';
@@ -14,19 +14,20 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const MonsterDetail = forwardRef<HTMLDivElement, { 
-  monster: Monster; 
-  onBack: () => void; 
-  onUpgrade?: () => void; 
-  inventory?: any[]; 
-  onUsePotion?: (type: string) => void; 
-  onEquipGem?: (idx: number, gemType: string | null) => void; 
+export const MonsterDetail = forwardRef<HTMLDivElement, {
+  monster: Monster;
+  onBack: () => void;
+  onUpgrade?: () => void;
+  inventory?: any[];
+  onUsePotion?: (type: string) => void;
+  onEquipGem?: (idx: number, gemType: string | null) => void;
   onEquipItem?: (idx: number, itemType: string | null) => void;
   onRelease?: () => void;
   canRelease?: boolean;
 }>(
   ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onRelease, canRelease = true }, ref) => {
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
+    const [focusedItem, setFocusedItem] = useState<any>(null);
     const [activeItemSlotIdx, setActiveItemSlotIdx] = useState<number | null>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
@@ -74,10 +75,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             onBack();
           }
         }}
-        className="w-full min-h-screen bg-background-dark pb-20"
+        className="w-full min-h-screen bg-background-dark"
       >
         <div className={cn(
-          "w-full rounded-b-[2.5rem] p-3 pt-[calc(2rem+env(safe-area-inset-top))] shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-t-0 overflow-hidden relative",
+          "w-full rounded-b-[2.5rem] p-3 pt-[calc(0.5rem+env(safe-area-inset-top))] shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-t-0 overflow-hidden relative",
           monster.type === 'Ohnivá' ? "border-[#4a1a1a] bg-[#2a0a0a]" :
             monster.type === 'Vodní' ? "border-[#1a2a4a] bg-[#0a1a2a]" :
               monster.type === 'Přírodní' ? "border-[#1a3a1a] bg-[#0a2a0a]" :
@@ -104,10 +105,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 <div className="w-full">
                   {(() => {
                     const currentLVL = monster.level;
-                    const baseXP = getTotalXPForLevel(currentLVL);
-                    const nextXP = getTotalXPForLevel(currentLVL + 1);
-                    const currentXPInLevel = Math.max(0, (monster.totalXP || 0) - baseXP);
-                    const neededXPInLevel = nextXP - baseXP;
+                    const nextXPBase = getTotalXPForLevel(currentLVL + 1);
+                    const currentXPBase = getTotalXPForLevel(currentLVL);
+                    const neededXPInLevel = nextXPBase - currentXPBase;
+                    const currentXPInLevel = monster.xp || 0;
                     const progress = Math.min(100, (currentXPInLevel / neededXPInLevel) * 100);
 
                     return (
@@ -154,10 +155,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex justify-center items-center">
-              <div className="flex flex-col items-center">
-                <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Kategorie Karty</span>
-                <div className="flex items-center gap-2">
+            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex justify-center items-center relative overflow-hidden">
+               <div className="flex items-center gap-2 flex-wrap justify-center">
                   <div className="size-6 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 shadow-inner">
                     {(() => {
                       const Icon = () => {
@@ -172,11 +171,40 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       return <Icon />;
                     })()}
                   </div>
-                  <span className="text-sm font-black text-slate-200 uppercase tracking-wide">{monster.type}</span>
+                  <span className="text-sm font-black text-slate-200 uppercase tracking-wide leading-none">{monster.type}</span>
                   <div className="w-1 h-1 rounded-full bg-slate-800 mx-1" />
-                  <span className={cn("text-sm font-black uppercase tracking-wide", RARITY_COLORS[monster.rarity])}>{monster.rarity}</span>
-                </div>
-              </div>
+                  <span className={cn("text-sm font-black uppercase tracking-wide leading-none", RARITY_COLORS[monster.rarity])}>{monster.rarity}</span>
+                  
+                  <div className="w-1 h-1 rounded-full bg-slate-800 mx-1" />
+                  
+                  <div className="flex items-center gap-1.5 ml-1">
+                    <Activity size={14} className="text-amber-500" />
+                    <span className="text-base font-black text-white italic tracking-tighter tabular-nums leading-none">
+                      {(() => {
+                        const getStatVal = (key: string, base: number) => {
+                          const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
+                          const currentBaseWithLevel = base + levelBonus;
+                          const slots = [...(monster.gems || []), ...(monster.items || [])];
+                          const eqBonus = slots.reduce((acc, id) => {
+                            if (!id) return acc;
+                            const cfg = RESOURCE_CONFIG[id];
+                            const sKey = key === 'attack' ? 'atk' : key === 'defense' ? 'def' : 'hp';
+                            if (cfg?.stats?.[sKey]) {
+                              const val = cfg.stats[sKey]!;
+                              return acc + (cfg.statsType === 'perc' ? Math.round(currentBaseWithLevel * (val / 100)) : val);
+                            }
+                            return acc;
+                          }, 0);
+                          return currentBaseWithLevel + eqBonus;
+                        };
+                        const atk = getStatVal('attack', monster.stats?.attack || 10);
+                        const def = getStatVal('defense', monster.stats?.defense || 10);
+                        const hp = getStatVal('hp', monster.stats?.hp || 100);
+                        return Math.round((hp / 2) + (atk * 8) + (def * 12) + (monster.level * 100));
+                      })()}
+                    </span>
+                  </div>
+               </div>
             </div>
 
             <div className="space-y-3 px-1">
@@ -249,14 +277,22 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     { label: 'Zdraví', key: 'hp', base: monster.stats?.hp || 100, icon: <Heart size={12} />, type: 'gem_green', marker: 'bg-red-500' }
                   ].map((s, i) => {
                     const levelBonus = Math.floor(s.base * (monster.level - 1) * 0.1);
+                    const currentBaseWithLevel = s.base + levelBonus;
+
                     const getEqBonus = (slots: (string | null)[]) => {
                       return (slots || []).reduce((acc: number, id: string | null) => {
                         if (id) {
                           const cfg = RESOURCE_CONFIG[id];
                           const sKey = s.key === 'attack' ? 'atk' : s.key === 'defense' ? 'def' : 'hp';
                           if (cfg?.stats?.[sKey]) {
-                             const val = cfg.stats[sKey]!;
-                             return acc + (cfg.statsType === 'perc' ? Math.floor(s.base * (val / 100)) : val);
+                            const val = cfg.stats[sKey]!;
+                            if (cfg.statsType === 'perc') {
+                              // Počítat ze základu + level bonusu a zaokrouhlit nahoru (min +1)
+                              const percVal = Math.round(currentBaseWithLevel * (val / 100));
+                              return acc + Math.max(1, percVal);
+                            } else {
+                              return acc + val;
+                            }
                           }
                         }
                         return acc;
@@ -291,8 +327,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     );
                   })}
                 </div>
-
-                {/* UPGRADE BUTTON SECTION removed per user request */}
 
                 <div className="relative z-[20] mt-2">
                   <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 border-b border-primary/20 pb-1 flex items-center gap-2">
@@ -411,81 +445,147 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     <h3 className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Vybavení (Relikvie a Gemy)</h3>
                   </div>
 
-                  <div className="flex items-center justify-center gap-4">
-                    {Array.from({ length: 3 }).map((_, idx) => {
-                      const currentGem = monster.gems?.[idx];
-                      const gemConfig = currentGem ? RESOURCE_CONFIG[currentGem] : null;
-                      const isPicking = activeSlotIdx === idx;
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => setActiveSlotIdx(idx)}
-                          className={cn(
-                            "size-20 aspect-square rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
-                            currentGem ? (
-                              gemConfig?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.3)]" :
-                              gemConfig?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.3)]" :
-                              gemConfig?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.3)]" :
-                              "bg-slate-800 border-white/20 shadow-xl"
-                            ) : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
-                            isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
-                          )}
-                        >
-                          {currentGem ? (
-                            <>
-                              <div className="size-14 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <ResourceIcon id={currentGem} config={RESOURCE_CONFIG[currentGem]} size="lg" className="filter drop-shadow-md" />
-                              </div>
-                              <button onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }} className="absolute -top-2 -right-2 size-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-transform active:scale-75 z-20">
-                                <Trash2 size={10} />
-                              </button>
-                            </>
-                          ) : (
-                            <Plus size={20} className="text-white/20" />
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
+                  <div className="flex flex-col gap-6">
+                    <div className="flex items-center justify-between gap-3">
+                      {Array.from({ length: 3 }).map((_, idx) => {
+                        const currentGem = monster.gems?.[idx];
+                        const gemConfig = currentGem ? RESOURCE_CONFIG[currentGem] : null;
+                        const isPicking = activeSlotIdx === idx;
+                        
+                        const getStatSummary = (cfg: any) => {
+                          if (!cfg?.stats) return null;
+                          const stats = [];
+                          const symbol = cfg.statsType === 'perc' ? '%' : '';
+                          if (cfg.stats.atk) stats.push(`+${cfg.stats.atk}${symbol} ATK`);
+                          if (cfg.stats.hp) stats.push(`+${cfg.stats.hp}${symbol} HP`);
+                          if (cfg.stats.def) stats.push(`+${cfg.stats.def}${symbol} DEF`);
+                          return stats.join(', ');
+                        };
 
-                  <AnimatePresence>
-                    {activeSlotIdx !== null && (
-                      <motion.div initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 16 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
-                        <div className="bg-slate-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-3 relative shadow-2xl">
-                          <button onClick={() => setActiveSlotIdx(null)} className="absolute top-2 right-2 text-slate-500 hover:text-white"><X size={14} /></button>
-                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-3 px-1 italic">Slot {activeSlotIdx + 1}: Vyber si vybavení</p>
-                          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => (
-                              <motion.button
-                                key={i?.type}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => { onEquipGem?.(activeSlotIdx, i?.type || null); setActiveSlotIdx(null); }}
-                                className={cn(
-                                  "flex-shrink-0 size-16 rounded-xl border flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-lg group relative overflow-hidden",
-                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)]" :
-                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)]" :
-                                  RESOURCE_CONFIG[i?.type || '']?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]" :
-                                  "bg-slate-800 border-white/5"
-                                )}
-                              >
-                                <div className="size-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <ResourceIcon id={i?.type || ''} config={RESOURCE_CONFIG[i?.type || '']} size="md" className="filter drop-shadow-md" />
-                                </div>
-                                <span className="text-[7px] font-black text-amber-500 bg-amber-500/10 px-1 rounded-sm relative z-10">{i?.count}x</span>
-                                <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                              </motion.button>
-                            ))}
-                            {(!inventory || inventory.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).length === 0) && (
-                              <div className="w-full text-center py-4 flex flex-col items-center gap-2">
-                                <div className="text-3xl opacity-30">📦</div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase italic">V batohu nemáš žádné drahokamy ani relikvie</p>
-                              </div>
-                            )}
+                        return (
+                          <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                            <div
+                              onClick={() => {
+                                setActiveSlotIdx(isPicking ? null : idx);
+                                setFocusedItem(null);
+                              }}
+                              className={cn(
+                                "size-16 rounded-2xl border-2 flex items-center justify-center relative transition-all active:scale-95 cursor-pointer group",
+                                currentGem ? (
+                                  gemConfig?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)]" :
+                                    gemConfig?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)]" :
+                                      gemConfig?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]" :
+                                        "bg-slate-800 border-white/20 shadow-lg"
+                                ) : "bg-black/40 border-dashed border-white/10 hover:border-white/30",
+                                isPicking && "ring-4 ring-amber-500/50 border-amber-500/60"
+                              )}
+                            >
+                              {currentGem ? (
+                                <>
+                                  <ResourceIcon id={currentGem} config={RESOURCE_CONFIG[currentGem]} size="md" className="filter drop-shadow-md group-hover:scale-110 transition-transform" />
+                                  <button onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }} className="absolute -top-1.5 -right-1.5 size-5 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-all active:scale-75 z-20">
+                                    <Trash2 size={8} />
+                                  </button>
+                                </>
+                              ) : (
+                                <Plus size={16} className="text-white/20" />
+                              )}
+                            </div>
+                            <div className="text-center min-h-[22px]">
+                               {currentGem ? (
+                                 <>
+                                   <p className="text-[7px] font-black text-slate-400 uppercase truncate max-w-[60px]">{gemConfig?.label}</p>
+                                   <p className="text-[8px] font-black text-emerald-400 leading-none">{getStatSummary(gemConfig)}</p>
+                                 </>
+                               ) : (
+                                 <p className="text-[7px] font-bold text-slate-600 uppercase italic">Prázdné</p>
+                               )}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        )
+                      })}
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                      {activeSlotIdx !== null && (
+                        <motion.div initial={{ opacity: 0, scaleY: 0 }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="origin-top border-t border-white/10 pt-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest px-1 italic">Slot {activeSlotIdx + 1}: Inventář</p>
+                            <button onClick={() => { setActiveSlotIdx(null); setFocusedItem(null); }} className="text-slate-500 p-1"><X size={16} /></button>
+                          </div>
+                          
+                          <div className="grid grid-cols-4 gap-2 mb-6 max-h-[160px] overflow-y-auto pr-1 scrollbar-hide p-1">
+                            {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => {
+                              const cfg = RESOURCE_CONFIG[i.type];
+                              const isSelected = focusedItem?.type === i.type;
+                              return (
+                                <motion.button
+                                  key={i.type}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => setFocusedItem(i)}
+                                  className={cn(
+                                    "aspect-square rounded-xl border flex flex-col items-center justify-center relative transition-all shadow-lg",
+                                    cfg.rarity === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-[0_0_10px_rgba(245,158,11,0.1)]" :
+                                      cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-[0_0_10px_rgba(168,85,247,0.1)]" :
+                                        cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-[0_0_10px_rgba(59,130,246,0.1)]" :
+                                          "border-white/5 bg-white/5",
+                                    isSelected && "ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/10 scale-105 z-10"
+                                  )}
+                                >
+                                  <ResourceIcon id={i.type} config={cfg} size="md" className={cn("filter drop-shadow-md", !isSelected && "opacity-80")} />
+                                  <span className="absolute -bottom-1 -right-1 bg-slate-900 border border-white/20 text-[6px] font-black text-white px-1 rounded-sm">{i.count}x</span>
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+
+                          <AnimatePresence mode="wait">
+                             {focusedItem ? (() => {
+                               const cfg = RESOURCE_CONFIG[focusedItem.type];
+                               const symbol = cfg.statsType === 'perc' ? '%' : '';
+                               return (
+                                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} key={focusedItem.type} className="bg-white/5 border border-white/10 rounded-3xl p-4 shadow-xl">
+                                   <div className="flex items-center gap-4 mb-3">
+                                      <div className="size-14 bg-black/40 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner shrink-0">
+                                        <ResourceIcon id={focusedItem.type} config={cfg} size="lg" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between">
+                                          <h4 className="text-sm font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
+                                          <span className={cn("text-[8px] font-black uppercase px-2 py-0.5 rounded-full border", 
+                                            cfg.rarity === 'Legendární' ? "text-amber-500 border-amber-500/30 bg-amber-500/10" :
+                                            cfg.rarity === 'Epická' ? "text-purple-500 border-purple-500/30 bg-purple-500/10" :
+                                            cfg.rarity === 'Vzácná' ? "text-blue-500 border-blue-500/30 bg-blue-500/10" :
+                                            "text-slate-400 border-slate-500/30 bg-slate-500/10"
+                                          )}>{cfg.rarity}</span>
+                                        </div>
+                                        <div className="flex gap-2 mt-1">
+                                           {cfg.stats?.atk && <span className="text-[10px] font-black text-red-400 uppercase tracking-tighter">+{cfg.stats.atk}{symbol} ATK</span>}
+                                           {cfg.stats?.hp && <span className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter">+{cfg.stats.hp}{symbol} HP</span>}
+                                           {cfg.stats?.def && <span className="text-[10px] font-black text-blue-400 uppercase tracking-tighter">+{cfg.stats.def}{symbol} DEF</span>}
+                                        </div>
+                                      </div>
+                                   </div>
+                                   <p className="text-[10px] text-slate-400 font-bold italic leading-relaxed mb-4">{cfg.description}</p>
+                                   <button 
+                                     onClick={() => { onEquipGem?.(activeSlotIdx, focusedItem.type); setActiveSlotIdx(null); setFocusedItem(null); }}
+                                     className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black uppercase tracking-widest rounded-2xl shadow-[0_4px_15px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-2"
+                                   >
+                                     <Plus size={18} />
+                                     NASADIT VYBAVENÍ
+                                   </button>
+                                 </motion.div>
+                               );
+                             })() : (
+                               <div className="py-4 text-center border border-white/5 bg-white/[0.02] rounded-3xl opacity-40">
+                                 <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest italic">Vyber předmět z mřížky...</p>
+                               </div>
+                             )}
+                          </AnimatePresence>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </div>
@@ -493,14 +593,14 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         </div>
 
         <div className="px-6 mt-12 mb-8 pb-12">
-          <button 
+          <button
             onClick={() => {
               if (canRelease) setConfirmRelease(true);
-            }} 
+            }}
             className={cn(
               "w-full group relative py-5 rounded-[2rem] overflow-hidden transition-all border-2 shadow-2xl",
-              canRelease 
-                ? "active:scale-95 border-red-500/30 bg-red-950/20 hover:border-red-500/50" 
+              canRelease
+                ? "active:scale-95 border-red-500/30 bg-red-950/20 hover:border-red-500/50"
                 : "opacity-40 grayscale border-slate-700 bg-slate-800/20 cursor-not-allowed"
             )}
           >
@@ -539,6 +639,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           <p className="text-lg font-black text-white uppercase tracking-tight">Lektvar HP</p>
                           <p className="bg-emerald-500 text-background-dark text-[10px] font-black px-2 py-0.5 rounded-full">{item?.count}x</p>
                         </div>
+                        <p className="text-sm font-bold text-slate-400 italic">Okamžitě vyléčí 50 bodů zdraví tvé příšery.</p>
                       </div>
                     </motion.button>
                   ))}
@@ -554,8 +655,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             </div>
           )}
         </AnimatePresence>
-
-
 
         <AnimatePresence>
           {confirmRelease && (

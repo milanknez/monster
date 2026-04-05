@@ -6,7 +6,7 @@ import {
   FlaskConical, Trophy, Package, ChevronRight, Smile, 
   RefreshCw, Star, Heart, Aperture, ArrowUpRight, 
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle, 
-  Hourglass, Skull, Moon, Lock
+  Hourglass, Skull, Moon, Lock, Check
 } from 'lucide-react';
 import type { Monster, LootTableEntry } from '../../types';
 import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
@@ -86,27 +86,30 @@ const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: stri
   );
 };
 
-const PopupLayer = ({ popups }: { popups: DamagePopup[] }) => (
-  <div className="absolute top-0 w-full flex flex-col items-center pointer-events-none z-[400]">
+const PopupLayer = ({ popups, className }: { popups: DamagePopup[], className?: string }) => (
+  <div className={cn("absolute top-0 w-full flex flex-col items-center pointer-events-none z-[400]", className)}>
     <AnimatePresence mode="popLayout">
-      {popups.map(p => (
-        <motion.div 
-          key={p.id} 
-          initial={{ opacity: 0, y: 30, scale: 0.2 }} 
-          animate={{ opacity: 1, y: -100, scale: p.isCrit ? [0.2, 2.2, 1.8] : [0.2, 1.4, 1.1] }} 
-          exit={{ opacity: 0, scale: 2.5, y: -150 }} 
-          transition={{ duration: 1, ease: "easeOut" }}
-          className={cn(
-            "absolute font-black italic flex items-center gap-1 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)] whitespace-nowrap",
-            p.isHeal ? "text-emerald-400 text-5xl" : p.isCrit ? "text-amber-500 text-7xl" : p.isMiss ? "text-slate-400 text-4xl" : p.isPlayerSide ? "text-6xl text-red-500" : "text-5xl text-red-400"
-          )}
-        >
-          {p.isHeal ? <Heart size={28} className="fill-emerald-400" /> : (p.isEffective ? <ArrowUpRight size={32} className="text-emerald-400 stroke-[5]" /> : (p.isWeak && <ArrowDownLeft size={32} className="text-red-400 stroke-[5]" />))}
-          <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
-            {p.isMiss ? 'MINUL' : (p.isHeal ? '+' : '-') + p.value}
-          </span>
-        </motion.div>
-      ))}
+      {popups.map(p => {
+        if (p.value === 0 && !p.isMiss && !p.isHeal) return null;
+        return (
+          <motion.div 
+            key={p.id} 
+            initial={{ opacity: 0, y: 30, scale: 0.2 }} 
+            animate={{ opacity: 1, y: -100, scale: p.isCrit ? [0.2, 2.2, 1.8] : [0.2, 1.4, 1.1] }} 
+            exit={{ opacity: 0, scale: 2.5, y: -150 }} 
+            transition={{ duration: 1, ease: "easeOut" }}
+            className={cn(
+              "absolute font-black italic flex items-center gap-1 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)] whitespace-nowrap",
+              p.isHeal ? "text-emerald-400 text-5xl" : p.isCrit ? "text-amber-500 text-7xl" : p.isMiss ? "text-slate-400 text-4xl" : p.isPlayerSide ? "text-6xl text-red-500" : "text-5xl text-red-400"
+            )}
+          >
+            {p.isHeal ? <Heart size={28} className="fill-emerald-400" /> : (p.isEffective ? <ArrowUpRight size={32} className="text-emerald-400 stroke-[5]" /> : (p.isWeak && <ArrowDownLeft size={32} className="text-red-400 stroke-[5]" />))}
+            <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
+              {p.isMiss ? 'MINUL' : (p.isHeal ? '+' : '-') + p.value}
+            </span>
+          </motion.div>
+        );
+      })}
     </AnimatePresence>
   </div>
 );
@@ -309,11 +312,11 @@ const getFinalStats = (m: Monster) => {
 
 // --- Main Component ---
 export const Battle = ({
-  playerMonster, enemyMonster, opponentName, incomingEmote, pvpRole, 
+  playerMonster, enemyMonster, isAlreadyCaught, opponentName, incomingEmote, pvpRole, 
   incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem, 
   onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster, isTutorial
 }: {
-  playerMonster: Monster, enemyMonster: Monster, opponentName?: string, 
+  playerMonster: Monster, enemyMonster: Monster, isAlreadyCaught?: boolean, opponentName?: string, 
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
   incomingAttack?: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean, timestamp: number } | null,
   xpMultiplier?: number,
@@ -847,7 +850,15 @@ export const Battle = ({
             <div id="tutorial-enemy-stats" className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1 relative">
                <RarityBadge rarity={enemyMonster.rarity || ''} />
                <div className="flex justify-between items-center mb-1">
-                 <div className="flex items-center gap-1.5"><TypeIcon type={enemyMonster.type} /><span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span></div>
+                 <div className="flex items-center gap-1.5 overflow-hidden min-w-0">
+                    <TypeIcon type={enemyMonster.type} />
+                    <span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span>
+                    {isAlreadyCaught && (
+                      <div className="flex items-center justify-center size-3.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 shrink-0">
+                        <Check size={8} className="text-emerald-400 stroke-[4]" />
+                      </div>
+                    )}
+                  </div>
                  <span className="text-[8px] font-black text-red-500">Lv {enemyMonster.level}</span>
                </div>
                <HealthBar current={enemyHP} max={enemyMaxHP} label="HP" colorClass="bg-gradient-to-r from-red-600 to-rose-400" shadowColor="rgba(239,68,68,0.4)" />
@@ -923,7 +934,7 @@ export const Battle = ({
                 </div>
 
                 <img src={enemyMonster.image || `/monsters/${enemyMonster.id}.png`} className={cn("w-24 h-24 object-contain mix-blend-screen drop-shadow-2xl relative z-10 translate-y-2", enemyAnim === 'lose' && "opacity-0")} />
-                <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} />
+                <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" />
              </motion.div>
           </div>
 
@@ -1166,9 +1177,11 @@ export const Battle = ({
                 <div className="relative">
                   <Aperture size={20} className="text-amber-400 animate-spin-slow drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" />
                   <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-110" />
-                  {isNewMonster && (
-                    <div className="absolute -top-1 -right-1 size-2.5 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] border border-white/20 animate-pulse z-10" />
-                  )}
+                  {isAlreadyCaught && (
+                     <div className="absolute -top-1 -right-1 size-3.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] border border-white/20 flex items-center justify-center z-10 scale-110">
+                        <Check size={8} className="text-white stroke-[5]" />
+                     </div>
+                   )}
                 </div>
                 <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
                    <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>

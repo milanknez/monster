@@ -397,7 +397,7 @@ function AppContent() {
         ...base,
         level: lvl,
         caughtAt: Date.now(),
-        totalXP: 0,
+        xp: 0,
         currentHP: base.stats?.hp || 100,
         image: `/monsters/${base.id}.png`,
         gems: [null, null, null]
@@ -411,7 +411,7 @@ function AppContent() {
         id: 'obsidian_golem',
         level: 7,
         caughtAt: 0,
-        totalXP: 0,
+        xp: 0,
         name: 'Obsidiánový Golem',
         rarity: 'epic',
         type: 'Kamenná',
@@ -817,6 +817,7 @@ function AppContent() {
             key="battle-overlay"
             playerMonster={caughtMonsters[activeBattle.playerIdx]}
             enemyMonster={activeBattle.enemy}
+            isAlreadyCaught={caughtMonsters.some(m => m.id === activeBattle?.enemy.id)}
             opponentName={activeBattle.opponentName}
             pvpRole={activeBattle.pvpRole}
             incomingEmote={incomingEmote}
@@ -888,7 +889,7 @@ function AppContent() {
               saveMonster({ 
                 ...monster, 
                 currentHP: undefined, 
-                totalXP: 0,
+                xp: 0,
                 lat: currentPosition?.lat,
                 lng: currentPosition?.lng,
                 caughtAt: Date.now()
@@ -1576,7 +1577,7 @@ function AppContent() {
           level: 1,
           image: '', // Visuals are handled by ID
           currentHP: undefined,
-          totalXP: 0,
+          xp: 0,
           abilities: (randomMonster.abilities || []).map((a: any) => ({
             ...a,
             type: a.type as any

@@ -44,12 +44,23 @@ export const DailyQuests = ({
     return [];
   });
 
+  const [questHistory, setQuestHistory] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem('monster_collector_quest_history');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
   useEffect(() => {
     localStorage.setItem('monster_collector_claimed_quests', JSON.stringify({
       date: new Date().toDateString(),
       ids: claimedQuests
     }));
   }, [claimedQuests]);
+
+  useEffect(() => {
+    localStorage.setItem('monster_collector_quest_history', JSON.stringify(questHistory));
+  }, [questHistory]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -94,15 +105,15 @@ export const DailyQuests = ({
     },
     {
       id: 2,
-      title: 'Lovec rarit',
+      title: 'Lovec vzácných',
       desc: 'Chyť 3 vzácné příšerky',
       progress: Math.min(rareCount, 3),
       total: 3,
       icon: Trophy,
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10',
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
       completed: rareCount >= 3,
-      reward: 1000
+      reward: 500
     },
     {
       id: 3,
@@ -111,8 +122,8 @@ export const DailyQuests = ({
       progress: Math.min(Number((dailyDistance / 1000).toFixed(1)), 2.0),
       total: 2.0,
       icon: MapIcon,
-      color: 'text-primary',
-      bg: 'bg-primary/10',
+      color: 'text-red-500',
+      bg: 'bg-red-500/10',
       completed: (dailyDistance / 1000) >= 2.0,
       reward: 250
     },
@@ -141,7 +152,7 @@ export const DailyQuests = ({
       completed: dailyStats.epics >= 3,
       reward: 1200,
       minLevel: 4,
-      requires: 1 // Efektivní lovec (Catch 5)
+      requires: 2 // Lovec vzácných (id: 2)
     },
     {
       id: 6,
@@ -161,10 +172,17 @@ export const DailyQuests = ({
 
   const visibleQuests = quests.filter(q => {
     if (q.minLevel && playerLevel < q.minLevel) return false;
+    
+    // Pokud tento quest vyžaduje jiný, zobrazím ho jen, pokud je ten předchozí splněn v historii
     if (q.requires) {
-      const parent = quests.find(pq => pq.id === q.requires);
-      if (!parent || !parent.completed) return false;
+      const parentCompleted = questHistory.includes(q.requires);
+      if (!parentCompleted) return false;
     }
+
+    // Pokud je tento quest SÁM vyžadován pro jiný quest (je to parent), a ten je už odemčený, tak tentou skryji
+    const hasNextQuestUnlocked = quests.find(child => child.requires === q.id && questHistory.includes(q.id));
+    if (hasNextQuestUnlocked) return false;
+
     return true;
   });
 
@@ -173,6 +191,7 @@ export const DailyQuests = ({
   const handleClaim = (questId: number, xp: number) => {
     playLevelUp();
     setClaimedQuests(prev => [...prev, questId]);
+    setQuestHistory(prev => prev.includes(questId) ? prev : [...prev, questId]);
     onClaimReward(xp);
   };
 

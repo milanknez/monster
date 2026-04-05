@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS, getMonsterMaxHP } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterMaxHP, getTotalXPForLevel } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
@@ -133,7 +133,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
 
       <div className="grid grid-cols-2 gap-4 p-4">
         {allToDisplay.map((m: any, idx) => {
-          const isCaught = 'caughtAt' in m || caughtMonsters.some(cm => cm.id === m.id && cm.level === m.level && (cm.totalXP || 0) === (m.totalXP || 0));
+          const isCaught = 'caughtAt' in m || caughtMonsters.some(cm => cm.id === m.id && cm.level === m.level && (cm.xp || 0) === (m.xp || 0));
           const colors = TYPE_COLORS[m.type] || TYPE_COLORS['Default'];
           const theme = RARITY_THEME[m.rarity] || RARITY_THEME['Běžná'];
 
@@ -219,7 +219,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                       {(() => {
                         const maxHP = getMonsterMaxHP(m);
                         const currentHP = m.currentHP ?? maxHP;
-                        const hpPerc = Math.round((currentHP / maxHP) * 100);
+                        const hpPerc = Math.min(100, Math.round((currentHP / maxHP) * 100));
 
                         return (
                           <>
@@ -260,7 +260,15 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   <div className="absolute bottom-1 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20 pointer-events-none">
                      <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, ((m.totalXP || 0) / (m.level * 250)) * 100)}%` }}
+                        animate={{ 
+                          width: (() => {
+                            const currentLvlXP = getTotalXPForLevel(m.level);
+                            const nextLvlXP = getTotalXPForLevel(m.level + 1);
+                            const totalNeeded = nextLvlXP - currentLvlXP;
+                            const perc = Math.max(0, Math.min(100, ((m.xp || 0) / totalNeeded) * 100));
+                            return `${perc}%`;
+                          })()
+                        }}
                         className={cn("h-full rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]", theme.bg)}
                      />
                   </div>

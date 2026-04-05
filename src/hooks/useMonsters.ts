@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Monster } from '../types'
 import { monsterDB } from '../data/monsters'
-import { getMonsterMaxHP } from '../utils'
+import { getMonsterMaxHP, calculateLevel, getTotalXPForLevel } from '../utils'
 
 export function useMonsters(addToast: (toast: any) => void) {
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
@@ -11,14 +11,23 @@ export function useMonsters(addToast: (toast: any) => void) {
         const parsed = JSON.parse(saved)
         // Ensure stats and HP exist on load
         return parsed.map((m: any) => {
-          const max = getMonsterMaxHP(m);
-          // Restore missing abilities and original stats from DB if corrupted or legacy
-          // Using String() comparison to be robust against numeric IDs
           const dbData = monsterDB.find(d => String(d.id) === String(m.id));
+          const level = m.level || 1;
+          
+          let currentXP = m.xp;
+          if (m.totalXP !== undefined && currentXP === undefined) {
+             // Migration from cumulative totalXP to relative xp
+             const baseXP = getTotalXPForLevel(level);
+             currentXP = Math.max(0, m.totalXP - baseXP);
+          }
+
+          const max = getMonsterMaxHP({ ...m, level, xp: currentXP || 0 });
+          
           return {
             ...m,
+            level,
             abilities: (m.abilities && m.abilities.length > 0) ? m.abilities : (dbData?.abilities || []),
-            totalXP: m.totalXP || 0,
+            xp: currentXP || 0,
             currentHP: m.currentHP !== undefined ? Math.min(max, m.currentHP) : max
           }
         })
@@ -94,7 +103,7 @@ export function useMonsters(addToast: (toast: any) => void) {
       stats: baseStats,
       level: baseLevel,
       caughtAt: monster.caughtAt || Date.now(),
-      totalXP: monster.totalXP || 0,
+      xp: monster.xp || 0,
     }
 
     const max = getMonsterMaxHP(enriched)
@@ -128,21 +137,21 @@ export function useMonsters(addToast: (toast: any) => void) {
     })
   }
 
-  const giveMonsterXP = useCallback((monsterIdx: number, xp: number) => {
+  const giveMonsterXP = useCallback((monsterIdx: number, xpGain: number) => {
     setCaughtMonsters(prev => {
       const updated = [...prev]
+      if (!updated[monsterIdx]) return prev
       const m = { ...updated[monsterIdx] }
 
       const oldLevel = m.level
-      m.totalXP = (m.totalXP || 0) + xp
+      m.xp = (m.xp || 0) + xpGain
 
-      // Unified Leveling Logic (matches UI: next level at level * 250 cumulative)
-      // 1 -> 2: 250 XP
-      // 2 -> 3: 500 XP
-      // 3 -> 4: 750 XP
-      // 4 -> 5: 1000 XP
-      while (m.totalXP >= m.level * 250) {
-        m.level++
+      // Relative Level up logic
+      let nextLevelReq = getTotalXPForLevel(m.level + 1) - getTotalXPForLevel(m.level);
+      while (m.xp >= nextLevelReq) {
+        m.xp -= nextLevelReq;
+        m.level++;
+        nextLevelReq = getTotalXPForLevel(m.level + 1) - getTotalXPForLevel(m.level);
       }
 
       if (m.level > oldLevel) {
