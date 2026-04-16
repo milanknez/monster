@@ -15,15 +15,15 @@ interface ResourceIconProps {
 
 export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = 'md', className }) => {
   const [error, setError] = useState(false);
-  
+
   // Use config-wide version if possible or a stable version
   const [v, setV] = useState(Date.now());
-  
+
   // Update version on config change to potentially refresh stale images
   useEffect(() => {
     if (config?.hasCustomIcon) {
-       setError(false);
-       setV(Date.now());
+      setError(false);
+      setV(Date.now());
     }
   }, [id, config?.hasCustomIcon, config?.customIcon]);
 
@@ -37,9 +37,9 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
   if (config?.hasCustomIcon && !error) {
     const fileName = config.customIcon || id;
     return (
-      <img 
-        src={`/resources/${fileName}.png?v=${v}`} 
-        className={cn(sizeClasses[size], "object-contain", className)} 
+      <img
+        src={`/resources/${fileName}.png?v=${v}`}
+        className={cn(sizeClasses[size], "object-contain", className)}
         alt={id}
         onError={() => setError(true)}
       />

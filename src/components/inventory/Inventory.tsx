@@ -94,37 +94,37 @@ export const Inventory = ({
         <div className="mb-4 min-h-[5rem]">
           <AnimatePresence mode="wait">
             {draggedIdx !== null && inventory[draggedIdx] ? (
-              <motion.div 
+              <motion.div
                 key="selected"
-                initial={{ opacity: 0, y: -10 }} 
-                animate={{ opacity: 1, y: 0 }} 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="flex flex-col mb-3 bg-slate-800/80 p-4 rounded-2xl border border-white/10 shadow-lg relative"
               >
-                 <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                       <span className="text-sm font-black text-white uppercase tracking-widest">
-                         {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type}
-                       </span>
-                       <span className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                         {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || 'Žádný popis.'}
-                       </span>
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
-                      className="p-2 ml-4 shrink-0 bg-red-950 border border-red-500/30 rounded-xl text-red-500 shadow-md shadow-red-500/10 active:scale-95 transition-all"
-                      title="Zahodit"
-                    >
-                      <Trash2 size={16} />
-                    </motion.button>
-                 </div>
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-black text-white uppercase tracking-widest">
+                      {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type}
+                    </span>
+                    <span className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                      {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || 'Žádný popis.'}
+                    </span>
+                  </div>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
+                    className="p-2 ml-4 shrink-0 bg-red-950 border border-red-500/30 rounded-xl text-red-500 shadow-md shadow-red-500/10 active:scale-95 transition-all"
+                    title="Zahodit"
+                  >
+                    <Trash2 size={16} />
+                  </motion.button>
+                </div>
               </motion.div>
             ) : (
-               <motion.div key="empty" className="h-[4.5rem] flex flex-col items-center justify-center text-slate-600 bg-slate-900/40 rounded-2xl border border-white/5 border-dashed">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">Klikni na předmět pro detaily</p>
-                  <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">Kliknutím vybereš, dalším klikem jinam přesuneš</p>
-               </motion.div>
+              <motion.div key="empty" className="h-[4.5rem] flex flex-col items-center justify-center text-slate-600 bg-slate-900/40 rounded-2xl border border-white/5 border-dashed">
+                <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">Klikni na předmět pro detaily</p>
+                <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">Kliknutím vybereš, dalším klikem jinam přesuneš</p>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -136,11 +136,11 @@ export const Inventory = ({
             const isSelected = draggedIdx === idx;
 
             return (
-              <div 
+              <div
                 key={idx}
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { 
-                  e.preventDefault(); 
+                onDrop={(e) => {
+                  e.preventDefault();
                   const dt = e.dataTransfer.getData('text/plain');
                   if (dt) {
                     const fromID = parseInt(dt, 10);
@@ -164,23 +164,23 @@ export const Inventory = ({
                   onDragEnd={() => setDraggedIdx(null)}
                   onClick={() => {
                     if (draggedIdx === null && item) {
-                       setDraggedIdx(idx);
+                      setDraggedIdx(idx);
                     } else if (draggedIdx === idx) {
-                       setDraggedIdx(null);
-                       if (usable) onUseItem(item.type);
+                      setDraggedIdx(null);
+                      if (usable) onUseItem(item.type);
                     } else if (draggedIdx !== null) {
-                       onSwap(draggedIdx, idx);
-                       setDraggedIdx(null);
+                      onSwap(draggedIdx, idx);
+                      setDraggedIdx(null);
                     }
                   }}
                   layout
                   className={cn(
                     "aspect-square rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center group relative",
-                    item 
+                    item
                       ? (config?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer active:scale-95" :
-                         config?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)] cursor-pointer active:scale-95" :
-                         config?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)] cursor-pointer active:scale-95" :
-                         "bg-slate-800 border-white/10 shadow-lg cursor-pointer active:scale-95")
+                        config?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)] cursor-pointer active:scale-95" :
+                          config?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)] cursor-pointer active:scale-95" :
+                            "bg-slate-800 border-white/10 shadow-lg cursor-pointer active:scale-95")
                       : "bg-slate-900/60 border-slate-800/40 shadow-inner overflow-hidden",
                     isSelected ? "ring-2 ring-primary scale-105 z-30 shadow-[0_0_15px_rgba(13,185,242,0.4)]" : "",
                     usable && !isSelected && "hover:border-emerald-500/50"
@@ -195,7 +195,7 @@ export const Inventory = ({
                         {item.count}
                       </span>
 
-                      
+
                       {usable && (
                         <div className="absolute top-1 right-1 size-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
                       )}
@@ -203,10 +203,10 @@ export const Inventory = ({
                   ) : (
                     <div className="size-5 rounded-full border-2 border-slate-800/30 relative z-10" />
                   )}
-                  
+
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50" />
                 </motion.div>
-                
+
                 <div className="absolute -top-1 -left-1 text-[7px] font-black text-slate-800 opacity-20">{idx + 1}</div>
               </div>
             )

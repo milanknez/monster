@@ -56,9 +56,9 @@ export const LootModal = ({
           >
             <Trophy size={60} className="text-primary mx-auto mb-6 drop-shadow-[0_0_25px_#0db9f2]" />
             <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">VÍTĚZSTVÍ!</h2>
-            
+
             {/* XP Badge */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
