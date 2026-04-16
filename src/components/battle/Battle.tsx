@@ -14,6 +14,7 @@ import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
 import { DefeatModal } from './DefeatModal';
 import { useGameSound } from '../../data/sounds';
+import { useSoundSystem } from '../../context/SoundContext';
 
 // --- Types ---
 interface DamagePopup {
@@ -167,8 +168,9 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
   const isCurse = subType === 'curse';
   const isDefense = subType === 'defense';
   const isMelee = subType === 'attack';
+  const isClaw = subType === 'claw';
   
-  const count = isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 2 : 12; 
+  const count = isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 2 : isClaw ? 0 : 12; 
   const particles = [...Array(count)].map((_, i) => ({
     id: i,
     delay: i * (isMelee ? 0.6 : (isCurse || isDefense ? 0.02 : 0.04)),
@@ -183,7 +185,42 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
     if (isHeal) return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
     if (isCurse) return <Skull className="text-purple-600 fill-purple-900/40 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]" size={s} />;
     if (isDefense) return <ShieldIcon className="text-blue-400 fill-blue-500/40 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]" size={s} />;
-    if (isMelee) return <div className={cn("w-[2px] h-12 bg-white/90 shadow-[0_0_12px_rgba(255,255,255,1)] rounded-full", idx % 2 === 1 ? "rotate-[45deg]" : "rotate-[-45deg]")} />;
+    if (isMelee) return <div className={cn("w-[2.5px] h-16 bg-white shadow-[0_0_20px_white] rounded-full", idx % 2 === 1 ? "rotate-[45deg]" : "rotate-[-45deg]")} />;
+    
+    if (subType === 'claw') {
+      return (
+        <svg viewBox="0 0 100 100" className="w-full h-full fill-white drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] overflow-visible">
+          <defs>
+             <linearGradient id="clawGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#fff" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#fff" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#ff1a1a" stopOpacity="0.5" />
+             </linearGradient>
+          </defs>
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0, scale: 0.6 }}
+            animate={{ pathLength: 1, opacity: [0, 1, 1, 0], scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            d="M32,10 C31,25 26,38 29,48 L23,46 C21,65 20,78 26,95 C33,75 36,45 34,5 Z"
+            fill="url(#clawGrad)"
+          />
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0, scale: 0.6 }}
+            animate={{ pathLength: 1, opacity: [0, 1, 1, 0], scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            d="M52,15 C51,30 46,43 49,53 L43,51 C41,70 40,83 46,100 C53,80 56,50 54,10 Z"
+            fill="url(#clawGrad)"
+          />
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0, scale: 0.6 }}
+            animate={{ pathLength: 1, opacity: [0, 1, 1, 0], scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: "easeInOut" }}
+            d="M72,20 C71,35 66,48 69,58 L63,56 C61,75 60,88 66,105 C73,85 76,55 74,15 Z"
+            fill="url(#clawGrad)"
+          />
+        </svg>
+      );
+    }
     
     const lt = type.toLowerCase();
     if (lt.includes('ohn') || lt.includes('fire')) return <Flame className="text-orange-500 fill-orange-500/60" size={s} />;
@@ -198,8 +235,8 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
       top: fromSide === 'player' ? '75%' : '25%' 
   };
   const targetCoords = {
-      left: fromSide === 'player' ? '75%' : '25%', 
-      top: fromSide === 'player' ? '25%' : '75%'
+      left: fromSide === 'player' ? '70%' : '30%', 
+      top: fromSide === 'player' ? '28%' : '68%'
   };
 
   return (
@@ -253,6 +290,16 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
           {getIcon(p.id)}
         </motion.div>
       ))}
+      {subType === 'claw' && (
+         <motion.div
+           initial={{ opacity: 0, scale: 0.6, left: targetCoords.left, top: targetCoords.top, x: '-50%', y: '-50%', rotate: -25 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 1.2 }}
+           className="absolute w-36 h-36 pointer-events-none z-[10001]"
+         >
+            {getIcon(0)}
+         </motion.div>
+      )}
       
       {/* Central "Casting" Flash for Curse/Defense/Melee */}
       {(isCurse || isDefense || isMelee) && (
@@ -349,21 +396,23 @@ export const Battle = ({
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
   const [itemUsedInTurn, setItemUsedInTurn] = useState(false);
   const [turnTime, setTurnTime] = useState(50);
+  const { isMuted, volume } = useSoundSystem();
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const resumeAudio = useCallback(async () => {
+    if (!audioCtxRef.current) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) audioCtxRef.current = new AudioCtx();
+    }
+    if (audioCtxRef.current?.state === 'suspended') {
+        await audioCtxRef.current.resume();
+    }
+  }, []);
+
 
   // Tutorial phase is purely informational at the start now
   const isTutorialActive = isTutorial && tutorialStep < 9;
   const isTutorialPaused = isTutorialActive;
-
-  const { 
-    playAttack, playHit, playCritical, playHeal, playSlash,
-    playVictory, playDefeat, playDeath, playCatch, playClick,
-    playBattleMusic, stopBattleMusic, playSpell
-  } = useGameSound();
-
-  useEffect(() => {
-    playBattleMusic();
-    return () => stopBattleMusic();
-  }, [playBattleMusic, stopBattleMusic]);
 
   useEffect(() => {
     if (turn === 'player') setItemUsedInTurn(false);
@@ -410,6 +459,57 @@ export const Battle = ({
     setPopups(prev => [...prev, p]); 
     setTimeout(() => setPopups(prev => prev.filter(item => item.id !== p.id)), 1200); 
   };
+
+  const isLowHP = playerHP / playerMaxHP < 0.28 && playerHP > 0;
+
+  const { 
+    playAttack, playHit, playCritical, playHeal, playSlash,
+    playVictory, playDefeat, playDeath, playCatch, playClick,
+    playBattleMusic, stopBattleMusic, playSpell
+  } = useGameSound(isLowHP);
+
+  useEffect(() => {
+    playBattleMusic();
+    return () => stopBattleMusic();
+  }, [playBattleMusic, stopBattleMusic]);
+
+
+  // --- Heartbeat Logic ---
+  useEffect(() => {
+    if (!isLowHP || isMuted || showLoot || showDefeat || playerAnim === 'lose') return;
+
+    const intervalId = setInterval(() => {
+      if (!audioCtxRef.current) return;
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const playThump = (freq: number, vol: number, dur: number, delay: number) => {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+          osc.frequency.exponentialRampToValueAtTime(1, ctx.currentTime + delay + dur);
+          
+          gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+          gain.gain.linearRampToValueAtTime(vol * volume * 5.0, ctx.currentTime + delay + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + dur + 0.1);
+        } catch (e) { }
+      };
+
+      playThump(160, 1.0, 0.22, 0);       
+      playThump(130, 0.7, 0.25, 0.35);     
+    }, 1200);
+
+    return () => { 
+      clearInterval(intervalId); 
+    };
+  }, [playerHP, playerMaxHP, isMuted, volume, showLoot, showDefeat, playerAnim]);
 
   const npcAttackTriggeredRef = useRef(false);
   useEffect(() => {
@@ -539,6 +639,8 @@ export const Battle = ({
       setTimeout(() => setActiveBurst(null), 3000);
     } else {
       playAttack();
+      setActiveBurst({ id: Date.now(), type: playerMonster.type, fromSide: 'player', subType: 'claw' });
+      setTimeout(() => setActiveBurst(null), 1000);
     }
 
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
@@ -752,6 +854,8 @@ export const Battle = ({
           setTimeout(() => setActiveBurst(null), 3000);
         } else {
           playAttack();
+          setActiveBurst({ id: Date.now(), type: enemyMonster.type, fromSide: 'enemy', subType: 'claw' });
+          setTimeout(() => setActiveBurst(null), 1000);
         }
         
         setTimeout(() => {
@@ -853,7 +957,11 @@ export const Battle = ({
   }, [incomingAttack, pvpRole, playerHP, shieldTurns, enemyShieldTurns, onLose]);
 
   return (
-    <motion.div animate={screenShake ? { x: [-3, 3, -3, 3, 0], y: [1, -1, 1, -1, 0] } : {}} className="fixed inset-0 z-[9000] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none">
+    <motion.div 
+      animate={screenShake ? { x: [-3, 3, -3, 3, 0], y: [1, -1, 1, -1, 0] } : {}} 
+      onMouseDown={resumeAudio}
+      className="fixed inset-0 z-[9000] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none"
+    >
       {/* ARENA BACKGROUND */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
          <img src="/battle_arena_background_1774157568210.png" className="absolute inset-0 w-full h-full object-cover opacity-40 scale-105 saturate-[1.6] contrast-[1.2] brightness-[0.8]" alt="arena" />
@@ -949,8 +1057,8 @@ export const Battle = ({
              </div>
             <motion.div 
               style={{ rotateX: '15deg', rotateY: '-15deg', transformStyle: 'preserve-3d', transformOrigin: 'bottom' }} 
-              animate={enemyAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 350, 0], y: [0, 240, 0], x: [0, -180, 0], scale: [1, 1.5, 1] } : { z: [0, 80, 0], y: [0, 50, 0], x: [0, -30, 0] }) : enemyAnim === 'hit' ? { rotateZ: [0, 8, -8, 0], x: [0, 15, -15, 0] } : { y: [0, -4, 0] }} 
-              transition={enemyAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : 0.4 } : undefined}
+              animate={enemyAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 350, 0], y: [0, 240, 0], x: [0, -180, 0], scale: [1, 1.5, 1] } : activeBurst?.subType === 'defense' ? { scale: [1, 1.1, 1], y: [0, 5, 0] } : { z: [0, 80, 0], y: [0, 50, 0], x: [0, -30, 0] }) : enemyAnim === 'hit' ? { rotateZ: [0, 8, -8, 0], x: [0, 15, -15, 0], scale: [1, 1.08, 1] } : { y: [0, -4, 0] }} 
+              transition={enemyAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : (activeBurst?.subType === 'defense' ? 0.6 : 0.4) } : enemyAnim === 'hit' ? { duration: 0.3 } : undefined}
               className="relative flex justify-center items-end h-28 w-28"
             >
                 <AnimatePresence>{incomingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -80 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-white text-3xl p-2 rounded-2xl shadow-3xl border-2 border-slate-200">{incomingEmote}</motion.div>}</AnimatePresence>
@@ -981,15 +1089,25 @@ export const Battle = ({
                 </div>
 
                 <img src={enemyMonster.image || `/monsters/${enemyMonster.id}.png`} className={cn("w-24 h-24 object-contain mix-blend-screen drop-shadow-2xl relative z-10 translate-y-2", enemyAnim === 'lose' && "opacity-0")} />
+                <AnimatePresence>
+                  {enemyAnim === 'hit' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: [0, 0.7, 0] }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-x-0 bottom-4 h-full bg-red-600/40 rounded-full blur-2xl z-20 pointer-events-none" />
+                  )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {enemyAnim === 'hit' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: [0, 0.7, 0] }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 bg-red-600/40 rounded-full blur-2xl z-20 pointer-events-none" />
+                  )}
+                </AnimatePresence>
                 <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" />
              </motion.div>
           </div>
 
-          <div className="absolute bottom-[18%] left-[6%] flex flex-col items-start w-full max-w-[220px] z-30">
+          <div className="absolute bottom-[10%] left-[6%] flex flex-col items-start w-full max-w-[220px] z-30">
             <motion.div 
                style={{ rotateX: '-15deg', rotateY: '15deg', transformStyle: 'preserve-3d', transformOrigin: 'bottom' }} 
-               animate={playerAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 500, 0], y: [0, -400, 0], x: [0, 280, 0], scale: [1, 1.7, 1] } : { z: [0, 180, 0], y: [0, -100, 0], x: [0, 40, 0] }) : playerAnim === 'hit' ? { rotateZ: [0, -10, 10, 0], x: [0, -20, 20, 0] } : playerAnim === 'win' ? { y: [-15, 0, -15, 0], scale: [1, 1.05, 1] } : { y: [0, -6, 0] }} 
-               transition={playerAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : 0.4 } : undefined}
+               animate={playerAnim === 'attack' ? (activeBurst?.subType === 'attack' ? { z: [0, 500, 0], y: [0, -400, 0], x: [0, 280, 0], scale: [1, 1.7, 1] } : activeBurst?.subType === 'defense' ? { scale: [1, 1.1, 1], y: [0, -10, 0] } : { z: [0, 180, 0], y: [0, -100, 0], x: [0, 40, 0] }) : playerAnim === 'hit' ? { rotateZ: [0, -10, 10, 0], x: [0, -20, 20, 0], scale: [1, 1.08, 1] } : playerAnim === 'win' ? { y: [-15, 0, -15, 0], scale: [1, 1.05, 1] } : { y: [0, -6, 0] }} 
+               transition={playerAnim === 'attack' ? { duration: activeBurst?.subType === 'attack' ? 1.2 : (activeBurst?.subType === 'defense' ? 0.6 : 0.4) } : playerAnim === 'hit' ? { duration: 0.3 } : undefined}
                className="relative flex justify-center items-end h-36 w-36 mb-4"
             >
                <AnimatePresence>{outgoingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -100 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-slate-900 text-3xl p-2 rounded-2xl shadow-3xl border-2 border-primary/40">{outgoingEmote}</motion.div>}</AnimatePresence>
@@ -1271,6 +1389,19 @@ export const Battle = ({
             step={tutorialStep} 
             onNext={() => setTutorialStep(prev => prev + 1)} 
             enemyName={enemyMonster.name}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Full-screen Low HP Vignette Moved to Root */}
+      <AnimatePresence>
+        {isLowHP && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: [0.4, 0.75, 0.4] }} 
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+            className="fixed inset-0 z-[10000] pointer-events-none shadow-[inset_0_0_120px_rgba(255,0,0,0.5),inset_0_0_40px_rgba(255,0,0,0.65)] border-[10px] border-red-600/20 backdrop-blur-[1px]"
           />
         )}
       </AnimatePresence>

@@ -1,0 +1,3 @@
+export const SYSTEM_SETTINGS = {
+  "globalNote": "PŘEHLED STATŮ (LEVEL 1):\n----------------------------------\nBĚŽNÁ:    HP 110-160, ATK 25-72,  DEF 12-48\nVZÁCNÁ:   HP 200-260, ATK 60-96,  DEF 26-60\nEPICKÁ:   HP 310-480, ATK 100-160, DEF 35-100\nLEGENDA:  HP 938-1260, ATK 179-493, DEF 110-450\n\n----------------------------------\nBALANČNÍ PRAVIDLA SPECIÁLEK:\n- Běžná/Vzácná/Epická: 80% šance\n- Legendární: 70% šance (boss feeling)\n- ATK u Legend sníženo o 15% oproti původnímu stavu."
+};

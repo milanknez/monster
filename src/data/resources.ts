@@ -528,8 +528,8 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_1": {
-    "label": "Ostnatý Štít",
-    "icon": "🛡️",
+    "label": "Sérum z krunýře",
+    "icon": "🧪",
     "stats": {
       "hp": 0,
       "atk": 0,
@@ -538,15 +538,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_1",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+5 DEF).",
+    "description": "Zpevní kůži tvé příšery trvalým bonusem (+5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_2": {
-    "label": "Démonské Drápy",
-    "icon": "💅",
+    "label": "Dravý mutagen",
+    "icon": "🧪",
     "stats": {
       "hp": 0,
       "atk": 5,
@@ -555,15 +556,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_2",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+5 ATK).",
+    "description": "Zvýší agresivitu a sílu útoku příšery (+5 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_3": {
-    "label": "Rytířská Přilba",
-    "icon": "🪖",
+    "label": "Zahušťovač krve",
+    "icon": "🧪",
     "stats": {
       "hp": 20,
       "atk": 0,
@@ -572,15 +574,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Vzácná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_3",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+20 HP, +3 DEF).",
+    "description": "Zvýší hustotu krve, posílí výdrž i odolnost (+20 HP, +3 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_4": {
-    "label": "Lehké Boty",
-    "icon": "🥾",
+    "label": "Regenerační gel",
+    "icon": "🧪",
     "stats": {
       "hp": 10,
       "atk": 0,
@@ -589,15 +592,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Běžná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_4",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+10 HP, +2 DEF).",
+    "description": "Bio-gel urychlující obnovu tkání (+10 HP, +2 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_5": {
-    "label": "Hůlka Magů",
-    "icon": "🪄",
+    "label": "Adrenalinový extrakt",
+    "icon": "🧪",
     "stats": {
       "hp": 0,
       "atk": 8,
@@ -606,15 +610,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Vzácná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_5",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+8 ATK).",
+    "description": "Čistý extrakt z nadledvinek pro vyšší sílu v boji (+8 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_6": {
-    "label": "Krystalický Úlomek",
-    "icon": "💎",
+    "label": "Stabilizovaná DNA",
+    "icon": "🧬",
     "stats": {
       "hp": 0,
       "atk": 5,
@@ -623,15 +628,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Vzácná",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_6",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+5 ATK, +5 DEF).",
+    "description": "Vylepšený genetický kód pro celkové zvýšení statů (+5 ATK, +5 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_7": {
-    "label": "Ohnivý Rubín",
-    "icon": "🔴",
+    "label": "Vulkanický kondenzát",
+    "icon": "🧪",
     "stats": {
       "hp": 0,
       "atk": 10,
@@ -640,15 +646,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Epická",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_7",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+10 ATK).",
+    "description": "Získává se z ohnivých monster, brutálně zvýší útok (+10 ATK).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_8": {
-    "label": "Vodní Safír",
-    "icon": "🔵",
+    "label": "Glaciální esence",
+    "icon": "🧪",
     "stats": {
       "hp": 0,
       "atk": 0,
@@ -657,15 +664,16 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Epická",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_8",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+10 DEF).",
+    "description": "Zmrazí povrch těla příšery do ledového krunýře (+10 DEF).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
   "loot_9": {
-    "label": "Temná Sekera",
-    "icon": "🟣",
+    "label": "Mutagenní biomasa",
+    "icon": "🧪",
     "stats": {
       "hp": 50,
       "atk": 0,
@@ -674,12 +682,14 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "rarity": "Epická",
     "color": "#94a3b8",
     "hasCustomIcon": true,
+    "customIcon": "relic_9",
     "category": "relic",
-    "description": "Trvale vylepší tvé monstrum (+50 HP).",
+    "description": "Masivní nárůst svalové a orgánové hmoty příšery (+50 HP).",
     "dropWeight": 15,
     "dropMin": 1,
     "dropMax": 1
   },
+
   "loot_10": {
     "label": "Dračí krev",
     "icon": "🛡️",

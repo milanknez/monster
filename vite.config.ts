@@ -64,8 +64,10 @@ export default defineConfig({
                   loot: 'src/data/loot.ts',
                   recipes: 'src/data/recipes.ts',
                   gems: 'src/data/gems.ts',
-                  resources: 'src/data/resources.ts'
+                  resources: 'src/data/resources.ts',
+                  settings: 'src/data/settings.ts'
                 };
+
                 const relativePath = paths[key];
                 if (!relativePath) { res.statusCode = 400; res.end('Invalid config key'); return; }
                 const filePath = path.resolve(__dirname, relativePath);
@@ -75,6 +77,8 @@ export default defineConfig({
                 else if (key === 'recipes') content = `import { Recipe } from '../types';\n\nexport const recipes: Recipe[] = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'gems') content = `export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'resources') content = `import { ResourceConfig } from '../types';\n\nexport const RESOURCE_CONFIG: Record<string, ResourceConfig> = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'settings') content = `export const SYSTEM_SETTINGS = ${JSON.stringify(data, null, 2)};`;
+
 
                 fs.writeFileSync(filePath, content);
                 res.statusCode = 200;

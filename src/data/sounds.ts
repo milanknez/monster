@@ -41,8 +41,10 @@ export const SOUND_FILES = {
   SPELL: '/sounds/spell.ogg',
 } as const;
 
-export const useGameSound = () => {
+export const useGameSound = (isLowHP = false) => {
   const { isMuted, volume } = useSoundSystem();
+  // Duck music to ~20% if HP is low (80% reduction)
+  const currentMusicVolume = isLowHP ? volume * 0.25 : volume * 1.2;
   const config = { volume, soundEnabled: !isMuted };
 
   const [playClick] = useSound(SOUND_FILES.CLICK, { ...config, volume: volume * 1.0 });
@@ -81,7 +83,7 @@ export const useGameSound = () => {
   
   const [playBattleMusic, { stop: stopBattleMusic }] = useSound(SOUND_FILES.BATTLE_BGM, { 
     ...config, 
-    volume: volume * 1.2, 
+    volume: currentMusicVolume, 
     loop: true 
   });
 

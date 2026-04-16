@@ -3,13 +3,15 @@ import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
   Flame, Droplets, Leaf, Zap, Beaker, Gem,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
-  Sword, Shield, Heart, Sparkles, Info
+  Sword, Shield, Heart, Sparkles, Info, Check
 } from 'lucide-react'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from '../../data/monsters'
 import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
 import { cn } from '../../utils'
 import { TYPE_COLORS } from '../../utils'
+import { SYSTEM_SETTINGS } from '../../data/settings'
 
 // Tabs
 import { MonsterEditorTab } from './tabs/MonsterEditorTab'
@@ -78,6 +80,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const [imgError, setImgError] = useState(false)
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false)
   const [jsonInput, setJsonInput] = useState('')
+
+  // Global Note State
+  const [globalNote, setGlobalNote] = useState(SYSTEM_SETTINGS.globalNote || '')
+  const [isNoteOpen, setIsNoteOpen] = useState(false)
+  const [isSavingNote, setIsSavingNote] = useState(false)
 
   // Sync monsters list with DB (mock) or local update
   useEffect(() => {
@@ -208,6 +215,19 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     }
   }
 
+  const handleSaveGlobalNote = async () => {
+    setIsSavingNote(true)
+    try {
+      await handleSaveConfig('settings', { globalNote })
+      // We don't need alert here, it can be subtle
+    } catch (e) {
+      alert('Chyba při ukládání poznámky.')
+    } finally {
+      setIsSavingNote(true)
+      setTimeout(() => setIsSavingNote(false), 1000)
+    }
+  }
+
   const openJsonEditor = () => {
     const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
     setJsonInput(JSON.stringify(data, null, 2));
@@ -248,7 +268,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col md:flex-row overflow-hidden font-display">
 
       {/* Sidebar */}
-      <aside className="w-full md:w-[420px] border-r border-white/10 bg-slate-900 flex flex-col shrink-0">
+      <aside className="w-full md:w-[350px] border-r border-white/10 bg-slate-900 flex flex-col shrink-0">
+
 
         {/* TAB SWITCHER */}
         <div className="p-4 border-b border-white/5 grid grid-cols-5 gap-2">
@@ -329,8 +350,10 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-6 md:p-10">
-        <div className="max-w-7xl mx-auto space-y-10 pb-20">
+      <main className="flex-1 overflow-y-auto p-2 md:p-6">
+        <div className="w-full space-y-10 pb-20">
+
+
 
           {/* TOP BAR ACTIONS */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -359,6 +382,54 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
               </button>
             </div>
           </div>
+
+          {/* GLOBAL NOTES SECTION - NOW FULL WIDTH BELOW HEADER */}
+          <div className="w-full">
+            <button
+              onClick={() => setIsNoteOpen(!isNoteOpen)}
+              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary transition-colors"
+            >
+              <ChevronRight size={14} className={cn("transition-transform", isNoteOpen && "rotate-90")} />
+              {isNoteOpen ? 'Skrýt poznámky' : 'Zobrazit globální poznámky'}
+            </button>
+
+            <AnimatePresence>
+              {isNoteOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 p-6 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-2xl shadow-2xl relative group border-t-primary/20">
+                    <textarea
+                      value={globalNote}
+                      onChange={(e) => setGlobalNote(e.target.value)}
+                      placeholder="Zde si můžete psát poznámky k balancování, TODO list nebo herní lore..."
+                      className="w-full min-h-[320px] bg-transparent text-slate-300 font-mono text-[13px] outline-none resize-y p-2 placeholder:text-slate-600 custom-scrollbar leading-relaxed"
+                    />
+
+                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-[9px] font-bold text-slate-600 uppercase italic">
+                        <Info size={10} /> Poznámky jsou sdílené v settings.ts
+                      </div>
+                      <button
+                        onClick={handleSaveGlobalNote}
+                        disabled={isSavingNote}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                          isSavingNote ? "bg-emerald-500 text-slate-950" : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        {isSavingNote ? <><Check size={12} /> Uloženo</> : <><Save size={12} /> Uložit poznámku</>}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
 
           <AnimatePresence mode="wait">
             {activeTab === 'monsters' && monsterForm && (
