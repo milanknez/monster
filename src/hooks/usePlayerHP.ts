@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Boost } from '../types'
+import { calculateBoostMultiplier } from '../utils'
 
 // HP systém: 100% za 4 hodiny (240 min)
 // TEST: 100% za 10 minut základ (pro demo)
@@ -10,9 +11,7 @@ export function usePlayerHP(initialHPState: { val: number, time: number }, activ
 
   const getCurrentHP = useCallback(() => {
     // Najdeme nejvyšší HP boost
-    const hpBoost = activeBoosts
-      .filter(b => b.type === 'hp_regen' && b.expiresAt > Date.now())
-      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+    const hpBoost = calculateBoostMultiplier(activeBoosts, 'hp_regen')
 
     const elapsed = Date.now() - hpState.time
     const bonus = elapsed * (BASE_REGEN_RATE * hpBoost)

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 950,
-    "attack": 210,
+    "attack": 179,
     "defense": 110
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Totální extrakce",
       "description": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
       "type": "attack",
-      "chance": 85,
-      "value": 3.0
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Prokletí bezzubých",

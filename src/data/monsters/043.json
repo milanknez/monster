@@ -21,8 +21,8 @@
       "name": "Rohový náraz",
       "description": "Udeří svými malými rohy a způsobí střední poškození.",
       "type": "attack",
-      "chance": 75,
-      "value": 1.45
+      "chance": 80,
+      "value": 1.3
     }
   ]
 }

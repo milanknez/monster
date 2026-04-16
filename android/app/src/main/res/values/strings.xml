@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">monster-collector</string>
-    <string name="title_activity_main">monster-collector</string>
+    <string name="app_name">Monstero - Lovci příšer</string>
+    <string name="title_activity_main">Monstero - Lovci příšer</string>
     <string name="package_name">com.monster.collector</string>
     <string name="custom_url_scheme">com.monster.collector</string>
 </resources>

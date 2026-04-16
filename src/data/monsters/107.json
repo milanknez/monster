@@ -1,12 +1,12 @@
 {
   "id": "107",
-  "name": "Strážce Prokletých Duší",
+  "name": "Strážce Prokletých",
   "description": "Ohnivý obr, v jehož nitru hoří modré plameny utrpení. Nese lucernu, ve které jsou uvězněny duše tisíců padlých bojovníků, které mu dodávají neskonalou sílu.",
   "type": "Ohnivá",
   "rarity": "Legendární",
   "stats": {
     "hp": 1150,
-    "attack": 580,
+    "attack": 493,
     "defense": 150
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Očistný Plamen",
       "description": "Vypustí ničivou explozi doprovázenou výkřiky uvězněných duší.",
       "type": "attack",
-      "chance": 45,
-      "value": 3.8
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Duševní Spála",

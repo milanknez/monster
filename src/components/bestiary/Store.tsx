@@ -179,6 +179,10 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
         {[...STORE_ITEMS].sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1)).map((item, idx) => {
           const isActive = isBoostActive(item.type, item.multiplier)
           const timePercent = getRemainingTimePercent(item.type, item.multiplier)
+          
+          // Try to get real price from store
+          const realPrice = (window as any).purchaseService?.getProductPrice(item.id);
+          const displayPrice = realPrice || item.price;
 
           return (
             <motion.div
@@ -190,7 +194,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                 type: item.type as any,
                 multiplier: item.multiplier,
                 expiresAt: Date.now() + 24 * 60 * 60 * 1000
-              }, item)}
+              }, { ...item, price: displayPrice })}
               className={cn(
                 "group relative aspect-[4/4.5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
                 isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : 
@@ -259,7 +263,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                         : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
                     )}>
                       <span className="text-[8px] font-black uppercase tracking-[0.15em]">
-                        {item.disabled ? 'Mimo provoz' : item.price ? `Koupit za ${item.price}` : 'Aktivovat'}
+                        {item.disabled ? 'Mimo provoz' : displayPrice ? `Koupit za ${displayPrice}` : 'Aktivovat'}
                       </span>
                     </div>
                   )}

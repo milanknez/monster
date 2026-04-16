@@ -2,11 +2,11 @@
   "id": "110",
   "name": "Oko Prázdnoty",
   "description": "Pulzující masa masa a žil s jediným gigantickým okem uprostřed. Její pohled proniká realitou a menší oči na výběžcích sledují každý váš pohyb v každé možné časové linii.",
-  "type": "Magická",
+  "type": "Elektrická",
   "rarity": "Legendární",
   "stats": {
     "hp": 1250,
-    "attack": 390,
+    "attack": 332,
     "defense": 450
   },
   "abilities": [
@@ -14,15 +14,15 @@
       "name": "Předpověď Konce",
       "description": "Nikdy nemine a má ohromnou šanci na kritický zásah.",
       "type": "attack",
-      "chance": 45,
-      "value": 3.4
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Dezintegrace",
       "description": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy.",
       "type": "attack",
-      "chance": 35,
-      "value": 4.5
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Vhled do Budoucna",

@@ -14,8 +14,8 @@
       "name": "Seknutí slupkou",
       "description": "Rychle zaútočí ostrými okraji slupek, které způsobují krvácení.",
       "type": "attack",
-      "chance": 85,
-      "value": 2.1
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Nabroušení slupek",

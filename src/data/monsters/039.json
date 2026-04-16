@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1047,
-    "attack": 286,
+    "attack": 243,
     "defense": 144
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Trojnásobný dech",
       "description": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
       "type": "attack",
-      "chance": 75,
-      "value": 2.2
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Lávová regenerace",

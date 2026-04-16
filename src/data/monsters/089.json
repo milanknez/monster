@@ -14,8 +14,8 @@
       "name": "Mrazivý řez",
       "description": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
       "type": "attack",
-      "chance": 85,
-      "value": 2.2
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Hluboké zmrazení",

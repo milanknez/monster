@@ -1,34 +1,34 @@
 {
   "id": "106",
-  "name": "Noční Můra z Propasti",
-  "description": "Strážce nejhlubších propastí, kde vládne absolutní temnota. Její kůže je tvrdá jako diamant a chladnější než led ve vzdáleném kosmu.",
-  "type": "Ledová",
+  "name": "Green Taur",
+  "description": "Prastarý minotaur zrozený v hlubinách propasti. Jeho tělo je prorostlé temnými krystaly a z jeho rohů i tlamy šlehají plameny jedovatě zeleného ohně. Každý jeho krok spaluje zemi a jeho přítomnost deformuje realitu.",
+  "type": "Ohnivá",
   "rarity": "Legendární",
   "stats": {
-    "hp": 1250,
-    "attack": 250,
-    "defense": 550
+    "hp": 1260,
+    "attack": 238,
+    "defense": 198
   },
   "abilities": [
     {
-      "name": "Absolutní Nula",
-      "description": "Vypustí mráz, který zmrazí i čas, čímž dočasně sníží nepřítelovu přesnost.",
-      "type": "debuff",
-      "chance": 45,
-      "value": 0.4
+      "name": "Zelené Peklo",
+      "description": "Vyšlehne vlnu zeleného ohně, která spaluje nepřítele a zanechává jedovatý efekt v čase.",
+      "type": "curse",
+      "chance": 80,
+      "value": 0.2
     },
     {
-      "name": "Kryoštípačka",
-      "description": "Brutální ledový úder, který zanechá nepřítele hluboce podchlazeného.",
+      "name": "Krystalický Náraz",
+      "description": "Rozběhne se vpřed a udeří nepřítele rohy posílenými krystaly, čímž způsobí masivní poškození.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.4
+      "chance": 70,
+      "value": 2.3
     },
     {
-      "name": "Zmrzlá Aura",
-      "description": "Ledová bariéra kolem monstra odrazí část poškození zpět.",
-      "type": "reflect",
-      "chance": 25,
+      "name": "Aura Zeleného Plamene",
+      "description": "Temný oheň kolem minotaura oslabuje nepřátele a postupně chrání tvé životy.",
+      "type": "defense",
+      "chance": 80,
       "value": 0.4
     }
   ]

@@ -14,7 +14,7 @@
       "name": "Jehličnatý výboj",
       "description": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele.",
       "type": "attack",
-      "chance": 75,
+      "chance": 80,
       "value": 1.9
     },
     {

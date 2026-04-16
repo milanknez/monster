@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { calculateLevel } from '../utils'
+import { calculateLevel, calculateBoostMultiplier } from '../utils'
 
 export function usePlayerXP(initialXP: number, addToast: (toast: any) => void) {
   const [totalXP, setTotalXP] = useState<number>(initialXP)
@@ -30,9 +30,7 @@ export function usePlayerXP(initialXP: number, addToast: (toast: any) => void) {
 
   const handleClaimReward = (xp: number, activeBoosts: any[]) => {
     // Aplikujeme boost i na odměny z úkolů
-    const xpBoost = activeBoosts
-      .filter(b => b.type === 'xp_boost' && b.expiresAt > Date.now())
-      .reduce((max, b) => Math.max(max, b.multiplier), 1.0)
+    const xpBoost = calculateBoostMultiplier(activeBoosts, 'xp_boost')
     
     const xpGained = Math.round(xp * xpBoost)
     addXP(xpGained)

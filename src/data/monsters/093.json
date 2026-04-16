@@ -14,8 +14,8 @@
       "name": "Uzený šleh",
       "description": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
       "type": "attack",
-      "chance": 75,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Žíravá uzenost",

@@ -1,0 +1,28 @@
+{
+  "id": "113",
+  "name": "Hydrox",
+  "description": "Hydrox je nestabilní vodní mutant připomínající živou chemickou směs. Jeho tělo neustále víří, bublá a mění tvar, jako by se každou vteřinu rozpadal a znovu skládal. Z průsvitné kapaliny vystupují ostré zuby a dlouhá drápovitá ramena, která dokážou šlehat jako bič. Působí hravě a zvědavě, ale jeho dotek pálí a leptá. Nikdy nevíš, jestli si chce hrát… nebo tě rozpustit.",
+  "type": "Vodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 240,
+    "attack": 70,
+    "defense": 50
+  },
+  "abilities": [
+    {
+      "name": "Kyselinový výboj",
+      "description": "Vystříkne proud žíravé kapaliny, který způsobí vysoké poškození a může oslabit obranu nepřítele.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.55
+    },
+    {
+      "name": "Tekuté tělo",
+      "description": "Rozteče se a část útoků projde skrz něj, čímž sníží přijaté poškození na jedno kolo.",
+      "type": "defense",
+      "chance": 85,
+      "value": 0.6
+    }
+  ]
+}

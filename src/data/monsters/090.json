@@ -14,8 +14,8 @@
       "name": "Abysvální sirup",
       "description": "Vystříkne lepkavou temnou polevu, která pohlcuje životní sílu.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.8
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Cukrová regenerace",

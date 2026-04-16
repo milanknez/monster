@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1250,
-    "attack": 320,
+    "attack": 272,
     "defense": 420
   },
   "abilities": [
@@ -28,8 +28,8 @@
       "name": "Armáda Stínů",
       "description": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
       "type": "attack",
-      "chance": 25,
-      "value": 3.1
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1150,
-    "attack": 380,
+    "attack": 323,
     "defense": 300
   },
   "abilities": [
@@ -21,8 +21,8 @@
       "name": "Slizké Chapadlo",
       "description": "Prudký úder, který zanechá leptavou látku rozežírající zbroj.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.6
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Vlna Hniloby",

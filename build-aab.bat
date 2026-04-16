@@ -7,25 +7,6 @@ echo ===================================================
 echo   MONSTER APP BUILD (.aab)
 echo ===================================================
 
-:: 0. Update Version (Optional)
-echo.
-echo Current version in Gradle:
-powershell -NoProfile -Command "Get-Content '%BG_FILE%' | Select-String 'versionCode|versionName'"
-echo.
-echo (Press ENTER to keep current value)
-set /p NEW_CODE="Enter NEW versionCode (e.g. 5): "
-set /p NEW_NAME="Enter NEW versionName (e.g. 1.1.0): "
-
-if not "%NEW_CODE%"=="" (
-    echo Updating versionCode to %NEW_CODE%...
-    powershell -NoProfile -Command "(Get-Content '%BG_FILE%') -replace 'versionCode \d+', 'versionCode %NEW_CODE%' | Set-Content '%BG_FILE%'"
-)
-
-if not "%NEW_NAME%"=="" (
-    echo Updating versionName to %NEW_NAME%...
-    powershell -NoProfile -Command "(Get-Content '%BG_FILE%') -replace 'versionName \".*\"', 'versionName \"%NEW_NAME%\"' | Set-Content '%BG_FILE%'"
-)
-
 :: 1. Build web part
 echo.
 echo [1/4] Building web application...
@@ -45,12 +26,27 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-:: 3. Generate assets
-echo [3/4] Generating assets...
-call npx capacitor-assets generate --android
-if %ERRORLEVEL% neq 0 echo [!] Assets generation failed, continuing...
+:: 3. Update Version (Optional)
+echo.
+echo Current version in Gradle:
+powershell -NoProfile -Command "Get-Content '%BG_FILE%' | Select-String 'versionCode|versionName'"
+echo.
+echo (Press ENTER to keep current value)
+set /p NEW_CODE="Enter NEW versionCode (e.g. 48): "
+set /p NEW_NAME="Enter NEW versionName (e.g. 1.1.0): "
 
-:: 4. Build AAB
+if not "%NEW_CODE%"=="" (
+    echo Updating versionCode to %NEW_CODE%...
+    powershell -NoProfile -Command "(Get-Content '%BG_FILE%') -replace 'versionCode \d+', 'versionCode %NEW_CODE%' | Set-Content '%BG_FILE%'"
+)
+
+if not "%NEW_NAME%"=="" (
+    echo Updating versionName to %NEW_NAME%...
+    powershell -NoProfile -Command "(Get-Content '%BG_FILE%') -replace 'versionName \".*\"', 'versionName \"%NEW_NAME%\"' | Set-Content '%BG_FILE%'"
+)
+
+:: 4. Build AAB (Gradle)
+echo.
 echo [4/4] Building signed AAB (Gradle)...
 if not exist "android\gradlew.bat" (
     echo [ERROR] android\gradlew.bat not found!
@@ -72,6 +68,8 @@ if %STATUS% neq 0 (
 echo.
 echo ===================================================
 echo SUCCESS!
+copy "android\app\build\outputs\bundle\release\app-release.aab" "latest-app.aab" /y
 echo AAB location: android\app\build\outputs\bundle\release\app-release.aab
+echo Root copy: latest-app.aab
 echo ===================================================
 pause

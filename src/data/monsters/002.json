@@ -14,8 +14,8 @@
       "name": "Vodní puls",
       "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Léčivá pramen",

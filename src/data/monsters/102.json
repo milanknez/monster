@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1050,
-    "attack": 550,
+    "attack": 468,
     "defense": 120
   },
   "abilities": [
@@ -21,8 +21,8 @@
       "name": "Krvavý Rituál",
       "description": "Otevře rány nepřítele a vysaje z něj veškerou zbývající energii.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.8
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Pach Smrti",

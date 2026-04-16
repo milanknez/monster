@@ -14,8 +14,8 @@
       "name": "Bradavičkové světlo",
       "description": "Vystřelí silný záblesk, který oslní nepřítele.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.2
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Tvrdá krovka",

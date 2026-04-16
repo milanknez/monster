@@ -667,7 +667,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
+        <div className="absolute bottom-[66px] left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
           {[
             { label: 'Běžná', color: 'text-slate-400' },
             { label: 'Vzácná', color: 'text-blue-500' },

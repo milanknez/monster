@@ -14,8 +14,8 @@
       "name": "Plazmová exploze",
       "description": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
       "type": "attack",
-      "chance": 70,
-      "value": 2.0
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Plazmová obnova",

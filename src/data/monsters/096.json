@@ -14,8 +14,8 @@
       "name": "Parazitární spóry",
       "description": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
       "type": "attack",
-      "chance": 75,
-      "value": 1.7
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Mozková mlha",

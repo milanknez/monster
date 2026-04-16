@@ -14,8 +14,8 @@
       "name": "Listová břitva",
       "description": "Vysílá ostré listy, které proříznou i brnění.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Tanec ve větru",

@@ -1,0 +1,28 @@
+{
+  "id": "111",
+  "name": "Želvo Shark",
+  "description": "Želvo Shark je vodní čaroděj chaosu – tvrdý krunýř jako tank, zuby ostré jako škrabky na sýr a ocas, který rád mává, když nikdo nekouká. Skáče z vody jako šílenec, překvapuje nepřátele a občas se při tom zamotá do vlastního krunýře. Vypadá hrozivě… dokud nezakopne o svou vlastní ploutev.",
+  "type": "Vodní",
+  "rarity": "Vzácná",
+  "stats": {
+    "hp": 260,
+    "attack": 60,
+    "defense": 60
+  },
+  "abilities": [
+    {
+      "name": "Drtivý skus",
+      "description": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli.",
+      "type": "attack",
+      "chance": 80,
+      "value": 1.55
+    },
+    {
+      "name": "Krunýřový štít",
+      "description": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo.",
+      "type": "defense",
+      "chance": 80,
+      "value": 0.5
+    }
+  ]
+}

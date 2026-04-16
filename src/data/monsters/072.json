@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 951,
-    "attack": 298,
+    "attack": 253,
     "defense": 133
   },
   "abilities": [
@@ -21,8 +21,8 @@
       "name": "Hnilobné Kousnutí",
       "description": "Zasadí ránu čelistmi plnými jedovatého hnisu.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.5
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Podhoubí Zkázy",

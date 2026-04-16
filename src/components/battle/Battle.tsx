@@ -270,7 +270,7 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
 // --- Helpers ---
 const getFinalStats = (m: Monster) => {
   const stats = { atk: m.stats?.attack || 10, def: m.stats?.defense || 10, hp: m.stats?.hp || 100 };
-  const levelBonus = (val: number) => Math.floor(val * Math.max(0, m.level - getMonsterMinLevel(m.rarity)) * 0.1);
+  const levelBonus = (val: number) => Math.floor(val * Math.max(0, m.level - 1) * 0.1);
   
   const getEquipmentBonus = (slots: (string | null)[] | undefined, type: 'atk' | 'def' | 'hp', baseVal: number) => {
     if (!slots) return 0;
@@ -279,7 +279,8 @@ const getFinalStats = (m: Monster) => {
         const cfg = RESOURCE_CONFIG[id];
         if (cfg?.stats?.[type]) {
           const val = cfg.stats[type]!;
-          return total + (cfg.statsType === 'perc' ? Math.floor(baseVal * (val / 100)) : val);
+          const currentBase = baseVal + leveling[type];
+          return total + (cfg.statsType === 'perc' ? Math.floor(currentBase * (val / 100)) : val);
         }
       }
       return total;
@@ -323,7 +324,7 @@ export const Battle = ({
   isInventoryFull?: boolean,
   inventory?: { type: string, count: number }[],
   onSendEmote?: (emote: string) => void,
-  onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean }) => void,
+  onSendAttack?: (attackData: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean, heal?: number, currentHP?: number }) => void,
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
   onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void,
@@ -428,6 +429,14 @@ export const Battle = ({
     if (isTutorial && attacker === enemyMonster) { s.total.atk *= 0.5; }
     if (isTutorial && defender === enemyMonster) { d.total.def *= 0.5; }
 
+    // Wild monster damage reduction for low levels
+    let wildMult = 1;
+    if (attacker === enemyMonster && !pvpRole && !isTutorial) {
+      if (attacker.level === 1) wildMult = 0.75;
+      else if (attacker.level === 2) wildMult = 0.80;
+      else if (attacker.level === 3) wildMult = 0.85;
+    }
+
     const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
     
     // Normal attack multiplier is 0.8
@@ -447,8 +456,16 @@ export const Battle = ({
     let typeMult = 1, isEffective = false, isWeak = false;
     const match = TYPE_MATCHUP[attacker.type];
     if (match) {
-      if (match.strong === defender.type) { typeMult = ADVANTAGE_MULT; isEffective = true; }
-      else if (match.weak === defender.type) { typeMult = WEAKNESS_MULT; isWeak = true; }
+      if (match.strong === defender.type) { 
+        if (Math.random() < 0.3) {
+          typeMult = ADVANTAGE_MULT; 
+          isEffective = true; 
+        }
+      }
+      else if (match.weak === defender.type) { 
+        typeMult = WEAKNESS_MULT; 
+        isWeak = true; 
+      }
     }
     const base = Math.round((s.total.atk * mult - d.total.def * 0.45) * (0.9 + Math.random() * 0.2));
     let dmg = Math.max(Math.floor(s.total.atk * 0.1), base) * typeMult;
@@ -456,7 +473,9 @@ export const Battle = ({
     // Use latest effects if available
     const attackerEffects = attacker === playerMonster ? playerEffects : enemyEffects;
     if (attackerEffects.some(e => e.type === 'slow')) dmg *= 0.7;
-    if (isCrit) dmg *= 1.8;
+    if (isCrit) dmg *= 1.6;
+    dmg *= wildMult;
+
     if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;
     if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= 0.4;
     return { dmg: Math.round(dmg), isCrit, isEffective, isWeak };
@@ -467,6 +486,14 @@ export const Battle = ({
 
     if (isTutorial && attacker === enemyMonster) { s.total.atk *= 0.5; }
     if (isTutorial && defender === enemyMonster) { d.total.def *= 0.5; }
+
+    // Wild monster damage reduction for low levels
+    let wildMult = 1;
+    if (attacker === enemyMonster && !pvpRole && !isTutorial) {
+      if (attacker.level === 1) wildMult = 0.75;
+      else if (attacker.level === 2) wildMult = 0.80;
+      else if (attacker.level === 3) wildMult = 0.85;
+    }
 
     const ability = isSkill ? attacker.abilities?.[abilityIdx] : null;
     
@@ -484,7 +511,7 @@ export const Battle = ({
     }
 
     const base = Math.round((s.total.atk * mult - d.total.def * 0.45));
-    let dmg = Math.max(Math.floor(s.total.atk * 0.1), base);
+    let dmg = Math.max(Math.floor(s.total.atk * 0.1), base) * wildMult;
     if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;
     if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= 0.4;
     return Math.round(dmg);
@@ -516,6 +543,7 @@ export const Battle = ({
 
     if (isSkill) setPlayerEnergy(p => Math.max(0, p - cost)); else setPlayerEnergy(p => Math.min(100, p + 25));
     setTimeout(() => {
+      let healValue = 0;
       // Periodic effects execution
       playerEffects.forEach(e => {
         if (e.type === 'burn') { const bd = Math.round(playerMaxHP * 0.05); setPlayerHP(p => Math.max(0, p - bd)); addPopup(bd, false); }
@@ -531,9 +559,10 @@ export const Battle = ({
         dmg = 0; 
       }
       else if (ability?.type === 'heal') { 
-        const heal = Math.round(playerMaxHP * (ability.value || 0.15)); 
-        setPlayerHP(p => Math.min(playerMaxHP, p + heal)); 
-        addPopup(heal, false, { isHeal: true }); 
+        const hAmt = Math.round(playerMaxHP * (ability.value || 0.15)); 
+        healValue = hAmt;
+        setPlayerHP(p => Math.min(playerMaxHP, p + hAmt)); 
+        addPopup(hAmt, false, { isHeal: true }); 
         playHeal();
         dmg = 0; 
       }
@@ -573,7 +602,15 @@ export const Battle = ({
          else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Nepřítel byl ochromen!"); }
       }
       setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
-      if (pvpRole && onSendAttack) onSendAttack({ ...res, isSkill });
+      if (pvpRole && onSendAttack) {
+        onSendAttack({ 
+          ...res, 
+          heal: healValue, 
+          currentHP: playerHP + healValue,
+          isSkill, 
+          isShield: ability?.type === 'defense' 
+        });
+      }
       setTimeout(() => {
         setEnemyAnim('idle'); setPlayerAnim('idle');
         const wouldDie = enemyHP - dmg <= 0;
@@ -796,6 +833,16 @@ export const Battle = ({
             playAttack();
          }
         setTimeout(() => {
+           const hVal = (incomingAttack as any).heal || 0;
+           if (hVal > 0) {
+             setEnemyHP(p => Math.min(enemyMaxHP, p + hVal));
+             addPopup(hVal, false, { isHeal: true, isPlayerSide: false });
+           }
+           
+           if (typeof (incomingAttack as any).currentHP === 'number') {
+             setEnemyHP((incomingAttack as any).currentHP);
+           }
+
            setPlayerHP(p => Math.max(0, p - incomingAttack.dmg)); setPlayerAnim('hit'); addPopup(incomingAttack.dmg, false, incomingAttack); 
            if (incomingAttack.isCrit) playCritical(); else playHit();
            if (shieldTurns > 0) setShieldTurns(p => p - 1);
@@ -1027,7 +1074,7 @@ export const Battle = ({
 
       {/* CONTROL PANEL */}
        <div className="p-4 bg-slate-950/60 border-t border-white/5 backdrop-blur-3xl pb-4 relative z-[9100]">
-        <div className="grid grid-cols-4 gap-3">
+        <div className={cn("grid gap-3", pvpRole ? "grid-cols-3" : "grid-cols-4")}>
            {/* Attack */}
            <motion.button 
              id="tutorial-attack"
@@ -1052,6 +1099,9 @@ export const Battle = ({
                 const cost = ab.type === 'attack' ? 50 : 30; 
                 const estDmg = estimateDamage(playerMonster, enemyMonster, true, idx);
                 const isHeal = ab.type === 'heal';
+                const isDefense = ab.type === 'defense';
+                const isRegen = ab.type === 'regen';
+                const isCurse = ab.type === 'curse';
                 const healVal = isHeal ? Math.round(playerMaxHP * (ab.value || 0.15)) : 0;
                 
                 const type = ab.type?.toLowerCase() || 'attack';
@@ -1074,9 +1124,10 @@ export const Battle = ({
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <p className="text-[10px] leading-tight text-white/95">
-                           <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
-                             {isHeal ? `+${healVal} HP` : `~${estDmg} DMG`}
-                           </span>
+                            <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
+                              {isHeal ? `+${healVal} HP` : isDefense ? 'ŠTÍT 🛡️' : isCurse ? 'KLETBA 💀' : isRegen ? 'REGEN 🌿' : `~${estDmg} DMG`}
+                              {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
+                            </span>
                            <span className="text-slate-200 font-bold italic">{ab.description}</span>
                         </p>
                       </div>
@@ -1118,9 +1169,13 @@ export const Battle = ({
                              if (cfg?.stats) {
                                 if (cfg.stats.hp) {
                                    const amount = cfg.statsType === 'perc' ? Math.round(playerMaxHP * (cfg.stats.hp / 100)) : cfg.stats.hp;
-                                   setPlayerHP(p => Math.min(playerMaxHP, p + amount));
+                                   const nextHP = Math.min(playerMaxHP, playerHP + amount);
+                                   setPlayerHP(nextHP);
                                    addPopup(amount, false, { isHeal: true });
                                    addLog(`Použit ${cfg.label}: +${amount} HP`);
+                                   if (pvpRole && onSendAttack) {
+                                      onSendAttack({ dmg: 0, heal: amount, currentHP: nextHP, isSkill: true, isCrit: false, isEffective: false, isWeak: false });
+                                   }
                                 }
                                 if (cfg.stats.energy) {
                                    const amount = cfg.statsType === 'perc' ? Math.round(100 * (cfg.stats.energy / 100)) : cfg.stats.energy;
@@ -1162,8 +1217,8 @@ export const Battle = ({
               </motion.button>
            </div>
 
-           {/* Special (Catch or Shield) */}
-           {!pvpRole ? (
+           {/* Special (Catch) - PVE Only */}
+           {!pvpRole && (
               <motion.button 
                 id="tutorial-catch"
                 whileTap={{ scale: 0.94, y: 4 }} 
@@ -1186,24 +1241,6 @@ export const Battle = ({
                 <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
                    <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
                    <span className="text-[8px] font-bold opacity-60">{Math.max(1, Math.round(Math.min(0.95, 0.95 * Math.pow(1 - (enemyHP / enemyMaxHP), 2.6)) * 100))}%</span>
-                </div>
-              </motion.button>
-           ) : (
-              <motion.button 
-                whileTap={{ scale: 0.94, y: 4 }} 
-                onClick={() => { if(turn === 'player') { setShieldTurns(2); setPlayerEnergy(p => Math.min(100, p + 10)); setTurn('enemy'); if(pvpRole && onSendAttack) onSendAttack({ dmg: 0, isCrit: false, isSkill: false, isEffective: false, isWeak: false, isShield: true }); } }} 
-                disabled={turn !== 'player' || playerAnim !== 'idle' || shieldTurns > 0} 
-                className={cn(
-                  "col-span-1 h-16 rounded-xl flex flex-col items-center justify-center border transition-all shadow-xl relative z-[7001]", 
-                  turn === 'player' && shieldTurns === 0 ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-[0_8px_0_rgba(16,185,129,0.2)] active:shadow-none translate-y-[-2px] active:translate-y-[0px]" : "bg-slate-900/40 border-white/5 opacity-30 text-slate-500"
-                )}
-              >
-                <ShieldIcon size={20} />
-                <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
-                  <span className="text-[9px] font-black uppercase tracking-wider">Štít</span>
-                  <span className="text-[8px] font-bold opacity-60">
-                    {shieldTurns > 0 ? `${shieldTurns} T` : "-60% DMG"}
-                  </span>
                 </div>
               </motion.button>
            )}

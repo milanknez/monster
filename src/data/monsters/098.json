@@ -15,7 +15,7 @@
       "description": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí.",
       "type": "attack",
       "chance": 80,
-      "value": 1.95
+      "value": 1.9
     },
     {
       "name": "Odpálený kondenzátor",

@@ -14,15 +14,15 @@
       "name": "Cukrová síť",
       "description": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.25
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Huňatý skok",
       "description": "Skočí na nepřítele a překvapí ho svou vahou.",
       "type": "attack",
-      "chance": 65,
-      "value": 1.4
+      "chance": 80,
+      "value": 1.3
     }
   ]
 }

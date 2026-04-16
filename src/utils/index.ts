@@ -41,42 +41,65 @@ export const getMonsterMaxHP = (monster: any) => {
   if (!monster || !monster.stats) return 100;
   const base = monster.stats.hp || 100;
   const minLvl = getMonsterMinLevel(monster.rarity || '');
-  const levelBonus = Math.floor(base * Math.max(0, monster.level - minLvl) * 0.1);
+  const levelBonus = Math.floor(base * Math.max(0, monster.level - 1) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {
       if (id) {
         const cfg = RESOURCE_CONFIG[id] as any;
         if (cfg?.stats?.hp) {
-          return acc + (cfg.statsType === 'perc' ? Math.floor(base * (cfg.stats.hp / 100)) : cfg.stats.hp);
+          const currentBase = base + levelBonus;
+          return acc + (cfg.statsType === 'perc' ? Math.floor(currentBase * (cfg.stats.hp / 100)) : cfg.stats.hp);
         }
       }
       return acc;
     }, 0);
   };
 
-  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items || []);
+  return base + levelBonus + getEqBonus(monster.gems || []) + getEqBonus(monster.items || []);
+};
+
+export const getMonsterDefense = (monster: any) => {
+  if (!monster || !monster.stats) return 10;
+  const base = monster.stats.defense || 10;
+  const levelBonus = Math.floor(base * Math.max(0, monster.level - 1) * 0.1);
+  
+  const getEqBonus = (slots: (string | null)[]) => {
+    return (slots || []).reduce((acc: number, id: string | null) => {
+      if (id) {
+        const cfg = RESOURCE_CONFIG[id] as any;
+        if (cfg?.stats?.def) {
+          const currentBase = base + levelBonus;
+          return acc + (cfg.statsType === 'perc' ? Math.floor(currentBase * (cfg.stats.def / 100)) : cfg.stats.def);
+        }
+      }
+      return acc;
+    }, 0);
+  };
+
+  return base + levelBonus + getEqBonus(monster.gems || []) + getEqBonus(monster.items || []);
 };
 
 export const getMonsterAttack = (monster: any) => {
   if (!monster || !monster.stats) return 10;
   const base = monster.stats.attack || 10;
   const minLvl = getMonsterMinLevel(monster.rarity || '');
-  const levelBonus = Math.floor(base * (monster.level - minLvl) * 0.1);
+  const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {
       if (id) {
         const cfg = RESOURCE_CONFIG[id] as any;
         if (cfg?.stats?.atk) {
-          return acc + (cfg.statsType === 'perc' ? Math.floor(base * (cfg.stats.atk / 100)) : cfg.stats.atk);
+          const currentBase = base + levelBonus;
+          return acc + (cfg.statsType === 'perc' ? Math.floor(currentBase * (cfg.stats.atk / 100)) : cfg.stats.atk);
         }
       }
       return acc;
     }, 0);
   };
 
-  return base + levelBonus + getEqBonus(monster.gems) + getEqBonus(monster.items || []);
+  return base + levelBonus + getEqBonus(monster.gems || []) + getEqBonus(monster.items || []);
 };
 
 export const formatLocation = (lat?: number, lng?: number) => {
@@ -106,4 +129,11 @@ export const getPlayerRank = (caughtCount: number) => {
   if (caughtCount <= 60) return 'Drakobijce na plný úvazek';
   if (caughtCount < 70) return 'Legendární přemožitel';
   return 'Strážce celého Bestiáře (100 %)';
+};
+
+export const calculateBoostMultiplier = (activeBoosts: any[], type: 'xp_boost' | 'hp_regen') => {
+  const boosts = (activeBoosts || []).filter(b => b.type === type && b.expiresAt > Date.now());
+  if (boosts.length === 0) return 1;
+  // Sečteme bonusové části (např. 2x a 1.5x => 1 + 1.0 + 0.5 = 2.5x)
+  return Math.round(boosts.reduce((acc, b) => acc + (b.multiplier - 1), 1.0) * 10) / 10;
 };

@@ -14,8 +14,8 @@
       "name": "Větvený útok",
       "description": "Seknutí mnoha větvemi naráz.",
       "type": "attack",
-      "chance": 40,
-      "value": 2.3
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Parazitické kousnutí",

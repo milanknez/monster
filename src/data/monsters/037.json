@@ -14,8 +14,8 @@
       "name": "Nebeský výboj",
       "description": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.55
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Elektrická obnova",

@@ -14,8 +14,8 @@
       "name": "Drtivý Stisk",
       "description": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
       "type": "attack",
-      "chance": 45,
-      "value": 2.2
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Zlověstné Cvaknutí",

@@ -14,8 +14,8 @@
       "name": "Gigantická tsunamy",
       "description": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Mořský hněv",

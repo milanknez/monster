@@ -21,8 +21,8 @@
       "name": "Plazmový výboj",
       "description": "Vystřelí kus plazmy ze svého těla.",
       "type": "attack",
-      "chance": 35,
-      "value": 1.9
+      "chance": 80,
+      "value": 1.55
     }
   ]
 }

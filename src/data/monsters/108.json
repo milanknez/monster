@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 950,
-    "attack": 460,
+    "attack": 391,
     "defense": 200
   },
   "abilities": [
@@ -28,8 +28,8 @@
       "name": "Parazitická Vlna",
       "description": "Prudká salva hnilobných spor, které zasáhnou vše živé i mrtvé.",
       "type": "attack",
-      "chance": 25,
-      "value": 2.9
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

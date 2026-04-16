@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 974,
-    "attack": 271,
+    "attack": 230,
     "defense": 153
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Pohlcení Existence",
       "description": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
       "type": "attack",
-      "chance": 45,
-      "value": 3.2
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Vřískot Tisíce Úst",

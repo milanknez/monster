@@ -14,8 +14,8 @@
       "name": "Plamenný dech",
       "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Lávová aura",

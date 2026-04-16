@@ -14,15 +14,15 @@
       "name": "Skřípavý nálet",
       "description": "Rychle proletí kolem nepřítele a sekne ho svými křídly.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.6
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Čelistní stisk",
       "description": "Zakousne se do nepřítele svými silnými čelistmi.",
       "type": "attack",
-      "chance": 65,
-      "value": 1.4
+      "chance": 80,
+      "value": 1.3
     }
   ]
 }

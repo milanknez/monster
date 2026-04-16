@@ -393,17 +393,6 @@ export const SettingsModal = ({
                           </div>
                         </button>
 
-                        {isDebugMode && (
-                          <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-2">
-                             <div className="flex items-center gap-2 text-primary">
-                               <Shield size={14} />
-                               <span className="text-[10px] font-black uppercase tracking-wider">IAP Debug Status</span>
-                             </div>
-                             <p className="text-[10px] text-slate-400 font-bold leading-relaxed whitespace-pre-wrap break-all">
-                               {(window as any).purchaseService?.getStatus() || 'Service not found'}
-                             </p>
-                          </div>
-                        )}
                       </div>
                     </section>
                   </motion.div>

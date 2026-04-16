@@ -14,8 +14,8 @@
       "name": "Kalný výpad",
       "description": "Švábomyš se vynoří z kalu a rychle kousne nepřítele, čímž má šanci ho oslabit.",
       "type": "attack",
-      "chance": 75,
-      "value": 1.6
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Chitinový odraz",

@@ -14,8 +14,8 @@
       "name": "Trnový úder",
       "description": "Sekne nepřítele trny.",
       "type": "attack",
-      "chance": 45,
-      "value": 1.7
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Kořenový štít",

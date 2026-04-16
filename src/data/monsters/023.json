@@ -14,8 +14,8 @@
       "name": "Jedovatý dotek",
       "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Klouzavý útěk",

@@ -14,8 +14,8 @@
       "name": "Lávový déšť",
       "description": "Potřísní nepřítele vařícím sýrem a lávou z povrchu.",
       "type": "attack",
-      "chance": 75,
-      "value": 2.15
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Lávová aura",

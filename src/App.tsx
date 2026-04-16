@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TutorialOverlay, BATTLE_TUTORIAL_STEPS, HOME_TUTORIAL_STEPS, WORLD_TUTORIAL_STEPS, COLLECTION_TUTORIAL_STEPS, INVENTORY_TUTORIAL_STEPS, CODEX_TUTORIAL_STEPS } from './components/battle/TutorialOverlay'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
-import { cn, getTotalXPForLevel } from './utils'
+import { cn, getTotalXPForLevel, calculateBoostMultiplier } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
 
 import { Header } from './components/ui/Header'
@@ -80,7 +80,7 @@ function AppContent() {
   const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender', spawnId?: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ id: string, boost: Boost, title: string, price: string } | null>(null)
   const [isSpeedLimitDisabled, setIsSpeedLimitDisabled] = useState(() => localStorage.getItem('monster_debug_no_speed') === 'true')
-  const [currentPosition, setCurrentPosition] = useState<{lat: number, lng: number} | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<{ lat: number, lng: number } | null>(null);
 
   // Duel selection state
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
@@ -108,8 +108,8 @@ function AppContent() {
     try {
       const saved = localStorage.getItem('monster_collector_unlocked_quests');
       if (saved) {
-         const { date, ids } = JSON.parse(saved);
-         if (date === new Date().toDateString()) return ids;
+        const { ids } = JSON.parse(saved);
+        return ids;
       }
     } catch { }
     return [1, 2, 3]; // Základní úkoly
@@ -135,12 +135,12 @@ function AppContent() {
       setActiveTab('world');
       setTimeout(() => {
         if ((window as any).spawnCustomMonster) {
-           const seed = 'debug_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-           // Použijeme pickMonster, který správně filtruje rarity (Běžná, Epická...)
-           const mId = (pickMonster as any)(seed, rarity);
-           const finalLvl = (pickLevel as any)(seed, rarity);
+          const seed = 'debug_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+          // Použijeme pickMonster, který správně filtruje rarity (Běžná, Epická...)
+          const mId = (pickMonster as any)(seed, rarity);
+          const finalLvl = (pickLevel as any)(seed, rarity);
 
-           (window as any).spawnCustomMonster(mId, finalLvl, rarity);
+          (window as any).spawnCustomMonster(mId, finalLvl, rarity);
         } else {
           addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě!', type: 'error' });
         }
@@ -306,9 +306,28 @@ function AppContent() {
   useEffect(() => {
     if (userUid) {
       initNotifications(userUid);
-      
+
       // Initialize IAP Store
-      import('./lib/purchases').then(m => m.purchaseService.init());
+      import('./lib/purchases').then(m => {
+        const service = m.purchaseService;
+        service.init();
+
+        // Nastavíme globální handler pro vyřízení "zbloudilých" plateb (např. po restartu)
+        service.setRecoveryHandler({
+          onSuccess: (result) => {
+            console.log('IAP Global Fulfillment Recovery:', result);
+            if (result && typeof result === 'object' && (result as any).type) {
+              activateBoost(result as Boost);
+            } else if (typeof result === 'string') {
+              if (result === 'inv20') upgradeCapacity(20);
+              else if (result === 'inv24') upgradeCapacity(24);
+            }
+          },
+          onError: (err) => {
+            console.warn('IAP Global Error:', err);
+          }
+        });
+      });
     }
   }, [userUid]);
 
@@ -332,7 +351,7 @@ function AppContent() {
       const found = monsterDB.find(m => m.id === id);
       if (found) {
         // Create a copy with full HP
-        const copy: any = { ...found, caughtAt: Date.now(), currentHP: (found.stats?.hp || 100) * 10 }; 
+        const copy: any = { ...found, caughtAt: Date.now(), currentHP: (found.stats?.hp || 100) * 10 };
         saveMonster(copy, (xp) => addXP(xp));
         addToast({ title: 'Debug', message: `Příšera ${found.name} (ID: ${id}) přidána!`, type: 'xp' });
         console.log(`✅ Příšera ${found.name} přidána do sbírky.`);
@@ -498,13 +517,13 @@ function AppContent() {
   // Push notifikace pro nové úkoly
   useEffect(() => {
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     const todayTimestamp = today.getTime();
     const todayDateStr = today.toDateString();
 
     const currentUnlocked = [1, 2, 3];
     const monstersTodayCount = caughtMonsters.filter(m => m.caughtAt && m.caughtAt >= todayTimestamp).length;
-    
+
     if (currentLevel >= 4) currentUnlocked.push(4); // Vyzývatel
     if (currentLevel >= 4 && monstersTodayCount >= 5) currentUnlocked.push(5); // Lovec epiků
     if (currentLevel >= 6 && dailyStats.epics >= 3) currentUnlocked.push(6); // Legendární přemožitel
@@ -512,16 +531,16 @@ function AppContent() {
     const newUnlocks = currentUnlocked.filter(id => !unlockedQuests.includes(id));
     if (newUnlocks.length > 0) {
       newUnlocks.forEach(id => {
-         const questNames: any = { 
-           4: 'Souboj s hráčem', 
-           5: 'Lovec epiků (+3 Epické)', 
-           6: 'Legendární přemožitel' 
-         };
-         addToast({ 
-           title: 'Nový úkol k dispozici! 📜', 
-           message: `Byl odemčen denní protokol: ${questNames[id] || 'Neznámý'}`, 
-           type: 'xp' 
-         });
+        const questNames: any = {
+          4: 'Souboj s hráčem',
+          5: 'Lovec epiků (+3 Epické)',
+          6: 'Legendární přemožitel'
+        };
+        addToast({
+          title: 'Nový úkol k dispozici! 📜',
+          message: `Byl odemčen denní protokol: ${questNames[id] || 'Neznámý'}`,
+          type: 'xp'
+        });
       });
       setUnlockedQuests(currentUnlocked);
       localStorage.setItem('monster_collector_unlocked_quests', JSON.stringify({
@@ -530,7 +549,7 @@ function AppContent() {
       }));
     }
   }, [currentLevel, dailyStats, caughtMonsters, unlockedQuests, addToast]);
-  
+
   // --- TUTORIAL TRIGGERS ---
   useEffect(() => {
     // 1. Based on specific tab visibility AND profile completion
@@ -562,7 +581,7 @@ function AppContent() {
       }))
       return newVal
     })
-    
+
     // Also reset daily stats if day changed (fallback)
     setDailyStats(prev => {
       const saved = localStorage.getItem('monster_collector_daily_stats')
@@ -612,14 +631,14 @@ function AppContent() {
 
     // Apply special effects
     if (cfg.specialEffect && cfg.specialEffect !== 'none') {
-       const mins = cfg.effectDuration || 15;
-       if (cfg.specialEffect === 'xp_boost') {
-          activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-          addToast({ title: 'XP Boost aktivován!', message: `Získáváš 2x XP po dobu ${mins} minut.`, type: 'boost' });
-       } else if (cfg.specialEffect === 'hp_regen') {
-          activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-          addToast({ title: 'HP Regen aktivován!', message: `Tvoje regenerace zdraví je posílena na ${mins} minut.`, type: 'success' });
-       }
+      const mins = cfg.effectDuration || 15;
+      if (cfg.specialEffect === 'xp_boost') {
+        activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+        addToast({ title: 'XP Boost aktivován!', message: `Získáváš 2x XP po dobu ${mins} minut.`, type: 'boost' });
+      } else if (cfg.specialEffect === 'hp_regen') {
+        activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+        addToast({ title: 'HP Regen aktivován!', message: `Tvoje regenerace zdraví je posílena na ${mins} minut.`, type: 'success' });
+      }
     }
   };
 
@@ -804,7 +823,7 @@ function AppContent() {
     <div className={cn("min-h-screen font-display flex flex-col", activeTab !== 'world' && "pb-32")}>
       <AnimatePresence>
         {isDebugMode && (
-          <DebugBar 
+          <DebugBar
             key="debug-bar"
             onClose={() => setIsDebugMode(false)}
             onCheat={handleCheat}
@@ -824,25 +843,25 @@ function AppContent() {
             incomingAttack={incomingAttack}
             inventory={inventory.filter(i => i !== null) as any}
             isInventoryFull={inventory.every(i => i !== null)}
-            xpMultiplier={activeBoosts.find(b => b.type === 'xp_boost' && b.expiresAt > Date.now())?.multiplier || 1}
+            xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
             isTutorial={!localStorage.getItem('monster_tutorial_done')}
             onUseItem={(type) => {
               const cfg = RESOURCE_CONFIG[type];
               if (!cfg) return;
               consumeResources([{ type: type as any, count: 1 }]);
-              
+
               if (cfg.stats?.hp && caughtMonsters.length > 0) {
-                 const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp;
-                 updateMonsterHP(activeBattle.playerIdx, amount);
+                const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp;
+                updateMonsterHP(activeBattle.playerIdx, amount);
               }
-              
+
               if (cfg.specialEffect && cfg.specialEffect !== 'none') {
-                 const mins = cfg.effectDuration || 15;
-                 if (cfg.specialEffect === 'xp_boost') {
-                    activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-                 } else if (cfg.specialEffect === 'hp_regen') {
-                    activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-                 }
+                const mins = cfg.effectDuration || 15;
+                if (cfg.specialEffect === 'xp_boost') {
+                  activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+                } else if (cfg.specialEffect === 'hp_regen') {
+                  activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+                }
               }
             }}
             onSendEmote={(emote) => {
@@ -884,11 +903,11 @@ function AppContent() {
               }
               // 1. Award XP to the monster that fought
               giveMonsterXP(activeBattle.playerIdx, xp);
-              
+
               // 2. Add the new monster to the collection
-              saveMonster({ 
-                ...monster, 
-                currentHP: undefined, 
+              saveMonster({
+                ...monster,
+                currentHP: undefined,
                 xp: 0,
                 lat: currentPosition?.lat,
                 lng: currentPosition?.lng,
@@ -1054,6 +1073,8 @@ function AppContent() {
                     playerXP={totalXP}
                     isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                     isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
+                    xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
+                    hpMultiplier={calculateBoostMultiplier(activeBoosts, 'hp_regen')}
                   />
                   <StoreButton />
                   <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
@@ -1182,6 +1203,7 @@ function AppContent() {
             onClose={() => setNewMonster(null)}
             onAdd={() => setNewMonster(null)}
             isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+            xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
             isStackFull={caughtMonsters.filter(m => m.id === newMonster.id).length >= 3}
           />
         )}
@@ -1228,10 +1250,10 @@ function AppContent() {
             onToggleDebug={() => {
               const newVal = !isDebugMode;
               setIsDebugMode(newVal);
-              addToast({ 
-                title: 'Debug Mode', 
-                message: newVal ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.', 
-                type: 'success' 
+              addToast({
+                title: 'Debug Mode',
+                message: newVal ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.',
+                type: 'success'
               });
             }}
             onLogin={async () => {
@@ -1414,12 +1436,12 @@ function AppContent() {
         onConfirm={(result) => {
           if (payingItem) {
             if (result && typeof result === 'object' && result.type) {
-               activateBoost(result as Boost);
+              activateBoost(result as Boost);
             } else if (result && typeof result === 'string') {
-               if (result === 'inv20') upgradeCapacity(20);
-               else if (result === 'inv24') upgradeCapacity(24);
+              if (result === 'inv20') upgradeCapacity(20);
+              else if (result === 'inv24') upgradeCapacity(24);
             } else {
-               activateBoost(payingItem.boost);
+              activateBoost(payingItem.boost);
             }
             setPayingItem(null);
           }
@@ -1430,21 +1452,21 @@ function AppContent() {
 
       <AnimatePresence>
         {tutorialType && (
-          <TutorialOverlay 
+          <TutorialOverlay
             step={curTutorialStep}
             steps={
               tutorialType === 'home' ? HOME_TUTORIAL_STEPS :
-              tutorialType === 'world' ? WORLD_TUTORIAL_STEPS :
-              tutorialType === 'collection' ? COLLECTION_TUTORIAL_STEPS :
-              tutorialType === 'inventory' ? INVENTORY_TUTORIAL_STEPS :
-              tutorialType === 'codex' ? CODEX_TUTORIAL_STEPS :
-              []
+                tutorialType === 'world' ? WORLD_TUTORIAL_STEPS :
+                  tutorialType === 'collection' ? COLLECTION_TUTORIAL_STEPS :
+                    tutorialType === 'inventory' ? INVENTORY_TUTORIAL_STEPS :
+                      tutorialType === 'codex' ? CODEX_TUTORIAL_STEPS :
+                        []
             }
             onNext={() => {
-              const mapping: any = { 
-                home: HOME_TUTORIAL_STEPS, 
-                world: WORLD_TUTORIAL_STEPS, 
-                collection: COLLECTION_TUTORIAL_STEPS, 
+              const mapping: any = {
+                home: HOME_TUTORIAL_STEPS,
+                world: WORLD_TUTORIAL_STEPS,
+                collection: COLLECTION_TUTORIAL_STEPS,
                 inventory: INVENTORY_TUTORIAL_STEPS,
                 codex: CODEX_TUTORIAL_STEPS
               };
@@ -1530,6 +1552,8 @@ function AppContent() {
           <NewMonsterModal
             monster={newMonster}
             onClose={() => setNewMonster(null)}
+            isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+            xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
             onAdd={(m) => {
               // We've already saved it in handleBattleWin or onCatch
               setNewMonster(null);

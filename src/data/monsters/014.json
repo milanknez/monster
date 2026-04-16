@@ -14,8 +14,8 @@
       "name": "Uplakaná sprška",
       "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Tichá bouře",

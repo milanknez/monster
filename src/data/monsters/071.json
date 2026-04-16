@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 983,
-    "attack": 323,
+    "attack": 275,
     "defense": 151
   },
   "abilities": [
@@ -21,8 +21,8 @@
       "name": "Runový Výboj",
       "description": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.8
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Energetické Pokřivení",

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1200,
-    "attack": 510,
+    "attack": 434,
     "defense": 320
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Pekelné Sežehnutí",
       "description": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
       "type": "attack",
-      "chance": 45,
-      "value": 3.7
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Uhelná Bouře",
@@ -28,8 +28,8 @@
       "name": "Sopečný Výbuch",
       "description": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
       "type": "attack",
-      "chance": 25,
-      "value": 2.2
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { X, Sword, Heart, Flame, Droplets, Leaf, Zap, Skull } from 'lucide-react';
-import { cn, getMonsterMaxHP, TYPE_COLORS } from '../../utils';
+import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -205,12 +205,19 @@ export const DuelSelectionModal = ({
                       </div>
                     </div>
 
-                    {/* XP Progress Bar */}
-                    <div className="absolute bottom-2 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20">
-                       <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(100, ((monster.totalXP || 0) / (monster.level * 250)) * 100)}%` }}
-                          className={cn(
+                     <div className="absolute bottom-2 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20">
+                        <motion.div 
+                           initial={{ width: 0 }}
+                           animate={{ 
+                             width: (() => {
+                               const currentLvlXP = getTotalXPForLevel(monster.level);
+                               const nextLvlXP = getTotalXPForLevel(monster.level + 1);
+                               const totalNeeded = nextLvlXP - currentLvlXP;
+                               const perc = Math.max(0, Math.min(100, ((monster.xp || 0) / totalNeeded) * 100));
+                               return `${perc}%`;
+                             })()
+                           }}
+                           className={cn(
                             "h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]",
                             monster.rarity === 'Legendární' ? "bg-amber-500" : 
                             monster.rarity === 'Epická' ? "bg-purple-500" : 

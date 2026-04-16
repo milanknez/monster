@@ -14,8 +14,8 @@
       "name": "Listová bouře",
       "description": "Vystřelí na nepřítele ostré listy.",
       "type": "attack",
-      "chance": 45,
-      "value": 2
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Hnilobný dech",

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1092,
-    "attack": 303,
+    "attack": 258,
     "defense": 141
   },
   "abilities": [
@@ -15,7 +15,7 @@
       "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
       "type": "attack",
       "chance": 70,
-      "value": 1.85
+      "value": 2.3
     },
     {
       "name": "Podvodní rána",

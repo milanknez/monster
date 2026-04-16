@@ -106,8 +106,14 @@ import monster069 from './monsters/069.json';
 import monster070 from './monsters/070.json';
 import monster071 from './monsters/071.json';
 import monster072 from './monsters/072.json';
+import monster111 from './monsters/111.json';
+import monster112 from './monsters/112.json';
+import monster113 from './monsters/113.json';
 
 export const monsterDB = [
+  monster113,
+  monster112,
+  monster111,
   monster110,
   monster109,
   monster108,

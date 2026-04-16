@@ -14,8 +14,8 @@
       "name": "Erupce",
       "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Ztuhlá láva",

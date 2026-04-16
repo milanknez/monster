@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1250,
-    "attack": 420,
+    "attack": 357,
     "defense": 180
   },
   "abilities": [
@@ -21,8 +21,8 @@
       "name": "Dotek Prázdnoty",
       "description": "Zasadí ránu tak chladnou, že nepřítel na chvíli zkamení hrůzou.",
       "type": "attack",
-      "chance": 30,
-      "value": 3.2
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Zatemnění Mysli",

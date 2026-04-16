@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 955,
-    "attack": 274,
+    "attack": 233,
     "defense": 133
   },
   "abilities": [
@@ -15,7 +15,7 @@
       "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození.",
       "type": "attack",
       "chance": 70,
-      "value": 1.85
+      "value": 2.3
     },
     {
       "name": "Cukrová past",

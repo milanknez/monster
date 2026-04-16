@@ -22,7 +22,7 @@
       "description": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.45
+      "value": 1.9
     }
   ]
 }

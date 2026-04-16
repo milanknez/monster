@@ -14,8 +14,8 @@
       "name": "Elektrický Výboj",
       "description": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
       "type": "attack",
-      "chance": 45,
-      "value": 2.1
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Statické Nabití",

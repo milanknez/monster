@@ -14,8 +14,8 @@
       "name": "Popelavý kousanec",
       "description": "Kousnutí, které způsobí popáleniny popelem.",
       "type": "attack",
-      "chance": 45,
-      "value": 1.8
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Kouřová clona",

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1067,
-    "attack": 281,
+    "attack": 239,
     "defense": 139
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Úder Epickou Lopatou",
       "description": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
       "type": "attack",
-      "chance": 45,
-      "value": 2.8
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Kletba Hlubokého Lesa",
@@ -28,8 +28,8 @@
       "name": "Hnilobný Závan",
       "description": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
       "type": "attack",
-      "chance": 25,
-      "value": 1.5
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

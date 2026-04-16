@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 938,
-    "attack": 316,
+    "attack": 269,
     "defense": 136
   },
   "abilities": [
@@ -15,7 +15,7 @@
       "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
       "type": "attack",
       "chance": 70,
-      "value": 1.85
+      "value": 2.3
     },
     {
       "name": "Ohnivý štít",

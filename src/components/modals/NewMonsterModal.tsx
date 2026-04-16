@@ -9,7 +9,7 @@ const RARITY_COLORS: Record<string, string> = {
   'Legendární': 'text-amber-400'
 }
 
-export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; isStackFull?: boolean }) => {
+export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultiplier = 2, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; xpMultiplier?: number; isStackFull?: boolean }) => {
   if (!monster) return null
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
 
@@ -47,7 +47,7 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, isStackF
             </span>
             {isXPBoosted && (
               <span className="bg-blue-500 text-white px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter animate-pulse border border-blue-400/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                ⚡ +100% XP BOOST AKTIVNÍ
+                ⚡ {xpMultiplier}x XP BOOST AKTIVNÍ
               </span>
             )}
           </div>

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 1100,
-    "attack": 480,
+    "attack": 408,
     "defense": 220
   },
   "abilities": [
@@ -28,8 +28,8 @@
       "name": "Přízračné Kousnutí",
       "description": "Zasadí ránu čelistmi z jiné dimenze, která ignoruje veškeré brnění.",
       "type": "attack",
-      "chance": 25,
-      "value": 3.5
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

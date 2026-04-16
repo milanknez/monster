@@ -14,8 +14,8 @@
       "name": "Chapadlový útok",
       "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.85
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Plazivá obrana",

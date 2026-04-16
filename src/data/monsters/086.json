@@ -15,7 +15,7 @@
       "description": "Zakousne se do nepřítele a pustí do něj silný elektrický proud.",
       "type": "attack",
       "chance": 80,
-      "value": 2.1
+      "value": 1.9
     },
     {
       "name": "Křupavé nabití",

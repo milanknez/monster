@@ -70,13 +70,13 @@ export function generateCommonSpawns(playerLat: number, playerLng: number, coold
       const realId = `grid_${ix}_${iy}`;
 
       spawns.push({
-        id: realId, 
+        id: realId,
         lat: jLat,
         lng: jLng,
         rarity: 'common',
-        monsterId: pickMonster(id, 'common'),    
-        level: pickLevel(id, 'common'),          
-        caught: isOnCooldown(cooldowns, realId), 
+        monsterId: pickMonster(id, 'common'),
+        level: pickLevel(id, 'common'),
+        caught: isOnCooldown(cooldowns, realId),
       })
     }
   }
@@ -104,8 +104,8 @@ export function generateResources(playerLat: number, playerLng: number, cooldown
       const hashY = (iy * 31337) ^ (ix * 11369);
       const id = `resource_${hashX}_${hashY}`
 
-      // Hustota surovin na mapě (zvýšená na 30% šanci)
-      if (seededFloat(`r_skip_${id}`) < 0.70) continue
+      // Hustota surovin na mapě (zvýšená o 30 % oproti původní 30% šanci)
+      if (seededFloat(`r_skip_${id}`) < 0.20) continue
 
       const rChance = seededFloat(`rtype_${id}`);
       let rType: ResourceType = 'crystal';
@@ -238,7 +238,7 @@ out center;`;
 
     if (tags.historic || tags.tourism || tags.amenity === 'place_of_worship' || tags.heritage) {
       const isLegCandidate = LEGENDARY_CANDIDATE_TAGS.some(t => tags.historic === t || tags.heritage === t || tags.castle_type === t) ||
-                            (tags.name?.toLowerCase().match(/\b(hrad|zámek)\b/));
+        (tags.name?.toLowerCase().match(/\b(hrad|zámek)\b/));
       const isEpicSite = EPIC_TAGS.some(t => tags.historic === t || tags.heritage === t);
       const isChurch = tags.amenity === 'place_of_worship' && !isEpicSite && !isLegCandidate;
       const isVillageRural = VILLAGE_RURAL_TAGS.some(t => tags.historic === t) && !isChurch;
@@ -274,11 +274,11 @@ out center;`;
         level: 0,
         caught: isCollected,
       };
-      
+
       if (isLegCandidate) legCandidates.push({ m, tags });
       monsters.push(m);
     }
- else {
+    else {
       // Snížená hustota surovin z POI
       if (seededFloat(id + '_spawn') < 0.8) continue
 

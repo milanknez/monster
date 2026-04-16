@@ -15,7 +15,7 @@
       "description": "Útočí rychlým pohybem ocasu, způsobí poškození jednomu nepříteli.",
       "type": "attack",
       "chance": 80,
-      "value": 1.65
+      "value": 1.3
     },
     {
       "name": "Léčivé bublinky",

@@ -6,7 +6,7 @@
   "rarity": "Legendární",
   "stats": {
     "hp": 984,
-    "attack": 312,
+    "attack": 265,
     "defense": 134
   },
   "abilities": [
@@ -14,8 +14,8 @@
       "name": "Kočičí Armáda",
       "description": "Vypustí hejno hladových koček, které nepřítele poškrábou a pokoušou.",
       "type": "attack",
-      "chance": 50,
-      "value": 2.2
+      "chance": 70,
+      "value": 2.3
     },
     {
       "name": "Pronikavé Mňoukání",
@@ -28,8 +28,8 @@
       "name": "Infikované Drápy",
       "description": "Útok, který kromě zranění způsobí i otravu špínou z ulic.",
       "type": "attack",
-      "chance": 20,
-      "value": 1.6
+      "chance": 70,
+      "value": 2.3
     }
   ]
 }

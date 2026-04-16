@@ -14,8 +14,8 @@
       "name": "Injekce wasabi",
       "description": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
       "type": "attack",
-      "chance": 75,
-      "value": 1.95
+      "chance": 80,
+      "value": 1.9
     },
     {
       "name": "Slizká past",

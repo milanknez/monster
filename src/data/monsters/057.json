@@ -14,15 +14,15 @@
       "name": "Slizká Sprcha",
       "description": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
       "type": "attack",
-      "chance": 40,
-      "value": 1.8
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Jazykový Výpad",
       "description": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
       "type": "attack",
-      "chance": 35,
-      "value": 1.9
+      "chance": 80,
+      "value": 1.55
     },
     {
       "name": "Plachtění",

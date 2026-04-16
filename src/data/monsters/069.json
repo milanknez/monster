@@ -21,8 +21,8 @@
       "name": "Smrtící pyl",
       "description": "Vystřelí pyl, který působí halucinace.",
       "type": "attack",
-      "chance": 35,
-      "value": 2.1
+      "chance": 80,
+      "value": 1.55
     }
   ]
 }

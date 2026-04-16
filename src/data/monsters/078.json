@@ -14,8 +14,8 @@
       "name": "Divoké šlahouny",
       "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
       "type": "attack",
-      "chance": 70,
-      "value": 1.7
+      "chance": 80,
+      "value": 1.3
     },
     {
       "name": "Fotosyntéza",
