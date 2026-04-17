@@ -371,6 +371,48 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     }
   }, [])
 
+  // První rychlé načtení (z cache i pro běžné monstra), pokud se přepínáme z jiné záložky
+  useEffect(() => {
+    if (initialPosition && spawns.length === 0) {
+      const { lat, lng } = initialPosition;
+      
+      const cooldowns = loadCooldowns();
+      const commonMonsters = generateCommonSpawns(lat, lng, cooldowns);
+      const commonRes = generateResources(lat, lng, cooldowns);
+      
+      // Zkusit načíst i POI z cache rovnou
+      const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+      const cached = localStorage.getItem(cacheKey);
+      
+      let poiMonsters: SpawnPoint[] = [];
+      let poiResources: ResourceSpawn[] = [];
+      let poiBuildings: any[] = [];
+      
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (Date.now() - data.timestamp < 3600000) {
+            poiMonsters = data.content.monsters || [];
+            poiResources = data.content.resources || [];
+            poiBuildings = data.content.buildings || [];
+            buildingsRef.current = poiBuildings;
+            setBuildings(poiBuildings);
+          }
+        } catch (e) {}
+      }
+
+      const filteredM = poiMonsters.map(p => ({ ...p, caught: isOnCooldown(cooldowns, p.id) }));
+      const filteredR = poiResources.map(r => ({ ...r, isCollected: isOnCooldown(cooldowns, r.id) }));
+
+      const optimizedCommon = optimizeSpawns(commonMonsters, poiBuildings, filteredM, 35, 20);
+      const optimizedRes = optimizeSpawns(commonRes, poiBuildings, filteredR, 35, 20);
+      
+      setSpawns([...optimizedCommon, ...filteredM]);
+      setResources([...optimizedRes, ...filteredR]);
+      setStatusMsg('');
+    }
+  }, []); // Jen jednou při mountu komponenty
+
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
     const initPos: [number, number] = initialPosition ? [initialPosition.lat, initialPosition.lng] : [50.0755, 14.4378]
