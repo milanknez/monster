@@ -25,8 +25,12 @@ export function useMonsters(addToast: (toast: any) => void) {
           
           return {
             ...m,
+            name: dbData?.name || m.name,
+            type: dbData?.type || m.type,
+            rarity: dbData?.rarity || m.rarity,
+            description: dbData?.description || m.description,
+            abilities: dbData?.abilities || m.abilities || [],
             level,
-            abilities: (m.abilities && m.abilities.length > 0) ? m.abilities : (dbData?.abilities || []),
             xp: currentXP || 0,
             currentHP: m.currentHP !== undefined ? Math.min(max, m.currentHP) : max
           }
