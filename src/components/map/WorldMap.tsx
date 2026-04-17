@@ -69,6 +69,7 @@ export interface WorldMapProps {
   addToast?: (toast: { title: string; message: string; type: 'success' | 'info' | 'error' | 'boost' }) => void
   ignoreSpeedLimit?: boolean
   isBatterySaver?: boolean
+  mapTheme?: 'day' | 'night' | 'auto'
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -99,8 +100,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   addToast,
   ignoreSpeedLimit = false,
   isBatterySaver = false,
-  initialPosition = null
+  initialPosition = null,
+  mapTheme = 'auto'
 }, ref) => {
+
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -115,6 +118,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
   const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalMoveRef = useRef(false)
+  const tileLayerRef = useRef<L.TileLayer | null>(null)
+
 
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(initialPosition ? [initialPosition.lat, initialPosition.lng] : null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
@@ -417,8 +422,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (mapRef.current || !mapContainerRef.current) return
     const initPos: [number, number] = initialPosition ? [initialPosition.lat, initialPosition.lng] : [50.0755, 14.4378]
     const map = L.map(mapContainerRef.current, { center: initPos, zoom: 16, zoomControl: false })
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     mapRef.current = map
+
     
     if (initialPosition) {
       const { lat, lng } = initialPosition
@@ -482,6 +487,33 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current);
     }
   }, []) // Mapa se inicializuje jen jednou
+
+  // Propojení tématu mapy
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    let effectiveTheme: 'day' | 'night' = 'day';
+    if (mapTheme === 'auto') {
+      const hour = new Date().getHours();
+      effectiveTheme = (hour >= 20 || hour < 6) ? 'night' : 'day';
+    } else {
+      effectiveTheme = mapTheme as 'day' | 'night';
+    }
+
+    const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    
+    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+    if (!tileLayerRef.current) {
+      tileLayerRef.current = L.tileLayer(tileUrl, { 
+        maxZoom: 19,
+        attribution
+      }).addTo(mapRef.current);
+    } else {
+      tileLayerRef.current.setUrl(tileUrl);
+    }
+
+  }, [mapTheme]);
 
   // --- GPS Sledování ---
   useEffect(() => {
@@ -723,7 +755,13 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       </AnimatePresence>
 
       <div className="flex-1 relative m-3 mt-1 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl">
-        <div ref={mapContainerRef} className="w-full h-full z-0" />
+        <div 
+          ref={mapContainerRef} 
+          className={cn(
+            "w-full h-full z-0 transition-all duration-700",
+            (mapTheme === 'night' || (mapTheme === 'auto' && (new Date().getHours() >= 20 || new Date().getHours() < 6))) && "map-dark-filter"
+          )} 
+        />
 
         {/* Legend Overlay */}
         <div className="absolute bottom-[66px] left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">

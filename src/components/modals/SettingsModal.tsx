@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail } from 'lucide-react';
+import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon } from 'lucide-react';
+
 import { useState, useEffect } from 'react';
 import { cn, getPlayerRank } from '../../utils';
 import { useSoundSystem } from '../../context/SoundContext';
@@ -54,7 +55,11 @@ interface SettingsModalProps {
   onToggleBatterySaver: () => void;
   isDebugMode?: boolean;
   onToggleDebug?: () => void;
+  mapTheme: 'day' | 'night';
+  isMapAutoTheme: boolean;
+  onUpdateMapTheme: (theme: 'day' | 'night', auto: boolean) => void;
 }
+
 
 export const SettingsModal = ({ 
   isOpen, 
@@ -77,8 +82,12 @@ export const SettingsModal = ({
   isBatterySaver,
   onToggleBatterySaver,
   isDebugMode,
-  onToggleDebug
+  onToggleDebug,
+  mapTheme,
+  isMapAutoTheme,
+  onUpdateMapTheme
 }: SettingsModalProps) => {
+
   const { isMuted, setIsMuted } = useSoundSystem();
   const [tempName, setTempName] = useState(playerName);
   const [tempEmail, setTempEmail] = useState(playerEmail || '');
@@ -304,6 +313,48 @@ export const SettingsModal = ({
                           active={vibration} 
                           onToggle={() => setVibration(!vibration)} 
                         />
+                      </div>
+                    </section>
+
+                    {/* Mapa */}
+                    <section className="space-y-4">
+                      <div className="flex items-center gap-2 text-primary">
+                        <MapIcon size={16} className="fill-current opacity-20" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Zobrazení Mapy</span>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <Toggle 
+                          label="Automatické den/noc" 
+                          active={isMapAutoTheme} 
+                          onToggle={() => onUpdateMapTheme(mapTheme, !isMapAutoTheme)} 
+                          icon={<RefreshCw size={14} className={cn(isMapAutoTheme && "animate-spin")} />}
+                        />
+
+                        {!isMapAutoTheme && (
+                          <div className="flex gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                            <button
+                              onClick={() => onUpdateMapTheme('day', false)}
+                              className={cn(
+                                "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs",
+                                mapTheme === 'day' ? "bg-amber-500 text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                              )}
+                            >
+                              <Sun size={14} />
+                              DENNÍ
+                            </button>
+                            <button
+                              onClick={() => onUpdateMapTheme('night', false)}
+                              className={cn(
+                                "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs",
+                                mapTheme === 'night' ? "bg-slate-700 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+                              )}
+                            >
+                              <Moon size={14} />
+                              NOČNÍ
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </section>
 

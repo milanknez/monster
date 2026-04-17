@@ -4,4 +4,5 @@
     <string name="title_activity_main">Monstero - Lovci příšer</string>
     <string name="package_name">com.monster.collector</string>
     <string name="custom_url_scheme">com.monster.collector</string>
+    <string name="google_client_id">924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com</string>
 </resources>

@@ -258,19 +258,19 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
 
                   {/* XP Level Bar at the very bottom */}
                   <div className="absolute bottom-1 left-3 right-3 h-1 bg-black/40 rounded-full border border-white/5 overflow-hidden z-20 pointer-events-none">
-                     <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ 
-                          width: (() => {
-                            const currentLvlXP = getTotalXPForLevel(m.level);
-                            const nextLvlXP = getTotalXPForLevel(m.level + 1);
-                            const totalNeeded = nextLvlXP - currentLvlXP;
-                            const perc = Math.max(0, Math.min(100, ((m.xp || 0) / totalNeeded) * 100));
-                            return `${perc}%`;
-                          })()
-                        }}
-                        className={cn("h-full rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]", theme.bg)}
-                     />
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: (() => {
+                          const currentLvlXP = getTotalXPForLevel(m.level);
+                          const nextLvlXP = getTotalXPForLevel(m.level + 1);
+                          const totalNeeded = nextLvlXP - currentLvlXP;
+                          const perc = Math.max(0, Math.min(100, ((m.xp || 0) / totalNeeded) * 100));
+                          return `${perc}%`;
+                        })()
+                      }}
+                      className={cn("h-full rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]", theme.bg)}
+                    />
                   </div>
                 </>
               ) : (

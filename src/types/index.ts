@@ -35,6 +35,12 @@ export interface Monster {
   // Customization
   gems?: (string | null)[]; // Max 3 gems, any type
   items?: (string | null)[]; // Max 3 items (relics)
+  mutations?: Mutation[]; // History of permanent upgrades
+}
+
+export interface Mutation {
+  id: string; // resource type id
+  timestamp: number;
 }
 
 export interface Boost {

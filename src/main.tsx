@@ -2,9 +2,18 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
 
 // Debug pro Capacitor
 console.log('Main.tsx loaded');
+
+// Inicializace Google Auth pro nativní platformy
+if (Capacitor.isNativePlatform()) {
+  GoogleAuth.initialize();
+}
+
 
 try {
   const rootElement = document.getElementById('root');

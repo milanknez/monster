@@ -63,15 +63,16 @@ export const Header = ({
       {onCodexClick && (
         <button 
           onClick={onCodexClick}
-          className="p-2 rounded-xl bg-secondary/10 hover:bg-secondary/20 transition-all border border-secondary/20 active:scale-90"
+          className="px-3 py-2 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-all border border-secondary/20 active:scale-95 flex items-center gap-2"
         >
-          <Beaker size={20} className="text-secondary" />
+          <Beaker size={18} className="text-secondary" />
+          <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Laboratoř</span>
         </button>
       )}
       {onLocationClick && (
         <button 
           onClick={onLocationClick}
-          className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
+          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
         >
           <MapPin size={20} className="text-primary" />
         </button>
@@ -79,7 +80,7 @@ export const Header = ({
       {!showBack && (
         <button 
           onClick={onSettingsClick}
-          className="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
+          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
         >
           <Settings size={20} className="text-primary" />
         </button>

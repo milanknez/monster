@@ -18,7 +18,7 @@ export const Laboratory = ({
   const { playLabStart, playLabComplete } = useGameSound();
   const [craftingRecipeId, setCraftingRecipeId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<'vše' | 'lektvary' | 'drahokamy'>('vše');
+  const [activeCategory, setActiveCategory] = useState<'vše' | 'lektvary' | 'drahokamy' | 'relikvie'>('vše');
 
   const getItemCount = (type: ResourceType) => {
     return inventory.reduce((acc, slot) => {
@@ -65,6 +65,7 @@ export const Laboratory = ({
       if (activeCategory === 'vše') return true;
       if (activeCategory === 'lektvary') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
       if (activeCategory === 'drahokamy') return recipe.id.includes('gem');
+      if (activeCategory === 'relikvie') return recipe.id.includes('loot') || RESOURCE_CONFIG[recipe.id]?.category === 'relic';
       return true;
     });
 
@@ -77,12 +78,12 @@ export const Laboratory = ({
           <Beaker size={24} />
         </div>
         <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Laboratoř</h2>
-        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest opacity-80">Syntéza drahokamů a lektvarů</p>
+        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest opacity-80">Syntéza lektvarů a relikvií</p>
       </div>
 
       {/* Category Tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-        {(['vše', 'lektvary', 'drahokamy'] as const).map(cat => (
+        {(['vše', 'lektvary', 'drahokamy', 'relikvie'] as const).map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -93,7 +94,7 @@ export const Laboratory = ({
                 : "bg-slate-900/50 border-white/5 text-slate-500 hover:border-white/10"
             )}
           >
-            {cat === 'vše' ? 'Všechny' : cat === 'lektvary' ? 'Lektvary' : 'Drahokamy'}
+            {cat === 'vše' ? 'Vše' : cat === 'lektvary' ? 'Lektvary' : cat === 'drahokamy' ? 'Gemy' : 'Relikvie'}
           </button>
         ))}
       </div>
@@ -132,13 +133,13 @@ export const Laboratory = ({
                 <div className="p-4 flex flex-col h-full">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className={cn(
-                      "size-11 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 shadow-lg",
+                      "size-11 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg overflow-hidden",
                       rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-amber-500/5" :
                       rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
                       rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
                       "bg-slate-800 border-white/10"
                     )}>
-                      <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" />
+                      <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" className="w-full h-full" />
                     </div>
                     {ready && !active && (
                       <div className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] mt-1.5" />

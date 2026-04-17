@@ -16,6 +16,7 @@
     "@capacitor/local-notifications": "^8.0.2",
     "@capacitor/push-notifications": "^8.0.3",
     "@capgo/capacitor-bluetooth-low-energy": "^1.1.11",
+    "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@emotion/is-prop-valid": "^1.4.0",
     "@types/leaflet": "^1.9.21",
     "clsx": "^2.1.1",

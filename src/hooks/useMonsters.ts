@@ -198,7 +198,7 @@ export function useMonsters(addToast: (toast: any) => void) {
     });
   }, []);
 
-  const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number }) => {
+    const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number }, itemId?: string) => {
     setCaughtMonsters(prev => {
       const updated = [...prev]
       if (!updated[monsterIdx]) return prev
@@ -209,6 +209,15 @@ export function useMonsters(addToast: (toast: any) => void) {
         hp: oldStats.hp + (stats.hp || 0),
         attack: oldStats.attack + (stats.atk || 0),
         defense: oldStats.defense + (stats.def || 0)
+      }
+
+      if (itemId) {
+        const mutations = [...(m.mutations || [])];
+        mutations.push({
+          id: itemId,
+          timestamp: Date.now()
+        });
+        m.mutations = mutations;
       }
 
       updated[monsterIdx] = m

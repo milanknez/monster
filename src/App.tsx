@@ -80,7 +80,10 @@ function AppContent() {
   const [activeBattle, setActiveBattle] = useState<{ enemy: Monster, playerIdx: number, opponentName?: string, opponentUid?: string, pvpRole?: 'challenger' | 'defender', spawnId?: string } | null>(null)
   const [payingItem, setPayingItem] = useState<{ id: string, boost: Boost, title: string, price: string } | null>(null)
   const [isSpeedLimitDisabled, setIsSpeedLimitDisabled] = useState(() => localStorage.getItem('monster_debug_no_speed') === 'true')
-  const [currentPosition, setCurrentPosition] = useState<{ lat: number, lng: number } | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<{ lat: number, lng: number } | null>(() => {
+    const saved = localStorage.getItem('monster_last_pos');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Duel selection state
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
@@ -115,6 +118,8 @@ function AppContent() {
     return [1, 2, 3]; // Základní úkoly
   });
   const [isBatterySaver, setIsBatterySaver] = useState(() => localStorage.getItem('monster_battery_saver') === 'true')
+  const [mapTheme, setMapTheme] = useState<'day' | 'night'>(() => (localStorage.getItem('monster_map_theme') as any) || 'night')
+  const [isMapAutoTheme, setIsMapAutoTheme] = useState(() => localStorage.getItem('monster_map_auto_theme') === 'true') // Default false
 
   const handleAvatarClick = () => {
     setIsSettingsOpen(true);
@@ -573,11 +578,13 @@ function AppContent() {
     }
   }, [activeTab, tutorialType, playerName]);
 
-  const handleMove = useCallback((lat: number, lng: number, meters: number) => {
+  const handleMove = useCallback((lat: number, lng: number, distance: number) => {
     setCurrentPosition({ lat, lng });
+    localStorage.setItem('monster_last_pos', JSON.stringify({ lat, lng }));
+    addXP(Math.round(distance / 10));
     const today = new Date().toDateString();
     setDailyDistance((prev: number) => {
-      const newVal = prev + meters
+      const newVal = prev + distance
       localStorage.setItem('monster_collector_distance', JSON.stringify({
         dist: newVal,
         date: today
@@ -1040,19 +1047,28 @@ function AppContent() {
                 if (idx !== -1) {
                   const oldItem = caughtMonsters[idx].items?.[itemIdx];
                   equipItem(idx, itemIdx, type);
-
-                  // Update visual state
                   const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
                   newItems[itemIdx] = type;
                   const updated = { ...caughtMonsters[idx], items: newItems };
                   setSelectedMonster(updated);
-
                   if (type) consumeResources([{ type: type as any, count: 1 }]);
                   if (oldItem) addResource(oldItem as any, 1);
+                  addToast({
+                    title: type ? 'Relikvie osazena' : 'Relikvie odebrána',
+                    message: type ? 'Předmět posílil tvé monstrum!' : 'Předmět byl vrácen do batohu.',
+                    type: 'success'
+                  });
+                }
+              }}
+              onPermanentlyUpgrade={(itemType: string, stats: any) => {
+                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                if (idx !== -1) {
+                  updateMonsterStats(idx, stats, itemType);
+                  consumeResources([{ type: itemType as any, count: 1 }]);
 
                   addToast({
-                    title: type ? 'Předmět osazen' : 'Předmět odebrán',
-                    message: type ? 'Relikvie posílila tvé monstrum!' : 'Předmět byl vrácen do batohu.',
+                    title: 'Genetická Mutace!',
+                    message: `${selectedMonster.name} prošel úspěšnou evolucí genů.`,
                     type: 'success'
                   });
                 }
@@ -1180,6 +1196,7 @@ function AppContent() {
                   addToast={addToast}
                   ignoreSpeedLimit={isSpeedLimitDisabled}
                   isBatterySaver={isBatterySaver}
+                  mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
                 />
               )}
 
@@ -1266,6 +1283,14 @@ function AppContent() {
                 message: newVal ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.',
                 type: 'success'
               });
+            }}
+            mapTheme={mapTheme}
+            isMapAutoTheme={isMapAutoTheme}
+            onUpdateMapTheme={(theme, auto) => {
+              setMapTheme(theme);
+              setIsMapAutoTheme(auto);
+              localStorage.setItem('monster_map_theme', theme);
+              localStorage.setItem('monster_map_auto_theme', auto.toString());
             }}
             onLogin={async () => {
               try {

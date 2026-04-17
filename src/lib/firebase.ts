@@ -3,11 +3,15 @@ import { getDatabase, ref, onValue, set, onDisconnect, update, get, remove } fro
 import {
     getAuth,
     signInWithPopup,
+    signInWithCredential,
     GoogleAuthProvider,
     onAuthStateChanged,
     signOut, // Added signOut here
     User
 } from "firebase/auth";
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
 export { onAuthStateChanged };
 
 // Pro uživatele: Sem vlož konfiguraci ze své Firebase Console (Web App Config)
@@ -38,6 +42,12 @@ const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
     try {
+        if (Capacitor.isNativePlatform()) {
+            const googleUser = await GoogleAuth.signIn();
+            const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+            const result = await signInWithCredential(auth, credential);
+            return result.user;
+        }
         const result = await signInWithPopup(auth, googleProvider);
         return result.user;
     } catch (error) {

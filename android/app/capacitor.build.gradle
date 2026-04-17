@@ -12,6 +12,7 @@ dependencies {
     implementation project(':capacitor-local-notifications')
     implementation project(':capacitor-push-notifications')
     implementation project(':capgo-capacitor-bluetooth-low-energy')
+    implementation project(':codetrix-studio-capacitor-google-auth')
     implementation "com.android.billingclient:billing:8.3.0"
 }
 

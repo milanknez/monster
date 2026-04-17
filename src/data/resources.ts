@@ -528,6 +528,17 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_1": {
+    "recipe": [
+          {
+                "type": "mineral",
+                "count": 8
+          },
+          {
+                "type": "energy",
+                "count": 2
+          }
+    ],
+    "recipeAmount": 1,
     "label": "Sérum z krunýře",
     "icon": "🧪",
     "stats": {
@@ -546,6 +557,17 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_2": {
+    "recipe": [
+          {
+                "type": "herb",
+                "count": 8
+          },
+          {
+                "type": "crystal",
+                "count": 2
+          }
+    ],
+    "recipeAmount": 1,
     "label": "Dravý mutagen",
     "icon": "🧪",
     "stats": {
@@ -582,6 +604,21 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_4": {
+    "recipe": [
+          {
+                "type": "herb",
+                "count": 5
+          },
+          {
+                "type": "crystal",
+                "count": 5
+          },
+          {
+                "type": "mineral",
+                "count": 2
+          }
+    ],
+    "recipeAmount": 1,
     "label": "Regenerační gel",
     "icon": "🧪",
     "stats": {
@@ -725,6 +762,17 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_12": {
+    "recipe": [
+          {
+                "type": "mineral",
+                "count": 10
+          },
+          {
+                "type": "crystal",
+                "count": 5
+          }
+    ],
+    "recipeAmount": 1,
     "label": "tesákův luk",
     "icon": "🦷",
     "stats": {
@@ -776,6 +824,17 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropMax": 1
   },
   "loot_15": {
+    "recipe": [
+          {
+                "type": "herb",
+                "count": 10
+          },
+          {
+                "type": "crystal",
+                "count": 5
+          }
+    ],
+    "recipeAmount": 1,
     "label": "báby svitek",
     "icon": "🥊",
     "stats": {
