@@ -2,7 +2,7 @@
   "id": "105",
   "name": "Beztvará Hrůza",
   "description": "Obří chobotnicovitá entita s nekonečně se kroutícími chapadly.",
-  "type": "Magická",
+  "type": "Elektrická",
   "rarity": "Legendární",
   "stats": {
     "hp": 1100,

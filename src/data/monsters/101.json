@@ -2,7 +2,7 @@
   "id": "101",
   "name": "Stínožrout Zor",
   "description": "Prastará entita utkaná z nejčistší temnoty. Nepohybuje se, ale stíny v jeho okolí ožívají a pohlcují vše živé. Traduje se, že spatřit jeho tvář znamená ztratit vlastní identitu.",
-  "type": "Temná",
+  "type": "Elektrická",
   "rarity": "Legendární",
   "stats": {
     "hp": 1250,

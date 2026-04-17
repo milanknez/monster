@@ -7,9 +7,7 @@
   "stats": {
     "hp": 141,
     "attack": 38,
-    "defense": 12,
-    "speed": 6,
-    "magic": 8
+    "defense": 12
   },
   "abilities": [
     {

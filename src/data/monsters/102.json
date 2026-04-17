@@ -2,7 +2,7 @@
   "id": "102",
   "name": "Krvavý Šeptal",
   "description": "Vysoká, vyhublá postava v potrhaném rudém rouchu. Nemá ústa, přesto jeho hlas slyšíte přímo ve své hlavě, jak vám našeptává nevýslovné hrůzy a váš nevyhnutelný konec.",
-  "type": "Temná",
+  "type": "Elektrická",
   "rarity": "Legendární",
   "stats": {
     "hp": 1050,

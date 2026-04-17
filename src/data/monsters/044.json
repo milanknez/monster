@@ -2,7 +2,7 @@
   "id": "044",
   "name": "Beruška Bradavička",
   "description": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
-  "type": "Hmyzí",
+  "type": "Přírodní",
   "rarity": "Běžná",
   "stats": {
     "hp": 150,
