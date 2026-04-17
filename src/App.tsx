@@ -594,6 +594,31 @@ function AppContent() {
   }, [])
 
   // --- ACTIONS ---
+  const handleWorldCatch = useCallback((m: Monster, spawnId?: string) => {
+    if (caughtMonsters.length === 0) {
+      saveMonster(m, (xp) => {
+        addXP(xp);
+        setNewMonster(m);
+      });
+    } else {
+      setWildEncounter({ monster: m, spawnId });
+    }
+  }, [caughtMonsters.length, saveMonster, addXP]);
+
+  const handleStartTradeAction = useCallback((name: string | null, uid: string | undefined) => {
+    if (uid) {
+      setP2pTrade({ step: 'REQUESTING', partnerName: name || 'Hráč', partnerUid: uid });
+    }
+  }, []);
+
+  const handleStartDuelAction = useCallback((name: string | null, uid: string | undefined) => {
+    if (uid) sendChallenge(uid, name || 'Runner');
+  }, [sendChallenge]);
+
+  const handleGatherAction = useCallback((type: ResourceType, amount: number) => {
+    handleGather(type, amount);
+  }, [handleGather]);
+
   const handleCraft = (recipe: Recipe) => {
     const success = consumeResources(recipe.requirements);
     if (success) {
@@ -1136,25 +1161,12 @@ function AppContent() {
                 <WorldMap
                   ref={worldMapRef}
                   key="world"
-                  onCatch={(m, spawnId) => {
-                    if (caughtMonsters.length === 0) {
-                      saveMonster(m, (xp) => {
-                        addXP(xp);
-                        setNewMonster(m);
-                      });
-                    } else {
-                      setWildEncounter({ monster: m, spawnId });
-                    }
-                  }}
-                  onStartTrade={(name, uid) => {
-                    if (uid) {
-                      setP2pTrade({ step: 'REQUESTING', partnerName: name || 'Hráč', partnerUid: uid });
-                    }
-                  }}
+                  onCatch={handleWorldCatch}
+                  onStartTrade={handleStartTradeAction}
                   playerHP={currentHP}
                   onConsumeHP={consumeHP}
                   onDistanceUpdate={handleMove}
-                  isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle}
+                  isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle || !!wildEncounter}
                   caughtMonsters={caughtMonsters}
                   playerName={playerName || 'Aether_Runner'}
                   playerUid={userUid}
@@ -1162,10 +1174,8 @@ function AppContent() {
                   avatarSeed={avatarSeed}
                   playerLevel={currentLevel}
                   activeMonster={caughtMonsters[0] || null}
-                  onGather={handleGather}
-                  onStartDuel={(name, uid) => {
-                    if (uid) sendChallenge(uid, name || 'Runner');
-                  }}
+                  onGather={handleGatherAction}
+                  onStartDuel={handleStartDuelAction}
                   addToast={addToast}
                   ignoreSpeedLimit={isSpeedLimitDisabled}
                   isBatterySaver={isBatterySaver}

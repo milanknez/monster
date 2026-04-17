@@ -153,12 +153,21 @@ export async function fetchPoiData(
     if (cached) {
       try {
         const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp < 3600000) { // 1 hodina cache
+        if (Date.now() - data.timestamp < 3600000) { // 1 hour cache
           return data.content;
         }
       } catch (e) { console.error("Cache read error:", e) }
     }
   }
+
+  // Cleanup old cache entries to prevent QuotaExceededError
+  try {
+    const keys = Object.keys(localStorage);
+    const poiKeys = keys.filter(k => k.startsWith('poi_cache_'));
+    if (poiKeys.length > 40) { // Limit to 40 cache cells (roughly 2x2km area around player's travel path)
+        poiKeys.forEach(k => localStorage.removeItem(k));
+    }
+  } catch (e) { console.warn("Cache cleanup failed", e); }
 
   const query = `[out:json][timeout:60];
 (

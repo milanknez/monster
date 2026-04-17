@@ -53,7 +53,8 @@ const ABILITY_TYPES = [
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 0.2, desc: '+X% DMG k základu' },
 ]
 
-type EditorTab = 'monsters' | 'resources';
+type EditorTab = 'monsters' | 'resources' | 'settings';
+
 
 interface SystemEditorProps {
   onBack: () => void;
@@ -173,11 +174,14 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       }
     }
 
-    downloadJson(data, `${tab}.ts`, tab === 'resources' ? 'resourceConfig' : 'monsters');
+    const varName = tab === 'resources' ? 'resourceConfig' : (tab === 'settings' ? 'SYSTEM_SETTINGS' : 'monsterDB');
+    downloadJson(data, `${tab}.ts`, varName);
   }
+
 
   const downloadJson = (data: any, filename: string, varName: string) => {
     const content = `export const ${varName} = ${JSON.stringify(data, null, 2)};`;
+
     const dataStr = "data:text/typescript;charset=utf-8," + encodeURIComponent(content);
     const anchor = document.createElement('a');
     anchor.setAttribute("href", dataStr);
@@ -219,14 +223,13 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     setIsSavingNote(true)
     try {
       await handleSaveConfig('settings', { globalNote })
-      // We don't need alert here, it can be subtle
     } catch (e) {
       alert('Chyba při ukládání poznámky.')
     } finally {
-      setIsSavingNote(true)
       setTimeout(() => setIsSavingNote(false), 1000)
     }
   }
+
 
   const openJsonEditor = () => {
     const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;

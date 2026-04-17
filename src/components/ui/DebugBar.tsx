@@ -21,7 +21,10 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'spawn:legendary', label: 'Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400' },
     { id: 'addMonster:001', label: 'Monstrum #001', icon: Star, color: 'text-yellow-400' },
     { id: 'addMonster:075', label: 'Monstrum #075 (New)', icon: Star, color: 'text-purple-400' },
+    { id: 'addMonster:114', label: 'Kara Milka #114 (Extra)', icon: Star, color: 'text-amber-400' },
+
     { id: 'triggerLevelUp', label: 'Level Up Hráč', icon: Database, color: 'text-blue-400' },
+
     { id: 'testNotification', label: 'Test Notifikace', icon: Bell, color: 'text-indigo-400' },
     { id: 'debugIAP', label: 'Stav Obchodu (IAP DR)', icon: ShoppingBag, color: 'text-yellow-400' },
   ];

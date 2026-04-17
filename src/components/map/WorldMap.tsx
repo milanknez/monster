@@ -117,9 +117,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
   const [resources, setResources] = useState<ResourceSpawn[]>([])
-  const [nearbySpawn, setNearbySpawn] = useState<SpawnPoint | null>(null)
-  const [nearbyResource, setNearbyResource] = useState<ResourceSpawn | null>(null)
-
   const [levelBlocked, setLevelBlocked] = useState(false)
   const [energyBlocked, setEnergyBlocked] = useState(false)
   const [showMonsters, setShowMonsters] = useState(true)
@@ -149,6 +146,26 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (zoom >= 14) return 0.5
     return 0.35
   }, [zoom])
+
+  const nearbySpawn = useMemo(() => {
+    if (!playerPos) return null;
+    const nearby = spawns
+      .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng))
+      .map(s => ({ s, dist: haversineM(playerPos[0], playerPos[1], s.lat, s.lng) }))
+      .filter(({ dist }) => dist <= CATCH_RADIUS_M)
+      .sort((a, b) => a.dist - b.dist)[0];
+    return nearby?.s ?? null;
+  }, [playerPos, spawns]);
+
+  const nearbyResource = useMemo(() => {
+    if (!playerPos) return null;
+    const nearby = resources
+      .filter(r => !r.isCollected && isFinite(r.lat) && isFinite(r.lng))
+      .map(r => ({ r, dist: haversineM(playerPos[0], playerPos[1], r.lat, r.lng) }))
+      .filter(({ dist }) => dist <= CATCH_RADIUS_M)
+      .sort((a, b) => a.dist - b.dist)[0];
+    return nearby?.r ?? null;
+  }, [playerPos, resources]);
   const setAutoCenterSync = (val: boolean) => {
     setIsAutoCenter(val)
     isAutoCenterRef.current = val
@@ -197,9 +214,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             level: lvl,
             caught: false
           };
-          const next = [...prev, newM];
-          setTimeout(() => setNearbySpawn(newM), 100);
-          return next;
+          return [...prev, newM];
         });
         const mName = monsterDB.find(m => m.id === mId)?.name || mId;
         addToast?.({ title: 'Detekce!', message: `${mName} (Lv.${lvl}) naspawnováno u tebe!`, type: 'info' });
@@ -212,23 +227,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       delete (window as any).spawnCustomMonster;
     };
   }, [playerPos]);
-
-  const recalcNearby = useCallback((lat: number, lng: number, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[]) => {
-    if (!isFinite(lat) || !isFinite(lng)) return
-    const nearbySp = currentSpawns
-      .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng))
-      .map(s => ({ s, dist: haversineM(lat, lng, s.lat, s.lng) }))
-      .filter(({ dist }) => dist <= CATCH_RADIUS_M)
-      .sort((a, b) => a.dist - b.dist)[0]
-    setNearbySpawn(nearbySp?.s ?? null)
-
-    const nearbyRes = currentResources
-      .filter(r => !r.isCollected && isFinite(r.lat) && isFinite(r.lng))
-      .map(r => ({ r, dist: haversineM(lat, lng, r.lat, r.lng) }))
-      .filter(({ dist }) => dist <= CATCH_RADIUS_M)
-      .sort((a, b) => a.dist - b.dist)[0]
-    setNearbyResource(nearbyRes?.r ?? null)
-  }, [])
 
   const updateMarkers = useCallback((map: L.Map, currentSpawns: SpawnPoint[], currentResources: ResourceSpawn[], playerLat: number, playerLng: number, pLevel: number, hideMonsters: boolean, hideResources: boolean, scale: number) => {
     // Monsters
@@ -438,9 +436,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
           const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
 
-          const speed = (pos.coords.speed !== null && pos.coords.speed !== undefined)
+          const speedMps = (pos.coords.speed !== null && pos.coords.speed !== undefined)
             ? pos.coords.speed
             : (timeDiff > 0 ? traveled / timeDiff : 0)
+
+          const speed = Math.min(speedMps, 50) // Cap speed to 50m/s to avoid GPS jitter spikes causing false speed warnings
 
           if (!ignoreSpeedLimit && speed > 7 && traveled > 10) {
             setIsTooFast(true)
@@ -531,8 +531,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (!playerPos || !mapRef.current) return
     updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel, !showMonsters, !showResources, iconScale)
     updateOtherPlayers(mapRef.current, nearbyPlayers)
-    recalcNearby(playerPos[0], playerPos[1], spawns, resources)
-  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, recalcNearby, showMonsters, showResources, iconScale])
+  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale])
 
   const handleCatch = () => {
     if (!nearbySpawn) return
@@ -563,7 +562,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const nC = { ...cooldownsRef.current, [nearbyResource.id]: Date.now() + RESPAWN_COOLDOWN_MS }
     cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
     setResources(prev => prev.map(r => r.id === nearbyResource.id ? { ...r, isCollected: true } : r))
-    setNearbyResource(null)
   }
 
   useEffect(() => {
@@ -768,4 +766,4 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   )
 })
 
-export default WorldMap
+export default React.memo(WorldMap)
