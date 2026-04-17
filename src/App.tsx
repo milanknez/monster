@@ -401,6 +401,9 @@ function AppContent() {
         { type: 'magic_crystal', count: 20 },
         { type: 'crystal', count: 100 },
         { type: 'hp_potion', count: 20 },
+        { type: 'loot_11', count: 5 }, // Prastarý Artefakt
+        { type: 'loot_6', count: 10 }, // Stabilizovaná DNA
+        { type: 'loot_1', count: 20 }, // Sérum z krunýře
       ];
       items.forEach(item => addResource(item.type as any, item.count));
       addToast({ title: '📦 Dev balíček doručen!', message: 'Inventář byl naplněn gemy a surovinami.', type: 'success' });
@@ -433,7 +436,7 @@ function AppContent() {
         xp: 0,
         name: 'Obsidiánový Golem',
         rarity: 'epic',
-        type: 'Kamenná',
+        type: 'Přírodní',
         image: '',
         description: 'Testovací boss pro odchyt.',
         stats: { hp: 150, attack: 45, defense: 30 }
@@ -615,9 +618,6 @@ function AppContent() {
     if (uid) sendChallenge(uid, name || 'Runner');
   }, [sendChallenge]);
 
-  const handleGatherAction = useCallback((type: ResourceType, amount: number) => {
-    handleGather(type, amount);
-  }, [handleGather]);
 
   const handleCraft = (recipe: Recipe) => {
     const success = consumeResources(recipe.requirements);
@@ -1168,13 +1168,14 @@ function AppContent() {
                   onDistanceUpdate={handleMove}
                   isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle || !!wildEncounter}
                   caughtMonsters={caughtMonsters}
+                  initialPosition={currentPosition}
                   playerName={playerName || 'Aether_Runner'}
                   playerUid={userUid}
                   avatarStyle={avatarStyle}
                   avatarSeed={avatarSeed}
                   playerLevel={currentLevel}
                   activeMonster={caughtMonsters[0] || null}
-                  onGather={handleGatherAction}
+                  onGather={handleGather}
                   onStartDuel={handleStartDuelAction}
                   addToast={addToast}
                   ignoreSpeedLimit={isSpeedLimitDisabled}

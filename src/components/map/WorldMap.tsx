@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
+import React, { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Navigation, Sword, Shield, Zap, Package, X, Compass, Crosshair, Users, RefreshCw, Battery, Heart } from 'lucide-react'
 import L from 'leaflet'
@@ -58,6 +58,7 @@ export interface WorldMapProps {
   onDistanceUpdate: (lat: number, lng: number, meters: number) => void
   isInteractionBlocked?: boolean
   caughtMonsters: Monster[]
+  initialPosition?: { lat: number, lng: number } | null
   playerName: string
   playerUid: string
   avatarStyle: string
@@ -97,7 +98,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   activeMonster,
   addToast,
   ignoreSpeedLimit = false,
-  isBatterySaver = false
+  isBatterySaver = false,
+  initialPosition = null
 }, ref) => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -114,7 +116,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalMoveRef = useRef(false)
 
-  const [playerPos, setPlayerPos] = useState<[number, number] | null>(null)
+  const [playerPos, setPlayerPos] = useState<[number, number] | null>(initialPosition ? [initialPosition.lat, initialPosition.lng] : null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
   const [resources, setResources] = useState<ResourceSpawn[]>([])
   const [levelBlocked, setLevelBlocked] = useState(false)
@@ -166,6 +168,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       .sort((a, b) => a.dist - b.dist)[0];
     return nearby?.r ?? null;
   }, [playerPos, resources]);
+
   const setAutoCenterSync = (val: boolean) => {
     setIsAutoCenter(val)
     isAutoCenterRef.current = val
@@ -195,7 +198,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             caught: false
           };
           const next = [...prev, newM];
-          setTimeout(() => setNearbySpawn(newM), 100);
           return next;
         });
         addToast?.({ title: 'Goleme, vstaň!', message: 'Epický boss se objevil v tvé blízkosti!', type: 'success' });
@@ -371,7 +373,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
-    const map = L.map(mapContainerRef.current, { center: [50.0755, 14.4378], zoom: 16, zoomControl: false })
+    const initPos: [number, number] = initialPosition ? [initialPosition.lat, initialPosition.lng] : [50.0755, 14.4378]
+    const map = L.map(mapContainerRef.current, { center: initPos, zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     mapRef.current = map
 
@@ -533,18 +536,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     updateOtherPlayers(mapRef.current, nearbyPlayers)
   }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale])
 
-  const handleCatch = () => {
-    if (!nearbySpawn) return
-    const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
-    if (playerHP < cost) { setEnergyBlocked(true); setTimeout(() => setEnergyBlocked(false), 2000); return }
-    const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
-    onConsumeHP(cost)
-
-    // We NO LONGER mark it as caught here immediately.
-    // Instead we pass the ID to App so it can decide later.
-    onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster, nearbySpawn.id)
-    setNearbySpawn(null)
-  }
 
   useEffect(() => {
     (window as any).markMonsterAsCaught = (spawnId: string) => {
@@ -556,13 +547,6 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     return () => { delete (window as any).markMonsterAsCaught; };
   }, []);
 
-  const handleGather = () => {
-    if (!nearbyResource) return
-    onGather(nearbyResource.type, nearbyResource.amount)
-    const nC = { ...cooldownsRef.current, [nearbyResource.id]: Date.now() + RESPAWN_COOLDOWN_MS }
-    cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
-    setResources(prev => prev.map(r => r.id === nearbyResource.id ? { ...r, isCollected: true } : r))
-  }
 
   useEffect(() => {
     if (!playerPos || !playerName || !playerUid) return
@@ -596,6 +580,23 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     firebasePlayers.forEach(p => all.set(p.name, p))
     setNearbyPlayers(Array.from(all.values()))
   }, [firebasePlayers])
+
+  function handleCatch() {
+    if (!nearbySpawn) return
+    const cost = calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)
+    if (playerHP < cost) { setEnergyBlocked(true); setTimeout(() => setEnergyBlocked(false), 2000); return }
+    const dbM = monsterDB.find(m => m.id === nearbySpawn.monsterId) || monsterDB[0]
+    onConsumeHP(cost)
+    onCatch({ ...dbM, level: nearbySpawn.level, image: `/monsters/${dbM.id}.png` } as Monster, nearbySpawn.id)
+  }
+
+  function handleGather() {
+    if (!nearbyResource) return
+    onGather(nearbyResource.type, nearbyResource.amount)
+    const nC = { ...cooldownsRef.current, [nearbyResource.id]: Date.now() + RESPAWN_COOLDOWN_MS }
+    cooldownsRef.current = nC; localStorage.setItem('map_cooldowns', JSON.stringify(nC))
+    setResources(prev => prev.map(r => r.id === nearbyResource.id ? { ...r, isCollected: true } : r))
+  }
 
   return (
     <motion.div
@@ -766,4 +767,4 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   )
 })
 
-export default React.memo(WorldMap)
+export default memo(WorldMap)
