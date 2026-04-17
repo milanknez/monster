@@ -124,7 +124,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [showMonsters, setShowMonsters] = useState(true)
   const [showResources, setShowResources] = useState(true)
   const [loadingPoi, setLoadingPoi] = useState(false)
-  const [statusMsg, setStatusMsg] = useState('Hledám polohu…')
+  const [statusMsg, setStatusMsg] = useState(initialPosition ? '' : 'Hledám polohu…')
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
@@ -419,6 +419,24 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const map = L.map(mapContainerRef.current, { center: initPos, zoom: 16, zoomControl: false })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map)
     mapRef.current = map
+    
+    if (initialPosition) {
+      const { lat, lng } = initialPosition
+      playerMarkerRef.current = L.marker([lat, lng], {
+        icon: makePlayerIcon(),
+        zIndexOffset: 1000,
+        interactive: true
+      }).addTo(map)
+      lastPosRef.current = [lat, lng]
+      lastPosTimeRef.current = Date.now()
+      
+      // Lehké "zazoomování" při startu pro lepší efekt, podobně jako u tlačítka pointu
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.setView([lat, lng], 17, { animate: true, duration: 1 });
+        }
+      }, 100);
+    }
 
     const handleManualInteractionStart = () => {
       if (mapRef.current) map.stop()
