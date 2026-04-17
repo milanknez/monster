@@ -608,13 +608,13 @@ function AppContent() {
     }
   }, [caughtMonsters.length, saveMonster, addXP]);
 
-  const handleStartTradeAction = useCallback((name: string | null, uid: string | undefined) => {
+  const handleStartTradeAction = useCallback((name: string | undefined, uid: string | undefined) => {
     if (uid) {
       setP2pTrade({ step: 'REQUESTING', partnerName: name || 'Hráč', partnerUid: uid });
     }
   }, []);
 
-  const handleStartDuelAction = useCallback((name: string | null, uid: string | undefined) => {
+  const handleStartDuelAction = useCallback((name: string | undefined, uid: string | undefined) => {
     if (uid) sendChallenge(uid, name || 'Runner');
   }, [sendChallenge]);
 
