@@ -254,16 +254,41 @@ function AppContent() {
   const activeMonster = caughtMonsters[0] || null
   const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, userUid, activeBattle?.opponentUid)
 
-  // Handle Referral from URL
+  // Handle Referral from URL (Web & Deep Links)
   useEffect(() => {
+    // 1. Handle Web URL params
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     if (refCode && refCode !== userUid) {
       localStorage.setItem('pending_referral', refCode);
-      // Clean URL without reload
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
+
+    // 2. Handle Native Deep Links
+    const handleDeepLink = (event: any) => {
+      try {
+        const url = new URL(event.url);
+        const ref = url.searchParams.get('ref');
+        if (ref && ref !== userUid) {
+          localStorage.setItem('pending_referral', ref);
+          setReferredBy(ref);
+          addToast({ 
+            title: 'Pozvánka přijata!', 
+            message: 'Díky za využití odkazu. Odměnu získáš na 3. úrovni.', 
+            type: 'success' 
+          });
+        }
+      } catch (e) {
+        console.error('Deep link error:', e);
+      }
+    };
+
+    CapApp.addListener('appUrlOpen', handleDeepLink);
+    
+    return () => {
+      CapApp.removeAllListeners();
+    };
   }, [userUid]);
 
   // --- FIREBASE AUTH & SYNC ---

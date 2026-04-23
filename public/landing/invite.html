@@ -316,6 +316,10 @@
             Pojď lovit příšery v reálném světě! Přidej se k nám, sbírej unikátní monstra a bojuj s ostatními lovci.
         </p>
 
+        <a id="open-app-link" href="#" class="btn btn-outline" style="display: none; margin-bottom: 2rem; border-color: var(--primary); color: var(--primary);">
+            Mám aplikaci, otevřít v ní
+        </a>
+
         <div id="inviter-container" class="inviter-card">
             <div class="avatar" id="inviter-initial">?</div>
             <div class="inviter-info">
@@ -387,6 +391,13 @@
         if (refCode) {
             document.getElementById('ref-display').innerText = refCode.slice(-6).toUpperCase();
             localStorage.setItem('pending_referral', refCode);
+
+            // Update Open App Link
+            const openAppLink = document.getElementById('open-app-link');
+            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                openAppLink.style.display = 'block';
+                openAppLink.href = `monsterapp://invite?ref=${refCode}`;
+            }
 
             const playerRef = ref(db, `players/${refCode}`);
             get(playerRef).then((snapshot) => {
