@@ -1,33 +1,37 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="google-signin-client_id" content="924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com">
-    <title>Monster Collector - Dashboard</title>
-    <script>
-      window.onerror = function(msg, source, lineno, colno, error) {
-        var errDiv = document.createElement('div');
-        errDiv.style.position = 'fixed'; errDiv.style.top = '0'; errDiv.style.left = '0';
-        errDiv.style.zIndex = '99999'; errDiv.style.backgroundColor = 'red'; errDiv.style.color = 'white'; errDiv.style.padding = '10px';
-        errDiv.style.width = '100%'; errDiv.innerHTML = 'Global Error: ' + msg + '<br>Source: ' + source + ':' + lineno + ':' + colno;
-        document.body.appendChild(errDiv);
-        return false;
-      };
-      window.addEventListener('unhandledrejection', function(event) {
-        var errDiv = document.createElement('div');
-        errDiv.style.position = 'fixed'; errDiv.style.top = '40px'; errDiv.style.left = '0';
-        errDiv.style.zIndex = '99999'; errDiv.style.backgroundColor = 'orange'; errDiv.style.color = 'white'; errDiv.style.padding = '10px';
-        errDiv.style.width = '100%'; errDiv.innerHTML = 'Promise Error: ' + event.reason;
-        document.body.appendChild(errDiv);
-      });
-    </script>
-    <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#101e22">
-  </head>
-  <body class="bg-[#101e22] text-slate-100">
-    <div id="root"></div>
-    <script type="module" src="src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="google-signin-client_id"
+    content="924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com">
+  <title>Monster Collector</title>
+  <script>
+    window.onerror = function (msg, source, lineno, colno, error) {
+      var errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed'; errDiv.style.top = '0'; errDiv.style.left = '0';
+      errDiv.style.zIndex = '99999'; errDiv.style.backgroundColor = 'red'; errDiv.style.color = 'white'; errDiv.style.padding = '10px';
+      errDiv.style.width = '100%'; errDiv.innerHTML = 'Global Error: ' + msg + '<br>Source: ' + source + ':' + lineno + ':' + colno;
+      document.body.appendChild(errDiv);
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function (event) {
+      var errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed'; errDiv.style.top = '40px'; errDiv.style.left = '0';
+      errDiv.style.zIndex = '99999'; errDiv.style.backgroundColor = 'orange'; errDiv.style.color = 'white'; errDiv.style.padding = '10px';
+      errDiv.style.width = '100%'; errDiv.innerHTML = 'Promise Error: ' + event.reason;
+      document.body.appendChild(errDiv);
+    });
+  </script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#101e22">
+</head>
+
+<body class="bg-[#101e22] text-slate-100">
+  <div id="root"></div>
+  <script type="module" src="src/main.tsx"></script>
+</body>
+
 </html>
