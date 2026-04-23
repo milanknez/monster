@@ -15,21 +15,21 @@
       "description": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Safírová záře",
       "description": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Elektrické vlnobití",
       "description": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele.",
       "type": "extra",
       "chance": 65,
-      "value": 0.45
+      "value": 45
     }
   ]
 }

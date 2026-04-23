@@ -15,7 +15,7 @@
       "description": "Vypustí hejno hladových koček, které nepřítele poškrábou a pokoušou.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Pronikavé Mňoukání",
@@ -29,7 +29,7 @@
       "description": "Útok, který kromě zranění způsobí i otravu špínou z ulic.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

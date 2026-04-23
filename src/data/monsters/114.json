@@ -15,14 +15,14 @@
       "description": "Zpívá melodickou píseň, která léčí část HP.",
       "type": "heal",
       "chance": 83,
-      "value": 0.2
+      "value": 20
     },
     {
       "name": "Zubatý výpad",
       "description": "Rychlý útok svými zahnutými zoubky nahoru.",
       "type": "attack",
       "chance": 85,
-      "value": 1.25
+      "value": 125
     }
   ]
 }

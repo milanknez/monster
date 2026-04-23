@@ -15,14 +15,14 @@
       "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Fotosyntéza",
       "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
       "type": "regen",
       "chance": 65,
-      "value": 0.15
+      "value": 15
     }
   ]
 }

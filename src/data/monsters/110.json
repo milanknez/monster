@@ -15,14 +15,14 @@
       "description": "Nikdy nemine a má ohromnou šanci na kritický zásah.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Dezintegrace",
       "description": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Vhled do Budoucna",

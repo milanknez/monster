@@ -22,7 +22,7 @@
       "description": "Zasadí ránu čelistmi plnými jedovatého hnisu.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Podhoubí Zkázy",

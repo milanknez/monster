@@ -15,14 +15,14 @@
       "description": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Mozková mlha",
       "description": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku.",
       "type": "curse",
       "chance": 75,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

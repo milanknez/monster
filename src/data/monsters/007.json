@@ -15,14 +15,14 @@
       "description": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Mořský hněv",
       "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
       "type": "heal",
       "chance": 70,
-      "value": 0.2
+      "value": 20
     }
   ]
 }

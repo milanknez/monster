@@ -15,14 +15,14 @@
       "description": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Plazmová obnova",
       "description": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví.",
       "type": "regen",
       "chance": 65,
-      "value": 0.15
+      "value": 15
     }
   ]
 }

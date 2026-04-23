@@ -15,7 +15,7 @@
       "description": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Vřískot Tisíce Úst",
@@ -26,10 +26,10 @@
     },
     {
       "name": "Korozivní Sliz",
-      "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka.",
+      "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 25,
-      "value": 2.5
+      "value": 60
     }
   ]
 }

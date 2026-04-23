@@ -15,7 +15,7 @@
       "description": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Půdní infuze",

@@ -15,14 +15,14 @@
       "description": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, ",
       "type": "curse",
       "chance": 85,
-      "value": 0.2
+      "value": 20
     },
     {
       "name": "Kořenový náraz",
       "description": "Z kořenů vyrazí rychlý útok na jednoho nepřítele.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

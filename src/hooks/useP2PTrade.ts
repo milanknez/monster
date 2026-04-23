@@ -35,6 +35,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
         }
 
         if (type === 'TOF' && (prev.step === 'WAITING_OFFER' || prev.step === 'SELECTING' || prev.step === 'REQUESTING')) {
+           if (!data) return prev;
            const [monId, monLvl] = data.split(':');
            const dbM = monsterDB.find(m => m.id === monId) || monsterDB[0];
            const newState: P2PTradeState = { 
@@ -52,6 +53,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
 
         if (type === 'CNL') {
            addToast({ title: 'Výměna zrušena', message: `${fromName} zrušil proces.`, type: 'xp' });
+           clearTradeSignal(userUid);
            return null;
         }
 
@@ -59,7 +61,11 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
       });
     });
 
-    return () => { if (unsubscribe) unsubscribe(); };
+    return () => { 
+      if (unsubscribe) unsubscribe(); 
+      // Dočasně vyčistit signál při odchodu, aby nezůstávaly duchové
+      clearTradeSignal(userUid);
+    };
   }, [playerName, addToast, userUid]);
 
   useEffect(() => {

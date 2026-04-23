@@ -22,7 +22,7 @@
       "description": "Ovine nepřítele svými chapadly a postupně ho stahuje do své tlamy.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Mořská Regenerace",

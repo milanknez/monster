@@ -15,7 +15,7 @@
       "description": "Narazí do nepřítele v plné rychlosti a vyvolá ohnivou explozi.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Adrenalinový žár",

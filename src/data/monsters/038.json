@@ -12,17 +12,17 @@
   "abilities": [
     {
       "name": "Krystalová barikáda",
-      "description": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu.",
+      "description": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 75,
-      "value": 1.75
+      "value": 60
     },
     {
       "name": "Mrazivý sliz",
       "description": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     }
   ]
 }

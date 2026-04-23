@@ -22,7 +22,7 @@
       "description": "Vystřelí kus plazmy ze svého těla.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     }
   ]
 }

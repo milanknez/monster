@@ -15,21 +15,21 @@
       "description": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Jazykový Výpad",
       "description": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Plachtění",
-      "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku.",
+      "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 25,
-      "value": 1.7
+      "value": 60
     }
   ]
 }

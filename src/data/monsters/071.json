@@ -22,14 +22,14 @@
       "description": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Energetické Pokřivení",
-      "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným.",
+      "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 25,
-      "value": 2.2
+      "value": 60
     }
   ]
 }

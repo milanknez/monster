@@ -15,14 +15,14 @@
       "description": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Zmatený úprk",
-      "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout.",
+      "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

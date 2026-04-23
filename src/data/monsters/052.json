@@ -22,7 +22,7 @@
       "description": "Rychle šlehne svými tuhými listy a způsobí řezné rány.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Hojivá Míza",

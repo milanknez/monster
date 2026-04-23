@@ -15,7 +15,7 @@
       "description": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Zlověstné Cvaknutí",
@@ -26,10 +26,10 @@
     },
     {
       "name": "Svinutí do Kuličky",
-      "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu.",
+      "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 25,
-      "value": 1.6
+      "value": 60
     }
   ]
 }

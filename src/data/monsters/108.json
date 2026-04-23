@@ -29,7 +29,7 @@
       "description": "Prudká salva hnilobných spor, které zasáhnou vše živé i mrtvé.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

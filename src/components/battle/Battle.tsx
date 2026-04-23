@@ -446,7 +446,9 @@ export const Battle = ({
   const [enemyHP, setEnemyHP] = useState<number>(enemyMonster.currentHP ?? enemyMaxHP);
   const [playerEnergy, setPlayerEnergy] = useState<number>(20);
   const [shieldTurns, setShieldTurns] = useState(0);
+  const [shieldPower, setShieldPower] = useState(0.4);
   const [enemyShieldTurns, setEnemyShieldTurns] = useState(0);
+  const [enemyShieldPower, setEnemyShieldPower] = useState(0.4);
   const [enemyEffects, setEnemyEffects] = useState<StatusEffect[]>([]);
   const [playerEffects, setPlayerEffects] = useState<StatusEffect[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
@@ -544,11 +546,11 @@ export const Battle = ({
     
     if (isSkill && ability) {
       if (ability.type === 'extra') {
-        // "Extra" type adds its value to the base attack (0.8 + value)
-        mult = 0.8 + (ability.value ?? 0);
+        // "Extra" type adds its percentage to the base attack (0.8 + (value/100))
+        mult = 0.8 + ((ability.value ?? 40) / 100);
       } else {
-        // Other skills use their value as an absolute multiplier
-        mult = ability.value ?? 1.25;
+        // Other skills use their percentage as an absolute multiplier
+        mult = (ability.value ?? 155) / 100;
       }
     }
 
@@ -576,8 +578,8 @@ export const Battle = ({
     if (isCrit) dmg *= 1.6;
     dmg *= wildMult;
 
-    if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;
-    if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= 0.4;
+    if (defender === playerMonster && shieldTurns > 0) dmg *= shieldPower;
+    if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= enemyShieldPower;
     return { dmg: Math.round(dmg), isCrit, isEffective, isWeak };
   }, [playerMonster, shieldTurns, enemyShieldTurns, playerEffects, enemyEffects]);
 
@@ -602,18 +604,18 @@ export const Battle = ({
     
     if (isSkill && ability) {
       if (ability.type === 'extra') {
-        // "Extra" type adds its value to the base attack (0.8 + value)
-        mult = 0.8 + (ability.value ?? 0);
+        // "Extra" type adds its percentage to the base attack (0.8 + (value/100))
+        mult = 0.8 + ((ability.value ?? 40) / 100);
       } else {
-        // Other skills use their value as an absolute multiplier
-        mult = ability.value ?? 1.25;
+        // Other skills use their percentage as an absolute multiplier
+        mult = (ability.value ?? 155) / 100;
       }
     }
 
     const base = Math.round((s.total.atk * mult - d.total.def * 0.45));
     let dmg = Math.max(Math.floor(s.total.atk * 0.1), base) * wildMult;
-    if (defender === playerMonster && shieldTurns > 0) dmg *= 0.4;
-    if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= 0.4;
+    if (defender === playerMonster && shieldTurns > 0) dmg *= shieldPower;
+    if (attacker === playerMonster && enemyShieldTurns > 0) dmg *= enemyShieldPower;
     return Math.round(dmg);
   }, [playerMonster, shieldTurns, enemyShieldTurns]);
 
@@ -649,8 +651,8 @@ export const Battle = ({
       // Periodic effects execution
       playerEffects.forEach(e => {
         if (e.type === 'burn') { const bd = Math.round(playerMaxHP * 0.05); setPlayerHP(p => Math.max(0, p - bd)); addPopup(bd, false); }
-        if (e.type === 'curse') { const cd = Math.round((e.casterAtk || 10) * (e.value || 0.2)); setPlayerHP(p => Math.max(0, p - cd)); addPopup(cd, false); }
-        if (e.type === 'regen') { const rh = Math.round(playerMaxHP * (e.value || 0.1)); setPlayerHP(p => Math.min(playerMaxHP, p + rh)); addPopup(rh, false, { isHeal: true }); }
+        if (e.type === 'curse') { const cd = Math.round((e.casterAtk || 10) * ((e.value || 20) / 100)); setPlayerHP(p => Math.max(0, p - cd)); addPopup(cd, false); }
+        if (e.type === 'regen') { const rh = Math.round(playerMaxHP * ((e.value || 10) / 100)); setPlayerHP(p => Math.min(playerMaxHP, p + rh)); addPopup(rh, false, { isHeal: true }); }
       });
 
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
@@ -661,24 +663,24 @@ export const Battle = ({
         dmg = 0; 
       }
       else if (ability?.type === 'heal') { 
-        const hAmt = Math.round(playerMaxHP * (ability.value || 0.15)); 
+        const hAmt = Math.round(playerMaxHP * ((ability.value || 15) / 100)); 
         healValue = hAmt;
         setPlayerHP(p => Math.min(playerMaxHP, p + hAmt)); 
         addPopup(hAmt, false, { isHeal: true }); 
         playHeal();
         dmg = 0; 
       }
-      else if (ability?.type === 'defense') { setShieldTurns(2); dmg = 0; }
+      else if (ability?.type === 'defense') { setShieldTurns(2); setShieldPower(1 - (ability.value || 60) / 100); dmg = 0; }
       else if (ability?.type === 'curse') { 
         const s = getFinalStats(playerMonster);
-        setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 0.2, casterAtk: s.total.atk }]); 
+        setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]); 
         dmg = 0; addLog("Uvržena kletba!"); 
       }
       else if (isSkill && ability?.type === 'attack') {
         setTimeout(() => playSlash(), 100);
         setTimeout(() => playSlash(), 700);
       }
-      else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 0.1 }]); dmg = 0; addLog("Aktivována regenerace!"); }
+      else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog("Aktivována regenerace!"); }
 
       // Tutorial logic: Prevent death, force 1 HP
       if (isTutorial && enemyHP - dmg <= 0) {
@@ -861,8 +863,8 @@ export const Battle = ({
         setTimeout(() => {
           enemyEffects.forEach(e => {
             if (e.type === 'burn') { const bd = Math.round(enemyMaxHP * 0.05); setEnemyHP(p => Math.max(0, p - bd)); addPopup(bd, true); }
-            if (e.type === 'curse') { const cd = Math.round((e.casterAtk || 10) * (e.value || 0.2)); setEnemyHP(p => Math.max(0, p - cd)); addPopup(cd, true); }
-            if (e.type === 'regen') { const rh = Math.round(enemyMaxHP * (e.value || 0.1)); setEnemyHP(p => Math.min(enemyMaxHP, p + rh)); addPopup(rh, true, { isHeal: true }); }
+            if (e.type === 'curse') { const cd = Math.round((e.casterAtk || 10) * ((e.value || 20) / 100)); setEnemyHP(p => Math.max(0, p - cd)); addPopup(cd, true); }
+            if (e.type === 'regen') { const rh = Math.round(enemyMaxHP * ((e.value || 10) / 100)); setEnemyHP(p => Math.min(enemyMaxHP, p + rh)); addPopup(rh, true, { isHeal: true }); }
           });
 
           const res = calculateDamage(enemyMonster, playerMonster, isSkill, skillIdx);
@@ -875,23 +877,23 @@ export const Battle = ({
             dmg = 0; 
           }
           else if (ability?.type === 'heal') { 
-            const heal = Math.round(enemyMaxHP * (ability.value || 0.15)); 
+            const heal = Math.round(enemyMaxHP * ((ability.value || 15) / 100)); 
             setEnemyHP(p => Math.min(enemyMaxHP, p + heal)); 
             addPopup(heal, true, { isHeal: true }); 
             playHeal();
             dmg = 0; 
           }
-          else if (ability?.type === 'defense') { setEnemyShieldTurns(2); dmg = 0; addLog(`${enemyMonster.name} se brání!`); }
+          else if (ability?.type === 'defense') { setEnemyShieldTurns(2); setEnemyShieldPower(1 - (ability.value || 60) / 100); dmg = 0; addLog(`${enemyMonster.name} se brání!`); }
           else if (ability?.type === 'curse') { 
             const s = getFinalStats(enemyMonster);
-            setPlayerEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 0.2, casterAtk: s.total.atk }]); 
+            setPlayerEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]); 
             dmg = 0; addLog(`${enemyMonster.name} na tebe uvrhl kletbu!`); 
           }
           if (isSkill && ability?.type === 'attack') {
              setTimeout(() => playSlash(), 100);
              setTimeout(() => playSlash(), 700);
           }
-          else if (ability?.type === 'regen') { setEnemyEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 0.1 }]); dmg = 0; addLog(`${enemyMonster.name} regeneruje!`); }
+          else if (ability?.type === 'regen') { setEnemyEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog(`${enemyMonster.name} regeneruje!`); }
 
           if (dmg > 0) {
             setPlayerHP(p => Math.max(0, p - dmg)); setPlayerAnim('hit'); addPopup(dmg, false, res); triggerShake(res.isCrit); 

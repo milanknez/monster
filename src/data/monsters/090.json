@@ -15,14 +15,14 @@
       "description": "Vystříkne lepkavou temnou polevu, která pohlcuje životní sílu.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Cukrová regenerace",
       "description": "Nasává sladkou polevu zpět do svých ran, čímž si obnovuje ztracené zdraví.",
       "type": "regen",
       "chance": 80,
-      "value": 0.1
+      "value": 10
     }
   ]
 }

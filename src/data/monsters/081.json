@@ -15,14 +15,14 @@
       "description": "Vyšle spršku smrtících blesků na svůj cíl.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Klektavý šok",
       "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
       "type": "curse",
       "chance": 70,
-      "value": 0.15
+      "value": 15
     }
   ]
 }

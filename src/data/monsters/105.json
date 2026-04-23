@@ -29,7 +29,7 @@
       "description": "Zasadí ránu čelistmi z jiné dimenze, která ignoruje veškeré brnění.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

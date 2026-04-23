@@ -15,14 +15,14 @@
       "description": "Plivne kus tekutého ohně.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Žhnoucí tělo",
-      "description": "Každý, kdo se ho dotkne, se popálí.",
+      "description": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 35,
-      "value": 0.5
+      "value": 60
     }
   ]
 }

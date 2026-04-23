@@ -15,14 +15,14 @@
       "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Klouzavý útěk",
-      "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo.",
+      "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

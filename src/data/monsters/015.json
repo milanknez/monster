@@ -15,21 +15,21 @@
       "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Cukrová past",
-      "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí.",
+      "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     },
     {
       "name": "Bonbonový štít",
-      "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok.",
+      "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

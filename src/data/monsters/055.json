@@ -15,7 +15,7 @@
       "description": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Trhavý Výpad",

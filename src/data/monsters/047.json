@@ -15,14 +15,14 @@
       "description": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Trnový odraz",
-      "description": "Zpevní se a trny na zádech odrazí část poškození zpět.",
+      "description": "Zpevní se a trny na zádech odrazí část poškození zpět (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 75,
-      "value": 0.35
+      "value": 60
     }
   ]
 }

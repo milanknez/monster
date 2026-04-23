@@ -15,14 +15,14 @@
       "description": "Kousnutí, které způsobí popáleniny popelem.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Kouřová clona",
-      "description": "Vypustí dým, který ho skryje.",
+      "description": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 30,
-      "value": 1.5
+      "value": 60
     }
   ]
 }

@@ -15,14 +15,14 @@
       "description": "Vysílá ostré listy, které proříznou i brnění.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Tanec ve větru",
       "description": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 75,
-      "value": 0.15
+      "value": 15
     }
   ]
 }

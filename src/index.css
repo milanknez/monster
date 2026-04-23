@@ -113,3 +113,24 @@ body {
 ::-webkit-scrollbar-thumb {
   @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
 }
+
+@keyframes egg-hop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  20% { transform: translateY(-5px) rotate(-8deg); }
+  40% { transform: translateY(0) rotate(0); }
+  60% { transform: translateY(-5px) rotate(8deg); }
+  80% { transform: translateY(0) rotate(0); }
+}
+
+.animate-egg-hop {
+  animation: egg-hop 3s ease-in-out infinite;
+}
+
+@keyframes egg-double-hop {
+  0%, 20%, 40%, 100% { transform: translateY(0); }
+  10%, 30% { transform: translateY(-5px); }
+}
+
+.animate-egg-shake {
+  animation: egg-double-hop 3s ease-in-out infinite;
+}

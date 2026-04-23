@@ -15,14 +15,14 @@
       "description": "Rychle proletí kolem nepřítele a sekne ho svými křídly.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Čelistní stisk",
       "description": "Zakousne se do nepřítele svými silnými čelistmi.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     }
   ]
 }

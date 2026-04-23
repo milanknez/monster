@@ -15,14 +15,14 @@
       "description": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Lávová regenerace",
       "description": "Využije teplo k zacelení svých ran a posílení útoku.",
       "type": "heal",
       "chance": 70,
-      "value": 0.3
+      "value": 30
     },
     {
       "name": "Soptící hněv",

@@ -15,14 +15,14 @@
       "description": "Uvolní soustředěnou plazmovou energii na jednoho nepřítele a způsobí silné poškození.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     },
     {
       "name": "Elektro léčba",
       "description": "Vytvoří jiskřící bublinu, která obnoví 25% zdraví.",
       "type": "heal",
       "chance": 100,
-      "value": 0.25
+      "value": 25
     }
   ]
 }

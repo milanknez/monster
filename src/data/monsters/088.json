@@ -15,14 +15,14 @@
       "description": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Slizká past",
       "description": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele.",
       "type": "curse",
       "chance": 75,
-      "value": 0.4
+      "value": 40
     }
   ]
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TutorialOverlay, BATTLE_TUTORIAL_STEPS, HOME_TUTORIAL_STEPS, WORLD_TUTORIAL_STEPS, COLLECTION_TUTORIAL_STEPS, INVENTORY_TUTORIAL_STEPS, CODEX_TUTORIAL_STEPS } from './components/battle/TutorialOverlay'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
-import { cn, getTotalXPForLevel, calculateBoostMultiplier } from './utils'
+import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
 
 import { Header } from './components/ui/Header'
@@ -43,19 +43,23 @@ import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
 import {
   auth,
+  db,
+  update,
+  ref,
   onAuthStateChanged,
   saveUserBackup,
   loadUserBackup,
   registerReferral,
-  checkEmailInvitation,
-  watchReferrals,
-  claimReferralReward,
-  deleteReferral,
   logout,
   signInWithGoogle,
   syncPlayerToFirebase,
   sendTradeSignal,
-  PLAYER_UID
+  PLAYER_UID,
+  syncReferralProgress,
+  checkEmailInvitation,
+  watchReferrals,
+  claimReferralReward,
+  deleteReferral
 } from './lib/firebase'
 import { User as FirebaseUser } from 'firebase/auth'
 
@@ -107,6 +111,7 @@ function AppContent() {
   const [tutorialType, setTutorialType] = useState<'home' | 'world' | 'collection' | 'inventory' | 'codex' | null>(null)
   const [avatarClickCount, setAvatarClickCount] = useState(0)
   const [lastAvatarClick, setLastAvatarClick] = useState(0)
+  const [referredBy, setReferredBy] = useState<string | null>(null)
   const [unlockedQuests, setUnlockedQuests] = useState<number[]>(() => {
     try {
       const saved = localStorage.getItem('monster_collector_unlocked_quests');
@@ -126,7 +131,7 @@ function AppContent() {
   };
 
   const handleCheat = (cheatId: string) => {
-    if (cheatId.startsWith('addMonster:')) {
+    if (cheatId?.startsWith('addMonster:')) {
       const id = cheatId.split(':')[1];
       (window as any).addMonster?.(id);
     } else if (cheatId === 'healMe') {
@@ -135,7 +140,14 @@ function AppContent() {
       (window as any).addGems?.();
     } else if (cheatId === 'giveXP') {
       (window as any).giveXP?.(5000);
-    } else if (cheatId.startsWith('spawn:')) {
+    } else if (cheatId === 'playerXP200') {
+      const newXP = totalXP + 200;
+      addXP(200);
+      if (userUid) {
+        update(ref(db, `users/${userUid}`), { currentLevel: calculateLevel(newXP), totalXP: newXP });
+      }
+      addToast({ title: 'XP Gained', message: 'Získal jsi +200 XP a data byla synchronizována.', type: 'xp' });
+    } else if (cheatId?.startsWith('spawn:')) {
       const rarity = cheatId.split(':')[1] as any;
       setActiveTab('world');
       setTimeout(() => {
@@ -256,6 +268,7 @@ function AppContent() {
           setPlayerName(backup.playerName);
           setAvatarStyle(backup.avatarStyle);
           setAvatarSeed(backup.avatarSeed);
+          if (backup.referredBy) setReferredBy(backup.referredBy);
           // Note: hooks like usePlayerXP/useMonsters also need to be synced
           // For now, we update localStorage so hooks pick it up on reload or next sync
           localStorage.setItem('monster_collector_player_name', backup.playerName);
@@ -298,6 +311,7 @@ function AppContent() {
           currentLevel,
           caughtMonsters,
           inventory,
+          referredBy,
           lastSync: now
         });
         setLastSync(now);
@@ -306,6 +320,13 @@ function AppContent() {
       return () => clearInterval(interval);
     }
   }, [user, userUid, playerName, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
+
+  // Automatická synchronizace progressu k referrerovi (Milanovi)
+  useEffect(() => {
+    if (userUid && referredBy && totalXP > 0) {
+      syncReferralProgress(userUid, currentLevel, totalXP, referredBy);
+    }
+  }, [totalXP, currentLevel, userUid, referredBy]);
 
   // Initialize notifications (Local & Push)
   useEffect(() => {
@@ -466,12 +487,17 @@ function AppContent() {
       addToast({ title: 'Vyléčen!', message: 'Plná energie pro tebe i tvého parťáka.', type: 'success' });
     };
 
+    (window as any).givePlayerXP = (amt = 200) => {
+      addXP(amt);
+    };
+    
     return () => {
       delete (window as any).addGems;
       delete (window as any).giveXP;
       delete (window as any).addMonster;
       delete (window as any).forceWildEncounter;
       delete (window as any).healMe;
+      delete (window as any).givePlayerXP;
     };
   }, [addResource, giveMonsterXP, saveMonster, addToast, caughtMonsters, healHP, updateMonsterHP, selectedMonster]);
 
@@ -1197,6 +1223,7 @@ function AppContent() {
                   ignoreSpeedLimit={isSpeedLimitDisabled}
                   isBatterySaver={isBatterySaver}
                   mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
+                  email={user?.email || playerEmail}
                 />
               )}
 
@@ -1617,6 +1644,13 @@ function AppContent() {
     if (referralCode && userUid) {
       await registerReferral(referralCode, userUid, name, email);
       addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+    } else if (email && userUid) {
+      // Zkusíme automaticky dohledat pozvánku podle emailu
+      const autoReferrer = await checkEmailInvitation(email);
+      if (autoReferrer && autoReferrer !== userUid) {
+        await registerReferral(autoReferrer, userUid, name, email);
+        addToast({ title: 'Pozvánka spárována!', message: 'Našli jsme tvé dřívější pozvání přes email.', type: 'success' });
+      }
     }
   }
 

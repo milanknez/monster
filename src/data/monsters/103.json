@@ -29,7 +29,7 @@
       "description": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

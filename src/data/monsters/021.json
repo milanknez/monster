@@ -15,14 +15,14 @@
       "description": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     },
     {
       "name": "Ochranný pancíř",
-      "description": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel.",
+      "description": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

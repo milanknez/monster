@@ -15,7 +15,7 @@
       "description": "Vypustí ničivou explozi doprovázenou výkřiky uvězněných duší.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Duševní Spála",

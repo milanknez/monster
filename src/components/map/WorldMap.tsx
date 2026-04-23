@@ -61,6 +61,7 @@ export interface WorldMapProps {
   initialPosition?: { lat: number, lng: number } | null
   playerName: string
   playerUid: string
+  email?: string | null
   avatarStyle: string
   avatarSeed: string
   playerLevel: number
@@ -89,6 +90,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   isInteractionBlocked,
   playerName,
   playerUid,
+  email,
   avatarStyle,
   avatarSeed,
   playerLevel,
@@ -651,7 +653,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         lat: playerPos[0],
         lng: playerPos[1],
         avatarStyle: avatarStyle,
-        avatarSeed: avatarSeed
+        avatarSeed: avatarSeed,
+        email: email
       });
     };
     sync(); // Sync immediately

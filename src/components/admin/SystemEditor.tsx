@@ -3,7 +3,7 @@ import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
   Flame, Droplets, Leaf, Zap, Beaker, Gem,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
-  Sword, Shield, Heart, Sparkles, Info, Check
+  Sword, Shield, Heart, Sparkles, Info, Check, Users
 } from 'lucide-react'
 
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,10 +12,13 @@ import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
 import { cn } from '../../utils'
 import { TYPE_COLORS } from '../../utils'
 import { SYSTEM_SETTINGS } from '../../data/settings'
+import { db } from '../../lib/firebase'
+import { ref, onValue } from 'firebase/database'
 
 // Tabs
 import { MonsterEditorTab } from './tabs/MonsterEditorTab'
 import { ResourceDesignTab } from './tabs/ResourceDesignTab'
+import { UserManagementTab } from './tabs/UserManagementTab'
 
 // --- Constants ---
 const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
@@ -45,20 +48,46 @@ const RARITY_EMOJIS: Record<string, string> = {
 }
 
 const ABILITY_TYPES = [
-  { id: 'attack', label: '⚔️ Útočná speciální', defaultChance: 30, defaultVal: 1.5, desc: 'Dmg 1.5x - 2x' },
-  { id: 'defense', label: '🛡️ Obrana', defaultChance: 15, defaultVal: 0.25, desc: 'Snížení dmg 20-30%' },
-  { id: 'heal', label: '❤️ Léčení (Instantní)', defaultChance: 20, defaultVal: 0.15, desc: '+15% HP hned' },
-  { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 25, defaultVal: 0.1, desc: '+10% HP / kolo' },
-  { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 25, defaultVal: 0.2, desc: '0.2*Atk DMG / kolo' },
-  { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 0.2, desc: '+X% DMG k základu' },
+  { id: 'attack', label: '⚔️ Útočná speciální', defaultChance: 30, defaultVal: 155, desc: 'Dmg 155%' },
+  { id: 'defense', label: '🛡️ Obrana', defaultChance: 15, defaultVal: 60, desc: 'Snížení dmg 60%' },
+  { id: 'heal', label: '❤️ Léčení (Instantní)', defaultChance: 20, defaultVal: 15, desc: '+15% HP hned' },
+  { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 25, defaultVal: 10, desc: '+10% HP / kolo' },
+  { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 25, defaultVal: 20, desc: '20% Atk DMG / kolo' },
+  { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 
-type EditorTab = 'monsters' | 'resources' | 'settings';
+type EditorTab = 'monsters' | 'resources' | 'users' | 'settings';
 
 
 interface SystemEditorProps {
   onBack: () => void;
 }
+
+// Helper pro barevný časový štítek
+const renderTimeBadge = (timestamp: number) => {
+  if (!timestamp) return <span className="px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 text-[7px] font-black uppercase">Nikdy</span>;
+  
+  const diff = Date.now() - timestamp;
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(mins / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+
+  let label = '';
+  let colorClass = '';
+
+  if (mins < 1) { label = 'ONLINE'; colorClass = 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30'; }
+  else if (mins < 60) { label = `-${mins}m`; colorClass = 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30'; }
+  else if (hours < 24) { label = `-${hours}h`; colorClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30'; }
+  else if (days < 7) { label = `-${days}d`; colorClass = 'bg-orange-500/20 text-orange-400 border-orange-500/30'; }
+  else { label = `-${weeks}t`; colorClass = 'bg-red-500/20 text-red-500 border-red-500/30'; }
+
+  return (
+    <span className={cn("px-1.5 py-0.5 rounded text-[8px] font-black uppercase border shadow-sm", colorClass)}>
+      {label}
+    </span>
+  );
+};
 
 export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -75,6 +104,10 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarFilter, setSidebarFilter] = useState('Vše')
   const [elementFilter, setElementFilter] = useState('Vše')
+  
+  // Players State
+  const [players, setPlayers] = useState<any[]>([])
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
 
   // Preview States
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
@@ -100,6 +133,61 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       setMonsterForm(null)
     }
   }, [selectedMonsterId, monsters])
+
+  // Sync Players
+  useEffect(() => {
+    const playersRef = ref(db, 'players');
+    const usersRef = ref(db, 'users');
+
+    let playersMap: Record<string, any> = {};
+    let usersMap: Record<string, any> = {};
+
+    const mergeAndSet = () => {
+      const allUids = Array.from(new Set([...Object.keys(playersMap), ...Object.keys(usersMap)]));
+      const combined = allUids.map(id => {
+        const pData = playersMap[id] || {};
+        const uData = usersMap[id] || {};
+        
+        // Priority: Players node (live) -> Users node (backup) -> Fallbacks
+        const finalLevel = pData.level !== undefined ? pData.level : (uData.currentLevel || uData.level || 1);
+        const finalName = pData.name || uData.playerName || uData.name || 'Lovec';
+
+        return {
+          id,
+          name: finalName,
+          level: finalLevel,
+          monsterCount: pData.monsterCount || uData.caughtMonsters?.length || 0,
+          isOnline: !!pData.isOnline,
+          lastActive: pData.lastActive || uData.updatedAt || 0,
+          lat: pData.lat || uData.lat || 0,
+          lng: pData.lng || uData.lng || 0,
+          avatarStyle: pData.avatarStyle || uData.avatarStyle || 'bottts',
+          avatarSeed: pData.avatarSeed || uData.avatarSeed || id,
+          // We can still spread uData/pData but we keep our keys prioritized
+          inventory: uData.inventory || [],
+          caughtMonsters: uData.caughtMonsters || [],
+          email: uData.email || pData.email || (uData.playerName?.includes('@') ? uData.playerName : (pData.name?.includes('@') ? pData.name : null))
+        };
+      }).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
+
+      setPlayers(combined);
+    };
+
+    const unsubPlayers = onValue(playersRef, (snapshot) => {
+      playersMap = snapshot.val() || {};
+      mergeAndSet();
+    });
+
+    const unsubUsers = onValue(usersRef, (snapshot) => {
+      usersMap = snapshot.val() || {};
+      mergeAndSet();
+    });
+
+    return () => {
+      unsubPlayers();
+      unsubUsers();
+    };
+  }, []);
 
   const handleAddNewMonster = () => {
     const newId = (Math.max(...monsters.map(m => parseInt(m.id))) + 1).toString().padStart(3, '0');
@@ -278,7 +366,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         <div className="p-4 border-b border-white/5 grid grid-cols-5 gap-2">
           {[
             { id: 'monsters', icon: Settings2, label: 'Monstra' },
-            { id: 'resources', icon: Palette, label: 'Předměty' }
+            { id: 'resources', icon: Palette, label: 'Předměty' },
+            { id: 'users', icon: Users, label: 'Uživatelé' }
           ].map(t => (
             <button key={t.id} onClick={() => { setActiveTab(t.id as EditorTab); setSelectedMonsterId(null); }} className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border transition-all", activeTab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-black/40 border-white/5 text-slate-500 hover:text-slate-300")}>
               <t.icon size={16} />
@@ -342,6 +431,50 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
               }
             </div>
           </div>
+        ) : activeTab === 'users' ? (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-white/5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-black text-sm uppercase tracking-widest text-primary">Seznam Hráčů</h2>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                  <span className="text-[8px] font-black text-emerald-500">{players.filter(p => p.isOnline).length} ONLINE</span>
+                </div>
+              </div>
+              <input type="text" placeholder="Hledat hráče..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {players
+                .filter(p => 
+                  p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.email?.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map(p => (
+                  <button key={p.id} onClick={() => setSelectedPlayerId(p.id)} className={cn("w-full p-3 rounded-xl flex items-center gap-3 transition-all text-left group border", selectedPlayerId === p.id ? "bg-primary/20 border-primary/30" : "hover:bg-white/5 border-transparent")}>
+                    <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden shrink-0 relative">
+                       <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" />
+                       {p.isOnline && (
+                         <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+                       )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] font-black truncate text-white uppercase group-hover:text-primary transition-colors">{p.name || 'Hráč'}</div>
+                      <div className="text-[9px] font-medium text-slate-500 truncate group-hover:text-slate-400 transition-colors">
+                        {p.email || (p.name?.includes('@') ? p.name : '')}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                         <span className="text-[8px] font-bold truncate opacity-50">ID: {p.id}</span>
+                         <div className="flex items-center gap-1.5">
+                            {renderTimeBadge(p.lastActive)}
+                            <span className="text-[10px] font-black shrink-0 px-2 py-0.5 bg-primary/10 text-primary rounded-md border border-primary/20 shadow-sm shadow-primary/5">Lv {p.level}</span>
+                         </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 opacity-50 grayscale">
             <div className="size-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center"><Settings2 size={32} /></div>
@@ -362,9 +495,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter">
-                {activeTab === 'monsters' ? 'Editor Příšer' : 'Resource Design'}
+                {activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : 'Resource Design')}
               </h1>
-              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[11px]">Administrace herních datových struktur</p>
+              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[11px]">
+                {activeTab === 'users' ? 'Monitoring a správa registrovaných hráčů' : 'Administrace herních datových struktur'}
+              </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button
@@ -450,6 +585,14 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
             {activeTab === 'resources' && (
               <ResourceDesignTab resourceConfig={resourceConfig} setResourceConfig={setResourceConfig} handleResourceImageUpload={handleResourceImageUpload} />
+            )}
+
+            {activeTab === 'users' && (
+              <UserManagementTab 
+                players={players} 
+                selectedPlayerId={selectedPlayerId} 
+                setSelectedPlayerId={setSelectedPlayerId} 
+              />
             )}
 
           </AnimatePresence>

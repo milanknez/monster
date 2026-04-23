@@ -15,14 +15,14 @@
       "description": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Hluboké zmrazení",
       "description": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
       "type": "curse",
       "chance": 65,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

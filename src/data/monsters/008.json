@@ -15,14 +15,14 @@
       "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 75,
-      "value": 0.15
+      "value": 15
     },
     {
       "name": "Dech pralesa",
       "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí.",
       "type": "heal",
       "chance": 70,
-      "value": 0.2
+      "value": 20
     }
   ]
 }

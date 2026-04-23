@@ -15,14 +15,14 @@
       "description": "Sekne nepřítele trny.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Kořenový štít",
-      "description": "Vytvoří kolem sebe hradbu z kořenů.",
+      "description": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 35,
-      "value": 1.8
+      "value": 60
     }
   ]
 }

@@ -22,7 +22,7 @@
       "description": "Prudký úder, který zanechá leptavou látku rozežírající zbroj.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Vlna Hniloby",

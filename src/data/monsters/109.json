@@ -15,7 +15,7 @@
       "description": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Uhelná Bouře",
@@ -29,7 +29,7 @@
       "description": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

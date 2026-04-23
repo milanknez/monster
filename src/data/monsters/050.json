@@ -15,7 +15,7 @@
       "description": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Kletba Hlubokého Lesa",
@@ -29,7 +29,7 @@
       "description": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     }
   ]
 }

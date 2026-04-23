@@ -15,14 +15,14 @@
       "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Lávová aura",
-      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka.",
+      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

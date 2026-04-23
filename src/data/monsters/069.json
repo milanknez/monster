@@ -22,7 +22,7 @@
       "description": "Vystřelí pyl, který působí halucinace.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     }
   ]
 }

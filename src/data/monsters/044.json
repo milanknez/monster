@@ -15,14 +15,14 @@
       "description": "Vystřelí silný záblesk, který oslní nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Tvrdá krovka",
-      "description": "Zpevní svou ochranu a sníží příchozí poškození o 30%.",
+      "description": "Zpevní svou ochranu a sníží příchozí poškození o 30% (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 75,
-      "value": 0.3
+      "value": 60
     }
   ]
 }

@@ -15,14 +15,14 @@
       "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 75,
-      "value": 0.15
+      "value": 15
     },
     {
       "name": "Blátivá obrana",
-      "description": "Na jedno kolo se zablátí a sníží přijaté poškození.",
+      "description": "Na jedno kolo se zablátí a sníží přijaté poškození (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

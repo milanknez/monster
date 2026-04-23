@@ -15,14 +15,14 @@
       "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Ztuhlá láva",
-      "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu.",
+      "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 85,
-      "value": 1.2
+      "value": 60
     }
   ]
 }

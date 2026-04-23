@@ -15,14 +15,14 @@
       "description": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Statické Nabití",
       "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 30,
-      "value": 0.15
+      "value": 15
     },
     {
       "name": "Zkrat",

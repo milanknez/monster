@@ -15,14 +15,14 @@
       "description": "Zvýší svou rychlost a příští útok doručí dříve. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 80,
-      "value": 0.15
+      "value": 15
     },
     {
       "name": "Rohový náraz",
       "description": "Udeří svými malými rohy a způsobí střední poškození.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     }
   ]
 }

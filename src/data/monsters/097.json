@@ -15,14 +15,14 @@
       "description": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Prokletí bezzubých",
       "description": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
       "type": "curse",
       "chance": 80,
-      "value": 0.5
+      "value": 50
     }
   ]
 }

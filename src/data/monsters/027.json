@@ -15,14 +15,14 @@
       "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
       "chance": 75,
-      "value": 0.15
+      "value": 15
     },
     {
       "name": "Plyšový štít",
-      "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět.",
+      "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

@@ -22,7 +22,7 @@
       "description": "Otevře rány nepřítele a vysaje z něj veškerou zbývající energii.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Pach Smrti",

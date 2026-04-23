@@ -15,14 +15,14 @@
       "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Podvodní rána",
       "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

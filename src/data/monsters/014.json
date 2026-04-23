@@ -15,14 +15,14 @@
       "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Tichá bouře",
       "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

@@ -15,14 +15,14 @@
       "description": "Útok vysokou rychlostí na jednoho nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.3
+      "value": 130
     },
     {
       "name": "Čichové vyhledávání",
       "description": "Odhalí nepřátele a zvyšuje šanci zásahu příštího útoku.",
       "type": "extra",
       "chance": 85,
-      "value": 0.5
+      "value": 50
     }
   ]
 }

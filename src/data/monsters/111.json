@@ -15,14 +15,14 @@
       "description": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Krunýřový štít",
-      "description": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo.",
+      "description": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 80,
-      "value": 0.5
+      "value": 60
     }
   ]
 }

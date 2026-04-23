@@ -15,14 +15,14 @@
       "description": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Žíravá uzenost",
       "description": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu.",
       "type": "curse",
       "chance": 80,
-      "value": 0.4
+      "value": 40
     }
   ]
 }

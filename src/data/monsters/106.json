@@ -15,21 +15,21 @@
       "description": "Vyšlehne vlnu zeleného ohně, která spaluje nepřítele a zanechává jedovatý efekt v čase.",
       "type": "curse",
       "chance": 80,
-      "value": 0.2
+      "value": 20
     },
     {
       "name": "Krystalický Náraz",
       "description": "Rozběhne se vpřed a udeří nepřítele rohy posílenými krystaly, čímž způsobí masivní poškození.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Aura Zeleného Plamene",
-      "description": "Temný oheň kolem minotaura oslabuje nepřátele a postupně chrání tvé životy.",
+      "description": "Temný oheň kolem minotaura oslabuje nepřátele a postupně chrání tvé životy (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 80,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

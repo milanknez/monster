@@ -15,14 +15,14 @@
       "description": "Omotá nepřítele chapadly, způsobí vysoké poškození a má šanci ho znehybnit na jedno kolo.",
       "type": "attack",
       "chance": 80,
-      "value": 1.9
+      "value": 190
     },
     {
       "name": "Jedovatý výstřik",
-      "description": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60%",
+      "description": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60% (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 80,
-      "value": 0.6
+      "value": 60
     }
   ]
 }

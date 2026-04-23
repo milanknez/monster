@@ -15,14 +15,14 @@
       "description": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
       "type": "curse",
       "chance": 25,
-      "value": 0.2
+      "value": 20
     },
     {
       "name": "Jiskřivý poskok",
       "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek.",
       "type": "extra",
       "chance": 90,
-      "value": 0.35
+      "value": 35
     }
   ]
 }

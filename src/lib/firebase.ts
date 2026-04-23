@@ -12,33 +12,24 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
-export { onAuthStateChanged };
-
 // Pro uživatele: Sem vlož konfiguraci ze své Firebase Console (Web App Config)
 const firebaseConfig = {
-    apiKey: "AIzaSyDGwx0MLkdXvGRkLR3UTnL-9vlcc-WUi-Y",
-
+    apiKey: "AIzaSyCThrnPN28Z8El74BSKkdCyGyo32oGN3qo",
     authDomain: "monster-app-3062e.firebaseapp.com",
-
     databaseURL: "https://monster-app-3062e-default-rtdb.europe-west1.firebasedatabase.app",
-
     projectId: "monster-app-3062e",
-
     storageBucket: "monster-app-3062e.firebasestorage.app",
-
     messagingSenderId: "924150763137",
-
     appId: "1:924150763137:web:dca166eb99197cf7c38780",
-
     measurementId: "G-J1F1290THF"
-
 };
-
 
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+
+export { onAuthStateChanged, ref, get, update, set };
 
 export const signInWithGoogle = async () => {
     try {
@@ -82,6 +73,7 @@ export const syncPlayerToFirebase = (data: {
     lng: number,
     avatarStyle: string,
     avatarSeed: string,
+    email?: string | null,
     activeMonster?: { id: string, level: number, name: string, stats: any }
 }) => {
     const uid = data.uid || PLAYER_UID;
@@ -95,6 +87,7 @@ export const syncPlayerToFirebase = (data: {
         lng: data.lng,
         avatarStyle: data.avatarStyle,
         avatarSeed: data.avatarSeed,
+        email: data.email || null,
         activeMonster: data.activeMonster || null,
         lastActive: Date.now(),
         isOnline: true
@@ -133,18 +126,49 @@ export const loadUserBackup = async (uid: string) => {
  * Referral Logika
  */
 export const registerReferral = async (referrerUid: string, invitedUid: string, invitedName: string, invitedEmail?: string | null) => {
+    // 0. Prevence sebepozvání
+    if (referrerUid === invitedUid) {
+        console.warn("Player cannot refer themselves.");
+        return;
+    }
+
     // 1. Primární tracking pro levely
     const referralRef = ref(db, `referrals/${referrerUid}/${invitedUid}`);
     await set(referralRef, {
         name: invitedName,
         email: invitedEmail || null,
+        level: 1,
+        totalXP: 0,
         timestamp: Date.now(),
-        hatchClaimed: false
+        hatchClaimed: false,
+        status: 'registered',
+        registeredUid: invitedUid
     });
 
-    // 2. Aktualizovat stav v seznamu pozvaných emailů, pokud existuje
+    // 1.5 Uložit informaci k pozvanému hráči
+    await update(ref(db, `users/${invitedUid}`), { referredBy: referrerUid });
+
+    // 2. Vyčistit dočasný záznam založený na emailu, pokud existuje
     if (invitedEmail) {
         const cleanEmail = invitedEmail.replace(/\./g, '_').toLowerCase();
+        
+        // Smazat email-based referral
+        const oldReferralRef = ref(db, `referrals/${referrerUid}/${cleanEmail}`);
+        await remove(oldReferralRef);
+
+        // Aktualizovat globální pozvánku
+        const globalInviteRef = ref(db, `invites/${cleanEmail}`);
+        await update(globalInviteRef, { 
+            status: 'registered', 
+            registeredUid: invitedUid,
+            registeredAt: Date.now()
+        });
+
+        // 3. Uložit informaci o referrerovi i k pozvanému hráči pro budoucí automatické updaty
+        const invitedUserRef = ref(db, `users/${invitedUid}`);
+        await update(invitedUserRef, { referredBy: referrerUid });
+
+        // Aktualizovat stav v seznamu pozvaných u referrera
         const userInviteRef = ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`);
         await update(userInviteRef, { status: 'registered', registeredUid: invitedUid });
     }
@@ -165,6 +189,17 @@ export const claimReferralReward = async (referrerUid: string, invitedUid: strin
 export const deleteReferral = async (referrerUid: string, invitedId: string) => {
     const referralRef = ref(db, `referrals/${referrerUid}/${invitedId}`);
     await remove(referralRef);
+};
+
+export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string) => {
+    // Aktualizovat záznam u referrera (pod UID pozvaného)
+    const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
+    await update(referralRef, { 
+        level, 
+        totalXP,
+        status: 'registered',
+        registeredUid: invitedUid
+    });
 };
 
 /**
@@ -193,7 +228,7 @@ export const inviteByEmail = async (referrerUid: string, email: string) => {
     // 3. Vytvořit záznam v referrals (pro okamžité zobrazení vajíčka v dashboardu)
     const referralRef = ref(db, `referrals/${referrerUid}/${cleanEmail}`);
     await set(referralRef, {
-        name: email.split('@')[0], // Dočasné jméno z emailu
+        name: email ? email.split('@')[0] : 'Pozvaný hráč', // Dočasné jméno z emailu
         email: email,
         level: 0,
         status: 'invited',
@@ -251,7 +286,10 @@ export const watchTradeSignals = (uid: string, callback: (signal: any) => void) 
     const signalRef = ref(db, `signals/${uid}`);
     return onValue(signalRef, (snapshot) => {
         const data = snapshot.val();
-        if (data) callback(data);
+        // Přijmeme jen signály, které jsou relativně čerstvé (max 15 vteřin staré)
+        if (data && data.timestamp && (Date.now() - data.timestamp) < 15000) {
+            callback(data);
+        }
     });
 };
 

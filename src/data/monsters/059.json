@@ -15,7 +15,7 @@
       "description": "Kousnutí s prvkem vysokého napětí, které proniká i brněním.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Oko Blesku",
@@ -26,10 +26,10 @@
     },
     {
       "name": "Plazmový Puls",
-      "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků.",
+      "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 25,
-      "value": 1.4
+      "value": 60
     }
   ]
 }

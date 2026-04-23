@@ -15,14 +15,14 @@
       "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Ohnivý štít",
-      "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli.",
+      "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 70,
-      "value": 0.4
+      "value": 60
     }
   ]
 }

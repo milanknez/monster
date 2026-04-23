@@ -22,7 +22,7 @@
       "description": "Extrémně horký útok plamenem.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     }
   ]
 }

@@ -15,14 +15,14 @@
       "description": "Vystříkne proud žíravé kapaliny, který způsobí vysoké poškození a může oslabit obranu nepřítele.",
       "type": "attack",
       "chance": 80,
-      "value": 1.55
+      "value": 155
     },
     {
       "name": "Tekuté tělo",
-      "description": "Rozteče se a část útoků projde skrz něj, čímž sníží přijaté poškození na jedno kolo.",
+      "description": "Rozteče se a část útoků projde skrz něj, čímž sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
       "type": "defense",
       "chance": 85,
-      "value": 0.6
+      "value": 60
     }
   ]
 }

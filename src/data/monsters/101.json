@@ -22,7 +22,7 @@
       "description": "Zasadí ránu tak chladnou, že nepřítel na chvíli zkamení hrůzou.",
       "type": "attack",
       "chance": 70,
-      "value": 2.3
+      "value": 230
     },
     {
       "name": "Zatemnění Mysli",
