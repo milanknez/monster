@@ -41,6 +41,7 @@ import { useMonsters } from './hooks/useMonsters'
 import { useP2PTrade } from './hooks/useP2PTrade'
 import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
+import { App as CapApp } from '@capacitor/app';
 import {
   auth,
   db,
