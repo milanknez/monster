@@ -3,6 +3,8 @@ import { X, Copy, Share2, Mail, CheckCircle2, QrCode, Send, ExternalLink } from 
 import { useState } from 'react';
 import { inviteByEmail } from '../../lib/firebase';
 import { APP_CONFIG } from '../../config';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -25,15 +27,23 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    const shareData = {
+      title: 'Monster Collector',
+      text: 'Pojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus:',
+      url: inviteLink,
+    };
+
+    if (Capacitor.isNativePlatform()) {
       try {
-        await navigator.share({
-          title: 'Monster Collector',
-          text: 'Pojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus:',
-          url: inviteLink,
-        });
+        await Share.share(shareData);
       } catch (err) {
-        console.log('Share failed', err);
+        console.log('Native share failed', err);
+      }
+    } else if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Web share failed', err);
       }
     } else {
       handleCopy();
