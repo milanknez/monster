@@ -2,14 +2,23 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
+include ':capacitor-app'
+project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
+
 include ':capacitor-local-notifications'
 project(':capacitor-local-notifications').projectDir = new File('../node_modules/@capacitor/local-notifications/android')
 
 include ':capacitor-push-notifications'
 project(':capacitor-push-notifications').projectDir = new File('../node_modules/@capacitor/push-notifications/android')
 
+include ':capacitor-share'
+project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/share/android')
+
 include ':capgo-capacitor-bluetooth-low-energy'
 project(':capgo-capacitor-bluetooth-low-energy').projectDir = new File('../node_modules/@capgo/capacitor-bluetooth-low-energy/android')
 
 include ':codetrix-studio-capacitor-google-auth'
 project(':codetrix-studio-capacitor-google-auth').projectDir = new File('../node_modules/@codetrix-studio/capacitor-google-auth/android')
+
+include ':dhrimz-capacitor-referrer'
+project(':dhrimz-capacitor-referrer').projectDir = new File('../node_modules/@dhrimz/capacitor-referrer/android')

@@ -42,6 +42,7 @@ import { useP2PTrade } from './hooks/useP2PTrade'
 import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
 import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import {
   auth,
   db,
@@ -63,6 +64,8 @@ import {
   deleteReferral
 } from './lib/firebase'
 import { User as FirebaseUser } from 'firebase/auth'
+
+import { CapacitorReferrer } from '@dhrimz/capacitor-referrer';
 
 import { InviteModal } from './components/modals/InviteModal'
 import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
@@ -290,6 +293,41 @@ function AppContent() {
 
     CapApp.addListener('appUrlOpen', handleDeepLink);
     
+    // Check Play Install Referrer (if user just installed the app from the Play Store via our link)
+    const checkInstallReferrer = async () => {
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+        try {
+          const details = await CapacitorReferrer.getReferrerDetails();
+          if (details && details.referrerUrl) {
+            let refCode = details.referrerUrl;
+            // The referrerUrl might be the exact code, or query params if multiple were passed
+            if (refCode.includes('=')) {
+              const params = new URLSearchParams(refCode);
+              refCode = params.get('ref') || refCode;
+            }
+            
+            // Firebase UID is usually ~28 chars, let's just make sure it's not a generic google referrer like utm_source=google-play
+            if (refCode && refCode !== userUid && !refCode.includes('utm_source')) {
+              const savedRef = localStorage.getItem('pending_referral');
+              if (savedRef !== refCode) {
+                localStorage.setItem('pending_referral', refCode);
+                setPendingReferral(refCode);
+                setReferredBy(refCode);
+                addToast({ 
+                  title: 'Pozvánka přečtena z Play Store!', 
+                  message: 'Díky za stažení přes odkaz. Odměnu získáš na 3. úrovni.', 
+                  type: 'success' 
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Install Referrer check failed:', e);
+        }
+      }
+    };
+    checkInstallReferrer();
+
     return () => {
       CapApp.removeAllListeners();
     };
