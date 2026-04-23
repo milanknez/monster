@@ -91,10 +91,23 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProf
                   className="w-full bg-slate-950/80 border border-white/5 rounded-2xl px-4 py-4 text-center text-xs text-slate-300 font-bold placeholder:text-slate-800 focus:outline-none focus:border-primary/40 transition-all shadow-inner tracking-widest"
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] block text-center">
+                  Kód Pozvánky (Volitelné)
+                </label>
+                <input
+                  type="text"
+                  placeholder="MÁŠ KÓD?"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-4 text-center text-[10px] text-primary font-black placeholder:text-slate-800 focus:outline-none focus:border-primary/20 transition-all shadow-inner tracking-[0.3em]"
+                />
+              </div>
             </div>
 
             <button
-              onClick={() => name.trim().length >= 3 && email.includes('@') && onComplete(name.trim(), email.trim())}
+              onClick={() => name.trim().length >= 3 && email.includes('@') && onComplete(name.trim(), email.trim(), referralCode.trim())}
               disabled={isLoggingIn || name.trim().length < 3 || !email.includes('@')}
               className="w-full relative group transition-all disabled:opacity-20 translate-y-[-4px]"
             >

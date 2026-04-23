@@ -254,6 +254,18 @@ function AppContent() {
   const activeMonster = caughtMonsters[0] || null
   const { duel, setDuel, sendChallenge, notifyAccept, pickMyFighter, rejectChallenge, cancelChallenge, sendEmote, incomingEmote, incomingAttack, incomingExit } = useP2PDuel(playerName, activeMonster, addToast, userUid, activeBattle?.opponentUid)
 
+  // Handle Referral from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode && refCode !== userUid) {
+      localStorage.setItem('pending_referral', refCode);
+      // Clean URL without reload
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [userUid]);
+
   // --- FIREBASE AUTH & SYNC ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
