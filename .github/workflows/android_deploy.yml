@@ -2,6 +2,9 @@ name: Android Deploy
 
 on:
   push:
+    branches:
+      - master
+      - test
     tags:
       - 'v*'
 
@@ -27,7 +30,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build web application
         run: npm run build
