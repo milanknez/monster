@@ -7,17 +7,18 @@ import { cn } from '../../utils';
 interface SetupProfileModalProps {
   onComplete: (name: string, email?: string, referralCode?: string) => void;
   isLoggingIn?: boolean;
+  initialReferral?: string;
 }
 
-export const SetupProfileModal = ({ onComplete, isLoggingIn = false }: SetupProfileModalProps) => {
+export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialReferral }: SetupProfileModalProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [referralCode, setReferralCode] = useState('');
 
   useEffect(() => {
-    const pendingRef = localStorage.getItem('pending_referral');
+    const pendingRef = initialReferral || localStorage.getItem('pending_referral');
     if (pendingRef) setReferralCode(pendingRef);
-  }, []);
+  }, [initialReferral]);
 
   const handleGoogleLogin = async () => {
     try {

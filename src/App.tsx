@@ -95,6 +95,7 @@ function AppContent() {
   const [isDuelAcceptingPicker, setIsDuelAcceptingPicker] = useState(false)
 
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
+  const [pendingReferral, setPendingReferral] = useState<string | null>(() => localStorage.getItem('pending_referral'))
   const [playerEmail, setPlayerEmail] = useState<string | null>(() => localStorage.getItem('monster_collector_player_email'))
   const [avatarStyle, setAvatarStyle] = useState(() => localStorage.getItem('monster_collector_avatar_style') || 'avataaars')
   const [avatarSeed, setAvatarSeed] = useState(() => localStorage.getItem('monster_collector_avatar_seed') || 'seed')
@@ -262,6 +263,7 @@ function AppContent() {
     const refCode = urlParams.get('ref');
     if (refCode && refCode !== userUid) {
       localStorage.setItem('pending_referral', refCode);
+      setPendingReferral(refCode);
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
@@ -273,6 +275,7 @@ function AppContent() {
         const ref = url.searchParams.get('ref');
         if (ref && ref !== userUid) {
           localStorage.setItem('pending_referral', ref);
+          setPendingReferral(ref);
           setReferredBy(ref);
           addToast({ 
             title: 'Pozvánka přijata!', 
@@ -1036,6 +1039,7 @@ function AppContent() {
       {!playerName && (
         <SetupProfileModal
           onComplete={handleProfileComplete}
+          initialReferral={pendingReferral || undefined}
         />
       )}
 
