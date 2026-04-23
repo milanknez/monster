@@ -40,14 +40,15 @@ jobs:
 
       - name: Update Android Version
         run: |
-          VERSION_NAME="1.0.${{ github.run_number }}"
-          # Pokud je to tag (v1.2.3), použijeme verzi z tagu
+          # Version code musí být vždy vyšší než to, co už je v Google Play (teď tam máš 107)
+          # Použijeme základ 1000, aby se to nikdy nepotkalo s tvým ručním číslováním.
+          VERSION_CODE=$((1000 + ${{ github.run_number }}))
+          
+          # Název verze nastavíme na 1.1.x (nebo použijeme tag)
+          VERSION_NAME="1.1.${{ github.run_number }}"
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION_NAME=${GITHUB_REF_NAME#v}
           fi
-          
-          # Version code musí být vždy vyšší než to, co už je v Google Play (teď tam máš 70+)
-          VERSION_CODE=$((100 + ${{ github.run_number }}))
           
           sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
           sed -i "s/versionName \".*\"/versionName \"$VERSION_NAME\"/" android/app/build.gradle
@@ -69,11 +70,20 @@ jobs:
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
+      - name: Determine Track
+        id: determine_track
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "track=alpha" >> $GITHUB_OUTPUT
+          else
+            echo "track=internal" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.monster.collector
           releaseFiles: ${{ steps.sign_app.outputs.signedReleaseFile }}
-          tracks: internal
+          tracks: ${{ steps.determine_track.outputs.track }}
           status: completed
