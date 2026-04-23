@@ -16,7 +16,7 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   const [isInviting, setIsInviting] = useState(false);
   const [showQR, setShowQR] = useState(false);
   
-  const inviteLink = `${window.location.origin}${window.location.pathname}?ref=${referralCode}`;
+  const inviteLink = `${APP_CONFIG.PROD_URL}/landing/invite.html?ref=${referralCode}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);

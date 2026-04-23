@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Collector | Oficiální Stránka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0db9f2;
+            --secondary: #6366f1;
+            --bg: #020617;
+            --card-bg: rgba(15, 23, 42, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, rgba(13, 185, 242, 0.15) 0%, transparent 70%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('assets/bg_epic.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            mask-image: linear-gradient(to bottom, black 50%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
+            z-index: -1;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 20px var(--primary));
+            border-radius: 2rem;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            margin-bottom: 1rem;
+            font-style: italic;
+            background: linear-gradient(to bottom, #fff 50%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1.25rem 2.5rem;
+            border-radius: 1.25rem;
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #020617;
+            box-shadow: 0 10px 30px rgba(13, 185, 242, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            background: white;
+            box-shadow: 0 15px 40px rgba(13, 185, 242, 0.5);
+        }
+
+        .btn-outline {
+            border: 2px solid rgba(255,255,255,0.1);
+            color: white;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(13, 185, 242, 0.1);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        /* Testing Steps */
+        .testing-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .test-step {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(13, 185, 242, 0.2);
+            border-radius: 2rem;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .test-step-num {
+            position: absolute;
+            top: -1rem;
+            left: 2rem;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            box-shadow: 0 5px 15px rgba(13, 185, 242, 0.4);
+        }
+
+        .test-step h3 {
+            font-size: 1.3rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .test-step p {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        .test-step .btn {
+            font-size: 0.9rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(20px);
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(13, 185, 242, 0.1);
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .feature-card p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        /* App Promo Section */
+        .promo {
+            padding: 6rem 2rem;
+            background: linear-gradient(to bottom, transparent, rgba(13, 185, 242, 0.05));
+            text-align: center;
+        }
+
+        .promo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 3rem;
+            padding: 4rem 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .promo h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            line-height: 1;
+        }
+
+        footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1rem; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <img src="assets/icon.png" alt="Monster Collector Logo" class="logo">
+        <div class="badge">Alfa Verze Nyní Dostupná</div>
+        <h1>Staň se legendárním lovcem</h1>
+        <p class="subtitle">
+            Objevuj monstra ve svém okolí pomocí rozšířené reality. Bojuj, vyměňuj a sbírej unikátní příšery v nové AR hře Monster Collector.
+        </p>
+        
+        <div class="cta-group">
+            <a href="#testovani" class="btn btn-primary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.16515 2.1221C4.85698 2.38551 4.67139 2.82534 4.67139 3.40722V20.5928C4.67139 21.1747 4.85698 21.6145 5.16515 21.8779L5.22896 21.9333L14.8369 12.3255V12.0632L5.22896 2.0667L5.16515 2.1221Z" fill="currentColor"/>
+                    <path d="M18.043 15.5422L14.8369 12.3361V12.0632L18.043 8.85718L18.1189 8.90042L21.9163 11.0573C23.0001 11.6724 23.0001 12.7269 21.9163 13.3421L18.1189 15.4989L18.043 15.5422Z" fill="currentColor"/>
+                    <path d="M5.22897 21.9333L14.8369 12.3255L18.043 15.5422L5.43126 22.7042C5.02521 22.9344 4.67139 22.6853 4.67139 22.1451V21.9333H5.22897Z" fill="currentColor"/>
+                    <path d="M5.22897 2.0667L14.8369 11.6745L18.043 8.45789L5.43126 1.29583C5.02521 1.06562 4.67139 1.31475 4.67139 1.85494V2.0667H5.22897Z" fill="currentColor"/>
+                </svg>
+                Připojit se k testování
+            </a>
+            <a href="invite.html" class="btn btn-outline">Mám kód pozvánky</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-title">
+            <h2>Herní Vlastnosti</h2>
+            <p>Vše, co potřebuješ vědět o světě Monster Collector</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon-box">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <h3>Rozšířená Realita</h3>
+                <p>Hledej monstra ve svém skutečném okolí. Jsou všude kolem tebe, stačí se jen dívat skrze svůj telefon.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon-box">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="22" x2="22" y2="16"/><circle cx="19" cy="19" r="2"/></svg>
+                </div>
+                <h3>P2P Souboje</h3>
+                <p>Vyzvi ostatní lovce v reálném čase. Použij Bluetooth pro rychlé propojení a ukaž, čí monstra jsou silnější.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon-box">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
+                </div>
+                <h3>Sbírka & Evoluce</h3>
+                <p>Stovky unikátních monster k nalezení. Vylepšuj jejich staty, osazuj je drahokamy a staň se mistrem bestiáře.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="promo" id="testovani">
+        <div class="promo-container" style="max-width: 1200px;">
+            <h2>Instrukce k připojení do testování</h2>
+            <p class="subtitle" style="margin: 0 auto 2rem;">Momentálně je hra dostupná pouze pro uzavřenou skupinu testerů. Postupuj podle těchto 3 kroků:</p>
+            
+            <div class="testing-steps">
+                <div class="test-step">
+                    <div class="test-step-num">1</div>
+                    <h3>Připojte se do skupiny</h3>
+                    <p>Nejprve se přidejte do naší testerské Google Groups skupiny.</p>
+                    <a href="https://groups.google.com/g/monstero-test" target="_blank" class="btn btn-outline" style="width: auto; display: inline-flex; justify-content: center;">Otevřít Skupinu</a>
+                </div>
+                
+                <div class="test-step">
+                    <div class="test-step-num">2</div>
+                    <h3>Stáhněte aplikaci</h3>
+                    <p>Po připojení do skupiny se přidejte k testování na Google Play a stáhněte si hru.</p>
+                    <a href="https://play.google.com/store/apps/details?id=com.monster.collector" target="_blank" class="btn btn-primary" style="width: auto; display: inline-flex; justify-content: center;">Stáhnout Hru</a>
+                </div>
+                
+                <div class="test-step">
+                    <div class="test-step-num">3</div>
+                    <h3>Testování hry</h3>
+                    <p>Po dobu 14 dní hru aktivně testujte a vyzkoušejte všechny její funkce.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Monster Collector Team. Všechna práva vyhrazena.</p>
+    </footer>
+</body>
+</html>
