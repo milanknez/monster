@@ -40,8 +40,15 @@ jobs:
 
       - name: Update Android Version
         run: |
-          VERSION_NAME=${GITHUB_REF_NAME#v}
-          VERSION_CODE=$GITHUB_RUN_NUMBER
+          VERSION_NAME="1.0.${{ github.run_number }}"
+          # Pokud je to tag (v1.2.3), použijeme verzi z tagu
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION_NAME=${GITHUB_REF_NAME#v}
+          fi
+          
+          # Version code musí být vždy vyšší než to, co už je v Google Play (teď tam máš 70+)
+          VERSION_CODE=$((100 + ${{ github.run_number }}))
+          
           sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
           sed -i "s/versionName \".*\"/versionName \"$VERSION_NAME\"/" android/app/build.gradle
           echo "Building version $VERSION_NAME ($VERSION_CODE)"
