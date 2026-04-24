@@ -43,25 +43,32 @@ const scheduleReengagementReminder = async () => {
         await LocalNotifications.cancel({ notifications: pending.notifications });
     }
 
-    // Naplánujeme notifikaci na za 48 hodin
-    const scheduleDate = new Date();
-    scheduleDate.setHours(scheduleDate.getHours() + 48);
+    // Naplánujeme dvě notifikace: jednu za 48h (2 dny) a druhou za 120h (5 dní)
+    const date2Days = new Date();
+    date2Days.setHours(date2Days.getHours() + 48);
+
+    const date5Days = new Date();
+    date5Days.setHours(date5Days.getHours() + 120);
 
     await LocalNotifications.schedule({
         notifications: [
             {
                 title: "Monstera tě hledají! 👹",
                 body: "Už 2 dny jsi nebyl na lovu. Divoké příšery v okolí začínají ovládat tvoji čtvrť!",
-                id: 1,
-                schedule: {
-                    at: scheduleDate,
-                    allowWhileIdle: true
-                },
+                id: 10,
+                schedule: { at: date2Days, allowWhileIdle: true },
+                sound: 'default'
+            },
+            {
+                title: "Tvoje monstra jsou smutná... 😢",
+                body: "Už je to 5 dní! Tvoje sbírka chřadne a vzácné kousky utíkají k jiným lovcům. Přijď je zachránit!",
+                id: 11,
+                schedule: { at: date5Days, allowWhileIdle: true },
                 sound: 'default'
             }
         ]
     });
-    console.log('Re-engagement reminder scheduled for:', scheduleDate.toLocaleString());
+    console.log('Reminders scheduled for 2 and 5 days.');
 };
 
 /**
