@@ -84,7 +84,7 @@ export function calculateHPCost(level: number, rarity: SpawnRarity) {
   return base + (level * 2) + rarityBonus
 }
 
-export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0): L.DivIcon {
+export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0, isCollected = false): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
   const outerSize = spawn.rarity === 'legendary' ? 50 : (spawn.rarity === 'epic' || spawn.rarity === 'rare') ? 38 : 32
   const innerR = 32
@@ -96,6 +96,11 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
     ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
     : `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`
 
+  // Small indicator if already in collection
+  const collectedCheck = isCollected 
+    ? `<circle cx="82" cy="18" r="14" fill="#10b981" stroke="#000" stroke-width="1.5"/><path d="M76 18 l4 4 l8 -8" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" />`
+    : ''
+
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
 
   const svg = `<div style="width:${outerSize}px; height:${(outerSize + 10)}px; transform:scale(${scale}); transform-origin: center center;">
@@ -106,6 +111,7 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
       ${pulse}
       <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
       ${lockOverlay}
+      ${collectedCheck}
       <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
       <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
     </svg>

@@ -121,6 +121,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalMoveRef = useRef(false)
   const tileLayerRef = useRef<L.TileLayer | null>(null)
+  const speedViolationCountRef = useRef(0)
 
 
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(initialPosition ? [initialPosition.lat, initialPosition.lng] : null)
@@ -197,8 +198,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         setSpawns(prev => {
           const newM: SpawnPoint = {
             id: 'dev_spawn_' + Date.now(),
-            lat: playerPos[0] + 0.00018, // cca 20m north for better visibility
-            lng: playerPos[1] + 0.00018, // cca 20m east
+            lat: playerPos[0] + 0.00005, // cca 5-8m
+            lng: playerPos[1] + 0.00005, // cca 5-8m
             rarity: 'epic',
             monsterId: 'obsidian_golem',
             level: 7,
@@ -216,8 +217,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         setSpawns(prev => {
           const newM: SpawnPoint = {
             id: 'custom_spawn_' + Date.now(),
-            lat: playerPos[0] + 0.00015,
-            lng: playerPos[1] + 0.00015,
+            lat: playerPos[0] + 0.00006,
+            lng: playerPos[1] + 0.00006,
             rarity: rar,
             monsterId: mId,
             level: lvl,
@@ -249,21 +250,24 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         const dist = haversineM(playerLat, playerLng, s.lat, s.lng)
         const isNearby = dist <= CATCH_RADIUS_M
         const currentLocked = s.level > pLevel
+        const isCollected = caughtMonsters.some(m => m.id === s.monsterId)
         const marker = existing.get(s.id)
 
         if (marker) {
-          if ((marker as any)._isNearby !== isNearby || (marker as any)._isLocked !== currentLocked || (marker as any)._scale !== scale) {
-            marker.setIcon(makeMarkerIcon(s, isNearby, currentLocked, scale))
+          if ((marker as any)._isNearby !== isNearby || (marker as any)._isLocked !== currentLocked || (marker as any)._scale !== scale || (marker as any)._isCollected !== isCollected) {
+            marker.setIcon(makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected))
             marker.setTooltipContent(makeTooltipHtml(s, pLevel))
               ; (marker as any)._isNearby = isNearby
               ; (marker as any)._isLocked = currentLocked
               ; (marker as any)._scale = scale
+              ; (marker as any)._isCollected = isCollected
           }
         } else {
-          const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, currentLocked, scale) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
+          const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
             ; (m as any)._isNearby = isNearby
             ; (m as any)._isLocked = currentLocked
             ; (m as any)._scale = scale
+            ; (m as any)._isCollected = isCollected
           existing.set(s.id, m)
         }
       }
@@ -537,11 +541,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             ? pos.coords.speed
             : (timeDiff > 0 ? traveled / timeDiff : 0)
 
-          const speed = Math.min(speedMps, 50) // Cap speed to 50m/s to avoid GPS jitter spikes causing false speed warnings
+          const speed = Math.min(speedMps, 50)
 
-          if (!ignoreSpeedLimit && speed > 7 && traveled > 10) {
-            setIsTooFast(true)
-          } else if (ignoreSpeedLimit || speed < 5) {
+          if (!ignoreSpeedLimit && speed > 10 && traveled > 15) {
+            speedViolationCountRef.current++
+            if (speedViolationCountRef.current >= 3) {
+              setIsTooFast(true)
+            }
+          } else if (ignoreSpeedLimit || speed < 6) {
+            speedViolationCountRef.current = 0
             setIsTooFast(false)
           }
 
