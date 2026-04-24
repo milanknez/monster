@@ -16,8 +16,8 @@ export const initNotifications = async (uid: string) => {
     }
 
     try {
-        // --- 1. LOCAL NOTIFICATIONS (Daily 12:00 Reminder) ---
-        await setupDailyLocalReminder();
+        // --- 1. LOCAL NOTIFICATIONS (48h Inactivity Reminder) ---
+        await scheduleReengagementReminder();
 
         // --- 2. PUSH NOTIFICATIONS (FCM) ---
         await setupPushNotifications(uid);
@@ -27,7 +27,7 @@ export const initNotifications = async (uid: string) => {
     }
 };
 
-const setupDailyLocalReminder = async () => {
+const scheduleReengagementReminder = async () => {
     const permission = await LocalNotifications.checkPermissions();
     if (permission.display !== 'granted') {
         const request = await LocalNotifications.requestPermissions();
@@ -37,38 +37,31 @@ const setupDailyLocalReminder = async () => {
         }
     }
 
+    // Zrušíme všechny staré naplánované notifikace (aby se čas posunul na +48h od teď)
     const pending = await LocalNotifications.getPending();
     if (pending.notifications.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.notifications });
     }
 
-    const now = new Date();
-    const scheduledTime = new Date();
-    scheduledTime.setHours(12, 0, 0, 0);
-
-    if (now.getTime() >= scheduledTime.getTime()) {
-        scheduledTime.setDate(scheduledTime.getDate() + 1);
-    }
+    // Naplánujeme notifikaci na za 48 hodin
+    const scheduleDate = new Date();
+    scheduleDate.setHours(scheduleDate.getHours() + 48);
 
     await LocalNotifications.schedule({
         notifications: [
             {
-                title: "Po tobě jdou monstera!",
-                body: "V tvém okolí byla spatřena aktivita monster. Přijď je chytit!",
+                title: "Monstera tě hledají! 👹",
+                body: "Už 2 dny jsi nebyl na lovu. Divoké příšery v okolí začínají ovládat tvoji čtvrť!",
                 id: 1,
                 schedule: {
-                    on: {
-                        hour: 12,
-                        minute: 0
-                    },
-                    repeats: true,
+                    at: scheduleDate,
                     allowWhileIdle: true
                 },
                 sound: 'default'
             }
         ]
     });
-    console.log('Daily local reminder scheduled for 12:00 PM.');
+    console.log('Re-engagement reminder scheduled for:', scheduleDate.toLocaleString());
 };
 
 /**
@@ -147,4 +140,4 @@ const saveTokenToDatabase = async (uid: string, token: string) => {
 /**
  * Legacy export for backward compatibility if needed temporarily
  */
-export const scheduleDailyMonsterReminder = setupDailyLocalReminder;
+export const scheduleDailyMonsterReminder = scheduleReengagementReminder;
