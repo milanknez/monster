@@ -344,6 +344,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
     const [showMutations, setShowMutations] = useState(false);
+    const [showItemPicker, setShowItemPicker] = useState(false);
 
     if (!monster) return null;
 
@@ -353,6 +354,19 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     useEffect(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
+
+    // Prevent body scroll when any modal is open
+    useEffect(() => {
+      const isAnyModalOpen = showHealingModal || showMutations || showItemPicker || confirmRelease;
+      if (isAnyModalOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'unset';
+      }
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }, [showHealingModal, showMutations, showItemPicker, confirmRelease]);
 
         const originalMonster = useMemo(() => monsterDB.find(dbm => dbm.id === monster.id), [monster.id]);
     const originalStats = originalMonster?.stats || { hp: 100, attack: 10, defense: 10 };
@@ -704,7 +718,19 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 </div>
                 <h3 className="text-xs font-black text-white uppercase tracking-widest">Drahokamy a Relikvie</h3>
               </div>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-60">Slot Score: 3 / 3</div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setActiveSlotIdx(null);
+                  setShowItemPicker(true);
+                  setFocusedItem(null);
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-xl text-primary text-[10px] font-black uppercase tracking-widest transition-all"
+              >
+                <Dna size={12} />
+                Mutovat
+              </motion.button>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -721,7 +747,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     <motion.div
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        setActiveSlotIdx(isPicking ? null : idx);
+                        setActiveSlotIdx(idx);
+                        setShowItemPicker(true);
                         setFocusedItem(null);
                       }}
                       className={cn(
@@ -967,39 +994,39 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
       
         {/* Equipment & Relic Picker Modal (Bottom Sheet) */}
         <AnimatePresence>
-          {activeSlotIdx !== null && (
+          {showItemPicker && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col">
               <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }} 
-                onClick={() => { setActiveSlotIdx(null); setFocusedItem(null); }} 
-                className="absolute inset-0 bg-black/40 backdrop-blur-xl" 
+                onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }} 
+                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
               />
               <motion.div 
                 initial={{ y: "100%" }} 
                 animate={{ y: 0 }} 
                 exit={{ y: "100%" }} 
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
-                className="w-full max-w-lg bg-slate-900/90 backdrop-blur-xl border-t-4 border-primary rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_80px_rgba(var(--primary-rgb),0.3)] relative z-10 max-h-[90vh] flex flex-col"
+                className="w-full max-w-lg bg-[#0f172a] border-t-4 border-amber-500/50 rounded-t-[2.5rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(0,0,0,0.9)] relative z-10 max-h-[90vh] flex flex-col"
               >
                 {/* Modal Header */}
                 <div className="flex justify-between items-center mb-8 shrink-0">
                   <div className="flex items-center gap-4">
-                    <div className="size-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shadow-lg shadow-primary/10">
-                      <Gem size={24} />
+                    <div className="size-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 border border-amber-500/20 shadow-lg shadow-amber-500/10">
+                      {activeSlotIdx !== null ? <Gem size={32} /> : <Dna size={32} />}
                     </div>
                     <div>
                       <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">
-                        Výběr Výbavy
+                        {activeSlotIdx !== null ? `Slot ${activeSlotIdx + 1}` : 'Genom Lab'}
                       </h2>
-                      <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest italic">
-                        Slot {activeSlotIdx + 1} • Vyberte vylepšení
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">
+                        {activeSlotIdx !== null ? 'Osazení drahokamu' : 'Trvalá genetická modifikace'}
                       </p>
                     </div>
                   </div>
                   <button 
-                    onClick={() => { setActiveSlotIdx(null); setFocusedItem(null); }} 
+                    onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }} 
                     className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400 transition-colors"
                   >
                     <X size={24} />
@@ -1007,7 +1034,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 </div>
 
                 {/* Grid of Items */}
-                <div className="grid grid-cols-4 gap-3 mb-6 overflow-y-auto pr-2 custom-scrollbar shrink-0">
+                <div className="grid grid-cols-4 gap-3 mb-6 overflow-y-auto pr-2 custom-scrollbar shrink-0 max-h-[250px]">
                   {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => {
                     const cfg = RESOURCE_CONFIG[i.type];
                     const isSelected = focusedItem?.type === i.type;
@@ -1016,24 +1043,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         key={i.type}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setFocusedItem(i)}
-                        onDoubleClick={() => {
-                          if (activeSlotIdx !== null) {
-                            if (i.type.startsWith('gem_')) {
-                              onEquipGem?.(activeSlotIdx, i.type);
-                            } else {
-                              onEquipItem?.(activeSlotIdx, i.type);
-                            }
-                            setActiveSlotIdx(null);
-                            setFocusedItem(null);
-                          }
-                        }}
                         className={cn(
                           "aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all shadow-xl",
                           cfg.rarity === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
                           cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
                           cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
                           "border-white/5 bg-white/5",
-                          isSelected && "ring-4 ring-primary/30 border-primary bg-primary/10 scale-105 z-10"
+                          isSelected && "ring-4 ring-amber-500/30 border-amber-500 bg-amber-500/10 scale-105 z-10"
                         )}
                       >
                         <ResourceIcon id={i.type} config={cfg} size="lg" className={cn("drop-shadow-md transition-opacity", !isSelected && "opacity-80")} />
@@ -1057,20 +1073,15 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           animate={{ opacity: 1, y: 0 }} 
                           exit={{ opacity: 0, y: 10 }} 
                           key={focusedItem.type} 
-                          className="bg-white/[0.05] border border-white/10 rounded-2xl p-4 shadow-3xl space-y-4"
+                          className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-5 shadow-3xl space-y-4"
                         >
-                          <div className="flex items-center gap-4">
-                             <div className="size-16 bg-white/[0.03] rounded-2xl flex items-center justify-center border border-white/10 shadow-inner shrink-0">
+                          <div className="flex items-center gap-5">
+                             <div className="size-20 bg-black/40 rounded-3xl flex items-center justify-center border border-white/5 shadow-inner shrink-0">
                                <ResourceIcon id={focusedItem.type} config={cfg} size="xl" />
                              </div>
                              <div className="flex-1 min-w-0">
                                <div className="flex items-center justify-between mb-2">
-                                 <h4 className="text-xl font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
-                                 <span className={cn("text-[9px] font-black uppercase px-2 py-0.5 rounded-full border", 
-                                   cfg.rarity === 'Legendární' ? "text-amber-500 border-amber-500/30 bg-amber-500/10" :
-                                   cfg.rarity === 'Epická' ? "text-purple-500 border-purple-500/30 bg-purple-500/10" :
-                                   "text-slate-400 border-slate-500/30 bg-slate-500/10"
-                                 )}>{cfg.rarity}</span>
+                                 <h4 className="text-2xl font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
                                </div>
                                <div className="flex flex-wrap gap-2">
                                   {(cfg.stats?.atk || 0) !== 0 && (
@@ -1091,10 +1102,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                </div>
                              </div>
                           </div>
-                          <p className="text-xs text-slate-400 font-medium leading-relaxed italic tracking-tight">{cfg.description}</p>
+                          <p className="text-sm text-slate-400 font-medium leading-relaxed italic tracking-tight">{cfg.description}</p>
                           
-                          <div className="flex flex-col gap-2 pt-1">
-                            {(cfg.category === 'relic' || (focusedItem && focusedItem.type && focusedItem.type.startsWith('loot_'))) && (
+                          <div className="flex flex-col gap-3 pt-2">
+                            {(cfg.category === 'relic' || focusedItem.type.startsWith('loot_')) && (
                               <motion.button 
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.95 }}
@@ -1102,18 +1113,19 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                   e.stopPropagation();
                                   if (onPermanentlyUpgrade && cfg.stats) {
                                     onPermanentlyUpgrade(focusedItem.type, cfg.stats);
+                                    setShowItemPicker(false);
                                     setActiveSlotIdx(null);
                                     setFocusedItem(null);
                                   }
                                 }}
-                                className="w-full py-3.5 bg-gradient-to-r from-orange-600 to-red-600 text-white font-black rounded-2xl uppercase text-[10px] tracking-widest shadow-xl shadow-orange-900/40 flex items-center justify-center gap-2 border-b-4 border-black/20"
+                                className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-black rounded-2xl uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-orange-900/40 flex items-center justify-center gap-2 border-b-4 border-black/20"
                               >
-                                <Sparkles size={16} />
-                                Trvale vylepšit
+                                <Sparkles size={18} />
+                                Trvale vylepšit DNA
                               </motion.button>
                             )}
 
-                            {cfg.category === 'gem' && (
+                            {cfg.category === 'gem' && activeSlotIdx !== null && (
                               <motion.button 
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -1123,10 +1135,11 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                   } else {
                                     onEquipItem?.(activeSlotIdx, focusedItem.type);
                                   }
+                                  setShowItemPicker(false);
                                   setActiveSlotIdx(null);
                                   setFocusedItem(null);
                                 }}
-                                className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 border border-white/5 active:bg-slate-700 shadow-inner text-[10px]"
+                                className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-[0.1em] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 border border-white/10 text-[11px]"
                               >
                                 <Package size={18} />
                                 Nasadit do slotu {activeSlotIdx + 1}
@@ -1136,8 +1149,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         </motion.div>
                       );
                     })() : (
-                      <div className="py-12 text-center border-2 border-dashed border-white/5 bg-white/[0.01] rounded-2xl opacity-40">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Vyberte předmět z mřížky pro zobrazení detailů</p>
+                      <div className="py-12 text-center border-2 border-dashed border-white/5 bg-white/[0.01] rounded-[2rem] opacity-40">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-12">Vyberte předmět z mřížky pro zobrazení detailů</p>
                       </div>
                     )}
                   </AnimatePresence>
