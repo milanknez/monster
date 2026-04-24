@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf,
   Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical,
-  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna
+  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull
 } from 'lucide-react';
 
 import {
@@ -64,11 +64,13 @@ const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number,
 
   const effect = useMemo(() => {
     switch (effectiveType) {
-      case 'attack': return { label: 'Silný útok', val: `+${Math.round(((ability.value || 1.85) - 1) * 100)}% ATK`, icon: <Sword size={24} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
-      case 'extra': return { label: 'Extra zásah', val: `+${Math.round((ability.value || 0.35) * 100)}% DMG`, icon: <Zap size={24} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
-      case 'defense': return { label: 'Obrana', val: `-${Math.round((ability.value || 0.4) * 100)}% DMG`, icon: <Shield size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
-      case 'heal': return { label: 'Léčení', val: `+${Math.round((ability.value || 0.2) * 100)}% HP`, icon: <Heart size={24} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
-      case 'buff': return { label: 'Bonus', val: `+${Math.round((ability.value || 0.2) * 100)}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
+      case 'attack': return { label: 'Silný útok', val: `${ability.value || 155}% ATK`, icon: <Sword size={24} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
+      case 'extra': return { label: 'Extra zásah', val: `+${ability.value || 35}% DMG`, icon: <Zap size={24} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
+      case 'defense': return { label: 'Obrana', val: `-${ability.value || 60}% DMG`, icon: <Shield size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
+      case 'heal': return { label: 'Léčení', val: `+${ability.value || 20}% HP`, icon: <Heart size={24} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
+      case 'buff': return { label: 'Bonus', val: `+${ability.value || 20}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
+      case 'curse': return { label: 'Kletba', val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
+      case 'regen': return { label: 'Regenerace', val: `+${ability.value || 10}% HP/Tah`, icon: <RefreshCw size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
       default: return { label: 'Schopnost', val: 'Speciální', icon: <Info size={24} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
     }
   }, [effectiveType, ability.value]);

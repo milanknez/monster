@@ -402,10 +402,10 @@ function AppContent() {
 
   // Automatická synchronizace progressu k referrerovi (Milanovi)
   useEffect(() => {
-    if (userUid && referredBy && totalXP > 0) {
-      syncReferralProgress(userUid, currentLevel, totalXP, referredBy);
+    if (userUid && referredBy && totalXP >= 0) {
+      syncReferralProgress(userUid, currentLevel, totalXP, referredBy, playerName || undefined);
     }
-  }, [totalXP, currentLevel, userUid, referredBy]);
+  }, [totalXP, currentLevel, userUid, referredBy, playerName]);
 
   // Initialize notifications (Local & Push)
   useEffect(() => {
@@ -445,12 +445,22 @@ function AppContent() {
         ...val
       }));
 
-      // Kontrola, jestli někdo nově nedosáhl levelu 3
+      // Kontrola nových registrací (Level 1) a dosažení Levelu 3
       list.forEach(refEntry => {
+        const previousData = referrals.find(r => r.uid === refEntry.uid);
+        
+        // 1. Nová registrace (přechod z levelu 0 na level 1+)
+        if (refEntry.level >= 1 && (!previousData || previousData.level === 0)) {
+          addToast({
+            title: 'Nové vajíčko! 🥚',
+            message: `Tvůj přítel ${refEntry.name || 'Lovec'} se zaregistroval. Vajíčko se vylíhne na 3. úrovni!`,
+            type: 'success'
+          });
+        }
+
+        // 2. Dosažení levelu 3 (připraveno k líhnutí)
         if (refEntry.level >= 3 && !refEntry.hatchClaimed) {
-          // Najdeme, jestli jsme o tom už věděli (abychom neposílali notifikaci pořád dokola)
-          const alreadyNotified = referrals.find(r => r.uid === refEntry.uid && r.level >= 3);
-          if (!alreadyNotified) {
+          if (!previousData || previousData.level < 3) {
             addToast({
               title: 'Vajíčko je připraveno! 🥚',
               message: `Tvůj přítel ${refEntry.name || 'Lovec'} dosáhl úrovně 3. Utíkej si vylíhnout odměnu!`,

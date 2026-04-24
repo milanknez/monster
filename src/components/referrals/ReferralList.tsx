@@ -163,6 +163,13 @@ const ReferralItem = ({
            </div>
          </button>
       )}
+
+      {/* Incubation label for Lv 1-2 */}
+      {!isInvited && refEntry.level < 3 && !refEntry.hatchClaimed && (
+        <div className="absolute bottom-0 left-0 right-0 py-1 bg-primary/20 backdrop-blur-sm text-[7px] font-black text-primary uppercase text-center leading-none rounded-b-2xl border-t border-primary/20">
+          Inkubace...
+        </div>
+      )}
     </motion.div>
   );
 };

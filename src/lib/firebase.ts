@@ -191,15 +191,18 @@ export const deleteReferral = async (referrerUid: string, invitedId: string) => 
     await remove(referralRef);
 };
 
-export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string) => {
+export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string, name?: string) => {
     // Aktualizovat záznam u referrera (pod UID pozvaného)
     const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
-    await update(referralRef, { 
+    const updateData: any = { 
         level, 
         totalXP,
         status: 'registered',
         registeredUid: invitedUid
-    });
+    };
+    if (name) updateData.name = name;
+    
+    await update(referralRef, updateData);
 };
 
 /**
