@@ -6,7 +6,7 @@ import {
   FlaskConical, Trophy, Package, ChevronRight, Smile, 
   RefreshCw, Star, Heart, Aperture, ArrowUpRight, 
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle, 
-  Hourglass, Skull, Moon, Lock, Check
+  Hourglass, Skull, Moon, Lock, Check, Hash, Target
 } from 'lucide-react';
 import type { Monster, LootTableEntry } from '../../types';
 import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
@@ -999,7 +999,103 @@ export const Battle = ({
 
       {/* Battle Scene */}
       <div className="flex-1 relative flex flex-col items-center justify-center overflow-hidden perspective-[1200px]">
-         <AnimatePresence>{catchAnim && <motion.div initial={{ left: '50%', top: '80%', scale: 0.1 }} animate={{ left: '70%', top: '22%', scale: 2.2, rotate: 1440 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.8 }} className="absolute z-[400] text-amber-500 drop-shadow-[0_0_30px_#f59e0b]"><Aperture size={60} /></motion.div>}</AnimatePresence>
+         <AnimatePresence>
+           {catchAnim && (
+             <div className="absolute inset-0 z-[500] pointer-events-none overflow-hidden">
+               {/* 1. CINEMATIC OVERLAY (Dimming the world) */}
+               <motion.div 
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 exit={{ opacity: 0 }}
+                 className="absolute inset-0 bg-blue-950/40 backdrop-blur-[2px] z-[390]"
+               />
+
+               {/* 2. SHOCKWAVE FROM PLAYER */}
+               <motion.div
+                 initial={{ scale: 0, opacity: 1, border: '4px solid white' }}
+                 animate={{ scale: 4, opacity: 0, border: '0px solid white' }}
+                 transition={{ duration: 0.6 }}
+                 className="absolute left-[20%] top-[80%] size-20 rounded-full z-[391]"
+               />
+               
+               {/* 3. SPIRALING SILK STRANDS (3 entangled lines) */}
+               {[...Array(3)].map((_, i) => (
+                 <motion.div 
+                   key={i}
+                   initial={{ width: 0, opacity: 0 }}
+                   animate={{ width: '100%', opacity: [0, 1, 0.8, 0] }}
+                   transition={{ duration: 0.8, delay: i * 0.05 }}
+                   className="absolute z-[392] h-1 bg-white origin-left"
+                   style={{ 
+                      left: '22%', 
+                      top: `${78 + (i-1)*2}%`, 
+                      rotate: `${-38 + (i-1)*3}deg`, 
+                      width: '65%',
+                      boxShadow: '0 0 15px white',
+                      filter: 'blur(1px)'
+                   }} 
+                 />
+               ))}
+
+               {/* 4. THE WEB PROJECTILE - THE CORE (Refined Size & Icon) */}
+               <motion.div 
+                 initial={{ left: '22%', top: '78%', scale: 0, rotate: 0 }} 
+                 animate={{ 
+                   left: '73%', 
+                   top: '24%', 
+                   scale: [1, 1.5, 3], // Reduced from 8 to 3
+                   rotate: 720
+                 }} 
+                 transition={{ duration: 0.8, ease: "circOut" }} 
+                 className="absolute z-[400]"
+               >
+                 {/* Glowing Core - Smaller & Softer */}
+                 <div className="absolute size-3 bg-white rounded-full shadow-[0_0_25px_10px_rgba(255,255,255,0.7)] -translate-x-1/2 -translate-y-1/2" />
+                 
+                 {/* Simplified Elegant Web Icon */}
+                 <div className="-translate-x-1/2 -translate-y-1/2">
+                   <svg width="45" height="45" viewBox="0 0 24 24" fill="none" className="text-white opacity-95 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+                      <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1" />
+                      <path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                   </svg>
+                 </div>
+               </motion.div>
+
+               {/* 5. IMPACT & COCOON WRAP (Centered on monster) */}
+               <motion.div
+                 initial={{ opacity: 0, scale: 0 }}
+                 animate={{ 
+                   opacity: [0, 0, 1, 0.8, 0], 
+                   scale: [0, 0, 1.2, 1.5, 2],
+                 }}
+                 transition={{ duration: 1.0 }}
+                 className="absolute left-[72%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-[500]"
+               >
+                 {/* Main Impact Glow */}
+                 <div className="absolute inset-0 size-24 bg-white/40 blur-2xl rounded-full -translate-x-1/2 -translate-y-1/2" />
+                 
+                 {/* The "Wrap" - Looks like silk crossing */}
+                 <svg width="120" height="120" viewBox="0 0 100 100" className="text-white drop-shadow-[0_0_15px_white] -translate-x-1/2 -translate-y-1/2">
+                    <motion.path 
+                      initial={{ pathLength: 0 }} 
+                      animate={{ pathLength: 1 }} 
+                      transition={{ delay: 0.7, duration: 0.3 }}
+                      d="M20,20 L80,80 M80,20 L20,80 M50,10 L50,90 M10,50 L90,50" 
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" 
+                    />
+                    <motion.circle 
+                      initial={{ pathLength: 0 }} 
+                      animate={{ pathLength: 1 }} 
+                      transition={{ delay: 0.75, duration: 0.3 }}
+                      cx="50" cy="50" r="30" stroke="currentColor" strokeWidth="1" fill="none" 
+                    />
+                 </svg>
+               </motion.div>
+             </div>
+           )}
+         </AnimatePresence>
          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.08 }} className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"><h1 className="text-[200px] font-black italic text-white/40 tracking-tighter">VS</h1></motion.div>
 
          {/* ENEMY (TOP RIGHT) */}
@@ -1007,15 +1103,10 @@ export const Battle = ({
             <div id="tutorial-enemy-stats" className="w-full bg-slate-900/70 backdrop-blur-xl p-2.5 rounded-xl border border-red-500/10 shadow-2xl mb-4 transform -rotate-1 relative">
                <RarityBadge rarity={enemyMonster.rarity || ''} />
                <div className="flex justify-between items-center mb-1">
-                 <div className="flex items-center gap-1.5 overflow-hidden min-w-0">
+                 <div className="flex items-center gap-1.5 overflow-hidden min-w-0 pl-5">
                     <TypeIcon type={enemyMonster.type} />
                     <span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span>
-                    {isAlreadyCaught && (
-                      <div className="flex items-center justify-center size-3.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 shrink-0">
-                        <Check size={8} className="text-emerald-400 stroke-[4]" />
-                      </div>
-                    )}
-                  </div>
+                 </div>
                  <span className="text-[8px] font-black text-red-500">Lv {enemyMonster.level}</span>
                </div>
                <HealthBar current={enemyHP} max={enemyMaxHP} label="HP" colorClass="bg-gradient-to-r from-red-600 to-rose-400" shadowColor="rgba(239,68,68,0.4)" />
@@ -1222,7 +1313,7 @@ export const Battle = ({
                 const isDefense = ab.type === 'defense';
                 const isRegen = ab.type === 'regen';
                 const isCurse = ab.type === 'curse';
-                const healVal = isHeal ? Math.round(playerMaxHP * (ab.value || 0.15)) : 0;
+                const healVal = isHeal ? Math.round(playerMaxHP * ((ab.value || 15) / 100)) : 0;
                 
                 const type = ab.type?.toLowerCase() || 'attack';
                 const typeConfigs: Record<string, { icon: any, color: string, border: string }> = {
@@ -1338,32 +1429,37 @@ export const Battle = ({
            </div>
 
            {/* Special (Catch) - PVE Only */}
-           {!pvpRole && (
-              <motion.button 
-                id="tutorial-catch"
-                whileTap={{ scale: 0.94, y: 4 }} 
-                onClick={executeCatch} 
-                disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
-                className={cn(
-                  "col-span-1 h-16 rounded-xl flex flex-col items-center justify-center border transition-all shadow-xl relative z-[7001]", 
-                  turn === 'player' && !catchAnim ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-[0_8px_0_rgba(245,158,11,0.2)] active:shadow-none translate-y-[-2px] active:translate-y-[0px]" : "bg-slate-900/40 border-white/5 opacity-40 text-slate-500"
-                )}
-              >
-                <div className="relative">
-                  <Aperture size={20} className="text-amber-400 animate-spin-slow drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" />
-                  <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-110" />
-                  {isAlreadyCaught && (
-                     <div className="absolute -top-1 -right-1 size-3.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] border border-white/20 flex items-center justify-center z-10 scale-110">
-                        <Check size={8} className="text-white stroke-[5]" />
-                     </div>
-                   )}
-                </div>
-                <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
-                   <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
-                   <span className="text-[8px] font-bold opacity-60">{Math.max(1, Math.round(Math.min(0.95, 0.95 * Math.pow(1 - (enemyHP / enemyMaxHP), 2.6)) * 100))}%</span>
-                </div>
-              </motion.button>
-           )}
+           {!pvpRole && (() => {
+                const catchChance = Math.max(1, Math.round(Math.min(0.95, 0.95 * Math.pow(1 - (enemyHP / enemyMaxHP), 2.6)) * 100));
+                const isHighChance = catchChance >= 40;
+
+                return (
+                  <motion.button 
+                    id="tutorial-catch"
+                    whileTap={{ scale: 0.94, y: 4 }} 
+                    onClick={executeCatch} 
+                    disabled={turn !== 'player' || playerAnim !== 'idle' || catchAnim} 
+                    className={cn(
+                      "col-span-1 h-16 rounded-xl flex flex-col items-center justify-center border transition-all shadow-xl relative z-[7001]", 
+                      turn === 'player' && !catchAnim ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-[0_8px_0_rgba(245,158,11,0.2)] active:shadow-none translate-y-[-2px] active:translate-y-[0px]" : "bg-slate-900/40 border-white/5 opacity-40 text-slate-500"
+                    )}
+                  >
+                    <div className="relative">
+                      <Target size={20} className={cn("text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]", isHighChance && "animate-pulse")} />
+                      {isHighChance && <div className="absolute inset-0 animate-ping bg-amber-500/20 rounded-full scale-110" />}
+                      {isAlreadyCaught && (
+                        <div className="absolute -top-1 -right-1 size-3.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)] border border-white/20 flex items-center justify-center z-10 scale-110">
+                            <Check size={8} className="text-white stroke-[5]" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
+                      <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
+                      <span className="text-[8px] font-bold opacity-60">{catchChance}%</span>
+                    </div>
+                  </motion.button>
+                );
+              })()}
         </div>
       </div>
 

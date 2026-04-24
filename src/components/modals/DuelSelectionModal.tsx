@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { X, Sword, Heart, Flame, Droplets, Leaf, Zap, Skull } from 'lucide-react';
+import { X, Sword, Heart, Flame, Droplets, Leaf, Zap, Skull, Check } from 'lucide-react';
 import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
@@ -21,6 +21,7 @@ export const DuelSelectionModal = ({
 }) => {
   // Seřadit podle nejsilnějšího (lvl * útok nebo prostě lvl)
   const sorted = [...caughtMonsters].sort((a, b) => (b.level || 0) - (a.level || 0));
+  const isCollected = opponent ? caughtMonsters.some(m => m.id === opponent.id) : false;
 
   const TypeIcon = ({ type, size = 16, className = "" }: { type: string, size?: number, className?: string }) => {
     switch (type) {
@@ -66,9 +67,9 @@ export const DuelSelectionModal = ({
                   className="w-full h-full object-contain relative z-10 brightness-0 opacity-80" 
                   alt="Opponent Silhouette" 
                 />
-                {/* Type icon in the corner of the silhouette */}
-                <div className="absolute bottom-1 right-1 size-7 bg-black/80 rounded-lg flex items-center justify-center border border-white/10 shadow-lg">
-                  <TypeIcon type={opponent.type} size={14} />
+                {/* Type icon in the corner of the silhouette - Enhanced visibility */}
+                <div className="absolute bottom-1.5 right-1.5 size-8 bg-slate-900/90 rounded-xl flex items-center justify-center border border-white/20 shadow-2xl z-20 backdrop-blur-sm">
+                  <TypeIcon type={opponent.type} size={16} />
                 </div>
               </div>
               
@@ -76,15 +77,21 @@ export const DuelSelectionModal = ({
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2 py-0.5 rounded-md bg-red-500 text-background-dark text-[10px] font-black uppercase tracking-widest italic">Nepřítel</span>
                 </div>
-                <h4 className="text-xl font-black text-white uppercase italic tracking-tighter mb-1">Neznámý Soupeř</h4>
+                <h4 className="text-xl font-black text-white uppercase italic tracking-tighter mb-1 flex items-center gap-2">
+                  {isCollected ? opponent.name : "Neznámý Soupeř"}
+                  {isCollected && (
+                    <div className="flex items-center justify-center size-5 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+                      <Check size={12} className="text-emerald-400 stroke-[4]" />
+                    </div>
+                  )}
+                </h4>
                 <div className="flex items-center gap-3">
                   <div className="h-7 px-3 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                     <span className="text-[11px] font-black text-red-500 uppercase tracking-widest leading-none">LVL {opponent.level}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/5">
-                    <TypeIcon type={opponent.type} size={12} />
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{opponent.type}</span>
-                  </div>
+                  {isCollected && (
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] opacity-80">Již chyceno</span>
+                  )}
                 </div>
               </div>
             </div>
