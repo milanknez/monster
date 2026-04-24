@@ -43,6 +43,7 @@ import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import {
   auth,
   db,
@@ -441,9 +442,35 @@ function AppContent() {
     const unsubscribe = watchReferrals(userUid, (data) => {
       const list: ReferralEntry[] = Object.entries(data).map(([uid, val]: [string, any]) => ({
         uid,
-        ...val,
-        level: 1 // We'll update this in the next effect
+        ...val
       }));
+
+      // Kontrola, jestli někdo nově nedosáhl levelu 3
+      list.forEach(refEntry => {
+        if (refEntry.level >= 3 && !refEntry.hatchClaimed) {
+          // Najdeme, jestli jsme o tom už věděli (abychom neposílali notifikaci pořád dokola)
+          const alreadyNotified = referrals.find(r => r.uid === refEntry.uid && r.level >= 3);
+          if (!alreadyNotified) {
+            addToast({
+              title: 'Vajíčko je připraveno! 🥚',
+              message: `Tvůj přítel ${refEntry.name || 'Lovec'} dosáhl úrovně 3. Utíkej si vylíhnout odměnu!`,
+              type: 'boost'
+            });
+
+            // Pošleme i systémovou notifikaci, pokud je aplikace na pozadí
+            LocalNotifications.schedule({
+              notifications: [{
+                title: "Odměna čeká! 🎁",
+                body: `${refEntry.name || 'Tvůj přítel'} dosáhl úrovně 3. Vylíhni si své vajíčko!`,
+                id: 2,
+                schedule: { at: new Date(Date.now() + 1000) },
+                sound: 'default'
+              }]
+            });
+          }
+        }
+      });
+
       setReferrals(list);
     });
     return () => unsubscribe();
@@ -465,22 +492,7 @@ function AppContent() {
     };
   }, [saveMonster, addToast, addXP]);
 
-  // Sync Referral Levels (Real-time check of invited friends)
-  useEffect(() => {
-    if (referrals.length === 0) return;
-    const interval = setInterval(async () => {
-      const updatedReferrals = await Promise.all(referrals.map(async (refEntry) => {
-        // Fetch invited player level from players/UID
-        const playerRef = (await loadUserBackup(refEntry.uid)); // reuse helper or make new
-        return { ...refEntry, level: playerRef?.level || 1 };
-      }));
-      // Only update if something changed
-      if (JSON.stringify(updatedReferrals) !== JSON.stringify(referrals)) {
-        setReferrals(updatedReferrals);
-      }
-    }, 30000);
-    return () => interval && clearInterval(interval);
-  }, [referrals]);
+
 
   // Handle opponent exiting battle
   useEffect(() => {
