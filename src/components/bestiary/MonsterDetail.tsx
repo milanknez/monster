@@ -66,7 +66,7 @@ const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number,
     switch (effectiveType) {
       case 'attack': return { label: 'Silný útok', val: `${ability.value || 155}% ATK`, icon: <Sword size={24} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
       case 'extra': return { label: 'Extra zásah', val: `+${ability.value || 35}% DMG`, icon: <Zap size={24} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
-      case 'defense': return { label: 'Obrana', val: `-${ability.value || 60}% DMG`, icon: <Shield size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
+      case 'defense': return { label: 'Obrana', val: `-${ability.value || 60}% DMG`, icon: <Shield size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
       case 'heal': return { label: 'Léčení', val: `+${ability.value || 20}% HP`, icon: <Heart size={24} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
       case 'buff': return { label: 'Bonus', val: `+${ability.value || 20}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
       case 'curse': return { label: 'Kletba', val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
@@ -593,11 +593,11 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             </div>
 
             <div className="bg-white/[0.07] border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 backdrop-blur-md shadow-2xl transition-all relative overflow-hidden group hover:bg-white/[0.1] hover:border-white/20">
-              <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <Shield size={18} className="text-emerald-500 opacity-60 mb-1" />
+              <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Shield size={18} className="text-yellow-500 opacity-60 mb-1" />
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Obrana</span>
               <p className="text-xl font-black text-white italic tabular-nums leading-none">{getMonsterDefense(monster)}</p>
-              <div className="text-[8px] font-black text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded-full border border-emerald-500/10">
+              <div className="text-[8px] font-black text-yellow-500/80 bg-yellow-500/5 px-2 py-0.5 rounded-full border border-yellow-500/10">
                 Bonus {getMonsterDefense(monster) - (originalStats.defense)}
               </div>
             </div>
