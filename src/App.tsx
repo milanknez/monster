@@ -293,6 +293,37 @@ function AppContent() {
 
     CapApp.addListener('appUrlOpen', handleDeepLink);
     
+    // Posloucháme na náš nový nativní můstek pro Google Play Referrer
+    window.addEventListener('onInstallReferrer', (event: any) => {
+      try {
+        const data = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
+        let refCode = data.referrer;
+        
+        console.log('Nativní referrer přijat:', refCode);
+
+        if (refCode && refCode.includes('=')) {
+          const params = new URLSearchParams(refCode);
+          refCode = params.get('ref') || refCode;
+        }
+
+        if (refCode && refCode !== userUid && !refCode.includes('utm_source')) {
+          const savedRef = localStorage.getItem('pending_referral');
+          if (savedRef !== refCode) {
+            localStorage.setItem('pending_referral', refCode);
+            setPendingReferral(refCode);
+            setReferredBy(refCode);
+            addToast({ 
+              title: 'Pozvánka z Google Play!', 
+              message: 'Díky za stažení přes odkaz. Odměnu získáš na 3. úrovni.', 
+              type: 'success' 
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Zpracování nativního referreru selhalo:', e);
+      }
+    });
+    
 
 
     return () => {
@@ -329,7 +360,8 @@ function AppContent() {
           // New user! Check if they were invited by email
           const referrerUidMatch = await checkEmailInvitation(firebaseUser.email);
           if (referrerUidMatch) {
-            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || 'Nový lovec', firebaseUser.email);
+            const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
+            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
             addToast({
               title: 'Odměna za pozvánku',
               message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.',
