@@ -10,6 +10,7 @@ export interface ReferralEntry {
   totalXP?: number;
   hatchClaimed: boolean;
   status?: string;
+  email?: string;
 }
 
 interface ReferralListProps {
@@ -132,7 +133,7 @@ const ReferralItem = ({
       </div>
 
       <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter truncate w-full text-center px-1">
-        {(refEntry?.name || 'Vajíčko')?.split('@')[0]?.split(' (')[0]}
+        {(refEntry?.name || refEntry?.email || 'Vajíčko')?.split('@')[0]?.split(' (')[0]}
       </span>
       
       {/* Level & Bar */}

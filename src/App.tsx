@@ -43,6 +43,7 @@ import { useInventory } from './hooks/useInventory'
 import { useP2PDuel } from './hooks/useP2PDuel'
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import {
   auth,
   db,
@@ -65,7 +66,7 @@ import {
 } from './lib/firebase'
 import { User as FirebaseUser } from 'firebase/auth'
 
-import { CapacitorReferrer } from '@dhrimz/capacitor-referrer';
+
 
 import { InviteModal } from './components/modals/InviteModal'
 import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
@@ -293,40 +294,38 @@ function AppContent() {
 
     CapApp.addListener('appUrlOpen', handleDeepLink);
     
-    // Check Play Install Referrer (if user just installed the app from the Play Store via our link)
-    const checkInstallReferrer = async () => {
-      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
-        try {
-          const details = await CapacitorReferrer.getReferrerDetails();
-          if (details && details.referrerUrl) {
-            let refCode = details.referrerUrl;
-            // The referrerUrl might be the exact code, or query params if multiple were passed
-            if (refCode.includes('=')) {
-              const params = new URLSearchParams(refCode);
-              refCode = params.get('ref') || refCode;
-            }
-            
-            // Firebase UID is usually ~28 chars, let's just make sure it's not a generic google referrer like utm_source=google-play
-            if (refCode && refCode !== userUid && !refCode.includes('utm_source')) {
-              const savedRef = localStorage.getItem('pending_referral');
-              if (savedRef !== refCode) {
-                localStorage.setItem('pending_referral', refCode);
-                setPendingReferral(refCode);
-                setReferredBy(refCode);
-                addToast({ 
-                  title: 'Pozvánka přečtena z Play Store!', 
-                  message: 'Díky za stažení přes odkaz. Odměnu získáš na 3. úrovni.', 
-                  type: 'success' 
-                });
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('Install Referrer check failed:', e);
+    // Posloucháme na náš nový nativní můstek pro Google Play Referrer
+    window.addEventListener('onInstallReferrer', (event: any) => {
+      try {
+        const data = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
+        let refCode = data.referrer;
+        
+        console.log('Nativní referrer přijat:', refCode);
+
+        if (refCode && refCode.includes('=')) {
+          const params = new URLSearchParams(refCode);
+          refCode = params.get('ref') || refCode;
         }
+
+        if (refCode && refCode !== userUid && !refCode.includes('utm_source')) {
+          const savedRef = localStorage.getItem('pending_referral');
+          if (savedRef !== refCode) {
+            localStorage.setItem('pending_referral', refCode);
+            setPendingReferral(refCode);
+            setReferredBy(refCode);
+            addToast({ 
+              title: 'Pozvánka z Google Play!', 
+              message: 'Díky za stažení přes odkaz. Odměnu získáš na 3. úrovni.', 
+              type: 'success' 
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Zpracování nativního referreru selhalo:', e);
       }
-    };
-    checkInstallReferrer();
+    });
+    
+
 
     return () => {
       CapApp.removeAllListeners();
@@ -362,7 +361,8 @@ function AppContent() {
           // New user! Check if they were invited by email
           const referrerUidMatch = await checkEmailInvitation(firebaseUser.email);
           if (referrerUidMatch) {
-            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || 'Nový lovec', firebaseUser.email);
+            const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
+            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
             addToast({
               title: 'Odměna za pozvánku',
               message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.',
@@ -442,9 +442,35 @@ function AppContent() {
     const unsubscribe = watchReferrals(userUid, (data) => {
       const list: ReferralEntry[] = Object.entries(data).map(([uid, val]: [string, any]) => ({
         uid,
-        ...val,
-        level: 1 // We'll update this in the next effect
+        ...val
       }));
+
+      // Kontrola, jestli někdo nově nedosáhl levelu 3
+      list.forEach(refEntry => {
+        if (refEntry.level >= 3 && !refEntry.hatchClaimed) {
+          // Najdeme, jestli jsme o tom už věděli (abychom neposílali notifikaci pořád dokola)
+          const alreadyNotified = referrals.find(r => r.uid === refEntry.uid && r.level >= 3);
+          if (!alreadyNotified) {
+            addToast({
+              title: 'Vajíčko je připraveno! 🥚',
+              message: `Tvůj přítel ${refEntry.name || 'Lovec'} dosáhl úrovně 3. Utíkej si vylíhnout odměnu!`,
+              type: 'boost'
+            });
+
+            // Pošleme i systémovou notifikaci, pokud je aplikace na pozadí
+            LocalNotifications.schedule({
+              notifications: [{
+                title: "Odměna čeká! 🎁",
+                body: `${refEntry.name || 'Tvůj přítel'} dosáhl úrovně 3. Vylíhni si své vajíčko!`,
+                id: 2,
+                schedule: { at: new Date(Date.now() + 1000) },
+                sound: 'default'
+              }]
+            });
+          }
+        }
+      });
+
       setReferrals(list);
     });
     return () => unsubscribe();
@@ -466,22 +492,7 @@ function AppContent() {
     };
   }, [saveMonster, addToast, addXP]);
 
-  // Sync Referral Levels (Real-time check of invited friends)
-  useEffect(() => {
-    if (referrals.length === 0) return;
-    const interval = setInterval(async () => {
-      const updatedReferrals = await Promise.all(referrals.map(async (refEntry) => {
-        // Fetch invited player level from players/UID
-        const playerRef = (await loadUserBackup(refEntry.uid)); // reuse helper or make new
-        return { ...refEntry, level: playerRef?.level || 1 };
-      }));
-      // Only update if something changed
-      if (JSON.stringify(updatedReferrals) !== JSON.stringify(referrals)) {
-        setReferrals(updatedReferrals);
-      }
-    }, 30000);
-    return () => interval && clearInterval(interval);
-  }, [referrals]);
+
 
   // Handle opponent exiting battle
   useEffect(() => {
