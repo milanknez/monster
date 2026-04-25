@@ -188,8 +188,8 @@ export const Inventory = ({
                 >
                   {item ? (
                     <div className="flex flex-col items-center justify-center relative z-10 w-full h-full pointer-events-none">
-                      <div className="size-10 flex items-center justify-center mb-0 group-hover:scale-110 transition-transform">
-                        <ResourceIcon id={item.type} config={config!} size="md" className="filter drop-shadow-md" />
+                      <div className="size-14 flex items-center justify-center mb-0 group-hover:scale-110 transition-transform">
+                        <ResourceIcon id={item.type} config={config!} size="lg" className="filter drop-shadow-md" />
                       </div>
                       <span className="absolute bottom-1 right-1 text-[9px] font-black text-white bg-black/60 px-1 rounded shadow-sm border border-white/10 leading-none py-0.5">
                         {item.count}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Sword, Shield, Zap, Package, X, Compass, Crosshair, Users, RefreshCw, Battery, Heart } from 'lucide-react'
+import { MapPin, Navigation, Sword, Shield, Zap, Package, X, Compass, Crosshair, Users, RefreshCw, Battery, Heart, Target } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -8,6 +8,7 @@ import { monsterDB } from '../../data/monsters'
 import type { Monster, SpawnPoint, SpawnRarity, ResourceType, ResourceSpawn, Cooldowns, NearbyPlayer } from '../../types'
 import { cn } from '../../utils'
 import { syncPlayerToFirebase, watchNearbyPlayers } from '../../lib/firebase'
+import { useGameSound } from '../../data/sounds'
 
 import {
   haversineM,
@@ -122,7 +123,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const isInternalMoveRef = useRef(false)
   const tileLayerRef = useRef<L.TileLayer | null>(null)
   const speedViolationCountRef = useRef(0)
+  const detectedMonstersRef = useRef<Set<string>>(new Set())
 
+  const { playNotification } = useGameSound()
 
   const [playerPos, setPlayerPos] = useState<[number, number] | null>(initialPosition ? [initialPosition.lat, initialPosition.lng] : null)
   const [spawns, setSpawns] = useState<SpawnPoint[]>([])
@@ -632,6 +635,16 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     }
   }, [onDistanceUpdate, isBatterySaver, ignoreSpeedLimit])
 
+  // Zvuk pro zobrazení tlačítka BOJOVAT (když je příšera v dosahu)
+  useEffect(() => {
+    if (nearbySpawn) {
+      if (!detectedMonstersRef.current.has(nearbySpawn.id)) {
+        detectedMonstersRef.current.add(nearbySpawn.id);
+        playNotification();
+      }
+    }
+  }, [nearbySpawn, playNotification]);
+
   useEffect(() => {
     if (!playerPos || !mapRef.current) return
     updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel, !showMonsters, !showResources, iconScale)
@@ -811,9 +824,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                 <span>🔋 ENERGIE PŘÍLIŠ NÍZKÁ</span>
               </div>
             ) : (
-              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #475569, #64748b)' }}>
+              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #b91c1c, #450a0a)' }}>
                 <div className="flex items-center gap-2">
-                  <MapPin size={14} className="animate-bounce" />
+                  <Target size={16} className="animate-pulse" />
                   <span>{caughtMonsters.length === 0 ? 'CHYTIT' : 'BOJOVAT'}: LEVEL {nearbySpawn.level}</span>
                 </div>
                 <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">

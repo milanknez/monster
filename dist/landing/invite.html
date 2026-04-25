@@ -425,7 +425,9 @@
         const downloadBtn = document.getElementById('download-btn');
         if (refCode) {
             const currentHref = downloadBtn.getAttribute('href');
-            downloadBtn.setAttribute('href', `${currentHref}&referrer=${refCode}`);
+            // Formát referreru pro Google Play: ref=KOD (zakódováno pro URL)
+            const playStoreReferrer = encodeURIComponent(`ref=${refCode}`);
+            downloadBtn.setAttribute('href', `${currentHref}&referrer=${playStoreReferrer}`);
         }
     </script>
 </body>

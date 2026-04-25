@@ -368,7 +368,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
       };
     }, [showHealingModal, showMutations, showItemPicker, confirmRelease]);
 
-        const originalMonster = useMemo(() => monsterDB.find(dbm => dbm.id === monster.id), [monster.id]);
+    const originalMonster = useMemo(() => monsterDB.find(dbm => dbm.id === monster.id), [monster.id]);
     const originalStats = originalMonster?.stats || { hp: 100, attack: 10, defense: 10 };
 
     const powerLevel = useMemo(() => {
@@ -515,7 +515,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
               {/* Mutation History Button - Left Side */}
               <div className="absolute bottom-6 left-6 z-40">
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.1, rotate: -15 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setShowMutations(true)}
@@ -752,7 +752,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         setFocusedItem(null);
                       }}
                       className={cn(
-                        "relative size-20 rounded-3xl border-2 flex items-center justify-center transition-all cursor-pointer group shadow-xl",
+                        "relative size-24 rounded-[2rem] border-2 flex items-center justify-center transition-all cursor-pointer group shadow-xl",
                         currentGem ? (
                           gemConfig?.rarity === 'Legendární' ? "border-amber-500/50 bg-amber-500/10 shadow-amber-500/20" :
                             gemConfig?.rarity === 'Epická' ? "border-purple-500/50 bg-purple-500/10 shadow-purple-500/20" :
@@ -764,7 +764,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     >
                       {currentGem && gemConfig ? (
                         <>
-                          <ResourceIcon id={currentGem} config={gemConfig} size="md" className="group-hover:scale-110 transition-transform drop-shadow-lg" />
+                          <ResourceIcon id={currentGem} config={gemConfig} size="xl" className="group-hover:scale-110 transition-transform drop-shadow-lg" />
                           <button
                             onClick={(e) => { e.stopPropagation(); onEquipGem?.(idx, null); }}
                             className="absolute -top-1.5 -right-1.5 size-6 bg-red-600 rounded-xl flex items-center justify-center shadow-lg border-2 border-slate-900 text-white transition-all active:scale-75 z-30"
@@ -991,23 +991,23 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             </div>
           )}
         </AnimatePresence>
-      
+
         {/* Equipment & Relic Picker Modal (Bottom Sheet) */}
         <AnimatePresence>
           {showItemPicker && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col">
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }} 
-                className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
               />
-              <motion.div 
-                initial={{ y: "100%" }} 
-                animate={{ y: 0 }} 
-                exit={{ y: "100%" }} 
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 className="w-full max-w-lg bg-[#0f172a] border-t-4 border-amber-500/50 rounded-t-[2.5rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(0,0,0,0.9)] relative z-10 max-h-[90vh] flex flex-col"
               >
                 {/* Modal Header */}
@@ -1025,8 +1025,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }} 
+                  <button
+                    onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }}
                     className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400 transition-colors"
                   >
                     <X size={24} />
@@ -1046,9 +1046,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         className={cn(
                           "aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all shadow-xl",
                           cfg.rarity === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
-                          cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
-                          cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
-                          "border-white/5 bg-white/5",
+                            cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
+                              cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
+                                "border-white/5 bg-white/5",
                           isSelected && "ring-4 ring-amber-500/30 border-amber-500 bg-amber-500/10 scale-105 z-10"
                         )}
                       >
@@ -1068,45 +1068,45 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       const cfg = RESOURCE_CONFIG[focusedItem.type];
                       const sym = cfg.statsType === 'perc' ? '%' : '';
                       return (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
-                          exit={{ opacity: 0, y: 10 }} 
-                          key={focusedItem.type} 
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          key={focusedItem.type}
                           className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-5 shadow-3xl space-y-4"
                         >
                           <div className="flex items-center gap-5">
-                             <div className="size-20 bg-black/40 rounded-3xl flex items-center justify-center border border-white/5 shadow-inner shrink-0">
-                               <ResourceIcon id={focusedItem.type} config={cfg} size="xl" />
-                             </div>
-                             <div className="flex-1 min-w-0">
-                               <div className="flex items-center justify-between mb-2">
-                                 <h4 className="text-2xl font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
-                               </div>
-                               <div className="flex flex-wrap gap-2">
-                                  {(cfg.stats?.atk || 0) !== 0 && (
-                                    <span className="text-[10px] font-black text-red-400 bg-red-400/5 px-2 py-0.5 border border-red-400/20 rounded-lg">
-                                      {(cfg.stats?.atk || 0) > 0 ? '+' : ''}{cfg.stats?.atk}{sym} ATK
-                                    </span>
-                                  )}
-                                  {(cfg.stats?.hp || 0) !== 0 && (
-                                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/5 px-2 py-0.5 border border-emerald-400/20 rounded-lg">
-                                      {(cfg.stats?.hp || 0) > 0 ? '+' : ''}{cfg.stats?.hp}{sym} HP
-                                    </span>
-                                  )}
-                                  {(cfg.stats?.def || 0) !== 0 && (
-                                    <span className="text-[10px] font-black text-blue-400 bg-blue-400/5 px-2 py-0.5 border border-blue-400/20 rounded-lg">
-                                      {(cfg.stats?.def || 0) > 0 ? '+' : ''}{cfg.stats?.def}{sym} DEF
-                                    </span>
-                                  )}
-                               </div>
-                             </div>
+                            <div className="size-20 bg-black/40 rounded-3xl flex items-center justify-center border border-white/5 shadow-inner shrink-0">
+                              <ResourceIcon id={focusedItem.type} config={cfg} size="xl" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-2xl font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {(cfg.stats?.atk || 0) !== 0 && (
+                                  <span className="text-[10px] font-black text-red-400 bg-red-400/5 px-2 py-0.5 border border-red-400/20 rounded-lg">
+                                    {(cfg.stats?.atk || 0) > 0 ? '+' : ''}{cfg.stats?.atk}{sym} ATK
+                                  </span>
+                                )}
+                                {(cfg.stats?.hp || 0) !== 0 && (
+                                  <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/5 px-2 py-0.5 border border-emerald-400/20 rounded-lg">
+                                    {(cfg.stats?.hp || 0) > 0 ? '+' : ''}{cfg.stats?.hp}{sym} HP
+                                  </span>
+                                )}
+                                {(cfg.stats?.def || 0) !== 0 && (
+                                  <span className="text-[10px] font-black text-blue-400 bg-blue-400/5 px-2 py-0.5 border border-blue-400/20 rounded-lg">
+                                    {(cfg.stats?.def || 0) > 0 ? '+' : ''}{cfg.stats?.def}{sym} DEF
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                           <p className="text-sm text-slate-400 font-medium leading-relaxed italic tracking-tight">{cfg.description}</p>
-                          
+
                           <div className="flex flex-col gap-3 pt-2">
                             {(cfg.category === 'relic' || focusedItem.type.startsWith('loot_')) && (
-                              <motion.button 
+                              <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={(e) => {
@@ -1126,7 +1126,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                             )}
 
                             {cfg.category === 'gem' && activeSlotIdx !== null && (
-                              <motion.button 
+                              <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => {
@@ -1164,18 +1164,18 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         <AnimatePresence>
           {showMutations && (
             <div className="fixed inset-0 z-[20000] flex items-center justify-end flex-col">
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                onClick={() => setShowMutations(false)} 
-                className="absolute inset-0 bg-black/40 backdrop-blur-xl" 
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMutations(false)}
+                className="absolute inset-0 bg-black/40 backdrop-blur-xl"
               />
-              <motion.div 
-                initial={{ y: "100%" }} 
-                animate={{ y: 0 }} 
-                exit={{ y: "100%" }} 
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 className="w-full max-w-lg bg-slate-800/60 backdrop-blur-xl border-t-4 border-primary/50 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(var(--primary-rgb),0.4)] relative z-10 max-h-[85vh] flex flex-col"
               >
                 {/* Header */}
@@ -1193,8 +1193,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setShowMutations(false)} 
+                  <button
+                    onClick={() => setShowMutations(false)}
                     className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400"
                   >
                     <X size={24} />
@@ -1212,11 +1212,11 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     <div className="relative pl-8 space-y-6 mt-4">
                       {/* DNA Vertical Line */}
                       <div className="absolute left-[15px] top-4 bottom-4 w-1 bg-gradient-to-b from-primary via-purple-500 to-primary/40 rounded-full" />
-                      
+
                       {monster.mutations.map((mut, idx) => {
                         const cfg = RESOURCE_CONFIG[mut.id];
                         return (
-                          <motion.div 
+                          <motion.div
                             key={idx}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -1244,7 +1244,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                   #{idx + 1}
                                 </div>
                               </div>
-                              
+
                               <div className="flex flex-wrap gap-2">
                                 {(cfg?.stats?.atk || 0) > 0 && <span className="text-[8px] font-black text-red-400 bg-red-400/10 px-2 py-1 rounded-lg border border-red-400/20">+{cfg.stats?.atk} ATK</span>}
                                 {(cfg?.stats?.hp || 0) > 0 && <span className="text-[8px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg border border-emerald-400/20">+{cfg.stats?.hp} HP</span>}
@@ -1271,7 +1271,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             </div>
           )}
         </AnimatePresence>
-</motion.div>
+      </motion.div>
     )
   }
 )

@@ -50,17 +50,17 @@ export function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
     const raw = (m.rarity || '').toLowerCase();
     const r = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
+
     if (rarity === 'epic') return r.includes('epick') || r.includes('epic');
     if (rarity === 'legendary') return r.includes('legend');
     if (rarity === 'rare') return r.includes('vzacn') || r.includes('rare');
-    
-    return r.includes('bezn') || r.includes('neobvykl') || 
-           r.includes('common') || r.includes('uncommon');
+
+    return r.includes('bezn') || r.includes('neobvykl') ||
+      r.includes('common') || r.includes('uncommon');
   });
-  
+
   if (pool.length === 0) return monsterDB[0].id;
-  
+
   // Mix seed with rarity to ensure different pools have different distributions
   const mSeed = `${seed}_${rarity}_${pool.length}_sp`;
   const index = Math.floor(seededFloat(mSeed) * pool.length);
@@ -96,11 +96,6 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
     ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
     : `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`
 
-  // Small indicator if already in collection
-  const collectedCheck = isCollected 
-    ? `<circle cx="82" cy="18" r="14" fill="#10b981" stroke="#000" stroke-width="1.5"/><path d="M76 18 l4 4 l8 -8" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" />`
-    : ''
-
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
 
   const svg = `<div style="width:${outerSize}px; height:${(outerSize + 10)}px; transform:scale(${scale}); transform-origin: center center;">
@@ -111,7 +106,6 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
       ${pulse}
       <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
       ${lockOverlay}
-      ${collectedCheck}
       <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
       <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
     </svg>

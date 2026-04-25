@@ -33,10 +33,10 @@ export const LootModal = ({
   onComplete,
   isInventoryFull
 }: LootModalProps) => {
-  const { playNotification, playClick } = useGameSound();
+  const { playVictory, playClick } = useGameSound();
 
   const handleOpenChest = () => {
-    playNotification();
+    playVictory();
     onOpenChest();
   };
 
