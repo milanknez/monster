@@ -265,9 +265,10 @@ function AppContent() {
     // 1. Handle Web URL params
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
-    if (refCode && refCode !== userUid) {
+    if (refCode) {
       localStorage.setItem('pending_referral', refCode);
       setPendingReferral(refCode);
+      setReferredBy(refCode); // Důležité pro okamžitou synchronizaci
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
@@ -277,15 +278,10 @@ function AppContent() {
       try {
         const url = new URL(event.url);
         const ref = url.searchParams.get('ref');
-        if (ref && ref !== userUid) {
+        if (ref) {
           localStorage.setItem('pending_referral', ref);
           setPendingReferral(ref);
           setReferredBy(ref);
-          addToast({ 
-            title: 'Pozvánka přijata!', 
-            message: 'Díky za využití odkazu. Odměnu získáš na 3. úrovni.', 
-            type: 'success' 
-          });
         }
       } catch (e) {
         console.error('Deep link error:', e);
@@ -307,17 +303,12 @@ function AppContent() {
           refCode = params.get('ref') || refCode;
         }
 
-        if (refCode && refCode !== userUid && !refCode.includes('utm_source')) {
+        if (refCode && !refCode.includes('utm_source')) {
           const savedRef = localStorage.getItem('pending_referral');
           if (savedRef !== refCode) {
             localStorage.setItem('pending_referral', refCode);
             setPendingReferral(refCode);
             setReferredBy(refCode);
-            addToast({ 
-              title: 'Pozvánka z Google Play!', 
-              message: 'Díky za stažení přes odkaz. Odměnu získáš na 3. úrovni.', 
-              type: 'success' 
-            });
           }
         }
       } catch (e) {
@@ -357,15 +348,19 @@ function AppContent() {
           if (backup.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
 
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
-        } else if (!backup && !playerName && firebaseUser.email) {
-          // New user! Check if they were invited by email
-          const referrerUidMatch = await checkEmailInvitation(firebaseUser.email);
-          if (referrerUidMatch) {
+        } else if (!backup && !playerName) {
+          // Nový uživatel! Zkontrolujeme pozvánky (z URL nebo z emailu)
+          const refFromUrl = pendingReferral || localStorage.getItem('pending_referral');
+          const referrerUidMatch = firebaseUser.email ? await checkEmailInvitation(firebaseUser.email) : null;
+          const finalRef = refFromUrl || referrerUidMatch;
+
+          if (finalRef && finalRef !== firebaseUser.uid) {
             const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
-            registerReferral(referrerUidMatch, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
+            setReferredBy(finalRef);
+            registerReferral(finalRef, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
             addToast({
               title: 'Odměna za pozvánku',
-              message: 'Paráda! Byl jsi pozván přítelem. Dosáhni 3. úrovně pro společnou odměnu.',
+              message: 'Paráda! Byl jsi pozván. Dosáhni 3. úrovně pro společnou odměnu.',
               type: 'xp'
             });
           }
@@ -1734,7 +1729,10 @@ function AppContent() {
     </div>
   )
 
-  async function handleProfileComplete(name: string, email?: string, referralCode?: string) {
+  async function handleProfileComplete(name: string, email?: string, referralCode?: string, overrideUid?: string) {
+    // Použijeme explicitně předané UID z login procesu, abychom se vyhnuli race conditions
+    const currentUid = overrideUid || userUid;
+    
     setPlayerName(name)
     localStorage.setItem('monster_collector_player_name', name)
     if (email) {
@@ -1742,14 +1740,16 @@ function AppContent() {
       localStorage.setItem('monster_collector_player_email', email)
     }
 
-    if (referralCode && userUid) {
-      await registerReferral(referralCode, userUid, name, email);
+    if (referralCode && currentUid) {
+      setReferredBy(referralCode);
+      await registerReferral(referralCode, currentUid, name, email);
       addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
-    } else if (email && userUid) {
+    } else if (email && currentUid) {
       // Zkusíme automaticky dohledat pozvánku podle emailu
       const autoReferrer = await checkEmailInvitation(email);
-      if (autoReferrer && autoReferrer !== userUid) {
-        await registerReferral(autoReferrer, userUid, name, email);
+      if (autoReferrer && autoReferrer !== currentUid) {
+        setReferredBy(autoReferrer);
+        await registerReferral(autoReferrer, currentUid, name, email);
         addToast({ title: 'Pozvánka spárována!', message: 'Našli jsme tvé dřívější pozvání přes email.', type: 'success' });
       }
     }

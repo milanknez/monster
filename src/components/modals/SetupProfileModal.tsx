@@ -5,7 +5,7 @@ import { signInWithGoogle } from '../../lib/firebase';
 import { cn } from '../../utils';
 
 interface SetupProfileModalProps {
-  onComplete: (name: string, email?: string, referralCode?: string) => void;
+  onComplete: (name: string, email?: string, referralCode?: string, overrideUid?: string) => void;
   isLoggingIn?: boolean;
   initialReferral?: string;
 }
@@ -16,8 +16,11 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
   const [referralCode, setReferralCode] = useState('');
 
   useEffect(() => {
+    // Priority: Prop > LocalStorage
     const pendingRef = initialReferral || localStorage.getItem('pending_referral');
-    if (pendingRef) setReferralCode(pendingRef);
+    if (pendingRef && !referralCode) {
+      setReferralCode(pendingRef);
+    }
   }, [initialReferral]);
 
   const handleGoogleLogin = async () => {
@@ -26,7 +29,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
       if (user) {
         // If user already has a display name, we use it
         const finalName = name.trim() || user.displayName || 'Průzkumník';
-        onComplete(finalName, user.email || undefined, referralCode.trim() || undefined);
+        // Pass the UID explicitly to avoid race conditions with App's userUid state
+        onComplete(finalName, user.email || undefined, referralCode.trim() || undefined, user.uid);
       }
     } catch (error) {
       console.error(error);
@@ -108,7 +112,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
             </div>
 
             <button
-              onClick={() => name.trim().length >= 3 && email.includes('@') && onComplete(name.trim(), email.trim(), referralCode.trim())}
+              onClick={() => name.trim().length >= 3 && email.includes('@') && onComplete(name.trim(), email.trim(), referralCode.trim(), undefined)}
               disabled={isLoggingIn || name.trim().length < 3 || !email.includes('@')}
               className="w-full relative group transition-all disabled:opacity-20 translate-y-[-4px]"
             >
