@@ -21,7 +21,7 @@
       "name": "Houbová regenerace",
       "description": "Vyléčí se pomocí plísně.",
       "type": "heal",
-      "chance": 35,
+      "chance": 65,
       "value": 1.4
     }
   ]

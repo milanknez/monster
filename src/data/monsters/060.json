@@ -21,7 +21,7 @@
       "name": "Kouřová clona",
       "description": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 30,
+      "chance": 65,
       "value": 60
     }
   ]

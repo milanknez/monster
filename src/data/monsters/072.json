@@ -14,7 +14,7 @@
       "name": "Nákaza Hnilobou",
       "description": "Infikuje cíl plísní, která se šíří tělem a drasticky snižuje jeho sílu.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.4
     },
     {
@@ -28,7 +28,7 @@
       "name": "Podhoubí Zkázy",
       "description": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele.",
       "type": "heal",
-      "chance": 20,
+      "chance": 65,
       "value": 2
     }
   ]

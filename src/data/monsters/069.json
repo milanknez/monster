@@ -14,7 +14,7 @@
       "name": "Lepkavé sevření",
       "description": "Uvězní nepřítele v nektaru.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.6
     },
     {

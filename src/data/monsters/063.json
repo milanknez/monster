@@ -21,7 +21,7 @@
       "name": "Ohnivý nálet",
       "description": "Rychlý útok ze vzduchu.",
       "type": "extra",
-      "chance": 30,
+      "chance": 50,
       "value": 1.6
     }
   ]

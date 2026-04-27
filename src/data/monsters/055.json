@@ -21,14 +21,14 @@
       "name": "Trhavý Výpad",
       "description": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce.",
       "type": "extra",
-      "chance": 35,
+      "chance": 50,
       "value": 1.8
     },
     {
       "name": "Parazitický Vřískot",
       "description": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
       "type": "debuff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.3
     }
   ]

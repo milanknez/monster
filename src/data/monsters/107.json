@@ -21,14 +21,14 @@
       "name": "Duševní Spála",
       "description": "Popálí duši nepřítele, čímž dočasně sníží jeho šanci na kritický zásah.",
       "type": "debuff",
-      "chance": 35,
+      "chance": 50,
       "value": 0.5
     },
     {
       "name": "Světlonoš Zmaru",
       "description": "Z lucerny vyletí duše, které posílí strážcův útok.",
       "type": "buff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.6
     }
   ]

@@ -28,7 +28,7 @@
       "name": "Vhled do Budoucna",
       "description": "Na krátkou chvíli zastaví čas a dočasně zvýší své útočné statistiky.",
       "type": "buff",
-      "chance": 25,
+      "chance": 50,
       "value": 1.2
     }
   ]

@@ -97,7 +97,7 @@ const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number,
             <h4 className="text-lg font-black uppercase text-white tracking-tight leading-none drop-shadow-md">{ability.name}</h4>
             <div className="flex items-center gap-1 text-[10px] font-black text-slate-500 uppercase tracking-widest italic opacity-70">
               <Star size={10} className="text-amber-500/50" />
-              {ability.chance || 40}%
+              {ability.chance || 50}%
             </div>
           </div>
           <p className="text-[12px] leading-relaxed text-slate-400 font-medium mb-3 drop-shadow-sm min-h-[3em]">{ability.description}</p>

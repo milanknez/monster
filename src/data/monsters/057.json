@@ -28,7 +28,7 @@
       "name": "Plachtění",
       "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 25,
+      "chance": 65,
       "value": 60
     }
   ]

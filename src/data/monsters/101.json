@@ -14,7 +14,7 @@
       "name": "Hostina Stínů",
       "description": "Vysaje životní sílu nepřítele a část si ponechá pro svou regeneraci.",
       "type": "heal",
-      "chance": 40,
+      "chance": 65,
       "value": 1.8
     },
     {
@@ -28,7 +28,7 @@
       "name": "Zatemnění Mysli",
       "description": "Zahalí bojiště do temnoty, která drasticky snižuje nepřítelův útok.",
       "type": "debuff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.5
     }
   ]

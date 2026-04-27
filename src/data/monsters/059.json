@@ -21,14 +21,14 @@
       "name": "Oko Blesku",
       "description": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb.",
       "type": "debuff",
-      "chance": 35,
+      "chance": 50,
       "value": 0.6
     },
     {
       "name": "Plazmový Puls",
       "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 25,
+      "chance": 65,
       "value": 60
     }
   ]

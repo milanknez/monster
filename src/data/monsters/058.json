@@ -21,14 +21,14 @@
       "name": "Statické Nabití",
       "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
       "type": "curse",
-      "chance": 30,
+      "chance": 50,
       "value": 15
     },
     {
       "name": "Zkrat",
       "description": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
       "type": "debuff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.3
     }
   ]

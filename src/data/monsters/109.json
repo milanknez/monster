@@ -21,7 +21,7 @@
       "name": "Uhelná Bouře",
       "description": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
       "type": "debuff",
-      "chance": 35,
+      "chance": 50,
       "value": 0.3
     },
     {

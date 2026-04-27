@@ -21,7 +21,7 @@
       "name": "Hnilobný dech",
       "description": "Oslabí nepříatele pachem smrti.",
       "type": "debuff",
-      "chance": 30,
+      "chance": 50,
       "value": 0.4
     }
   ]

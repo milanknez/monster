@@ -14,14 +14,14 @@
       "name": "Infekce",
       "description": "Nenapadné kousnutí, které dočasně ochromí celkovou sílu nepřítele.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.5
     },
     {
       "name": "Vysátí Tekutin",
       "description": "Brutální útok, který okamžitě obnoví část vlastních životů luhováním sil nepřítele.",
       "type": "heal",
-      "chance": 35,
+      "chance": 65,
       "value": 1.5
     },
     {

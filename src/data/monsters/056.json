@@ -14,7 +14,7 @@
       "name": "Bioluminiscenční Past",
       "description": "Záblesk z útrob příšerky nepřítele oslepí a sníží jeho šanci na zásah.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.5
     },
     {
@@ -28,7 +28,7 @@
       "name": "Mořská Regenerace",
       "description": "Využije tlak vody k rychlému zformování svého těla a doplnění HP.",
       "type": "heal",
-      "chance": 20,
+      "chance": 65,
       "value": 1.5
     }
   ]

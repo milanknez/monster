@@ -21,7 +21,7 @@
       "name": "Žhavý krunýř",
       "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 60,
+      "chance": 65,
       "value": 60
     }
   ]

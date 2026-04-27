@@ -21,7 +21,7 @@
       "name": "Kletba Hlubokého Lesa",
       "description": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí.",
       "type": "debuff",
-      "chance": 30,
+      "chance": 50,
       "value": 0.5
     },
     {

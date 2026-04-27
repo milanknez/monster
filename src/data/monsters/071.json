@@ -14,7 +14,7 @@
       "name": "Kletba Nevědění",
       "description": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením.",
       "type": "debuff",
-      "chance": 40,
+      "chance": 50,
       "value": 0.2
     },
     {
@@ -28,7 +28,7 @@
       "name": "Energetické Pokřivení",
       "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 25,
+      "chance": 65,
       "value": 60
     }
   ]

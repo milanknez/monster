@@ -14,7 +14,7 @@
       "name": "Ohlušující Jekot",
       "description": "Vypustí pronikavý výkřik, který nepřítele ochromí a sníží jeho přesnost.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.6
     },
     {
@@ -28,7 +28,7 @@
       "name": "Hojivá Míza",
       "description": "Uvolní regenerační esenci z kořenů, která jí postupně doplňuje zdraví.",
       "type": "heal",
-      "chance": 20,
+      "chance": 65,
       "value": 1.4
     }
   ]

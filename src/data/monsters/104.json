@@ -14,7 +14,7 @@
       "name": "Morová Mlha",
       "description": "Zamoří bojiště, čímž trvale snižuje obranu soupeře každým kolem.",
       "type": "debuff",
-      "chance": 40,
+      "chance": 50,
       "value": 0.3
     },
     {
@@ -28,7 +28,7 @@
       "name": "Vlna Hniloby",
       "description": "Plošně poškodí nepřítele a část sil použije k vlastnímu zacelení.",
       "type": "heal",
-      "chance": 25,
+      "chance": 65,
       "value": 1.2
     }
   ]

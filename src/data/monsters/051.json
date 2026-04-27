@@ -21,7 +21,7 @@
       "name": "Pronikavé Mňoukání",
       "description": "Děsivý jekot koček ochromí nepřítele hrůzou.",
       "type": "debuff",
-      "chance": 30,
+      "chance": 50,
       "value": 0.7
     },
     {

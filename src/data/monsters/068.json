@@ -21,7 +21,7 @@
       "name": "Parazitické kousnutí",
       "description": "Kousnutí druhou hlavou.",
       "type": "extra",
-      "chance": 35,
+      "chance": 50,
       "value": 1.7
     }
   ]

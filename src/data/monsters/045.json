@@ -14,7 +14,7 @@
       "name": "Krystalový výfuk",
       "description": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele.",
       "type": "extra",
-      "chance": 20,
+      "chance": 50,
       "value": 20
     },
     {

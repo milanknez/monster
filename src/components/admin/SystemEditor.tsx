@@ -42,12 +42,12 @@ const RARITY_EMOJIS: Record<string, string> = {
 }
 
 const ABILITY_TYPES = [
-  { id: 'attack', label: '⚔️ Útočná speciální', defaultChance: 30, defaultVal: 155, desc: 'Dmg 155%' },
-  { id: 'defense', label: '🛡️ Obrana', defaultChance: 15, defaultVal: 60, desc: 'Snížení dmg 60%' },
-  { id: 'heal', label: '❤️ Léčení (Instantní)', defaultChance: 20, defaultVal: 15, desc: '+15% HP hned' },
-  { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 25, defaultVal: 10, desc: '+10% HP / kolo' },
-  { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 25, defaultVal: 20, desc: '20% Atk DMG / kolo' },
-  { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 20, defaultVal: 40, desc: '+40% DMG k základu' },
+  { id: 'attack', label: '⚔️ Útočná speciální', defaultChance: 65, defaultVal: 155, desc: 'Dmg 155%' },
+  { id: 'defense', label: '🛡️ Obrana', defaultChance: 65, defaultVal: 60, desc: 'Snížení dmg 60%' },
+  { id: 'heal', label: '❤️ Léčení (Instantní)', defaultChance: 65, defaultVal: 15, desc: '+15% HP hned' },
+  { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 65, defaultVal: 10, desc: '+10% HP / kolo' },
+  { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 50, defaultVal: 20, desc: '20% Atk DMG / kolo' },
+  { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 50, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 
 type EditorTab = 'monsters' | 'resources' | 'users' | 'settings';

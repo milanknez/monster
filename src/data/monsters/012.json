@@ -14,7 +14,7 @@
       "name": "Hřejivé obětí",
       "description": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
       "type": "curse",
-      "chance": 25,
+      "chance": 50,
       "value": 20
     },
     {

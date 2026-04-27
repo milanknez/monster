@@ -21,7 +21,7 @@
       "name": "Kořenový štít",
       "description": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 35,
+      "chance": 65,
       "value": 60
     }
   ]

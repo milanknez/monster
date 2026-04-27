@@ -21,14 +21,14 @@
       "name": "Vřískot Tisíce Úst",
       "description": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
       "type": "debuff",
-      "chance": 35,
+      "chance": 50,
       "value": 0.3
     },
     {
       "name": "Korozivní Sliz",
       "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 25,
+      "chance": 65,
       "value": 60
     }
   ]

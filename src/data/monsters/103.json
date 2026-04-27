@@ -21,7 +21,7 @@
       "name": "Vlákna Osudu",
       "description": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
       "type": "debuff",
-      "chance": 35,
+      "chance": 50,
       "value": 0.4
     },
     {

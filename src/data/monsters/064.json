@@ -14,7 +14,7 @@
       "name": "Sluneční záře",
       "description": "Oslní nepřítele zábleskem.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.5
     },
     {

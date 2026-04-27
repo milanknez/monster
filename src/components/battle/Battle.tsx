@@ -679,7 +679,7 @@ export const Battle = ({
 
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
       let dmg = res.dmg;
-      if (ability && Math.random() > (ability.chance || 100) / 100) {
+      if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
         addLog(`${ability.name} minul!`);
         addPopup(0, true, { isMiss: true });
         dmg = 0;
@@ -909,7 +909,7 @@ export const Battle = ({
           let dmg = res.dmg;
 
           // Special Skill Logic for NPC
-          if (ability && Math.random() > (ability.chance || 100) / 100) {
+          if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
             addLog(`${enemyMonster.name}: ${ability.name} minul!`);
             addPopup(0, false, { isMiss: true });
             dmg = 0;

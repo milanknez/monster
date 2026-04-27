@@ -21,14 +21,14 @@
       "name": "Slizká Regenerace",
       "description": "Část jeho těla se rozpustí a znovu zformuje, čímž si vyléčí utržené rány.",
       "type": "heal",
-      "chance": 30,
+      "chance": 65,
       "value": 1.5
     },
     {
       "name": "Ochromující Pach",
       "description": "Uvolní oblak hnilobného plynu, který nepřítele na chvíli zcela ochromí.",
       "type": "debuff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.5
     }
   ]

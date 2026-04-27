@@ -21,7 +21,7 @@
       "name": "Žhnoucí tělo",
       "description": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)",
       "type": "defense",
-      "chance": 35,
+      "chance": 65,
       "value": 60
     }
   ]

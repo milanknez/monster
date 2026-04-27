@@ -14,7 +14,7 @@
       "name": "Hlas Šílenství",
       "description": "Způsobí nepříteli psychický kolaps a ochromí ho na několik kol.",
       "type": "debuff",
-      "chance": 45,
+      "chance": 50,
       "value": 0.6
     },
     {
@@ -28,7 +28,7 @@
       "name": "Pach Smrti",
       "description": "Šíří kolem sebe auru strachu, která zvyšuje jeho vlastní útočnou sílu.",
       "type": "buff",
-      "chance": 25,
+      "chance": 50,
       "value": 0.4
     }
   ]
