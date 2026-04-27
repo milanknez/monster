@@ -193,16 +193,27 @@ export const deleteReferral = async (referrerUid: string, invitedId: string) => 
 
 export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string, name?: string) => {
     // Aktualizovat záznam u referrera (pod UID pozvaného)
+    // DŮLEŽITÉ: update() tiše selže pokud záznam neexistuje.
+    // Proto vždy načteme existující data a zapíšeme merge pomocí set().
     const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
-    const updateData: any = { 
-        level, 
+
+    const snapshot = await get(referralRef);
+    const existing = snapshot.exists() ? snapshot.val() : {};
+
+    const mergedData: any = {
+        // Zachováme existující pole (hatchClaimed, timestamp, email...)
+        hatchClaimed: false,
+        timestamp: Date.now(),
+        ...existing,
+        // Přepíšeme jen aktuální progress
+        level,
         totalXP,
         status: 'registered',
-        registeredUid: invitedUid
+        registeredUid: invitedUid,
+        name: name || existing.name || 'Lovec',
     };
-    if (name) updateData.name = name;
-    
-    await update(referralRef, updateData);
+
+    await set(referralRef, mergedData);
 };
 
 /**

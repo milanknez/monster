@@ -330,6 +330,11 @@ function AppContent() {
         setUser(firebaseUser);
         setUserUid(firebaseUser.uid);
 
+        // Referral vždy zkontrolujeme – bez ohledu na to, jestli má hráč backup
+        const refFromUrl = pendingReferral || localStorage.getItem('pending_referral');
+        const referrerUidMatch = firebaseUser.email ? await checkEmailInvitation(firebaseUser.email) : null;
+        const finalRef = refFromUrl || referrerUidMatch;
+
         // Online Backup Recovery
         const backup = await loadUserBackup(firebaseUser.uid);
         if (backup && !playerName) {
@@ -337,7 +342,17 @@ function AppContent() {
           setPlayerName(backup.playerName);
           setAvatarStyle(backup.avatarStyle);
           setAvatarSeed(backup.avatarSeed);
-          if (backup.referredBy) setReferredBy(backup.referredBy);
+          
+          // Pokud byl uživatel pozván (ale v backupu to není), zaregistrujeme referral
+          const backupRef = backup.referredBy || finalRef;
+          if (backupRef) setReferredBy(backupRef);
+          
+          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
+            // Hráč má backup, ale referral ještě nebyl zaregistrován
+            registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
+            localStorage.removeItem('pending_referral');
+          }
+          
           // Note: hooks like usePlayerXP/useMonsters also need to be synced
           // For now, we update localStorage so hooks pick it up on reload or next sync
           localStorage.setItem('monster_collector_player_name', backup.playerName);
@@ -350,19 +365,25 @@ function AppContent() {
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
         } else if (!backup && !playerName) {
           // Nový uživatel! Zkontrolujeme pozvánky (z URL nebo z emailu)
-          const refFromUrl = pendingReferral || localStorage.getItem('pending_referral');
-          const referrerUidMatch = firebaseUser.email ? await checkEmailInvitation(firebaseUser.email) : null;
-          const finalRef = refFromUrl || referrerUidMatch;
-
           if (finalRef && finalRef !== firebaseUser.uid) {
             const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
             setReferredBy(finalRef);
-            registerReferral(finalRef, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
+            await registerReferral(finalRef, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
+            localStorage.removeItem('pending_referral'); // Vyčistit po úspěšné registraci
             addToast({
               title: 'Odměna za pozvánku',
               message: 'Paráda! Byl jsi pozván. Dosáhni 3. úrovně pro společnou odměnu.',
               type: 'xp'
             });
+          }
+        } else if (backup && playerName) {
+          // Existující hráč (přihlásil se znovu) – zkontroluj jestli má referredBy
+          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
+            setReferredBy(finalRef);
+            await registerReferral(finalRef, firebaseUser.uid, playerName || 'Lovec', firebaseUser.email);
+            localStorage.removeItem('pending_referral');
+          } else if (backup.referredBy) {
+            setReferredBy(backup.referredBy);
           }
         }
       } else {
@@ -371,7 +392,7 @@ function AppContent() {
       }
     });
     return () => unsubscribe();
-  }, [playerName]);
+  }, [playerName, pendingReferral]);
 
   useEffect(() => {
     if (user && userUid) {
