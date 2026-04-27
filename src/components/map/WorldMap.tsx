@@ -686,7 +686,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   useEffect(() => {
     if (!playerPos || !playerName || !playerUid) return
     const unsubscribe = watchNearbyPlayers(playerUid, (others: any[]) => {
-      setFirebasePlayers(others.filter((p: any) => (Date.now() - p.lastActive) < 300000 && haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000).map((p: any) => ({ ...p, id: p.id || `fb_${p.name}` })))
+      setFirebasePlayers(others.filter((p: any) => 
+        p.name !== playerName && // Filter by name too
+        (Date.now() - p.lastActive) < 300000 && 
+        haversineM(playerPos[0], playerPos[1], p.lat, p.lng) < 2000
+      ).map((p: any) => ({ ...p, id: p.id || `fb_${p.name}` })))
     });
     return () => unsubscribe();
   }, [playerPos, playerName, playerUid])
