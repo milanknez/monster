@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
-  Flame, Droplets, Leaf, Zap, Beaker, Gem,
+  Beaker, Gem,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
   Sword, Shield, Heart, Sparkles, Info, Check, Users
 } from 'lucide-react'
@@ -9,8 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { monsterDB } from '../../data/monsters'
 import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
-import { cn } from '../../utils'
-import { TYPE_COLORS } from '../../utils'
+import { cn, TYPE_COLORS, TYPE_ICONS } from '../../utils'
 import { SYSTEM_SETTINGS } from '../../data/settings'
 import { db } from '../../lib/firebase'
 import { ref, onValue } from 'firebase/database'
@@ -24,12 +23,7 @@ import { UserManagementTab } from './tabs/UserManagementTab'
 const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
 const MONSTER_RARITIES = ['Běžná', 'Vzácná', 'Epická', 'Legendární']
 
-const TYPE_ICONS: Record<string, any> = {
-  'Ohnivá': Flame,
-  'Vodní': Droplets,
-  'Přírodní': Leaf,
-  'Elektrická': Zap
-}
+
 
 function Snowflake(props: any) {
   return <Droplets {...props} className={cn(props.className, "rotate-180")} />

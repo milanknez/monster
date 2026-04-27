@@ -1,14 +1,14 @@
 import { useState, useEffect, forwardRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Bolt, Zap, LayoutGrid, RefreshCw, Flame, Droplets, Leaf,
+  ArrowLeft, Bolt, LayoutGrid, RefreshCw,
   Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical,
   Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull
 } from 'lucide-react';
 
 import {
   cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack,
-  getMonsterDefense, TYPE_MATCHUP, getTotalXPForLevel
+  getMonsterDefense, TYPE_MATCHUP, getTotalXPForLevel, getMonsterPower, TYPE_ICONS
 } from '../../utils';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { monsterDB } from '../../data/monsters';
@@ -371,22 +371,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     const originalMonster = useMemo(() => monsterDB.find(dbm => dbm.id === monster.id), [monster.id]);
     const originalStats = originalMonster?.stats || { hp: 100, attack: 10, defense: 10 };
 
-    const powerLevel = useMemo(() => {
-      const atk = getMonsterAttack(monster);
-      const def = getMonsterDefense(monster);
-      const hp = getMonsterMaxHP(monster);
-      return Math.round((hp / 2) + (atk * 8) + (def * 12) + (monster.level * 100));
-    }, [monster]);
+    const powerLevel = useMemo(() => getMonsterPower(monster), [monster]);
 
     const TypeIcon = ({ size = 20, className = "" }) => {
-      const props = { size, className };
-      switch (monster.type) {
-        case 'Ohnivá': return <Flame {...props} className={cn("text-red-500", className)} />;
-        case 'Vodní': return <Droplets {...props} className={cn("text-blue-400", className)} />;
-        case 'Přírodní': return <Leaf {...props} className={cn("text-green-400", className)} />;
-        case 'Elektrická': return <Zap {...props} className={cn("text-yellow-400", className)} />;
-        default: return <Bolt {...props} className={cn("text-yellow-400", className)} />;
-      }
+      const Icon = TYPE_ICONS[monster.type] || Bolt;
+      const iconColor = colors.text;
+      return <Icon size={size} className={cn(iconColor, className)} />;
     };
 
     return (

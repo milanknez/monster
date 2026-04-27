@@ -1,19 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, QrCode, Flame, Droplets, Leaf, Zap, Moon, Sun, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS, getMonsterMaxHP, getTotalXPForLevel } from '../../utils';
+import { Lock, QrCode, Heart } from 'lucide-react';
+import { cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack, getMonsterDefense, getTotalXPForLevel, getMonsterPower, TYPE_ICONS } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 
-const TYPE_ICONS: Record<string, any> = {
-  'Ohnivá': Flame,
-  'Vodní': Droplets,
-  'Přírodní': Leaf,
-  'Elektrická': Zap,
-  'Temná': Moon,
-  'Světelná': Sun
-}
+
+
+
 
 const RARITY_THEME: Record<string, { text: string, border: string, bg: string, glow: string, card: string, decor: string }> = {
   'Běžná': {
@@ -62,7 +57,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
 
   const caughtFiltered = caughtMonsters
     .filter(m => filter === 'Vše' || m.rarity === filter)
-    .sort((a, b) => (b.level || 1) - (a.level || 1));
+    .sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
 
   const uncaughtInDB = monsterDB
     .filter(m => filter === 'Vše' || m.rarity === filter)

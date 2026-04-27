@@ -5,12 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+import { Flame, Droplets, Leaf, Zap, Moon, Sun, Shield, Sword, Heart, Activity, Info, Sparkles, Target, Star, Skull, RefreshCw, Plus, Package, Clock, FlaskConical, LayoutGrid, ChevronRight, ArrowLeft, Bolt, Box } from 'lucide-react';
+
 export const TYPE_COLORS: Record<string, { text: string, bg: string, border: string }> = {
   'Ohnivá': { text: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30' },
   'Vodní': { text: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
   'Přírodní': { text: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30' },
   'Elektrická': { text: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' },
   'Default': { text: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' }
+}
+
+export const TYPE_ICONS: Record<string, any> = {
+  'Ohnivá': Flame,
+  'Vodní': Droplets,
+  'Přírodní': Leaf,
+  'Elektrická': Zap
 }
 
 export const calculateLevel = (xp: number) => {
@@ -100,6 +109,13 @@ export const getMonsterAttack = (monster: any) => {
   };
 
   return base + levelBonus + getEqBonus(monster.gems || []) + getEqBonus(monster.items || []);
+};
+
+export const getMonsterPower = (monster: any): number => {
+  const hp = getMonsterMaxHP(monster);
+  const atk = getMonsterAttack(monster);
+  const def = getMonsterDefense(monster);
+  return Math.round((hp / 2) + (atk * 8) + (def * 12) + ((monster.level || 1) * 100));
 };
 
 export const formatLocation = (lat?: number, lng?: number) => {
