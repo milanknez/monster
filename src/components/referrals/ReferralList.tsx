@@ -172,8 +172,8 @@ const ReferralItem = ({
 
       {/* Incubation label for Lv 1-2 */}
       {!isInvited && refEntry.level < 3 && !refEntry.hatchClaimed && (
-        <div className="absolute bottom-0 left-0 right-0 py-1 bg-primary/20 backdrop-blur-sm text-[7px] font-black text-primary uppercase text-center leading-none rounded-b-2xl border-t border-primary/20">
-          Inkubace...
+        <div className="absolute top-1 left-1 z-20 px-1.5 py-0.5 bg-primary text-[6px] font-black text-slate-950 uppercase leading-none rounded-full shadow-lg">
+          Inkubace
         </div>
       )}
     </motion.div>
