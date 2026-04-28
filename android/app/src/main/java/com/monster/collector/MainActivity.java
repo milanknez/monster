@@ -93,8 +93,17 @@ public class MainActivity extends BridgeActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             try {
                 if (getBridge() != null && getBridge().getWebView() != null) {
-                    String jsPayload = "{ \"referrer\": \"" + referrerUrl.replace("\"", "\\\"") + "\" }";
+                    final String safeReferrer = referrerUrl.replace("\"", "\\\"");
+                    
+                    // 1. Nastavit přímo do window proměnné (pro případ, že listener ještě neběží)
+                    getBridge().getWebView().evaluateJavascript(
+                        "window.__nativeReferrer = \"" + safeReferrer + "\";", null
+                    );
+                    
+                    // 2. Odpálit event pro ty, co už poslouchají
+                    String jsPayload = "{ \"referrer\": \"" + safeReferrer + "\" }";
                     getBridge().triggerWindowJSEvent("onInstallReferrer", jsPayload);
+                    
                     Log.d(TAG, "Referrer úspěšně doručen do JS (pokus " + (attempt + 1) + ")");
                     
                     // Označit jako doručený

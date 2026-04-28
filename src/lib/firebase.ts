@@ -245,10 +245,12 @@ export const syncReferralProgress = async (invitedUid: string, level: number, to
     if (!referredBy || !invitedUid) return;
 
     try {
-        // Aktualizovat záznam u referrera (pod UID pozvaného)
-        console.log(`[Referral/Sync] Syncing progress: invitedUid=${invitedUid}, level=${level}, referredBy=${referredBy}`);
+        // VŽDY vyřešit kód na plné UID před synchronizací
+        const fullReferrerUid = await resolveReferralCode(referredBy);
         
-        const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
+        console.log(`[Referral/Sync] Synchronizace progressu: invitedUid=${invitedUid}, level=${level}, fullReferrerUid=${fullReferrerUid}`);
+        
+        const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
 
         const snapshot = await get(referralRef);
         const existing = snapshot.exists() ? snapshot.val() : {};

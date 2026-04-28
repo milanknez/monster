@@ -417,6 +417,13 @@ function AppContent() {
 
     window.addEventListener('onInstallReferrer', handleInstallReferrer);
 
+    // DŮLEŽITÉ: Zkontrolovat, jestli už kód nečeká v globální proměnné (pokud přišel dřív než listener)
+    if ((window as any).__nativeReferrer) {
+      console.log('[Referral] Nalezen předem doručený kód:', (window as any).__nativeReferrer);
+      handleInstallReferrer({ detail: { referrer: (window as any).__nativeReferrer } });
+      (window as any).__nativeReferrer = null; // Vyčistit, ať to nezpracováváme 2x
+    }
+
     return () => {
       CapApp.removeAllListeners();
       window.removeEventListener('onInstallReferrer', handleInstallReferrer);
