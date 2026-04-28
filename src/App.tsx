@@ -268,26 +268,43 @@ function AppContent() {
 
   // Handle Referral from URL (Web & Deep Links)
   useEffect(() => {
+    // Helper: process and save a referral code from any source
+    const processReferralCode = (code: string, source: string) => {
+      if (!code || code.includes('utm_source')) return;
+      
+      console.log(`[Referral] Kód přijat z ${source}:`, code);
+      
+      const savedRef = localStorage.getItem('pending_referral');
+      if (savedRef === code) return; // Duplicitní, přeskočíme
+      
+      localStorage.setItem('pending_referral', code);
+      setPendingReferral(code);
+      setReferredBy(code);
+      
+      // Pokud je uživatel už přihlášen a referral ještě nebyl zaregistrován,
+      // zaregistrujeme ho ihned (řeší race condition kdy referrer přijde pozdě)
+      if (userUid && userUid !== code && playerName) {
+        console.log(`[Referral] Okamžitá registrace: ${code} → ${userUid}`);
+        registerReferral(code, userUid, playerName, playerEmail || undefined);
+      }
+    };
+
     // 1. Handle Web URL params
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     if (refCode) {
-      localStorage.setItem('pending_referral', refCode);
-      setPendingReferral(refCode);
-      setReferredBy(refCode); // Důležité pro okamžitou synchronizaci
+      processReferralCode(refCode, 'URL');
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
 
-    // 2. Handle Native Deep Links
+    // 2. Handle Native Deep Links (monsterapp://invite?ref=CODE)
     const handleDeepLink = (event: any) => {
       try {
         const url = new URL(event.url);
         const ref = url.searchParams.get('ref');
         if (ref) {
-          localStorage.setItem('pending_referral', ref);
-          setPendingReferral(ref);
-          setReferredBy(ref);
+          processReferralCode(ref, 'Deep Link');
         }
       } catch (e) {
         console.error('Deep link error:', e);
@@ -296,38 +313,41 @@ function AppContent() {
 
     CapApp.addListener('appUrlOpen', handleDeepLink);
     
-    // Posloucháme na náš nový nativní můstek pro Google Play Referrer
-    window.addEventListener('onInstallReferrer', (event: any) => {
+    // 3. Handle Native Install Referrer (Google Play)
+    const handleInstallReferrer = (event: any) => {
       try {
-        const data = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
-        let refCode = data.referrer;
+        // Event může přijít jako CustomEvent s detail, nebo jako Capacitor event
+        const rawData = event.detail || event;
+        const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+        let code = data.referrer;
         
-        console.log('Nativní referrer přijat:', refCode);
+        console.log('[Referral] Nativní referrer přijat (raw):', code);
 
-        if (refCode && refCode.includes('=')) {
-          const params = new URLSearchParams(refCode);
-          refCode = params.get('ref') || refCode;
+        // Google Play referrer formát: "ref=FIREBASE_UID" (URL-encoded)
+        if (code && code.includes('=')) {
+          try {
+            const params = new URLSearchParams(code);
+            code = params.get('ref') || code;
+          } catch (e) {
+            // Pokud parsování selže, použijeme raw hodnotu
+          }
         }
 
-        if (refCode && !refCode.includes('utm_source')) {
-          const savedRef = localStorage.getItem('pending_referral');
-          if (savedRef !== refCode) {
-            localStorage.setItem('pending_referral', refCode);
-            setPendingReferral(refCode);
-            setReferredBy(refCode);
-          }
+        if (code) {
+          processReferralCode(code, 'Google Play Referrer');
         }
       } catch (e) {
         console.warn('Zpracování nativního referreru selhalo:', e);
       }
-    });
-    
+    };
 
+    window.addEventListener('onInstallReferrer', handleInstallReferrer);
 
     return () => {
       CapApp.removeAllListeners();
+      window.removeEventListener('onInstallReferrer', handleInstallReferrer);
     };
-  }, [userUid]);
+  }, [userUid, playerName, playerEmail]);
 
   // --- FIREBASE AUTH & SYNC ---
   useEffect(() => {
@@ -340,6 +360,8 @@ function AppContent() {
         const refFromUrl = pendingReferral || localStorage.getItem('pending_referral');
         const referrerUidMatch = firebaseUser.email ? await checkEmailInvitation(firebaseUser.email) : null;
         const finalRef = refFromUrl || referrerUidMatch;
+        
+        console.log('[Referral/Auth] uid:', firebaseUser.uid, 'finalRef:', finalRef, 'refFromUrl:', refFromUrl, 'emailMatch:', referrerUidMatch);
 
         // Online Backup Recovery
         const backup = await loadUserBackup(firebaseUser.uid);
@@ -351,10 +373,14 @@ function AppContent() {
           
           // Pokud byl uživatel pozván (ale v backupu to není), zaregistrujeme referral
           const backupRef = backup.referredBy || finalRef;
-          if (backupRef) setReferredBy(backupRef);
+          if (backupRef) {
+            console.log('[Referral/Auth] Nastavuji referredBy z backupu:', backupRef);
+            setReferredBy(backupRef);
+          }
           
           if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
             // Hráč má backup, ale referral ještě nebyl zaregistrován
+            console.log('[Referral/Auth] Registrace referralu pro existujícího hráče (bez referredBy v backupu)');
             registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
             localStorage.removeItem('pending_referral');
           }
@@ -373,6 +399,7 @@ function AppContent() {
           // Nový uživatel! Zkontrolujeme pozvánky (z URL nebo z emailu)
           if (finalRef && finalRef !== firebaseUser.uid) {
             const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
+            console.log('[Referral/Auth] Nový uživatel s referralem:', finalRef);
             setReferredBy(finalRef);
             await registerReferral(finalRef, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
             localStorage.removeItem('pending_referral'); // Vyčistit po úspěšné registraci
@@ -385,10 +412,14 @@ function AppContent() {
         } else if (backup && playerName) {
           // Existující hráč (přihlásil se znovu) – zkontroluj jestli má referredBy
           if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
+            console.log('[Referral/Auth] Existující hráč, nový referral:', finalRef);
             setReferredBy(finalRef);
             await registerReferral(finalRef, firebaseUser.uid, playerName || 'Lovec', firebaseUser.email);
             localStorage.removeItem('pending_referral');
           } else if (backup.referredBy) {
+            // DŮLEŽITÉ: Vždy obnovit referredBy z backupu!
+            // Bez toho se syncReferralProgress nespustí po restartu appky.
+            console.log('[Referral/Auth] Obnovuji referredBy z backupu:', backup.referredBy);
             setReferredBy(backup.referredBy);
           }
         }

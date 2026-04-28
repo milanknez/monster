@@ -49,19 +49,38 @@
             background-image: url('assets/bg_epic.png');
             background-size: cover;
             background-position: center;
-            opacity: 0.4;
+            opacity: 0.6;
             mask-image: linear-gradient(to bottom, black 50%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
             z-index: -1;
         }
 
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
         .logo {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 2rem;
-            filter: drop-shadow(0 0 20px var(--primary));
-            border-radius: 2rem;
+            width: 160px;
+            height: 160px;
+            display: block;
+            margin: 0 auto 2.5rem;
+            filter: drop-shadow(0 0 30px var(--primary));
+            border-radius: 3rem;
             object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
         }
 
         h1 {
@@ -74,6 +93,16 @@
             background: linear-gradient(to bottom, #fff 50%, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            position: relative;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            animation: shimmer 5s infinite linear;
+            background-size: 200% auto;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .subtitle {

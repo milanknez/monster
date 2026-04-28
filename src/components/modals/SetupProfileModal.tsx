@@ -105,7 +105,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
                   type="text"
                   placeholder="MÁŠ KÓD?"
                   value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  onChange={(e) => setReferralCode(e.target.value)}
                   className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-4 text-center text-[10px] text-primary font-black placeholder:text-slate-800 focus:outline-none focus:border-primary/20 transition-all shadow-inner tracking-[0.3em]"
                 />
               </div>
