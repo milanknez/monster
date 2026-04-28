@@ -48,7 +48,7 @@ const StatBar = ({
             "h-full rounded-full transition-all duration-500",
             colorClass.replace('text-', 'bg-'),
             colorClass.includes('red') ? "shadow-[0_0_12px_rgba(239,68,68,0.4)]" :
-              colorClass.includes('emerald') ? "shadow-[0_0_12px_rgba(16,185,129,0.4)]" :
+              colorClass.includes('emerald') ? "shadow-[0_0_12px_rgba(10,185,129,0.4)]" :
                 "shadow-[0_0_12px_rgba(13,185,242,0.4)]"
           )}
         />
@@ -362,6 +362,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
   const isLegendary = monster.rarity === 'Legendární';
   const isEpic = monster.rarity === 'Epická';
   const isRare = monster.rarity === 'Vzácná';
+  const monsterImage = monster.image || `/monsters/${monster.id}.png`;
 
   const glowColor = isLegendary ? 'rgba(251, 191, 36, 0.5)' : isEpic ? 'rgba(168, 85, 247, 0.5)' : isRare ? 'rgba(59, 130, 246, 0.5)' : 'transparent';
 
@@ -391,8 +392,8 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
             className="absolute inset-0 blur-[25px] opacity-20 z-0 scale-110"
             style={{
               backgroundColor: glowColor,
-              maskImage: `url(${monster.image})`,
-              WebkitMaskImage: `url(${monster.image})`,
+              maskImage: `url(${monsterImage})`,
+              WebkitMaskImage: `url(${monsterImage})`,
               maskMode: 'alpha',
               maskSize: 'contain',
               maskRepeat: 'no-repeat',
@@ -405,7 +406,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
 
         {/* 2. Main Monster Image */}
         <img
-          src={monster.image}
+          src={monsterImage}
           className="w-full h-full object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
           style={{ backfaceVisibility: 'hidden' }}
         />
@@ -415,8 +416,8 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
           <div
             className="absolute inset-0 z-20 pointer-events-none mix-blend-soft-light opacity-40"
             style={{
-              maskImage: `url(${monster.image})`,
-              WebkitMaskImage: `url(${monster.image})`,
+              maskImage: `url(${monsterImage})`,
+              WebkitMaskImage: `url(${monsterImage})`,
               maskSize: 'contain',
               maskRepeat: 'no-repeat',
               maskPosition: 'center',
@@ -527,9 +528,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default'];
     const rarityInfo = RARITY_COLORS[monster.rarity] || RARITY_COLORS['Běžná'];
 
-    useEffect(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    const monsterImage = monster.image || `/monsters/${monster.id}.png`;
 
     // Prevent body scroll when any modal is open
     useEffect(() => {
@@ -617,7 +616,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               const nextXPBase = getTotalXPForLevel(currentLVL + 1);
               const currentXPBase = getTotalXPForLevel(currentLVL);
               const neededXPInLevel = nextXPBase - currentXPBase;
-              const currentXPInLevel = monster.xp || 0;
+              const currentXPInLevel = Math.max(0, (monster.xp || 0) - currentXPBase);
               const progress = Math.min(100, (currentXPInLevel / neededXPInLevel) * 100);
 
               return (

@@ -311,6 +311,14 @@ function AppContent() {
       if (updated && JSON.stringify(updated) !== JSON.stringify(selectedMonster)) {
         setSelectedMonster(updated);
       }
+      
+      // Lock body scroll when detail is open
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+    } else {
+      // Unlock body scroll
+      document.body.style.overflow = 'unset';
+      document.body.style.height = 'unset';
     }
   }, [caughtMonsters, selectedMonster]);
 
@@ -1266,220 +1274,217 @@ function AppContent() {
       )}
 
       <main className="mx-auto relative w-full max-w-md md:max-w-lg">
-        <AnimatePresence mode="popLayout">
-          {selectedMonster ? (
-            <MonsterDetail
-              key="detail"
-              monster={selectedMonster}
-              canRelease={caughtMonsters.length > 1}
-              onBack={() => setSelectedMonster(null)}
-              inventory={inventory}
-              onUsePotion={(type: string) => {
-                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                if (idx !== -1) {
-                  if (type === 'hp_potion') {
-                    updateMonsterHP(idx, 100);
-                    consumeResources([{ type: 'hp_potion', count: 1 }]);
-                    addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
-                  }
-                }
-              }}
-              onEquipGem={(gemIdx, type) => {
-                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                if (idx !== -1) {
-                  const oldGem = caughtMonsters[idx].gems?.[gemIdx];
-
-                  equipGem(idx, gemIdx, type);
-                  // Update visual state
-                  const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
-                  newGems[gemIdx] = type;
-                  const updated = { ...caughtMonsters[idx], gems: newGems };
-                  setSelectedMonster(updated);
-
-                  if (type) consumeResources([{ type: type as any, count: 1 }]);
-                  if (oldGem) addResource(oldGem as any, 1);
-
-                  addToast({
-                    title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut',
-                    message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
-                    type: 'success'
-                  });
-                }
-              }}
-              onEquipItem={(itemIdx, type) => {
-                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                if (idx !== -1) {
-                  const oldItem = caughtMonsters[idx].items?.[itemIdx];
-                  equipItem(idx, itemIdx, type);
-                  const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
-                  newItems[itemIdx] = type;
-                  const updated = { ...caughtMonsters[idx], items: newItems };
-                  setSelectedMonster(updated);
-                  if (type) consumeResources([{ type: type as any, count: 1 }]);
-                  if (oldItem) addResource(oldItem as any, 1);
-                  addToast({
-                    title: type ? 'Relikvie osazena' : 'Relikvie odebrána',
-                    message: type ? 'Předmět posílil tvé monstrum!' : 'Předmět byl vrácen do batohu.',
-                    type: 'success'
-                  });
-                }
-              }}
-              onPermanentlyUpgrade={(itemType: string, stats: any) => {
-                const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                if (idx !== -1) {
-                  updateMonsterStats(idx, stats, itemType);
-                  consumeResources([{ type: itemType as any, count: 1 }]);
-
-                  addToast({
-                    title: 'Genetická Mutace!',
-                    message: `${selectedMonster.name} prošel úspěšnou evolucí genů.`,
-                    type: 'success'
-                  });
-                }
-              }}
-              onRelease={() => {
-                const idx = caughtMonsters.findIndex(m =>
-                  ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
-                  (m.id === selectedMonster.id)
-                );
-                if (idx !== -1) {
-                  removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
-                  setSelectedMonster(null);
-                  addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
-                } else {
-                  // Fallback if caughtAt is missing for some reason
-                  const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
-                  if (fallbackIdx !== -1) {
-                    removeMonster(selectedMonster.id);
-                    setSelectedMonster(null);
-                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
-                  }
-                }
-              }}
-            />
-          ) : (
+        {/* Main Tabs - Always mounted to preserve scroll state */}
+        <div 
+          className={cn(
+            "w-full transition-all duration-300", 
+            selectedMonster && "opacity-0 scale-95 blur-md pointer-events-none"
+          )}
+        >
+          {activeTab === 'home' && (
             <motion.div
-              key="tabs-container"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full"
+              key="home"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
             >
-              {activeTab === 'home' && (
-                <motion.div
-                  key="home"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                >
-                  <StatsCard
-                    caughtCount={caughtMonsters.length}
-                    playerHP={currentHP}
-                    playerXP={totalXP}
-                    isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
-                    isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
-                    xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
-                    hpMultiplier={calculateBoostMultiplier(activeBoosts, 'hp_regen')}
-                  />
-                  <StoreButton />
-                  <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
-                  <RecentActivity
-                    caughtMonsters={caughtMonsters}
-                    onSelect={setSelectedMonster}
-                    onSeeAll={() => setActiveTab('vault')}
-                  />
-                  <DailyQuests
-                    caughtMonsters={caughtMonsters}
-                    dailyDistance={dailyDistance}
-                    playerLevel={currentLevel}
-                    dailyStats={dailyStats}
-                    onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
-                    isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
-                    referrals={referrals}
-                    onInvite={() => setIsInviteModalOpen(true)}
-                    onHatch={handleHatchReferral}
-                    onDelete={handleDeleteReferral}
-                  />
-                </motion.div>
-              )}
-
-              {activeTab === 'vault' && (
-                <Bestiary
-                  key="bestiary"
-                  caughtMonsters={caughtMonsters}
-                  onSelect={setSelectedMonster}
-                />
-              )}
-
-              {activeTab === 'codex' && (
-                <motion.div
-                  key="codex"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                >
-                  <Laboratory
-                    inventory={inventory}
-                    onCraft={handleCraft}
-                  />
-                </motion.div>
-              )}
-
-              {activeTab === 'inventory' && (
-                <Inventory
-                  key="inventory"
-                  activeBoosts={activeBoosts}
-                  inventory={inventory}
-                  onOpenCodex={() => setActiveTab('codex')}
-                  onSwap={swapItems}
-                  onUseItem={handleUseItem}
-                  onDiscard={discardItem}
-                />
-              )}
-
-              {activeTab === 'world' && (
-                <WorldMap
-                  ref={worldMapRef}
-                  key="world"
-                  onCatch={handleWorldCatch}
-                  onStartTrade={handleStartTradeAction}
-                  playerHP={currentHP}
-                  onConsumeHP={consumeHP}
-                  onDistanceUpdate={handleMove}
-                  isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle || !!wildEncounter}
-                  caughtMonsters={caughtMonsters}
-                  initialPosition={currentPosition}
-                  playerName={playerName || 'Aether_Runner'}
-                  playerUid={userUid}
-                  avatarStyle={avatarStyle}
-                  avatarSeed={avatarSeed}
-                  playerLevel={currentLevel}
-                  activeMonster={caughtMonsters[0] || null}
-                  onGather={handleGather}
-                  onStartDuel={handleStartDuelAction}
-                  addToast={addToast}
-                  ignoreSpeedLimit={isSpeedLimitDisabled}
-                  isBatterySaver={isBatterySaver}
-                  mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
-                  email={user?.email || playerEmail}
-                />
-              )}
-
-              {activeTab === 'store' && (
-                <Store
-                  key="store"
-                  onActivateBoost={(boost, item) => {
-                    if (item && item.price) {
-                      setPayingItem({ id: item.id, boost, title: item.title, price: item.price });
-                    } else {
-                      activateBoost(boost);
-                    }
-                  }}
-                  activeBoosts={activeBoosts}
-                  maxSlots={maxSlots}
-                />
-              )}
+              <StatsCard
+                caughtCount={caughtMonsters.length}
+                playerHP={currentHP}
+                playerXP={totalXP}
+                isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+                isHPBoosted={activeBoosts.some(b => b.type === 'hp_regen' && b.expiresAt > Date.now())}
+                xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
+                hpMultiplier={calculateBoostMultiplier(activeBoosts, 'hp_regen')}
+              />
+              <StoreButton />
+              <LatestDetection lastCaught={lastCaught} onSelect={setSelectedMonster} />
+              <RecentActivity
+                caughtMonsters={caughtMonsters}
+                onSelect={setSelectedMonster}
+                onSeeAll={() => setActiveTab('vault')}
+              />
+              <DailyQuests
+                caughtMonsters={caughtMonsters}
+                dailyDistance={dailyDistance}
+                playerLevel={currentLevel}
+                dailyStats={dailyStats}
+                onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
+                isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
+                referrals={referrals}
+                onInvite={() => setIsInviteModalOpen(true)}
+                onHatch={handleHatchReferral}
+                onDelete={handleDeleteReferral}
+              />
             </motion.div>
+          )}
+
+          {activeTab === 'vault' && (
+            <Bestiary
+              key="bestiary"
+              caughtMonsters={caughtMonsters}
+              onSelect={setSelectedMonster}
+            />
+          )}
+
+          {activeTab === 'codex' && (
+            <motion.div
+              key="codex"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <Laboratory
+                inventory={inventory}
+                onCraft={handleCraft}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'inventory' && (
+            <Inventory
+              key="inventory"
+              activeBoosts={activeBoosts}
+              inventory={inventory}
+              onOpenCodex={() => setActiveTab('codex')}
+              onSwap={swapItems}
+              onUseItem={handleUseItem}
+              onDiscard={discardItem}
+            />
+          )}
+
+          {activeTab === 'world' && (
+            <WorldMap
+              ref={worldMapRef}
+              key="world"
+              onCatch={handleWorldCatch}
+              onStartTrade={handleStartTradeAction}
+              playerHP={currentHP}
+              onConsumeHP={consumeHP}
+              onDistanceUpdate={handleMove}
+              isInteractionBlocked={!!newMonster || !!selectedMonster || !!activeBattle || !!wildEncounter}
+              caughtMonsters={caughtMonsters}
+              initialPosition={currentPosition}
+              playerName={playerName || 'Aether_Runner'}
+              playerUid={userUid}
+              avatarStyle={avatarStyle}
+              avatarSeed={avatarSeed}
+              playerLevel={currentLevel}
+              activeMonster={caughtMonsters[0] || null}
+              onGather={handleGather}
+              onStartDuel={handleStartDuelAction}
+              addToast={addToast}
+              ignoreSpeedLimit={isSpeedLimitDisabled}
+              isBatterySaver={isBatterySaver}
+              mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
+              email={user?.email || playerEmail}
+            />
+          )}
+
+          {activeTab === 'store' && (
+            <Store
+              key="store"
+              onActivateBoost={(boost, item) => {
+                if (item && item.price) {
+                  setPayingItem({ id: item.id, boost, title: item.title, price: item.price });
+                } else {
+                  activateBoost(boost);
+                }
+              }}
+              activeBoosts={activeBoosts}
+              maxSlots={maxSlots}
+            />
+          )}
+        </div>
+
+        {/* Overlay Detail */}
+        <AnimatePresence>
+          {selectedMonster && (
+            <div className="fixed inset-0 z-[1000] bg-slate-900 overflow-y-auto">
+              <MonsterDetail
+                key="detail"
+                monster={selectedMonster}
+                canRelease={caughtMonsters.length > 1}
+                onBack={() => setSelectedMonster(null)}
+                inventory={inventory}
+                onUsePotion={(type: string) => {
+                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                  if (idx !== -1) {
+                    if (type === 'hp_potion') {
+                      updateMonsterHP(idx, 100);
+                      consumeResources([{ type: 'hp_potion', count: 1 }]);
+                      addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
+                    }
+                  }
+                }}
+                onEquipGem={(gemIdx, type) => {
+                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                  if (idx !== -1) {
+                    const oldGem = caughtMonsters[idx].gems?.[gemIdx];
+                    equipGem(idx, gemIdx, type);
+                    const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
+                    newGems[gemIdx] = type;
+                    const updated = { ...caughtMonsters[idx], gems: newGems };
+                    setSelectedMonster(updated);
+                    if (type) consumeResources([{ type: type as any, count: 1 }]);
+                    if (oldGem) addResource(oldGem as any, 1);
+                    addToast({
+                      title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut',
+                      message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
+                      type: 'success'
+                    });
+                  }
+                }}
+                onEquipItem={(itemIdx, type) => {
+                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                  if (idx !== -1) {
+                    const oldItem = caughtMonsters[idx].items?.[itemIdx];
+                    equipItem(idx, itemIdx, type);
+                    const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
+                    newItems[itemIdx] = type;
+                    const updated = { ...caughtMonsters[idx], items: newItems };
+                    setSelectedMonster(updated);
+                    if (type) consumeResources([{ type: type as any, count: 1 }]);
+                    if (oldItem) addResource(oldItem as any, 1);
+                    addToast({
+                      title: type ? 'Relikvie osazena' : 'Relikvie odebrána',
+                      message: type ? 'Předmět posílil tvé monstrum!' : 'Předmět byl vrácen do batohu.',
+                      type: 'success'
+                    });
+                  }
+                }}
+                onPermanentlyUpgrade={(itemType: string, stats: any) => {
+                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                  if (idx !== -1) {
+                    updateMonsterStats(idx, stats, itemType);
+                    consumeResources([{ type: itemType as any, count: 1 }]);
+                    addToast({
+                      title: 'Genetická Mutace!',
+                      message: `${selectedMonster.name} prošel úspěšnou evolucí genů.`,
+                      type: 'success'
+                    });
+                  }
+                }}
+                onRelease={() => {
+                  const idx = caughtMonsters.findIndex(m =>
+                    ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
+                    (m.id === selectedMonster.id)
+                  );
+                  if (idx !== -1) {
+                    removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
+                    setSelectedMonster(null);
+                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
+                  } else {
+                    const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
+                    if (fallbackIdx !== -1) {
+                      removeMonster(selectedMonster.id);
+                      setSelectedMonster(null);
+                      addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
+                    }
+                  }
+                }}
+              />
+            </div>
           )}
         </AnimatePresence>
       </main>
@@ -1920,7 +1925,7 @@ function AppContent() {
         const monsterWithMeta: Monster = {
           ...randomMonster,
           level: 4,
-          image: '', // Visuals are handled by ID
+          image: `/monsters/${randomMonster.id}.png`,
           currentHP: undefined,
           xp: getTotalXPForLevel(4),
           abilities: (randomMonster.abilities || []).map((a: any) => ({

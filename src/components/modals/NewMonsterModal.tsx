@@ -12,6 +12,7 @@ const RARITY_COLORS: Record<string, string> = {
 export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultiplier = 2, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; xpMultiplier?: number; isStackFull?: boolean }) => {
   if (!monster) return null
   const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
+  const monsterImage = monster.image || `/monsters/${monster.id}.png`
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
@@ -38,7 +39,7 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultip
             className="size-48 mx-auto mb-6 bg-slate-950 rounded-full border-4 border-white/5 flex items-center justify-center shadow-[0_0_40px_rgba(13,185,242,0.1)] relative p-4"
           >
             <div className={cn("absolute inset-0 rounded-full animate-ping opacity-20", colors.bg)} />
-            <img src={monster.image} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+            <img src={monsterImage} className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
           </motion.div>
 
           <div className="flex flex-col items-center gap-1 mb-2">
