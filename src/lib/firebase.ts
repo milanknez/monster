@@ -176,20 +176,24 @@ export const registerReferral = async (referrerUid: string, invitedUid: string, 
         // 1. Primární tracking pro levely
         const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
         
-        // Zkontrolujeme, jestli už záznam neexistuje (abychom ho nepřepsali)
-        const existing = await get(referralRef);
-        if (existing.exists() && existing.val().status === 'registered') {
-            console.log("[Referral/Register] Referral již byl dříve zaregistrován.");
-            return;
+        // Zkontrolujeme, jestli už záznam neexistuje (abychom ho nepřepsali a nespustili druhou notifikaci)
+        const existingSnap = await get(referralRef);
+        if (existingSnap.exists()) {
+            const data = existingSnap.val();
+            if (data.status === 'registered') {
+                console.log("[Referral/Register] Referral již byl dříve zaregistrován.");
+                return;
+            }
         }
 
+        // Pokud neexistuje nebo nebyl registered, vytvoříme ho
         await set(referralRef, {
             name: invitedName,
             email: invitedEmail || null,
-            level: 1,
-            totalXP: 0,
-            timestamp: Date.now(),
-            hatchClaimed: false,
+            level: existingSnap.exists() ? existingSnap.val().level || 1 : 1,
+            totalXP: existingSnap.exists() ? existingSnap.val().totalXP || 0 : 0,
+            timestamp: existingSnap.exists() ? existingSnap.val().timestamp || Date.now() : Date.now(),
+            hatchClaimed: existingSnap.exists() ? existingSnap.val().hatchClaimed || false : false,
             status: 'registered',
             registeredUid: invitedUid
         });
@@ -248,14 +252,12 @@ export const syncReferralProgress = async (invitedUid: string, level: number, to
         // VŽDY vyřešit kód na plné UID před synchronizací
         const fullReferrerUid = await resolveReferralCode(referredBy);
         
-        console.log(`[Referral/Sync] Synchronizace progressu: invitedUid=${invitedUid}, level=${level}, fullReferrerUid=${fullReferrerUid}`);
-        
+        // Pokud se nepodařilo vyřešit na UID a my máme jen krátký kód, 
+        // zkusíme se podívat, jestli už nemáme záznam pod tímto kódem
         const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
-
         const snapshot = await get(referralRef);
-        const existing = snapshot.exists() ? snapshot.val() : {};
 
-        // Pokud je hatchClaimed už true, nebudeme ho přepisovat na false
+        const existing = snapshot.exists() ? snapshot.val() : {};
         const hatchClaimed = existing.hatchClaimed || false;
 
         const mergedData: any = {
@@ -268,6 +270,12 @@ export const syncReferralProgress = async (invitedUid: string, level: number, to
             name: name || existing.name || 'Lovec',
             lastSync: Date.now()
         };
+
+        // Pokud záznam neexistoval, vytvoříme ho s výchozími hodnotami
+        if (!snapshot.exists()) {
+            mergedData.timestamp = Date.now();
+            mergedData.hatchClaimed = false;
+        }
 
         await set(referralRef, mergedData);
         console.log(`[Referral/Sync] Sync úspěšný (Lv. ${level}).`);

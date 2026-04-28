@@ -37,7 +37,7 @@ const ReferralItem = ({
   
   // Granular progress towards Lv. 3 (1050 XP) or fallback to level-based
   const progress = isInvited ? 0 : (
-    refEntry.totalXP 
+    (refEntry.totalXP !== undefined) 
       ? Math.min((refEntry.totalXP / 1050) * 100, 100)
       : Math.min(((refEntry.level || 1) / 3) * 100, 100)
   );
@@ -55,7 +55,16 @@ const ReferralItem = ({
         isInvited && "grayscale opacity-60"
       )}
     >
-      {/* Trash Icon */}
+      {/* Level Badge - Moved to Top Left to avoid overlap with bottom labels */}
+      {!isInvited && (
+        <div className="absolute top-2 left-2 z-20">
+          <span className="text-[7px] font-black text-white bg-slate-950/80 px-1.5 py-0.5 rounded-md border border-white/10 uppercase tracking-tighter">
+            LV. {refEntry.level}
+          </span>
+        </div>
+      )}
+
+      {/* Trash Icon - Moved to top right */}
       {!isConfirming && (
         <button
           onClick={(e) => {
@@ -100,7 +109,7 @@ const ReferralItem = ({
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className="relative mb-2">
+      <div className="relative mb-1">
         <div className="flex items-center justify-center transition-all bg-slate-950/30 rounded-2xl p-1 border border-white/5 shadow-inner">
           {refEntry.hatchClaimed ? (
             <div className="size-14 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/5">
@@ -147,9 +156,6 @@ const ReferralItem = ({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap bg-slate-950/50 px-2 py-0.5 rounded-full border border-white/5">
-          LV. {refEntry.level}
-        </span>
       </div>
 
       {/* Click to Hatch overlay for ready ones */}
