@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,7 +60,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 32px 32px;
             pointer-events: none;
             z-index: 0;
@@ -74,13 +75,20 @@
             filter: drop-shadow(0 0 30px var(--primary));
             border-radius: 3rem;
             object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             animation: float 6s ease-in-out infinite;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(2deg); }
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(2deg);
+            }
         }
 
         h1 {
@@ -94,15 +102,23 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             position: relative;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
             animation: shimmer 5s infinite linear;
             background-size: 200% auto;
         }
 
         @keyframes shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .subtitle {
@@ -146,9 +162,9 @@
         }
 
         .btn-outline {
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             color: white;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
         }
 
@@ -236,7 +252,7 @@
 
         .feature-card {
             background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 2.5rem;
             padding: 2.5rem;
             transition: all 0.3s;
@@ -286,7 +302,7 @@
             background: var(--card-bg);
             border-radius: 3rem;
             padding: 4rem 2rem;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             overflow: hidden;
             position: relative;
         }
@@ -301,34 +317,53 @@
         footer {
             padding: 4rem 2rem;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             color: #475569;
             font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .subtitle { font-size: 1rem; }
-            .btn { width: 100%; justify-content: center; }
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
+
 <body>
     <section class="hero">
         <img src="assets/icon.png" alt="Monster Collector Logo" class="logo">
         <div class="badge">Alfa Verze Nyní Dostupná</div>
         <h1>Staň se legendárním lovcem</h1>
         <p class="subtitle">
-            Objevuj monstra ve svém okolí pomocí rozšířené reality. Bojuj, vyměňuj a sbírej unikátní příšery v nové AR hře Monster Collector.
+            Objevuj monstra ve svém okolí pomocí rozšířené reality. Bojuj, vyměňuj a sbírej unikátní příšery v nové AR
+            hře Monster Collector.
         </p>
-        
+
         <div class="cta-group">
             <a href="#testovani" class="btn btn-primary">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.16515 2.1221C4.85698 2.38551 4.67139 2.82534 4.67139 3.40722V20.5928C4.67139 21.1747 4.85698 21.6145 5.16515 21.8779L5.22896 21.9333L14.8369 12.3255V12.0632L5.22896 2.0667L5.16515 2.1221Z" fill="currentColor"/>
-                    <path d="M18.043 15.5422L14.8369 12.3361V12.0632L18.043 8.85718L18.1189 8.90042L21.9163 11.0573C23.0001 11.6724 23.0001 12.7269 21.9163 13.3421L18.1189 15.4989L18.043 15.5422Z" fill="currentColor"/>
-                    <path d="M5.22897 21.9333L14.8369 12.3255L18.043 15.5422L5.43126 22.7042C5.02521 22.9344 4.67139 22.6853 4.67139 22.1451V21.9333H5.22897Z" fill="currentColor"/>
-                    <path d="M5.22897 2.0667L14.8369 11.6745L18.043 8.45789L5.43126 1.29583C5.02521 1.06562 4.67139 1.31475 4.67139 1.85494V2.0667H5.22897Z" fill="currentColor"/>
+                    <path
+                        d="M5.16515 2.1221C4.85698 2.38551 4.67139 2.82534 4.67139 3.40722V20.5928C4.67139 21.1747 4.85698 21.6145 5.16515 21.8779L5.22896 21.9333L14.8369 12.3255V12.0632L5.22896 2.0667L5.16515 2.1221Z"
+                        fill="currentColor" />
+                    <path
+                        d="M18.043 15.5422L14.8369 12.3361V12.0632L18.043 8.85718L18.1189 8.90042L21.9163 11.0573C23.0001 11.6724 23.0001 12.7269 21.9163 13.3421L18.1189 15.4989L18.043 15.5422Z"
+                        fill="currentColor" />
+                    <path
+                        d="M5.22897 21.9333L14.8369 12.3255L18.043 15.5422L5.43126 22.7042C5.02521 22.9344 4.67139 22.6853 4.67139 22.1451V21.9333H5.22897Z"
+                        fill="currentColor" />
+                    <path
+                        d="M5.22897 2.0667L14.8369 11.6745L18.043 8.45789L5.43126 1.29583C5.02521 1.06562 4.67139 1.31475 4.67139 1.85494V2.0667H5.22897Z"
+                        fill="currentColor" />
                 </svg>
                 Připojit se k testování
             </a>
@@ -345,26 +380,43 @@
         <div class="feature-grid">
             <div class="feature-card">
                 <div class="icon-box">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
                 </div>
                 <h3>Rozšířená Realita</h3>
-                <p>Hledej monstra ve svém skutečném okolí. Jsou všude kolem tebe, stačí se jen dívat skrze svůj telefon.</p>
+                <p>Hledej monstra ve svém skutečném okolí. Jsou všude kolem tebe, stačí se jen dívat skrze svůj telefon.
+                </p>
             </div>
 
             <div class="feature-card">
                 <div class="icon-box">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="22" x2="22" y2="16"/><circle cx="19" cy="19" r="2"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+                        <line x1="13" y1="19" x2="19" y2="13" />
+                        <line x1="16" y1="22" x2="22" y2="16" />
+                        <circle cx="19" cy="19" r="2" />
+                    </svg>
                 </div>
                 <h3>P2P Souboje</h3>
-                <p>Vyzvi ostatní lovce v reálném čase. Použij Bluetooth pro rychlé propojení a ukaž, čí monstra jsou silnější.</p>
+                <p>Vyzvi ostatní lovce v reálném čase. Použij Bluetooth pro rychlé propojení a ukaž, čí monstra jsou
+                    silnější.</p>
             </div>
 
             <div class="feature-card">
                 <div class="icon-box">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
+                    </svg>
                 </div>
                 <h3>Sbírka & Evoluce</h3>
-                <p>Stovky unikátních monster k nalezení. Vylepšuj jejich staty, osazuj je drahokamy a staň se mistrem bestiáře.</p>
+                <p>Stovky unikátních monster k nalezení. Vylepšuj jejich staty, osazuj je drahokamy a staň se mistrem
+                    bestiáře.</p>
             </div>
         </div>
     </section>
@@ -372,23 +424,27 @@
     <section class="promo" id="testovani">
         <div class="promo-container" style="max-width: 1200px;">
             <h2>Instrukce k připojení do testování</h2>
-            <p class="subtitle" style="margin: 0 auto 2rem;">Momentálně je hra dostupná pouze pro uzavřenou skupinu testerů. Postupuj podle těchto 3 kroků:</p>
-            
+            <p class="subtitle" style="margin: 0 auto 2rem;">Momentálně je hra dostupná pouze pro uzavřenou skupinu
+                testerů. Postupuj podle těchto 3 kroků:</p>
+
             <div class="testing-steps">
                 <div class="test-step">
                     <div class="test-step-num">1</div>
                     <h3>Připojte se do skupiny</h3>
                     <p>Nejprve se přidejte do naší testerské Google Groups skupiny.</p>
-                    <a href="https://groups.google.com/g/monstero-test" target="_blank" class="btn btn-outline" style="width: auto; display: inline-flex; justify-content: center;">Otevřít Skupinu</a>
+                    <a href="https://groups.google.com/g/monstero-test" target="_blank" class="btn btn-outline"
+                        style="width: auto; display: inline-flex; justify-content: center;">Otevřít Skupinu</a>
                 </div>
-                
+
                 <div class="test-step">
                     <div class="test-step-num">2</div>
                     <h3>Stáhněte aplikaci</h3>
                     <p>Po připojení do skupiny se přidejte k testování na Google Play a stáhněte si hru.</p>
-                    <a href="https://play.google.com/store/apps/details?id=com.monster.collector" target="_blank" class="btn btn-primary" style="width: auto; display: inline-flex; justify-content: center;">Stáhnout Hru</a>
+                    <a href="https://play.google.com/store/apps/details?id=com.monster.collector" target="_blank"
+                        class="btn btn-primary"
+                        style="width: auto; display: inline-flex; justify-content: center;">Stáhnout Hru</a>
                 </div>
-                
+
                 <div class="test-step">
                     <div class="test-step-num">3</div>
                     <h3>Testování hry</h3>
@@ -402,4 +458,5 @@
         <p>&copy; 2026 Monster Collector Team. Všechna práva vyhrazena.</p>
     </footer>
 </body>
+
 </html>
