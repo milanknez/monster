@@ -1927,7 +1927,7 @@ function AppContent() {
           level: 4,
           image: `/monsters/${randomMonster.id}.png`,
           currentHP: undefined,
-          xp: getTotalXPForLevel(4),
+          xp: 0,
           abilities: (randomMonster.abilities || []).map((a: any) => ({
             ...a,
             type: a.type as any

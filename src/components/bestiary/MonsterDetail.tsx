@@ -616,7 +616,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               const nextXPBase = getTotalXPForLevel(currentLVL + 1);
               const currentXPBase = getTotalXPForLevel(currentLVL);
               const neededXPInLevel = nextXPBase - currentXPBase;
-              const currentXPInLevel = Math.max(0, (monster.xp || 0) - currentXPBase);
+              const currentXPInLevel = monster.xp || 0;
               const progress = Math.min(100, (currentXPInLevel / neededXPInLevel) * 100);
 
               return (
