@@ -191,6 +191,12 @@ function AppContent() {
       setIsSpeedLimitDisabled(newVal);
       localStorage.setItem('monster_debug_no_speed', newVal.toString());
       addToast({ title: 'Rychlostní limit', message: newVal ? 'VYPNUT! Můžeš chytat i v raketě. 🚀' : 'ZAPNUT! Bezpečnost především. 🛡️', type: newVal ? 'success' : 'info' });
+    } else if (cheatId === 'addLegendary') {
+      const legendaries = monsterDB.filter(m => m.rarity === 'Legendární');
+      const randomLegendary = legendaries[Math.floor(Math.random() * legendaries.length)];
+      if (randomLegendary) {
+        (window as any).addMonster(randomLegendary.id, 10);
+      }
     } else if (cheatId === 'debugIAP') {
       if ((window as any).debugIAP) (window as any).debugIAP();
     }

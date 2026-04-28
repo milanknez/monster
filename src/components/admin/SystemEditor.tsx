@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
-  Beaker, Gem,
+  Beaker, Gem, Droplets,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
   Sword, Shield, Heart, Sparkles, Info, Check, Users
 } from 'lucide-react'

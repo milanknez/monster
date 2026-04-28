@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Bolt, LayoutGrid, RefreshCw,
   Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical,
-  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull
+  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap
 } from 'lucide-react';
 
 import {
@@ -119,80 +119,87 @@ const RarityFrame = ({ rarity }: { rarity: string }) => {
 
   const isLegendary = rarity === 'Legendární';
   const isEpic = rarity === 'Epická';
+  const isRare = rarity === 'Vzácná';
 
-  const frameColor = isLegendary ? 'border-amber-600' : isEpic ? 'border-purple-600' : 'border-blue-600';
-  const shadowColor = isLegendary ? 'shadow-amber-900/40' : isEpic ? 'shadow-purple-900/40' : 'shadow-blue-900/40';
+  const frameColor = isLegendary ? 'border-amber-500' : isEpic ? 'border-purple-500' : 'border-blue-500';
+  const shadowColor = isLegendary ? 'shadow-amber-900/60' : isEpic ? 'shadow-purple-900/60' : 'shadow-blue-900/60';
   const iconColor = isLegendary ? 'text-amber-400' : isEpic ? 'text-purple-400' : 'text-blue-400';
+  const accentColor = isLegendary ? 'bg-amber-500' : isEpic ? 'bg-purple-500' : 'bg-blue-500';
 
   return (
-    <div className="absolute inset-x-0 inset-y-0 pointer-events-none z-30">
-      {/* Epic/Void Energy for Epic Rarity */}
-      {isEpic && (
-        <motion.div
-          animate={{
-            opacity: [0.2, 0.4, 0.2],
-            scale: [1, 1.02, 1]
-          }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-4 rounded-[2rem] bg-purple-500/5 blur-2xl pointer-events-none"
-        />
-      )}
-
-      {/* Heavy Beveled Outer Frame */}
+    <div className="absolute inset-0 pointer-events-none z-30">
+      {/* Glow Backdrop */}
       <div className={cn(
-        "absolute inset-2 border-[6px] rounded-[2rem] border-double shadow-[0_0_40px_rgba(0,0,0,0.8)]",
+        "absolute inset-4 rounded-[2.5rem] blur-3xl opacity-10",
+        accentColor
+      )} />
+
+      {/* Main Beveled Frame */}
+      <div className={cn(
+        "absolute inset-2 border-[8px] rounded-[2.5rem] border-double shadow-[0_0_50px_rgba(0,0,0,0.9)] transition-all duration-700",
         frameColor, shadowColor
       )} />
 
-      {/* Inner Metallic Lining */}
+      {/* Inner Glowing Lining */}
       <div className={cn(
-        "absolute inset-[10px] border rounded-[3.2rem] pointer-events-none",
-        isEpic ? "border-purple-400/20" : "border-white/10"
+        "absolute inset-[14px] border rounded-[2.8rem] opacity-30",
+        isLegendary ? "border-amber-300" : isEpic ? "border-purple-300" : "border-blue-300"
       )} />
 
-      {/* Ornate Fantasy Corner Caps */}
+      {/* Ornate Corner Caps */}
       {[
         { pos: 'top-0 left-0', rot: 'rotate-0' },
         { pos: 'top-0 right-0', rot: 'rotate-90' },
         { pos: 'bottom-0 left-0', rot: '-rotate-90' },
         { pos: 'bottom-0 right-0', rot: 'rotate-180' }
       ].map((c, i) => (
-        <div key={i} className={cn("absolute size-16 pointer-events-none", c.pos, c.rot)}>
-          <svg viewBox="0 0 100 100" className={cn("size-full", iconColor)}>
+        <div key={i} className={cn("absolute size-20 pointer-events-none", c.pos, c.rot)}>
+          <svg viewBox="0 0 100 100" className={cn("size-full filter drop-shadow-2xl", iconColor)}>
             <path
-              d="M10,10 L40,10 Q50,10 50,20 L50,30 L30,30 L30,50 Q10,50 10,40 Z"
+              d="M10,10 L50,10 Q60,10 60,20 L60,30 L40,30 L40,50 Q10,50 10,40 Z"
               fill="currentColor"
-              className="opacity-90 drop-shadow-xl"
+              className="opacity-100"
             />
             <path
-              d="M15,15 L35,15 L35,35 L15,35 Z"
+              d="M18,18 L35,18 L35,35 L18,35 Z"
               fill="black"
               className="opacity-40"
             />
-            <circle cx="25" cy="25" r="4" fill="white" className="opacity-20" />
+            {isLegendary && <circle cx="28" cy="28" r="3" fill="white" className="animate-pulse" />}
           </svg>
         </div>
       ))}
 
-      {/* Center Top Crest */}
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex flex-col items-center">
-        <div className={cn(
-          "px-8 py-1 bg-gradient-to-b from-slate-800 to-slate-950 border-x-4 border-b-4 border-t-4 rounded-xl shadow-2xl",
-          frameColor
-        )}>
-          <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", iconColor)}>
+      {/* Rarity Tag/Badge */}
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-40">
+        <motion.div
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className={cn(
+            "px-10 py-1.5 bg-slate-950 border-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center gap-2",
+            frameColor
+          )}
+        >
+          {isLegendary && <Star size={12} className="text-amber-400 fill-amber-400 animate-star-twinkle" />}
+          <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", iconColor)}>
             {rarity}
           </span>
-        </div>
+          {isLegendary && <Star size={12} className="text-amber-400 fill-amber-400 animate-star-twinkle" />}
+        </motion.div>
       </div>
 
-      {/* Corner Embellishments (SVG Flourishes) */}
-      <svg className="absolute inset-0 size-full opacity-30" viewBox="0 0 400 400">
-        <path d="M40,80 Q20,40 80,40" fill="none" stroke={isLegendary ? "#f59e0b" : "#3b82f6"} strokeWidth="2" strokeLinecap="round" />
-        <path d="M320,40 Q380,40 360,80" fill="none" stroke={isLegendary ? "#f59e0b" : "#3b82f6"} strokeWidth="2" strokeLinecap="round" />
-        <path d="M40,320 Q20,380 80,360" fill="none" stroke={isLegendary ? "#f59e0b" : "#3b82f6"} strokeWidth="2" strokeLinecap="round" />
-        <path d="M320,360 Q380,380 360,320" fill="none" stroke={isLegendary ? "#f59e0b" : "#3b82f6"} strokeWidth="2" strokeLinecap="round" />
+      {/* Corner Flourishes */}
+      <svg className="absolute inset-0 size-full opacity-40 mix-blend-overlay" viewBox="0 0 400 400">
+        <path d="M50,100 Q30,50 100,50" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={iconColor} />
+        <path d="M300,50 Q370,50 350,100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={iconColor} />
+        <path d="M50,300 Q30,350 100,350" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={iconColor} />
+        <path d="M300,350 Q370,350 350,300" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={iconColor} />
       </svg>
+
+      {/* Animated Glint Overlay */}
+      <div className="absolute inset-6 rounded-[2rem] overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent w-[200%] -translate-x-full animate-rarity-glint" />
+      </div>
     </div>
   );
 };
@@ -257,60 +264,229 @@ const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: string })
 const RarityEffects = ({ rarity }: { rarity: string }) => {
   if (rarity === 'Běžná') return null;
 
-  const particleCount = rarity === 'Legendární' ? 12 : rarity === 'Epická' ? 8 : 4;
+  const isLegendary = rarity === 'Legendární';
+  const isEpic = rarity === 'Epická';
+  const isRare = rarity === 'Vzácná';
+
+  const particleCount = isLegendary ? 20 : isEpic ? 12 : 6;
   const particles = Array.from({ length: particleCount });
-  const color =
-    rarity === 'Legendární' ? 'bg-amber-400' :
-      rarity === 'Epická' ? 'bg-purple-400' :
-        'bg-blue-400';
+  const color = isLegendary ? 'bg-amber-400' : isEpic ? 'bg-purple-400' : 'bg-blue-400';
+  const accentColor = isLegendary ? 'text-amber-300' : isEpic ? 'text-purple-300' : 'text-blue-300';
 
   return (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Background Glow Pulse */}
       <motion.div
         animate={{
-          opacity: [0.1, 0.3, 0.1],
-          scale: [1, 1.2, 1]
+          opacity: [0.1, 0.4, 0.1],
+          scale: [1, 1.3, 1]
         }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className={cn("absolute inset-0 blur-[60px]", color.replace('bg-', 'bg-opacity-20 bg-'))}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        className={cn("absolute inset-0 blur-[80px]", color.replace('bg-', 'bg-opacity-25 bg-'))}
       />
+
+      {/* Rays for Legendary */}
+      {isLegendary && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-20">
+          <div className="size-[500px] bg-[conic-gradient(from_0deg,transparent_0deg,white_10deg,transparent_20deg)] animate-rotate-slow opacity-30 blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900" />
+        </div>
+      )}
 
       {/* Random Floating Particles */}
       {particles.map((_, i) => (
         <motion.div
           key={i}
           initial={{
-            x: Math.random() * 300,
-            y: Math.random() * 300,
+            x: Math.random() * 400 - 200,
+            y: 400,
             opacity: 0,
             scale: 0
           }}
           animate={{
-            y: [null, Math.random() * -100 - 50],
-            opacity: [0, 0.6, 0],
-            scale: [0, 1, 0],
-            x: [null, (Math.random() - 0.5) * 50]
+            y: [-50, -400],
+            opacity: [0, 1, 0],
+            scale: [0, Math.random() * 1.5 + 0.5, 0],
+            x: (Math.random() - 0.5) * 100
           }}
           transition={{
-            duration: 3 + Math.random() * 3,
+            duration: 4 + Math.random() * 4,
             repeat: Infinity,
-            delay: Math.random() * 5,
-            ease: "easeInOut"
+            delay: Math.random() * 10,
+            ease: "linear"
           }}
-          className={cn("absolute size-1 rounded-full blur-[1px] shadow-lg", color)}
-          style={{ left: `${Math.random() * 100}%`, top: `${70 + Math.random() * 30}%` }}
+          className={cn("absolute size-1.5 rounded-full blur-[1px] shadow-[0_0_10px_currentColor]", color.replace('bg-', 'text-'))}
+          style={{ left: `${Math.random() * 100}%`, top: '100%' }}
         />
       ))}
 
-      {/* Rarity Ring for Legendary */}
-      {rarity === 'Legendární' && (
+      {/* Rarity Ring / Energy Orbit */}
+      {(isLegendary || isEpic) && (
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-4 border-2 border-dashed border-amber-500/20 rounded-full"
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className={cn(
+            "absolute inset-10 border border-dashed rounded-full opacity-10",
+            isLegendary ? "border-amber-400" : "border-purple-400"
+          )}
         />
       )}
+
+      {/* Twinkling Stars for Legendary */}
+      {isLegendary && Array.from({ length: 5 }).map((_, i) => (
+        <motion.div
+          key={`star-${i}`}
+          animate={{
+            opacity: [0, 1, 0],
+            scale: [0.5, 1.2, 0.5],
+          }}
+          transition={{
+            duration: 2 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+          }}
+          className="absolute text-amber-300"
+          style={{
+            top: `${Math.random() * 80 + 10}%`,
+            left: `${Math.random() * 80 + 10}%`,
+          }}
+        >
+          <Sparkles size={12 + Math.random() * 10} className="fill-current" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
+  const isLegendary = monster.rarity === 'Legendární';
+  const isEpic = monster.rarity === 'Epická';
+  const isRare = monster.rarity === 'Vzácná';
+
+  const glowColor = isLegendary ? 'rgba(251, 191, 36, 0.5)' : isEpic ? 'rgba(168, 85, 247, 0.5)' : isRare ? 'rgba(59, 130, 246, 0.5)' : 'transparent';
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center p-8">
+      {/* Floating container for both images to keep them perfectly synced */}
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{
+          scale: 1,
+          opacity: 1,
+          y: [0, -15, 0],
+          rotate: [0, 1, 0, -1, 0]
+        }}
+        transition={{
+          scale: { duration: 0.5 },
+          opacity: { duration: 0.5 },
+          y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" }
+        }}
+        style={{ transform: 'translateZ(0)', willChange: 'transform, opacity', backfaceVisibility: 'hidden' }}
+        className="relative w-full h-full"
+      >
+        {/* 1. Base Ambient Glow (Behind) */}
+        {(isLegendary || isEpic || isRare) && (
+          <div
+            className="absolute inset-0 blur-[25px] opacity-20 z-0 scale-110"
+            style={{
+              backgroundColor: glowColor,
+              maskImage: `url(${monster.image})`,
+              WebkitMaskImage: `url(${monster.image})`,
+              maskMode: 'alpha',
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              maskPosition: 'center',
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden'
+            }}
+          />
+        )}
+
+        {/* 2. Main Monster Image */}
+        <img
+          src={monster.image}
+          className="w-full h-full object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
+          style={{ backfaceVisibility: 'hidden' }}
+        />
+
+        {/* 3. Foil / Shimmer Overlay (Colorized reflection) */}
+        {(isLegendary || isEpic || isRare) && (
+          <div
+            className="absolute inset-0 z-20 pointer-events-none mix-blend-soft-light opacity-40"
+            style={{
+              maskImage: `url(${monster.image})`,
+              WebkitMaskImage: `url(${monster.image})`,
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              maskPosition: 'center',
+              backfaceVisibility: 'hidden'
+            }}
+          >
+            <motion.div
+              animate={{
+                backgroundPosition: ['200% 200%', '-200% -200%'],
+              }}
+              transition={{
+                duration: 12,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              style={{
+                backgroundImage: `linear-gradient(110deg, transparent 40%, ${glowColor} 45%, white 50%, ${glowColor} 55%, transparent 60%)`,
+                backgroundSize: '300% 300%'
+              }}
+              className="absolute inset-0 opacity-50"
+            />
+          </div>
+        )}
+
+        {/* 4. Soft Aura Pulse (Slower, calmer) */}
+        {(isLegendary || isEpic) && (
+          <motion.div
+            animate={{ opacity: [0.05, 0.15, 0.05] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 z-15 pointer-events-none mix-blend-screen blur-xl"
+            style={{
+              backgroundColor: glowColor,
+              maskImage: `url(${monster.image})`,
+              WebkitMaskImage: `url(${monster.image})`,
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              maskPosition: 'center',
+              backfaceVisibility: 'hidden'
+            }}
+          />
+        )}
+
+        {/* 5. Twinkling "Sparkles" (Glitter effect) */}
+        {isLegendary && (
+          <div className="absolute inset-0 z-30 pointer-events-none">
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{
+                  opacity: [0, 0.8, 0],
+                  scale: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 5,
+                  ease: "easeInOut"
+                }}
+                className="absolute size-4 rounded-full"
+                style={{
+                  top: `${15 + Math.random() * 70}%`,
+                  left: `${15 + Math.random() * 70}%`,
+                  background: 'radial-gradient(circle, white 0%, rgba(255,255,255,0.4) 30%, transparent 70%)',
+                  filter: 'blur(0.5px)'
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 };
@@ -477,31 +653,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     "bg-amber-500"
             )} />
 
-            <div className="relative aspect-square w-full bg-slate-800 rounded-3xl border-4 border-white/10 overflow-hidden shadow-2xl flex items-center justify-center group-hover:border-white/20 transition-colors">
+            <div className="relative aspect-square w-full bg-slate-800 rounded-3xl border-4 border-white/10 shadow-2xl flex items-center justify-center group-hover:border-white/20 transition-colors">
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
               <RarityEffects rarity={monster.rarity} />
               <RarityFrame rarity={monster.rarity} />
 
-              <div className={cn(
-                "absolute inset-0 opacity-[0.15]",
-                monster.type === 'Ohnivá' ? "bg-[radial-gradient(circle_at_center,_#ff4444_0%,_transparent_70%)]" :
-                  monster.type === 'Vodní' ? "bg-[radial-gradient(circle_at_center,_#3b82f6_0%,_transparent_70%)]" :
-                    "bg-[radial-gradient(circle_at_center,_#10b981_0%,_transparent_70%)]"
-              )} />
-
-              <motion.img
-                animate={{
-                  y: [0, -15, 0],
-                  rotate: [0, 2, 0, -2, 0]
-                }}
-                transition={{
-                  y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
-                  rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" }
-                }}
-                src={monster.image}
-                className="w-full h-full object-contain relative z-10 p-4 drop-shadow-[0_45px_70px_rgba(0,0,0,0.85)]"
-              />
+              <MonsterImageWithEffects monster={monster} />
 
               {/* Mutation History Button - Left Side */}
               <div className="absolute bottom-6 left-6 z-40">
@@ -522,10 +680,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               <div className="absolute bottom-6 right-6 z-40 flex items-center gap-2">
                 <LevelBadge level={monster.level} rarity={monster.rarity} />
                 <MonsterScoreBadge score={powerLevel} rarity={monster.rarity} />
-              </div>
-              {/* Shimmer Effect */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-                <div className="absolute inset-x-0 h-full w-[200%] opacity-10 bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.8)_45%,rgba(255,255,255,0.8)_50%,transparent_55%)] animate-[shimmer_3s_infinite] transform-gpu" />
               </div>
             </div>
           </div>
