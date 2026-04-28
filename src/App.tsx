@@ -571,6 +571,7 @@ function AppContent() {
   }, [userUid]);
 
   // Watch Referrals
+  const isFirstReferralLoad = useRef(true);
   useEffect(() => {
     if (!userUid) return;
     const unsubscribe = watchReferrals(userUid, (data) => {
@@ -579,46 +580,48 @@ function AppContent() {
         ...val
       }));
 
-      // Kontrola nových registrací (Level 1) a dosažení Levelu 3
-      list.forEach(refEntry => {
-        const previousData = referrals.find(r => r.uid === refEntry.uid);
-        
-        // 1. Nová registrace (přechod z levelu 0 na level 1+)
-        if (refEntry.level >= 1 && (!previousData || previousData.level === 0)) {
-          addToast({
-            title: 'Nové vajíčko! 🥚',
-            message: `Tvůj přítel ${refEntry.name || 'Lovec'} se zaregistroval. Vajíčko se vylíhne na 3. úrovni!`,
-            type: 'success'
-          });
-        }
-
-        // 2. Dosažení levelu 3 (připraveno k líhnutí)
-        if (refEntry.level >= 3 && !refEntry.hatchClaimed) {
-          if (!previousData || previousData.level < 3) {
+      // Kontrola změn (pouze pokud už máme počáteční data)
+      if (!isFirstReferralLoad.current) {
+        list.forEach(refEntry => {
+          const previousData = referrals.find(r => r.uid === refEntry.uid);
+          
+          // 1. Nová registrace (přechod z levelu 0 na level 1+)
+          if (refEntry.level >= 1 && (!previousData || previousData.level === 0)) {
             addToast({
-              title: 'Vajíčko je připraveno! 🥚',
-              message: `Tvůj přítel ${refEntry.name || 'Lovec'} dosáhl úrovně 3. Utíkej si vylíhnout odměnu!`,
-              type: 'boost'
-            });
-
-            // Pošleme i systémovou notifikaci, pokud je aplikace na pozadí
-            LocalNotifications.schedule({
-              notifications: [{
-                title: "Odměna čeká! 🎁",
-                body: `${refEntry.name || 'Tvůj přítel'} dosáhl úrovně 3. Vylíhni si své vajíčko!`,
-                id: 2,
-                schedule: { at: new Date(Date.now() + 1000) },
-                sound: 'default'
-              }]
+              title: 'Nové vajíčko! 🥚',
+              message: `Tvůj přítel ${refEntry.name || 'Lovec'} se zaregistroval. Vajíčko se vylíhne na 3. úrovni!`,
+              type: 'success'
             });
           }
-        }
-      });
+
+          // 2. Dosažení levelu 3 (připraveno k líhnutí)
+          if (refEntry.level >= 3 && !refEntry.hatchClaimed) {
+            if (!previousData || previousData.level < 3) {
+              addToast({
+                title: 'Vajíčko je připraveno! 🥚',
+                message: `Tvůj přítel ${refEntry.name || 'Lovec'} dosáhl úrovně 3. Utíkej si vylíhnout odměnu!`,
+                type: 'boost'
+              });
+
+              LocalNotifications.schedule({
+                notifications: [{
+                  title: "Odměna čeká! 🎁",
+                  body: `${refEntry.name || 'Tvůj přítel'} dosáhl úrovně 3. Vajíčko je připraveno!`,
+                  id: 2,
+                  schedule: { at: new Date(Date.now() + 1000) }
+                }]
+              });
+            }
+          }
+        });
+      }
 
       setReferrals(list);
+      isFirstReferralLoad.current = false;
     });
+
     return () => unsubscribe();
-  }, [userUid]);
+  }, [userUid, referrals]);
 
   // --- DEBUG TOOLS ---
   useEffect(() => {
