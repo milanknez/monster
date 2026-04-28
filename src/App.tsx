@@ -1916,10 +1916,10 @@ function AppContent() {
       if (randomMonster) {
         const monsterWithMeta: Monster = {
           ...randomMonster,
-          level: 5,
+          level: 4,
           image: '', // Visuals are handled by ID
           currentHP: undefined,
-          xp: 3100,
+          xp: getTotalXPForLevel(4),
           abilities: (randomMonster.abilities || []).map((a: any) => ({
             ...a,
             type: a.type as any
