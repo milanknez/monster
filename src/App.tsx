@@ -62,7 +62,8 @@ import {
   checkEmailInvitation,
   watchReferrals,
   claimReferralReward,
-  deleteReferral
+  deleteReferral,
+  resolveReferralCode
 } from './lib/firebase'
 import { User as FirebaseUser } from 'firebase/auth'
 
@@ -72,6 +73,14 @@ import { InviteModal } from './components/modals/InviteModal'
 import { ReferralList, type ReferralEntry } from './components/referrals/ReferralList'
 import { SoundProvider } from './context/SoundContext'
 import { initNotifications, scheduleTestNotification } from './lib/notifications'
+import { DebugConsole } from './components/debug/DebugConsole'
+
+interface DebugLog {
+  id: string;
+  type: 'log' | 'error' | 'warn' | 'info';
+  message: string;
+  timestamp: number;
+}
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home')
@@ -82,6 +91,7 @@ function AppContent() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userUid, setUserUid] = useState<string>(PLAYER_UID)
   const [referrals, setReferrals] = useState<ReferralEntry[]>([])
+  const [logs, setLogs] = useState<DebugLog[]>([])
 
   const [newMonster, setNewMonster] = useState<Monster | null>(null)
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null)
@@ -97,6 +107,7 @@ function AppContent() {
   // Duel selection state
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
   const [isDuelAcceptingPicker, setIsDuelAcceptingPicker] = useState(false)
+  const [isConsoleOpen, setIsConsoleOpen] = useState(false)
 
   const [playerName, setPlayerName] = useState<string | null>(() => localStorage.getItem('monster_collector_player_name'))
   const [pendingReferral, setPendingReferral] = useState<string | null>(() => localStorage.getItem('pending_referral'))
@@ -132,6 +143,45 @@ function AppContent() {
   const [mapTheme, setMapTheme] = useState<'day' | 'night'>(() => (localStorage.getItem('monster_map_theme') as any) || 'night')
   const [isMapAutoTheme, setIsMapAutoTheme] = useState(() => localStorage.getItem('monster_map_auto_theme') === 'true') // Default false
 
+  // Log interception for Android debugging
+  useEffect(() => {
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    const addLog = (type: DebugLog['type'], args: any[]) => {
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      
+      setLogs(prev => [{
+        id: Math.random().toString(36).substr(2, 9),
+        type,
+        message,
+        timestamp: Date.now()
+      }, ...prev].slice(0, 100)); // Keep last 100 logs
+    };
+
+    console.log = (...args) => {
+      addLog('log', args);
+      originalLog.apply(console, args);
+    };
+    console.error = (...args) => {
+      addLog('error', args);
+      originalError.apply(console, args);
+    };
+    console.warn = (...args) => {
+      addLog('warn', args);
+      originalWarn.apply(console, args);
+    };
+
+    return () => {
+      console.log = originalLog;
+      console.error = originalError;
+      console.warn = originalWarn;
+    };
+  }, []);
+
   const handleAvatarClick = () => {
     setIsSettingsOpen(true);
   };
@@ -159,15 +209,17 @@ function AppContent() {
       setTimeout(() => {
         if ((window as any).spawnCustomMonster) {
           const seed = 'debug_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-          // Použijeme pickMonster, který správně filtruje rarity (Běžná, Epická...)
           const mId = (pickMonster as any)(seed, rarity);
           const finalLvl = (pickLevel as any)(seed, rarity);
-
           (window as any).spawnCustomMonster(mId, finalLvl, rarity);
         } else {
           addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě!', type: 'error' });
         }
       }, 500);
+    } else if (cheatId?.startsWith('setReferral:')) {
+      const code = cheatId.split(':')[1];
+      localStorage.setItem('pending_referral', code);
+      window.location.reload();
     } else if (cheatId === 'spawnMapMonster') {
       setActiveTab('world');
       // Wait a bit for the map to mount and set the window function
@@ -269,23 +321,32 @@ function AppContent() {
   // Handle Referral from URL (Web & Deep Links)
   useEffect(() => {
     // Helper: process and save a referral code from any source
-    const processReferralCode = (code: string, source: string) => {
+    const processReferralCode = async (code: string, source: string) => {
       if (!code || code.includes('utm_source')) return;
       
       console.log(`[Referral] Kód přijat z ${source}:`, code);
       
+      // Pokusíme se vyřešit kód (pokud je to krátký kód, převede se na UID)
+      const resolvedUid = await resolveReferralCode(code);
+      console.log(`[Referral] Kód po vyřešení (${source}):`, resolvedUid);
+
       const savedRef = localStorage.getItem('pending_referral');
-      if (savedRef === code) return; // Duplicitní, přeskočíme
+      if (savedRef === resolvedUid) {
+          // I když je v localStorage, ujistíme se, že je i ve stavu
+          if (!pendingReferral) setPendingReferral(resolvedUid);
+          return; 
+      }
       
-      localStorage.setItem('pending_referral', code);
-      setPendingReferral(code);
-      setReferredBy(code);
+      localStorage.setItem('pending_referral', resolvedUid);
+      setPendingReferral(resolvedUid);
+      setReferredBy(resolvedUid);
       
       // Pokud je uživatel už přihlášen a referral ještě nebyl zaregistrován,
       // zaregistrujeme ho ihned (řeší race condition kdy referrer přijde pozdě)
-      if (userUid && userUid !== code && playerName) {
-        console.log(`[Referral] Okamžitá registrace: ${code} → ${userUid}`);
-        registerReferral(code, userUid, playerName, playerEmail || undefined);
+      if (userUid && userUid !== resolvedUid && playerName) {
+        console.log(`[Referral] Okamžitá registrace: ${resolvedUid} → ${userUid}`);
+        await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
+        localStorage.removeItem('pending_referral'); // Po registraci vyčistit
       }
     };
 
@@ -316,24 +377,37 @@ function AppContent() {
     // 3. Handle Native Install Referrer (Google Play)
     const handleInstallReferrer = (event: any) => {
       try {
-        // Event může přijít jako CustomEvent s detail, nebo jako Capacitor event
-        const rawData = event.detail || event;
-        const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
-        let code = data.referrer;
+        console.log('[Referral] Nativní event přijat:', event);
         
-        console.log('[Referral] Nativní referrer přijat (raw):', code);
-
-        // Google Play referrer formát: "ref=FIREBASE_UID" (URL-encoded)
-        if (code && code.includes('=')) {
+        // Event může přijít jako CustomEvent s detail (Capacitor), nebo jako Capacitor event
+        const rawData = event.detail || event;
+        let data = rawData;
+        
+        if (typeof rawData === 'string') {
           try {
-            const params = new URLSearchParams(code);
-            code = params.get('ref') || code;
-          } catch (e) {
-            // Pokud parsování selže, použijeme raw hodnotu
+            data = JSON.parse(rawData);
+          } catch(e) {
+            // Není to JSON, zkusíme jestli to není přímo kód
+            data = { referrer: rawData };
           }
         }
-
+        
+        let code = data.referrer || data.value || (typeof data === 'string' ? data : null);
+        
+        console.log('[Referral] Nativní kód k zpracování:', code);
+        
         if (code) {
+          // Google Play referrer formát: "ref=FIREBASE_UID" (URL-encoded)
+          if (typeof code === 'string' && code.includes('=')) {
+            try {
+              const params = new URLSearchParams(code);
+              const extracted = params.get('ref');
+              if (extracted) code = extracted;
+            } catch (e) {
+              console.warn("[Referral] Chyba při parsování referrer parametrů");
+            }
+          }
+          
           processReferralCode(code, 'Google Play Referrer');
         }
       } catch (e) {
@@ -418,9 +492,9 @@ function AppContent() {
             localStorage.removeItem('pending_referral');
           } else if (backup.referredBy) {
             // DŮLEŽITÉ: Vždy obnovit referredBy z backupu!
-            // Bez toho se syncReferralProgress nespustí po restartu appky.
-            console.log('[Referral/Auth] Obnovuji referredBy z backupu:', backup.referredBy);
-            setReferredBy(backup.referredBy);
+            const resolvedRef = await resolveReferralCode(backup.referredBy);
+            console.log('[Referral/Auth] Obnovuji referredBy z backupu:', resolvedRef);
+            setReferredBy(resolvedRef);
           }
         }
       } else {
@@ -1457,13 +1531,7 @@ function AppContent() {
             }}
             isDebugMode={isDebugMode}
             onToggleDebug={() => {
-              const newVal = !isDebugMode;
-              setIsDebugMode(newVal);
-              addToast({
-                title: 'Debug Mode',
-                message: newVal ? 'Admin rozhraní aktivováno!' : 'Admin rozhraní skryto.',
-                type: 'success'
-              });
+              setIsConsoleOpen(true);
             }}
             mapTheme={mapTheme}
             isMapAutoTheme={isMapAutoTheme}
@@ -1784,6 +1852,18 @@ function AppContent() {
         onClose={() => setIsInviteModalOpen(false)}
         referralCode={userUid}
       />
+
+      <DebugConsole 
+        isOpen={isConsoleOpen} 
+        onClose={() => setIsConsoleOpen(false)} 
+        logs={logs} 
+        onClear={() => setLogs([])}
+        onCheat={handleCheat}
+        onToggleLegacy={() => {
+          setIsDebugMode(!isDebugMode);
+          setIsConsoleOpen(false); // Zavřít konzoli, aby byl vidět bar
+        }}
+      />
     </div>
   )
 
@@ -1799,8 +1879,10 @@ function AppContent() {
     }
 
     if (referralCode && currentUid) {
-      setReferredBy(referralCode);
-      await registerReferral(referralCode, currentUid, name, email);
+      const resolvedRef = await resolveReferralCode(referralCode);
+      console.log('[Referral/Setup] Registrace s kódem:', resolvedRef);
+      setReferredBy(resolvedRef);
+      await registerReferral(resolvedRef, currentUid, name, email);
       addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
     } else if (email && currentUid) {
       // Zkusíme automaticky dohledat pozvánku podle emailu

@@ -17,7 +17,6 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'addPotions', label: 'Lektvary (HP/Mana)', icon: FlaskConical, color: 'text-emerald-400' },
     { id: 'spawn:common', label: 'Spawn Běžné (MAP)', icon: UserPlus, color: 'text-slate-400' },
     { id: 'spawn:rare', label: 'Spawn Vzácné (MAP)', icon: UserPlus, color: 'text-blue-400' },
-    { id: 'spawn:epic', label: 'Spawn Epic (MAP)', icon: UserPlus, color: 'text-purple-400' },
     { id: 'spawn:legendary', label: 'Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400' },
     { id: 'addLegendary', label: 'Získat Legendární (Přímo)', icon: Gift, color: 'text-amber-500 font-bold' },
     { id: 'addMonster:075', label: 'Monstrum #075 (New)', icon: Star, color: 'text-purple-400' },

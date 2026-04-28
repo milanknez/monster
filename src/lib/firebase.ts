@@ -123,54 +123,104 @@ export const loadUserBackup = async (uid: string) => {
 };
 
 /**
+ * Vyhledá plné UID podle krátkého 6-místného kódu (posledních 6 znaků UID)
+ */
+export const resolveReferralCode = async (code: string): Promise<string> => {
+    if (!code) return "";
+    
+    // Pokud je kód delší než 10 znaků, považujeme ho za plné UID
+    if (code.length > 10) return code;
+
+    const normalizedCode = code.toUpperCase();
+    console.log(`[Referral/Resolve] Pokus o vyhledání UID pro kód: ${normalizedCode}`);
+
+    try {
+        const playersRef = ref(db, 'players');
+        const snapshot = await get(playersRef);
+        
+        if (snapshot.exists()) {
+            const players = snapshot.val();
+            // Najdeme UID, které končí na zadaný kód
+            const foundUid = Object.keys(players).find(uid => 
+                uid.toUpperCase().endsWith(normalizedCode)
+            );
+            
+            if (foundUid) {
+                console.log(`[Referral/Resolve] Kód ${normalizedCode} vyřešen na UID: ${foundUid}`);
+                return foundUid;
+            }
+        }
+    } catch (err) {
+        console.error("[Referral/Resolve] Chyba při vyhledávání kódu:", err);
+    }
+
+    return code; // Fallback na původní kód
+};
+
+/**
  * Referral Logika
  */
 export const registerReferral = async (referrerUid: string, invitedUid: string, invitedName: string, invitedEmail?: string | null) => {
-    // 0. Prevence sebepozvání
-    if (referrerUid === invitedUid) {
-        console.warn("Player cannot refer themselves.");
-        return;
-    }
+    try {
+        // Vyřešit případný krátký kód na plné UID
+        const fullReferrerUid = await resolveReferralCode(referrerUid);
 
-    // 1. Primární tracking pro levely
-    const referralRef = ref(db, `referrals/${referrerUid}/${invitedUid}`);
-    await set(referralRef, {
-        name: invitedName,
-        email: invitedEmail || null,
-        level: 1,
-        totalXP: 0,
-        timestamp: Date.now(),
-        hatchClaimed: false,
-        status: 'registered',
-        registeredUid: invitedUid
-    });
+        // 0. Prevence sebepozvání
+        if (fullReferrerUid === invitedUid) {
+            console.warn("[Referral/Register] Hráč nemůže pozvat sám sebe.");
+            return;
+        }
 
-    // 1.5 Uložit informaci k pozvanému hráči
-    await update(ref(db, `users/${invitedUid}`), { referredBy: referrerUid });
+        console.log(`[Referral/Register] Registrace: referrer=${fullReferrerUid}, invited=${invitedUid}`);
 
-    // 2. Vyčistit dočasný záznam založený na emailu, pokud existuje
-    if (invitedEmail) {
-        const cleanEmail = invitedEmail.replace(/\./g, '_').toLowerCase();
+        // 1. Primární tracking pro levely
+        const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
         
-        // Smazat email-based referral
-        const oldReferralRef = ref(db, `referrals/${referrerUid}/${cleanEmail}`);
-        await remove(oldReferralRef);
+        // Zkontrolujeme, jestli už záznam neexistuje (abychom ho nepřepsali)
+        const existing = await get(referralRef);
+        if (existing.exists() && existing.val().status === 'registered') {
+            console.log("[Referral/Register] Referral již byl dříve zaregistrován.");
+            return;
+        }
 
-        // Aktualizovat globální pozvánku
-        const globalInviteRef = ref(db, `invites/${cleanEmail}`);
-        await update(globalInviteRef, { 
-            status: 'registered', 
-            registeredUid: invitedUid,
-            registeredAt: Date.now()
+        await set(referralRef, {
+            name: invitedName,
+            email: invitedEmail || null,
+            level: 1,
+            totalXP: 0,
+            timestamp: Date.now(),
+            hatchClaimed: false,
+            status: 'registered',
+            registeredUid: invitedUid
         });
 
-        // 3. Uložit informaci o referrerovi i k pozvanému hráči pro budoucí automatické updaty
-        const invitedUserRef = ref(db, `users/${invitedUid}`);
-        await update(invitedUserRef, { referredBy: referrerUid });
+        // 1.5 Uložit informaci k pozvanému hráči
+        await update(ref(db, `users/${invitedUid}`), { referredBy: fullReferrerUid });
+        
+        // 2. Vyčistit dočasný záznam založený na emailu, pokud existuje
+        if (invitedEmail) {
+            const cleanEmail = invitedEmail.replace(/\./g, '_').toLowerCase();
+            
+            // Smazat email-based referral
+            const oldReferralRef = ref(db, `referrals/${fullReferrerUid}/${cleanEmail}`);
+            await remove(oldReferralRef);
 
-        // Aktualizovat stav v seznamu pozvaných u referrera
-        const userInviteRef = ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`);
-        await update(userInviteRef, { status: 'registered', registeredUid: invitedUid });
+            // Aktualizovat globální pozvánku
+            const globalInviteRef = ref(db, `invites/${cleanEmail}`);
+            await update(globalInviteRef, { 
+                status: 'registered', 
+                registeredUid: invitedUid,
+                registeredAt: Date.now()
+            });
+
+            // Aktualizovat stav v seznamu pozvaných u referrera
+            const userInviteRef = ref(db, `users/${fullReferrerUid}/invited_emails/${cleanEmail}`);
+            await update(userInviteRef, { status: 'registered', registeredUid: invitedUid });
+        }
+
+        console.log("[Referral/Register] Registrace úspěšná.");
+    } catch (err) {
+        console.error("[Referral/Register] Kritická chyba registrace:", err);
     }
 };
 
@@ -192,29 +242,36 @@ export const deleteReferral = async (referrerUid: string, invitedId: string) => 
 };
 
 export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string, name?: string) => {
-    // Aktualizovat záznam u referrera (pod UID pozvaného)
-    console.log(`[Referral/Sync] Syncing progress: invitedUid=${invitedUid}, level=${level}, totalXP=${totalXP}, referredBy=${referredBy}`);
-    
-    const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
+    if (!referredBy || !invitedUid) return;
 
-    const snapshot = await get(referralRef);
-    const existing = snapshot.exists() ? snapshot.val() : {};
+    try {
+        // Aktualizovat záznam u referrera (pod UID pozvaného)
+        console.log(`[Referral/Sync] Syncing progress: invitedUid=${invitedUid}, level=${level}, referredBy=${referredBy}`);
+        
+        const referralRef = ref(db, `referrals/${referredBy}/${invitedUid}`);
 
-    const mergedData: any = {
-        // Zachováme existující pole (hatchClaimed, timestamp, email...)
-        hatchClaimed: false,
-        timestamp: Date.now(),
-        ...existing,
-        // Přepíšeme jen aktuální progress
-        level,
-        totalXP,
-        status: 'registered',
-        registeredUid: invitedUid,
-        name: name || existing.name || 'Lovec',
-    };
+        const snapshot = await get(referralRef);
+        const existing = snapshot.exists() ? snapshot.val() : {};
 
-    await set(referralRef, mergedData);
-    console.log(`[Referral/Sync] Sync dokončen. Level=${level}, hatchClaimed=${mergedData.hatchClaimed}`);
+        // Pokud je hatchClaimed už true, nebudeme ho přepisovat na false
+        const hatchClaimed = existing.hatchClaimed || false;
+
+        const mergedData: any = {
+            ...existing,
+            level,
+            totalXP,
+            hatchClaimed,
+            status: 'registered',
+            registeredUid: invitedUid,
+            name: name || existing.name || 'Lovec',
+            lastSync: Date.now()
+        };
+
+        await set(referralRef, mergedData);
+        console.log(`[Referral/Sync] Sync úspěšný (Lv. ${level}).`);
+    } catch (err) {
+        console.error("[Referral/Sync] Chyba při synchronizaci:", err);
+    }
 };
 
 /**

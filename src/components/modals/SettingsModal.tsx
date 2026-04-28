@@ -95,16 +95,16 @@ export const SettingsModal = ({
   const [vibration, setVibration] = useState(true);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   
-  // Debug toggle logic
+  // Debug trigger for the new console
   const [debugClicks, setDebugClicks] = useState(0);
   const [lastDebugClick, setLastDebugClick] = useState(0);
 
-  const handleAvatarClick = () => {
+  const handleDebugTrigger = () => {
     const now = Date.now();
     if (now - lastDebugClick < 500) {
       const newCount = debugClicks + 1;
       setDebugClicks(newCount);
-      if (newCount >= 6) {
+      if (newCount >= 10) {
         onToggleDebug?.();
         setDebugClicks(0);
       }
@@ -113,6 +113,7 @@ export const SettingsModal = ({
     }
     setLastDebugClick(now);
   };
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -228,7 +229,7 @@ export const SettingsModal = ({
                       </div>
                       
                       <div className="flex flex-col items-center gap-4">
-                        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                        <div className="relative group cursor-pointer" onClick={handleDebugTrigger}>
                           <div className="size-24 rounded-full border-4 border-primary/30 p-1 bg-slate-800 overflow-hidden ring-4 ring-primary/10 shadow-[0_0_20px_rgba(13,185,242,0.2)] active:scale-95 transition-transform">
                             <img 
                               src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`} 

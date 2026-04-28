@@ -105,24 +105,29 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
 
       <div className="sticky top-16 z-30 bg-background-dark/95 backdrop-blur-md border-b border-white/5">
         <div className="flex px-4 gap-6 overflow-x-auto no-scrollbar scroll-smooth py-4">
-          {rarities.map(r => (
-            <button
-              key={r}
-              onClick={() => {
-                setFilter(r);
-                playBookFlip();
-              }}
-              className={cn(
-                "whitespace-nowrap text-xs font-black uppercase tracking-widest transition-all relative pb-2",
-                filter === r ? "text-primary" : "text-slate-500 hover:text-slate-300"
-              )}
-            >
-              {r}
-              {filter === r && (
-                <motion.div layoutId="filter-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_10px_#0db9f2]" />
-              )}
-            </button>
-          ))}
+          {rarities.map(r => {
+            const theme = RARITY_THEME[r];
+            const firstLetterClass = theme ? theme.text : "text-primary";
+            
+            return (
+              <button
+                key={r}
+                onClick={() => {
+                  setFilter(r);
+                  playBookFlip();
+                }}
+                className={cn(
+                  "whitespace-nowrap text-xs font-black uppercase tracking-widest transition-all relative pb-2",
+                  filter === r ? "text-slate-100" : "text-slate-500 hover:text-slate-300"
+                )}
+              >
+                <span className={firstLetterClass}>{r[0]}</span>{r.slice(1)}
+                {filter === r && (
+                  <motion.div layoutId="filter-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_10px_#0db9f2]" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -156,14 +161,14 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                     {/* Corners */}
                     {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => (
                       <div key={corner} className={cn(
-                        "absolute size-4 border-2 pointer-events-none",
-                        corner.includes('top') ? "top-0" : "bottom-0",
-                        corner.includes('left') ? "left-0" : "right-0",
+                        "absolute size-8 border-[3px] pointer-events-none",
+                        corner.includes('top') ? "-top-px" : "-bottom-px",
+                        corner.includes('left') ? "-left-px" : "-right-px",
                         theme.border,
-                        corner === 'top-left' && "border-r-0 border-b-0 rounded-tl-xl",
-                        corner === 'top-right' && "border-l-0 border-b-0 rounded-tr-xl",
-                        corner === 'bottom-left' && "border-r-0 border-t-0 rounded-bl-xl",
-                        corner === 'bottom-right' && "border-l-0 border-t-0 rounded-br-xl"
+                        corner === 'top-left' && "border-r-0 border-b-0 rounded-tl-[1.5rem]",
+                        corner === 'top-right' && "border-l-0 border-b-0 rounded-tr-[1.5rem]",
+                        corner === 'bottom-left' && "border-r-0 border-t-0 rounded-bl-[1.5rem]",
+                        corner === 'bottom-right' && "border-l-0 border-t-0 rounded-br-[1.5rem]"
                       )} />
                     ))}
                   </div>
