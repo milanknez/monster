@@ -352,9 +352,23 @@ function AppContent() {
       // Pokud je uživatel už přihlášen a referral ještě nebyl zaregistrován,
       // zaregistrujeme ho ihned (řeší race condition kdy referrer přijde pozdě)
       if (userUid && userUid !== resolvedUid && playerName) {
-        console.log(`[Referral] Okamžitá registrace: ${resolvedUid} → ${userUid}`);
-        await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
-        localStorage.removeItem('pending_referral'); // Po registraci vyčistit
+        if (currentLevel < 2) {
+          console.log(`[Referral] Okamžitá registrace: ${resolvedUid} → ${userUid}`);
+          await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
+          addToast({ 
+            title: 'Pozvánka přijata!', 
+            message: 'Byl jsi úspěšně spárován s lovcem. Odměna tě čeká na 3. úrovni!', 
+            type: 'success' 
+          });
+        } else {
+          console.log(`[Referral] Ignoruji referral (Level ${currentLevel} >= 2): ${resolvedUid}`);
+          addToast({ 
+            title: 'Pozvánka neaplikována', 
+            message: 'Omlouváme se, pozvánky jsou určeny pouze pro nově začínající lovce.', 
+            type: 'info' 
+          });
+        }
+        localStorage.removeItem('pending_referral'); // Vyčistit po vyřízení (úspěch i zamítnutí)
       }
     };
 
@@ -467,9 +481,9 @@ function AppContent() {
             setReferredBy(backupRef);
           }
           
-          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
+          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy && (backup.currentLevel || 1) < 2) {
             // Hráč má backup, ale referral ještě nebyl zaregistrován
-            console.log('[Referral/Auth] Registrace referralu pro existujícího hráče (bez referredBy v backupu)');
+            console.log('[Referral/Auth] Registrace referralu pro existujícího hráče (Level 1)');
             registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
             localStorage.removeItem('pending_referral');
           }
@@ -500,8 +514,8 @@ function AppContent() {
           }
         } else if (backup && playerName) {
           // Existující hráč (přihlásil se znovu) – zkontroluj jestli má referredBy
-          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy) {
-            console.log('[Referral/Auth] Existující hráč, nový referral:', finalRef);
+          if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy && currentLevel < 2) {
+            console.log('[Referral/Auth] Existující hráč (Level 1), nový referral:', finalRef);
             setReferredBy(finalRef);
             await registerReferral(finalRef, firebaseUser.uid, playerName || 'Lovec', firebaseUser.email);
             localStorage.removeItem('pending_referral');
@@ -532,7 +546,7 @@ function AppContent() {
           currentLevel,
           caughtMonsters,
           inventory,
-          referredBy,
+          ...(referredBy ? { referredBy } : {}),
           lastSync: now
         });
         setLastSync(now);
@@ -1894,12 +1908,17 @@ function AppContent() {
     }
 
     if (referralCode && currentUid) {
-      const resolvedRef = await resolveReferralCode(referralCode);
-      console.log('[Referral/Setup] Registrace s kódem:', resolvedRef);
-      setReferredBy(resolvedRef);
-      await registerReferral(resolvedRef, currentUid, name, email);
-      addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
-    } else if (email && currentUid) {
+      if (currentLevel < 2) {
+        const resolvedRef = await resolveReferralCode(referralCode);
+        console.log('[Referral/Setup] Registrace s kódem:', resolvedRef);
+        setReferredBy(resolvedRef);
+        await registerReferral(resolvedRef, currentUid, name, email);
+        addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+      } else {
+        addToast({ title: 'Pozvánka ignorována', message: 'Tento účet již není považován za nově registrovaný.', type: 'info' });
+      }
+      localStorage.removeItem('pending_referral');
+    } else if (email && currentUid && currentLevel < 2) {
       // Zkusíme automaticky dohledat pozvánku podle emailu
       const autoReferrer = await checkEmailInvitation(email);
       if (autoReferrer && autoReferrer !== currentUid) {

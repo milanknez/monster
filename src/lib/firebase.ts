@@ -107,7 +107,7 @@ export const syncPlayerToFirebase = (data: {
  */
 export const saveUserBackup = async (uid: string, data: any) => {
     const backupRef = ref(db, `users/${uid}`);
-    await set(backupRef, {
+    await update(backupRef, {
         ...data,
         updatedAt: Date.now()
     });
@@ -246,38 +246,26 @@ export const deleteReferral = async (referrerUid: string, invitedId: string) => 
 };
 
 export const syncReferralProgress = async (invitedUid: string, level: number, totalXP: number, referredBy: string, name?: string) => {
-    if (!referredBy || !invitedUid) return;
+    if (!referredBy || !invitedUid || referredBy === "") return;
 
     try {
         // VŽDY vyřešit kód na plné UID před synchronizací
         const fullReferrerUid = await resolveReferralCode(referredBy);
         
-        // Pokud se nepodařilo vyřešit na UID a my máme jen krátký kód, 
-        // zkusíme se podívat, jestli už nemáme záznam pod tímto kódem
         const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
-        const snapshot = await get(referralRef);
-
-        const existing = snapshot.exists() ? snapshot.val() : {};
-        const hatchClaimed = existing.hatchClaimed || false;
-
-        const mergedData: any = {
-            ...existing,
+        
+        // Použijeme update pro efektivnější zápis a vyhnutí se problémům s oprávněním na čtení
+        const updateData: any = {
             level,
             totalXP,
-            hatchClaimed,
             status: 'registered',
             registeredUid: invitedUid,
-            name: name || existing.name || 'Lovec',
             lastSync: Date.now()
         };
 
-        // Pokud záznam neexistoval, vytvoříme ho s výchozími hodnotami
-        if (!snapshot.exists()) {
-            mergedData.timestamp = Date.now();
-            mergedData.hatchClaimed = false;
-        }
+        if (name) updateData.name = name;
 
-        await set(referralRef, mergedData);
+        await update(referralRef, updateData);
         console.log(`[Referral/Sync] Sync úspěšný (Lv. ${level}).`);
     } catch (err) {
         console.error("[Referral/Sync] Chyba při synchronizaci:", err);
