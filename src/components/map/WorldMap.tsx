@@ -556,7 +556,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             setIsTooFast(false)
           }
 
-          if (traveled >= 4 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
+          if (traveled >= 10 && traveled <= 150) onDistanceUpdate(lat, lng, traveled)
         }
         lastPosRef.current = [lat, lng]
         lastPosTimeRef.current = now

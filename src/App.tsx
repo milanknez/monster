@@ -876,7 +876,7 @@ function AppContent() {
   const handleMove = useCallback((lat: number, lng: number, distance: number) => {
     setCurrentPosition({ lat, lng });
     localStorage.setItem('monster_last_pos', JSON.stringify({ lat, lng }));
-    addXP(Math.round(distance / 10));
+
     const today = new Date().toDateString();
     setDailyDistance((prev: number) => {
       const newVal = prev + distance
@@ -990,6 +990,7 @@ function AppContent() {
       addToast({ title: 'Mrtvá monstra', message: 'Všechna tvá monstra jsou unavená. Musíš je vylečit!', type: 'error' });
       return;
     }
+    if (pvpRole) updateDailyStat('duels');
     setActiveBattle({ enemy, playerIdx: pIdx, opponentName, opponentUid, pvpRole, spawnId });
   };
 
@@ -1986,6 +1987,12 @@ function AppContent() {
   async function handleDeleteReferral(invitedId: string) {
     if (!userUid) return;
     try {
+      const referral = referrals.find(r => r.uid === invitedId);
+      if (referral?.hatchClaimed) {
+        addToast({ title: 'Nelze smazat', message: 'Vylíhlé vajíčko už nelze odstranit pro zachování historie odměn.', type: 'error' });
+        return;
+      }
+
       await deleteReferral(userUid, invitedId);
       addToast({ title: 'Pozvánka smazána', message: 'Tento záznam byl odstraněn.', type: 'xp' });
     } catch (err) {

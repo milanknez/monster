@@ -171,6 +171,24 @@ export const registerReferral = async (referrerUid: string, invitedUid: string, 
             return false;
         }
 
+        // 0.5 Kontrola, zda hráč již nebyl někým pozván (prevence zneužití smazání a znovukliknutí)
+        const userSnap = await get(ref(db, `users/${invitedUid}`));
+        if (userSnap.exists() && userSnap.val().referredBy) {
+            console.log("[Referral/Register] Hráč již má nastaveného referrera v profilu.");
+            // Pokud je to stejný referrer, můžeme zkontrolovat, zda záznam v referrals existuje
+            const referralRef = ref(db, `referrals/${fullReferrerUid}/${invitedUid}`);
+            const refSnap = await get(referralRef);
+            if (refSnap.exists()) {
+                console.log("[Referral/Register] Záznam v referrals již existuje.");
+                return false;
+            }
+            // Pokud záznam v referrals NEEXISTUJE (byl smazán), ale user.referredBy existuje,
+            // tak ho můžeme obnovit, ALE musíme si být jistí, že tím neumožníme double reward.
+            // Nicméně nejbezpečnější je prostě nepovolit znovuvytvoření smazaného záznamu, 
+            // pokud už jednou k registraci došlo.
+            return false; 
+        }
+
         console.log(`[Referral/Register] Registrace: referrer=${fullReferrerUid}, invited=${invitedUid}`);
 
         // 1. Primární tracking pro levely

@@ -64,8 +64,8 @@ const ReferralItem = ({
         </div>
       )}
 
-      {/* Trash Icon - Moved to top right */}
-      {!isConfirming && (
+      {/* Trash Icon - Moved to top right. Cannot delete already hatched eggs! */}
+      {!isConfirming && !refEntry.hatchClaimed && (
         <button
           onClick={(e) => {
             e.stopPropagation();
