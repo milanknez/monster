@@ -354,21 +354,28 @@ function AppContent() {
       if (userUid && userUid !== resolvedUid && playerName) {
         if (currentLevel < 2) {
           console.log(`[Referral] Okamžitá registrace: ${resolvedUid} → ${userUid}`);
-          await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
-          addToast({ 
-            title: 'Pozvánka přijata!', 
-            message: 'Byl jsi úspěšně spárován s lovcem. Odměna tě čeká na 3. úrovni!', 
-            type: 'success' 
-          });
+          const isNew = await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
+          
+          if (isNew) {
+            addToast({ 
+              title: 'Pozvánka přijata!', 
+              message: 'Byl jsi úspěšně spárován s lovcem. Odměna tě čeká na 3. úrovni!', 
+              type: 'success' 
+            });
+          }
         } else {
           console.log(`[Referral] Ignoruji referral (Level ${currentLevel} >= 2): ${resolvedUid}`);
-          addToast({ 
-            title: 'Pozvánka neaplikována', 
-            message: 'Omlouváme se, pozvánky jsou určeny pouze pro nově začínající lovce.', 
-            type: 'info' 
-          });
+          // Toast ukážeme jen pokud to přišlo z URL/Deep linku (manuální akce), 
+          // ne při každém spuštění z automatického referreru.
+          if (source === 'URL' || source === 'Deep Link') {
+            addToast({ 
+              title: 'Pozvánka neaplikována', 
+              message: 'Omlouváme se, pozvánky jsou určeny pouze pro nově začínající lovce.', 
+              type: 'info' 
+            });
+          }
         }
-        localStorage.removeItem('pending_referral'); // Vyčistit po vyřízení (úspěch i zamítnutí)
+        localStorage.removeItem('pending_referral');
       }
     };
 
@@ -484,7 +491,10 @@ function AppContent() {
           if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy && (backup.currentLevel || 1) < 2) {
             // Hráč má backup, ale referral ještě nebyl zaregistrován
             console.log('[Referral/Auth] Registrace referralu pro existujícího hráče (Level 1)');
-            registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
+            const isNew = await registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
+            if (isNew) {
+                addToast({ title: 'Pozvánka přijata!', message: 'Byl jsi úspěšně spárován s lovcem.', type: 'success' });
+            }
             localStorage.removeItem('pending_referral');
           }
           
@@ -1912,8 +1922,10 @@ function AppContent() {
         const resolvedRef = await resolveReferralCode(referralCode);
         console.log('[Referral/Setup] Registrace s kódem:', resolvedRef);
         setReferredBy(resolvedRef);
-        await registerReferral(resolvedRef, currentUid, name, email);
-        addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+        const isNew = await registerReferral(resolvedRef, currentUid, name, email);
+        if (isNew) {
+            addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+        }
       } else {
         addToast({ title: 'Pozvánka ignorována', message: 'Tento účet již není považován za nově registrovaný.', type: 'info' });
       }
@@ -1932,6 +1944,14 @@ function AppContent() {
   async function handleHatchReferral(invitedUid: string) {
     try {
       if (!userUid) return;
+      
+      // Pojistka proti vícenásobnému vybrání
+      const referral = referrals.find(r => r.uid === invitedUid);
+      if (referral?.hatchClaimed) {
+        console.warn("[Referral] Odměna již byla dříve vybrána.");
+        return;
+      }
+
       await claimReferralReward(userUid, invitedUid);
 
       const rarePool = monsterDB.filter(m => {

@@ -168,7 +168,7 @@ export const registerReferral = async (referrerUid: string, invitedUid: string, 
         // 0. Prevence sebepozvání
         if (fullReferrerUid === invitedUid) {
             console.warn("[Referral/Register] Hráč nemůže pozvat sám sebe.");
-            return;
+            return false;
         }
 
         console.log(`[Referral/Register] Registrace: referrer=${fullReferrerUid}, invited=${invitedUid}`);
@@ -182,7 +182,7 @@ export const registerReferral = async (referrerUid: string, invitedUid: string, 
             const data = existingSnap.val();
             if (data.status === 'registered') {
                 console.log("[Referral/Register] Referral již byl dříve zaregistrován.");
-                return;
+                return false;
             }
         }
 
@@ -223,8 +223,10 @@ export const registerReferral = async (referrerUid: string, invitedUid: string, 
         }
 
         console.log("[Referral/Register] Registrace úspěšná.");
+        return true;
     } catch (err) {
         console.error("[Referral/Register] Kritická chyba registrace:", err);
+        return false;
     }
 };
 
