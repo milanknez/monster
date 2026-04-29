@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.monster.collector"
         minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion 34
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 121
         versionName "1.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
