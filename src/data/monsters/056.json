@@ -1,6 +1,6 @@
 {
   "id": "056",
-  "name": "Chňapka Hlubinná",
+  "name": "Chňapík Hlubin",
   "description": "Průhledná medúza s obří tlamou plnou bioluminiscenčních zubů, které svítí v nejhlubších částech oceánu. Má jedno velké centrální oko a dlouhá růžová chapadla, která používá k přitahování nic netušící kořisti k sobě.",
   "type": "Vodní",
   "rarity": "Vzácná",
@@ -10,13 +10,6 @@
     "defense": 27
   },
   "abilities": [
-    {
-      "name": "Bioluminiscenční Past",
-      "description": "Záblesk z útrob příšerky nepřítele oslepí a sníží jeho šanci na zásah.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
-    },
     {
       "name": "Chapadlový Stisk",
       "description": "Ovine nepřítele svými chapadly a postupně ho stahuje do své tlamy.",

@@ -18,13 +18,6 @@
       "value": 155
     },
     {
-      "name": "Zlověstné Cvaknutí",
-      "description": "Hlasitě zcvakne čelistmi, čímž vyvolá tlakovou vlnu a sníží obranu nepřítele.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.4
-    },
-    {
       "name": "Svinutí do Kuličky",
       "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)",
       "type": "defense",

@@ -19,7 +19,7 @@
     },
     {
       "name": "Klektavý šok",
-      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti po dobu 2 kola.",
       "type": "curse",
       "chance": 70,
       "value": 15
