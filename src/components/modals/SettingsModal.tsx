@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon, Globe } from 'lucide-react';
+import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon, Globe, Flame, AlertTriangle, Leaf } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useState, useEffect } from 'react';
@@ -59,6 +59,8 @@ interface SettingsModalProps {
   mapTheme: 'day' | 'night';
   isMapAutoTheme: boolean;
   onUpdateMapTheme: (theme: 'day' | 'night', auto: boolean) => void;
+  spawnRadius: number;
+  onUpdateSpawnRadius: (radius: number) => void;
 }
 
 
@@ -86,7 +88,9 @@ export const SettingsModal = ({
   onToggleDebug,
   mapTheme,
   isMapAutoTheme,
-  onUpdateMapTheme
+  onUpdateMapTheme,
+  spawnRadius,
+  onUpdateSpawnRadius
 }: SettingsModalProps) => {
 
   const { t, i18n } = useTranslation();
@@ -94,7 +98,7 @@ export const SettingsModal = ({
   const [tempName, setTempName] = useState(playerName);
   const [tempEmail, setTempEmail] = useState(playerEmail || '');
   const [notifications, setNotifications] = useState(true);
-  const [vibration, setVibration] = useState(true);
+  const [vibration, setVibration] = useState(() => localStorage.getItem('monster_haptic_enabled') !== 'false');
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   
   // Debug trigger for the new console
@@ -312,7 +316,11 @@ export const SettingsModal = ({
                         <Toggle 
                           label={t('settings.haptic')} 
                           active={vibration} 
-                          onToggle={() => setVibration(!vibration)} 
+                          onToggle={() => {
+                            const newVal = !vibration;
+                            setVibration(newVal);
+                            localStorage.setItem('monster_haptic_enabled', String(newVal));
+                          }} 
                         />
                       </div>
                     </section>
@@ -397,6 +405,31 @@ export const SettingsModal = ({
                             </button>
                           </div>
                         )}
+
+                        <div className="pt-2">
+                           <label className="text-[9px] font-bold text-slate-500 ml-1 uppercase tracking-widest mb-2 block">
+                             {t('settings.spawn_radius')}
+                           </label>
+                           <div className="grid grid-cols-4 gap-1.5 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                             {[400, 1000, 1500, 2500].map(r => (
+                               <button
+                                 key={r}
+                                 onClick={() => {
+                                   onUpdateSpawnRadius(r);
+                                   localStorage.setItem('monster_spawn_radius', r.toString());
+                                 }}
+                                 className={cn(
+                                   "py-2.5 rounded-xl transition-all font-black text-[9px] flex items-center justify-center gap-1",
+                                   spawnRadius === r ? "bg-primary text-slate-950 shadow-lg scale-[1.02]" : "text-slate-500 hover:text-slate-300"
+                                 )}
+                               >
+                                 {r}m
+                                 {r === 400 && <Leaf size={10} className={cn(spawnRadius === r ? "text-slate-950" : "text-emerald-500")} />}
+                                 {r === 2500 && <Flame size={10} className={cn(spawnRadius === r ? "text-slate-950" : "text-orange-500")} />}
+                               </button>
+                             ))}
+                           </div>
+                        </div>
                       </div>
                     </section>
 

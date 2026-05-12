@@ -19,6 +19,9 @@ interface DailyQuestsProps {
   onInvite: () => void;
   onHatch: (uid: string) => void;
   onDelete: (uid: string) => void;
+  globalRank: number | null;
+  leaderboardNearby?: { name: string, mct: number, rank: number, isMe?: boolean }[];
+  leaderboardTop?: { name: string, mct: number, rank: number }[];
 }
 
 export const DailyQuests = ({ 
@@ -31,7 +34,10 @@ export const DailyQuests = ({
   referrals = [],
   onInvite,
   onHatch,
-  onDelete
+  onDelete,
+  globalRank,
+  leaderboardNearby = [],
+  leaderboardTop = []
 }: DailyQuestsProps) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState('');
@@ -277,8 +283,9 @@ export const DailyQuests = ({
             <span>{t('quests.invite_friend')}</span>
           </button>
         </div>
-
-        <div className="bg-slate-900/20 border border-slate-800/50 rounded-3xl p-4">
+        
+        <div className="space-y-4">
+          <div className="bg-slate-900/20 border border-slate-800/50 rounded-3xl p-4">
            <div className="flex items-center gap-4 mb-4 p-3 bg-primary/5 border border-primary/10 rounded-2xl">
               <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
                  <Sparkles size={20} className="text-primary" />
@@ -290,7 +297,139 @@ export const DailyQuests = ({
            </div>
 
            <ReferralList referrals={referrals} onHatch={onHatch} onDelete={onDelete} />
+          </div>
         </div>
+      </section>
+
+      {/* Global Leaderboard Section */}
+      <section className="mt-8 space-y-4">
+        <div className="flex items-center gap-2">
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t('quests.leaderboard_title')}</h3>
+          <div className="h-[1px] flex-1 bg-slate-800/50" />
+        </div>
+
+        {globalRank !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-amber-500/10 to-primary/5 border border-amber-500/20 rounded-3xl p-5 relative overflow-hidden group"
+          >
+            <div className="absolute -right-4 -top-4 size-24 bg-amber-500/10 blur-2xl rounded-full" />
+            <div className="flex items-center gap-5 relative z-10">
+              <div className="size-14 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.2)] group-hover:scale-110 transition-transform duration-500">
+                 <Trophy size={32} className="text-amber-500" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[10px] font-black text-amber-500/70 uppercase tracking-[0.2em] mb-1">{t('quests.leaderboard_title')}</h4>
+                <p className="text-xl font-black text-slate-100 tracking-tighter leading-tight">
+                  {t('quests.leaderboard_rank', { rank: globalRank })}
+                </p>
+                <p className="text-[10px] text-slate-500 font-bold mt-1.5 uppercase tracking-wide opacity-80">
+                  {t('quests.leaderboard_desc')}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Consolidated Leaderboard List */}
+        {(leaderboardTop.length > 0 || leaderboardNearby.length > 0) && (
+          <div className="bg-slate-900/40 border border-slate-800/50 rounded-3xl overflow-hidden divide-y divide-slate-800/50">
+            {/* Top 3 */}
+            {leaderboardTop.map((player, idx) => (
+              <div 
+                key={`top-${idx}`}
+                className={cn(
+                  "flex items-center gap-4 px-5 py-3 transition-colors",
+                  globalRank === player.rank ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
+                )}
+              >
+                <div className="w-6 flex justify-center">
+                  {player.rank === 1 ? <Trophy size={16} className="text-amber-400" /> :
+                   player.rank === 2 ? <Trophy size={16} className="text-slate-300" /> :
+                   <Trophy size={16} className="text-amber-700" />}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className={cn(
+                      "text-[11px] font-black uppercase tracking-wide truncate",
+                      globalRank === player.rank ? "text-white" : "text-slate-300"
+                    )}>
+                      {player.name}
+                    </p>
+                    <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+                      {player.mct} {t('stats.hp_short').toLowerCase() === 'hp' ? 'pts' : 'ks'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className={cn(
+                    "text-[10px] font-black",
+                    player.rank === 1 ? "text-amber-400" : 
+                    player.rank === 2 ? "text-slate-300" : 
+                    "text-amber-700"
+                  )}>
+                    #{player.rank}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Gap Separator */}
+            {leaderboardNearby.length > 0 && leaderboardNearby[0].rank > 4 && (
+              <div className="py-2 flex justify-center bg-slate-950/20">
+                <div className="flex gap-1">
+                  {[1, 2, 3].map(i => <div key={i} className="size-1 bg-slate-800 rounded-full" />)}
+                </div>
+              </div>
+            )}
+
+            {/* Nearby Players (Filtered to exclude Top 3) */}
+            {leaderboardNearby
+              .filter(p => p.rank > 3)
+              .map((player, idx) => (
+              <div 
+                key={`nearby-${idx}`}
+                className={cn(
+                  "flex items-center gap-4 px-5 py-3 transition-colors",
+                  player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
+                )}
+              >
+                <span className={cn(
+                  "text-[10px] font-black w-6 text-center",
+                  player.isMe ? "text-amber-500" : "text-slate-600"
+                )}>
+                  #{player.rank}
+                </span>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className={cn(
+                      "text-[11px] font-bold uppercase tracking-wide truncate",
+                      player.isMe ? "text-white" : "text-slate-400"
+                    )}>
+                      {player.name}
+                    </p>
+                    <span className="text-[10px] font-bold text-slate-600 tabular-nums">
+                      {player.mct} ks
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <div className={cn(
+                    "size-5 rounded-md flex items-center justify-center border",
+                    player.isMe ? "bg-amber-500/10 border-amber-500/20" : "bg-slate-800/30 border-white/5"
+                  )}>
+                    <Target size={12} className={player.isMe ? "text-amber-500" : "text-slate-600"} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

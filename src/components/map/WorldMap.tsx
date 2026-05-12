@@ -73,6 +73,7 @@ export interface WorldMapProps {
   ignoreSpeedLimit?: boolean
   isBatterySaver?: boolean
   mapTheme?: 'day' | 'night' | 'auto'
+  spawnRadius?: number
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -105,7 +106,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   ignoreSpeedLimit = false,
   isBatterySaver = false,
   initialPosition = null,
-  mapTheme = 'auto'
+  mapTheme = 'auto',
+  spawnRadius = 1000
 }, ref) => {
 
   const { t, i18n } = useTranslation()
@@ -146,6 +148,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [isAutoCenter, setIsAutoCenter] = useState(true)
   const isAutoCenterRef = useRef(isAutoCenter)
   const [isTooFast, setIsTooFast] = useState(false)
+  const [visibleRarities, setVisibleRarities] = useState<Set<SpawnRarity>>(new Set(['common', 'rare', 'epic', 'legendary']))
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const selectedPlayerDist = useMemo(() => {
     if (!playerPos || !selectedOtherPlayer) return null
@@ -165,12 +169,12 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const nearbySpawn = useMemo(() => {
     if (!playerPos) return null;
     const nearby = spawns
-      .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng))
+      .filter(s => !s.caught && isFinite(s.lat) && isFinite(s.lng) && visibleRarities.has(s.rarity))
       .map(s => ({ s, dist: haversineM(playerPos[0], playerPos[1], s.lat, s.lng) }))
       .filter(({ dist }) => dist <= CATCH_RADIUS_M)
       .sort((a, b) => a.dist - b.dist)[0];
     return nearby?.s ?? null;
-  }, [playerPos, spawns]);
+  }, [playerPos, spawns, visibleRarities]);
 
   const nearbyResource = useMemo(() => {
     if (!playerPos) return null;
@@ -247,11 +251,17 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     // Monsters
     const existing = markersRef.current
     for (const [id, marker] of existing) {
-      if (hideMonsters || !currentSpawns.find(s => s.id === id && !s.caught)) { marker.remove(); existing.delete(id) }
+      const s = currentSpawns.find(spawn => spawn.id === id);
+      const isVisible = s && visibleRarities.has(s.rarity);
+      
+      if (hideMonsters || !s || s.caught || !isVisible) { 
+        marker.remove(); 
+        existing.delete(id);
+      }
     }
     if (!hideMonsters) {
       for (const s of currentSpawns) {
-        if (s.caught) continue
+        if (s.caught || !visibleRarities.has(s.rarity)) continue
         const dist = haversineM(playerLat, playerLng, s.lat, s.lng)
         const isNearby = dist <= CATCH_RADIUS_M
         const currentLocked = s.level > pLevel
@@ -303,7 +313,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         }
       }
     }
-  }, [])
+  }, [visibleRarities])
 
   const updateOtherPlayers = useCallback((map: L.Map, players: NearbyPlayer[]) => {
     const existing = otherPlayersMarkersRef.current
@@ -324,68 +334,67 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
   const fetchPOI = useCallback(async (lat: number, lng: number, force = false) => {
     if (!isFinite(lat) || !isFinite(lng)) return
-    const last = lastPoiFetchRef.current
-    if (!force && last && haversineM(lat, lng, last.lat, last.lng) < 200) return
+    const distanceSinceLast = lastPoiFetchRef.current ? haversineM(lat, lng, lastPoiFetchRef.current.lat, lastPoiFetchRef.current.lng) : 9999
+    if (force || distanceSinceLast > (spawnRadius * 0.4)) {
+      setLoadingPoi(true)
+      setStatusMsg(t('map.scanning'))
 
-    lastPoiFetchRef.current = { lat, lng }
-    setLoadingPoi(true)
-    setStatusMsg(t('map.scanning'))
+      try {
+        const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings } = await fetchPoiData(lat, lng, cooldownsRef.current, spawnRadius, force)
 
-    try {
-      const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings } = await fetchPoiData(lat, lng, cooldownsRef.current, force)
+        setSpawns(prev => {
+          const poiMap = new Map<string, SpawnPoint>()
+          // 1. Zafixujeme POI z okolí + nové POI
+          prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => poiMap.set(p.id, p))
+          poiMonsters.forEach(p => poiMap.set(p.id, p))
 
-      setSpawns(prev => {
-        const poiMap = new Map<string, SpawnPoint>()
-        // 1. Zafixujeme POI z okolí + nové POI
-        prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => poiMap.set(p.id, p))
-        poiMonsters.forEach(p => poiMap.set(p.id, p))
+          const rawPois = Array.from(poiMap.values())
 
-        const rawPois = Array.from(poiMap.values())
+          // 2. Legendary & Epic nikdy nefiltrujeme – vždy se zobrazí na jejich přesné poloze
+          const highPois = rawPois.filter(p => p.rarity === 'legendary' || p.rarity === 'epic')
 
-        // 2. Legendary & Epic nikdy nefiltrujeme – vždy se zobrazí na jejich přesné poloze
-        const highPois = rawPois.filter(p => p.rarity === 'legendary' || p.rarity === 'epic')
+          // 3. Rare POI profiltrujeme rozestupem 20m (priorita vyšší raritě)
+          const sortedRare = rawPois
+            .filter(p => p.rarity === 'rare')
+            .sort((a, b) => (RARITY_SCORE[b.rarity] || 0) - (RARITY_SCORE[a.rarity] || 0))
+          const filteredRare = optimizeSpawns(sortedRare, [], highPois, 0, 20)
 
-        // 3. Rare POI profiltrujeme rozestupem 20m (priorita vyšší raritě)
-        const sortedRare = rawPois
-          .filter(p => p.rarity === 'rare')
-          .sort((a, b) => (RARITY_SCORE[b.rarity] || 0) - (RARITY_SCORE[a.rarity] || 0))
-        const filteredRare = optimizeSpawns(sortedRare, [], highPois, 0, 20)
+          const poisArray = [...highPois, ...filteredRare]
 
-        const poisArray = [...highPois, ...filteredRare]
+          // 4. Common grid – vyhýbá se všem POI o 20m
+          const rawCommons = prev.filter(c => c.rarity === 'common')
+          const finalCommons = optimizeSpawns(rawCommons, poiBuildings || [], poisArray, 35, 20)
 
-        // 4. Common grid – vyhýbá se všem POI o 20m
-        const rawCommons = prev.filter(c => c.rarity === 'common')
-        const finalCommons = optimizeSpawns(rawCommons, poiBuildings || [], poisArray, 35, 20)
+          return [...finalCommons, ...poisArray]
+        })
 
-        return [...finalCommons, ...poisArray]
-      })
+        setResources(prev => {
+          const poiMap = new Map<string, ResourceSpawn>()
+          // 1. Zafixujeme POI z okolí + nové
+          prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).forEach(r => poiMap.set(r.id, r))
+          poiResources.forEach(r => poiMap.set(r.id, r))
+          const poisArray = Array.from(poiMap.values())
 
-      setResources(prev => {
-        const poiMap = new Map<string, ResourceSpawn>()
-        // 1. Zafixujeme POI z okolí + nové
-        prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).forEach(r => poiMap.set(r.id, r))
-        poiResources.forEach(r => poiMap.set(r.id, r))
-        const poisArray = Array.from(poiMap.values())
+          // 2. Posunout a pročistit
+          const rawRandoms = prev.filter(r => !r.id.startsWith('poi_'))
+          const finalRandoms = optimizeSpawns(rawRandoms, poiBuildings || [], poisArray, 35, 15)
 
-        // 2. Posunout a pročistit
-        const rawRandoms = prev.filter(r => !r.id.startsWith('poi_'))
-        const finalRandoms = optimizeSpawns(rawRandoms, poiBuildings || [], poisArray, 35, 15)
+          return [...finalRandoms, ...poisArray]
+        })
 
-        return [...finalRandoms, ...poisArray]
-      })
+        setBuildings(poiBuildings || [])
+        buildingsRef.current = poiBuildings || []
 
-      setBuildings(poiBuildings || [])
-      buildingsRef.current = poiBuildings || []
-
-      setStatusMsg('')
-    } catch (e) {
-      console.error("POI Fetch Error:", e)
-      setStatusMsg(t('map.scan_error'))
-      setTimeout(() => setStatusMsg(''), 3000)
-    } finally {
-      setLoadingPoi(false)
+        setStatusMsg('')
+      } catch (e) {
+        console.error("POI Fetch Error:", e)
+        setStatusMsg(t('map.scan_error'))
+        setTimeout(() => setStatusMsg(''), 3000)
+      } finally {
+        setLoadingPoi(false)
+      }
     }
-  }, [])
+  }, [spawnRadius])
 
   // První rychlé načtení (z cache i pro běžné monstra), pokud se přepínáme z jiné záložky
   useEffect(() => {
@@ -393,8 +402,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       const { lat, lng } = initialPosition;
       
       const cooldowns = loadCooldowns();
-      const commonMonsters = generateCommonSpawns(lat, lng, cooldowns);
-      const commonRes = generateResources(lat, lng, cooldowns);
+      const commonMonsters = generateCommonSpawns(lat, lng, cooldowns, spawnRadius);
+      const commonRes = generateResources(lat, lng, cooldowns, spawnRadius);
       
       // Zkusit načíst i POI z cache rovnou
       const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}`;
@@ -427,7 +436,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       setResources([...optimizedRes, ...filteredR]);
       setStatusMsg('');
     }
-  }, []); // Jen jednou při mountu komponenty
+  }, [spawnRadius]); // Jen jednou při mountu komponenty
 
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
@@ -581,8 +590,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         }
 
         const cooldowns = loadCooldowns()
-        const commonMonsters = generateCommonSpawns(lat, lng, cooldowns)
-        const commonRes = generateResources(lat, lng, cooldowns)
+        const commonMonsters = generateCommonSpawns(lat, lng, cooldowns, spawnRadius)
+        const commonRes = generateResources(lat, lng, cooldowns, spawnRadius)
 
         setSpawns(prev => {
           const pois = prev.filter(p =>
@@ -651,7 +660,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (!playerPos || !mapRef.current) return
     updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel, !showMonsters, !showResources, iconScale)
     updateOtherPlayers(mapRef.current, nearbyPlayers)
-  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale])
+  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale, visibleRarities])
 
 
   useEffect(() => {
@@ -796,19 +805,102 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         />
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-[66px] left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsFilterOpen(true)}
+          className="absolute bottom-[66px] left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl text-left transition-all active:bg-slate-900"
+        >
           {[
-            { label: t('rarities.common'), color: 'text-slate-400' },
-            { label: t('rarities.rare'), color: 'text-blue-500' },
-            { label: t('rarities.epic'), color: 'text-purple-500' },
-            { label: t('rarities.legendary'), color: 'text-amber-500' }
+            { id: 'common', label: t('rarities.common'), color: 'text-slate-400' },
+            { id: 'rare', label: t('rarities.rare'), color: 'text-blue-500' },
+            { id: 'epic', label: t('rarities.epic'), color: 'text-purple-500' },
+            { id: 'legendary', label: t('rarities.legendary'), color: 'text-amber-500' }
           ].map(l => (
-            <span key={l.label} className={cn("text-[7.5px] font-black uppercase tracking-[0.2em] drop-shadow-sm leading-none", l.color)}>
+            <span 
+              key={l.id} 
+              className={cn(
+                "text-[7.5px] font-black uppercase tracking-[0.2em] drop-shadow-sm leading-none transition-all", 
+                visibleRarities.has(l.id as any) ? l.color : "text-slate-600 opacity-40 grayscale"
+              )}
+            >
               {l.label}
             </span>
           ))}
-        </div>
+        </motion.button>
       </div>
+
+      <AnimatePresence>
+        {isFilterOpen && (
+          <div 
+            className="absolute inset-0 z-[2000] flex items-end justify-center p-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsFilterOpen(false)}
+          >
+            <motion.div 
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={0.4}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setIsFilterOpen(false);
+                }
+              }}
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }} 
+              className="w-full bg-slate-900 border-t border-white/10 rounded-t-[2.5rem] p-6 shadow-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))] touch-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-6" />
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-black text-white uppercase tracking-widest italic">{t('map.legend_filter')}</h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { id: 'common', label: t('rarities.common'), color: 'bg-slate-400' },
+                  { id: 'rare', label: t('rarities.rare'), color: 'bg-blue-500' },
+                  { id: 'epic', label: t('rarities.epic'), color: 'bg-purple-500' },
+                  { id: 'legendary', label: t('rarities.legendary'), color: 'bg-amber-500' }
+                ].map(r => {
+                  const isActive = visibleRarities.has(r.id as any);
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        const next = new Set(visibleRarities);
+                        if (isActive) {
+                          if (next.size > 1) next.delete(r.id as any);
+                        } else {
+                          next.add(r.id as any);
+                        }
+                        setVisibleRarities(next);
+                      }}
+                      className={cn(
+                        "flex items-center justify-between p-3.5 rounded-2xl border transition-all",
+                        isActive ? "bg-white/5 border-white/10" : "bg-black/20 border-white/5 opacity-50"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-2.5 h-2.5 rounded-full", r.color)} />
+                        <span className="text-xs font-bold text-white uppercase tracking-widest">{r.label}</span>
+                      </div>
+                      <div className={cn(
+                        "w-10 h-5 rounded-full relative transition-all",
+                        isActive ? "bg-primary" : "bg-slate-700"
+                      )}>
+                        <motion.div 
+                          animate={{ x: isActive ? 22 : 2 }}
+                          className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-md"
+                        />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {nearbyResource && !nearbySpawn && !isInteractionBlocked && !isTooFast && (

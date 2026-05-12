@@ -19,6 +19,7 @@ export { calculateHPCost };
 
 // ── Konfigurace Spawnování ──────────────────────────────────
 export const COMMON_GRID_M = 100
+export const RESOURCE_GRID_M = 60
 export const COMMON_RADIUS_CELLS = 10
 export const OVERPASS_RADIUS_M = 1500
 export const REF_LAT = 50.0755
@@ -44,14 +45,16 @@ export function isOnCooldown(cooldowns: Cooldowns, id: string): boolean {
 /**
  * Generuje základní monstra v mřížce (Wild Monsters)
  */
-export function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns): SpawnPoint[] {
+export function generateCommonSpawns(playerLat: number, playerLng: number, cooldowns: Cooldowns, radiusM: number = 1000): SpawnPoint[] {
   if (!isFinite(playerLat) || !isFinite(playerLng)) return []
   const spawns: SpawnPoint[] = []
   const centerIX = Math.floor(playerLat / LAT_STEP)
   const centerIY = Math.floor(playerLng / LNG_STEP)
+  
+  const radiusCells = Math.ceil(radiusM / COMMON_GRID_M)
 
-  for (let dy = -COMMON_RADIUS_CELLS; dy <= COMMON_RADIUS_CELLS; dy++) {
-    for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
+  for (let dy = -radiusCells; dy <= radiusCells; dy++) {
+    for (let dx = -radiusCells; dx <= radiusCells; dx++) {
       const ix = centerIX + dy
       const iy = centerIY + dx
       const gridLat = ix * LAT_STEP
@@ -60,10 +63,9 @@ export function generateCommonSpawns(playerLat: number, playerLng: number, coold
       const hashY = (iy * 31337) ^ (ix * 11369);
       const id = `grid_${hashX}_${hashY}`
 
-      // Hustota běžných monster (zhruba 90% šance na obdélník, díky velkému jitteru se roztýlí)
+      // Hustota běžných monster
       if (seededFloat(`skip_${id}`) < 0.10) continue
 
-      // Zvýšený 1.5x rozptyl pro přelezení mřížky do okolí
       const jLat = gridLat + (seededFloat(`jlat_${id}`) - 0.5) * LAT_STEP * 1.5
       const jLng = gridLng + (seededFloat(`jlng_${id}`) - 0.5) * LNG_STEP * 1.5
 
@@ -86,49 +88,52 @@ export function generateCommonSpawns(playerLat: number, playerLng: number, coold
 /**
  * Generuje suroviny v mřížce
  */
-export function generateResources(playerLat: number, playerLng: number, cooldowns: Cooldowns): ResourceSpawn[] {
+export function generateResources(playerLat: number, playerLng: number, cooldowns: Cooldowns, radiusM: number = 1000): ResourceSpawn[] {
   if (!isFinite(playerLat) || !isFinite(playerLng)) return []
   const spawns: ResourceSpawn[] = []
-  const centerIX = Math.floor(playerLat / LAT_STEP)
-  const centerIY = Math.floor(playerLng / LNG_STEP)
+  
+  const resLatStep = metersToLatDeg(RESOURCE_GRID_M)
+  const resLngStep = metersToLngDeg(RESOURCE_GRID_M, REF_LAT)
+  
+  const centerIX = Math.floor(playerLat / resLatStep)
+  const centerIY = Math.floor(playerLng / resLngStep)
   const resourceTypes: ResourceType[] = ['crystal', 'herb', 'energy', 'mineral']
 
-  for (let dy = -COMMON_RADIUS_CELLS; dy <= COMMON_RADIUS_CELLS; dy++) {
-    for (let dx = -COMMON_RADIUS_CELLS; dx <= COMMON_RADIUS_CELLS; dx++) {
+  const radiusCells = Math.ceil(radiusM / RESOURCE_GRID_M)
+
+  for (let dy = -radiusCells; dy <= radiusCells; dy++) {
+    for (let dx = -radiusCells; dx <= radiusCells; dx++) {
       const ix = centerIX + dy
       const iy = centerIY + dx
-      const gridLat = ix * LAT_STEP
-      const gridLng = iy * LNG_STEP
-      // Prosolení ID aby se předešlo řádkování v generátoru náhody
+      const gridLat = ix * resLatStep
+      const gridLng = iy * resLngStep
       const hashX = (ix * 31337) ^ (iy * 11369);
       const hashY = (iy * 31337) ^ (ix * 11369);
       const id = `resource_${hashX}_${hashY}`
 
-      // Hustota surovin na mapě (zvýšená o 30 % oproti původní 30% šanci)
-      if (seededFloat(`r_skip_${id}`) < 0.20) continue
+      // Hustota surovin (10% šance na přeskočení = 90% spawn rate v 60m mřížce)
+      if (seededFloat(`r_skip_${id}`) < 0.10) continue
 
       const rChance = seededFloat(`rtype_${id}`);
       let rType: ResourceType = 'crystal';
-      // Bylinky tvoří jen 15% z gridu, protože se masivně generují ze stromů a trávy z map (POI)
-      if (rChance < 0.40) rType = 'crystal';       // 40 %
-      else if (rChance < 0.65) rType = 'energy';   // 25 %
-      else if (rChance < 0.85) rType = 'mineral';  // 20 %
-      else rType = 'herb';                         // 15 %
+      if (rChance < 0.40) rType = 'crystal';
+      else if (rChance < 0.65) rType = 'energy';
+      else if (rChance < 0.85) rType = 'mineral';
+      else rType = 'herb';
 
       const rareRoll = seededFloat(`rare_${id}`);
       if (rareRoll < 0.03) rType = 'magic_crystal';
       else if (rareRoll < 0.06) rType = 'super_mineral';
 
-      // Jitter 1.5x velikosti buňky aby překračovaly hranice mřížky a netvořily linky
-      const jLat = gridLat + (seededFloat(`rjlat_${id}`) - 0.5) * LAT_STEP * 1.5
-      const jLng = gridLng + (seededFloat(`rjlng_${id}`) - 0.5) * LNG_STEP * 1.5
+      const jLat = gridLat + (seededFloat(`rjlat_${id}`) - 0.5) * resLatStep * 1.5
+      const jLng = gridLng + (seededFloat(`rjlng_${id}`) - 0.5) * resLngStep * 1.5
 
       spawns.push({
-        id: `res_${ix}_${iy}`, // ID zachováme přehledné pro cooldowns
+        id: `res_${ix}_${iy}`,
         lat: jLat,
         lng: jLng,
         type: rType,
-        amount: Math.floor(seededFloat(`ramount_${id}`) * 2) + 1,
+        amount: Math.floor(seededFloat(`ramount_${id}`) * 3) + 1, // 1-3 kusy
         isCollected: isOnCooldown(cooldowns, `res_${ix}_${iy}`)
       })
     }
@@ -143,11 +148,12 @@ export async function fetchPoiData(
   lat: number,
   lng: number,
   cooldowns: Cooldowns,
+  radiusM: number = 1500,
   force = false
 ): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[], buildings: { lat: number, lng: number }[] }> {
   if (!isFinite(lat) || !isFinite(lng)) return { monsters: [], resources: [], buildings: [] }
 
-  const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+  const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}_${radiusM}`;
   if (!force) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
@@ -172,19 +178,19 @@ export async function fetchPoiData(
   const query = `[out:json][timeout:60];
 (
   // Monsters POIs
-  nwr["historic"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["tourism"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["amenity"~"place_of_worship|museum|library|theatre"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["heritage"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["historic"](around:${radiusM},${lat},${lng});
+  nwr["tourism"](around:${radiusM},${lat},${lng});
+  nwr["amenity"~"place_of_worship|museum|library|theatre"](around:${radiusM},${lat},${lng});
+  nwr["heritage"](around:${radiusM},${lat},${lng});
   // Vesnické POI (boží muka, kapličky, pomínky)
-  nwr["historic"~"wayside_cross|wayside_shrine|wayside|chapel|memorial|boundary_stone|milestone|village_sign|cross"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["amenity"~"place_of_worship"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["historic"~"wayside_cross|wayside_shrine|wayside|chapel|memorial|boundary_stone|milestone|village_sign|cross"](around:${radiusM},${lat},${lng});
+  nwr["amenity"~"place_of_worship"](around:${radiusM},${lat},${lng});
   
   // Buildings to avoid
   nwr["building"](around:500,${lat},${lng});
-  nwr["leisure"~"park|garden|nature_reserve|playground"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments|meadow"](around:${OVERPASS_RADIUS_M},${lat},${lng});
-  nwr["natural"~"water|wood|scrub|heath|grassland|rock|peak"](around:${OVERPASS_RADIUS_M},${lat},${lng});
+  nwr["leisure"~"park|garden|nature_reserve|playground"](around:${radiusM},${lat},${lng});
+  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments|meadow"](around:${radiusM},${lat},${lng});
+  nwr["natural"~"water|wood|scrub|heath|grassland|rock|peak"](around:${radiusM},${lat},${lng});
 );
 out center;`;
 
@@ -288,15 +294,15 @@ out center;`;
       monsters.push(m);
     }
     else {
-      // Snížená hustota surovin z POI
-      if (seededFloat(id + '_spawn') < 0.8) continue
+      // Zvýšená šance na suroviny z POI (50% šance na spawn)
+      if (seededFloat(id + '_spawn') < 0.5) continue
 
       let type: ResourceType = 'crystal'
       let amount = Math.floor(seededFloat(id + '_amt') * 3) + 2
 
       if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard' || tags.natural === 'water') {
-        // Obrovská redukce bylinek z parků a lesů (tráva je všude)
-        if (seededFloat(id + '_herb_nerf') < 0.85) continue;
+        // Bylinky z parků a lesů - zvýšená šance (nerf snížen z 85% na 60%)
+        if (seededFloat(id + '_herb_nerf') < 0.60) continue;
         type = 'herb'
       } else if (tags.power || tags.amenity === 'university' || tags.amenity === 'research_institute') {
         type = 'energy'

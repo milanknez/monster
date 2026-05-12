@@ -5,11 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getLoc(val: any, lng: string = 'cz'): string {
+import i18n from '../i18n';
+
+export function getLoc(val: any, lng: string = i18n.language): string {
   if (!val) return '';
   if (typeof val === 'string') return val;
   if (typeof val === 'object') {
-    const l = lng.split('-')[0].toLowerCase();
+    const l = (lng || 'cz').split('-')[0].toLowerCase();
     const target = l === 'cs' ? 'cz' : l;
     return val[lng] || val[target] || val['cz'] || val['en'] || Object.values(val)[0] || '';
   }
@@ -210,8 +212,6 @@ export const getMonsterPower = (monster: any): number => {
   return Math.round((hp / 2) + (atk * 8) + (def * 12) + ((monster.level || 1) * 100));
 };
 
-import i18n from '../i18n';
-
 export const formatLocation = (lat?: number, lng?: number) => {
   if (lat === undefined || lng === undefined) return i18n.t('common.unknown_sector');
   // Simple sector logic based on coordinates
@@ -230,6 +230,33 @@ export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect
 
 export const ADVANTAGE_MULT = 1.3;
 export const WEAKNESS_MULT = 0.7;
+
+export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' = 'light') {
+  // Kontrola, zda jsou vibrace povoleny v nastavení
+  const isEnabled = localStorage.getItem('monster_haptic_enabled') !== 'false';
+  if (!isEnabled || typeof navigator === 'undefined' || !navigator.vibrate) return;
+
+  switch (type) {
+    case 'light':
+      navigator.vibrate(15);
+      break;
+    case 'medium':
+      navigator.vibrate(30);
+      break;
+    case 'heavy':
+      navigator.vibrate(60);
+      break;
+    case 'success':
+      navigator.vibrate([20, 50, 20]);
+      break;
+    case 'warning':
+      navigator.vibrate([40, 100, 40]);
+      break;
+    case 'error':
+      navigator.vibrate([60, 120, 60]);
+      break;
+  }
+}
 
 export const getPlayerRank = (caughtCount: number) => {
   if (caughtCount === 0) return i18n.t('ranks.r0');

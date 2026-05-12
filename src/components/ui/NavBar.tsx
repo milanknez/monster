@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { LayoutGrid, BookOpen, Map as MapIcon, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../utils';
+import { cn, triggerHaptic } from '../../utils';
 import { useGameSound } from '../../data/sounds';
 
 export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (id: string) => void }) => {
@@ -22,6 +22,7 @@ export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (
             key={item.id}
             onClick={() => {
               playClick();
+              triggerHaptic('light');
               onTabChange(item.id);
             }}
             className={cn(

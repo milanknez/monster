@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2, Trash2 } from 'lucide-react';
+import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Boost, InventoryItem } from '../../types';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
@@ -24,9 +24,25 @@ export const Inventory = ({
 }) => {
   const { t } = useTranslation();
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [isConfirmingDiscard, setIsConfirmingDiscard] = useState(false);
+  const [isActuallyDragging, setIsActuallyDragging] = useState(false);
+
+  // Reset confirmation state when item selection changes
+  const handleSelect = (idx: number | null) => {
+    setDraggedIdx(idx);
+    setIsConfirmingDiscard(false);
+    setIsActuallyDragging(false);
+  };
 
   const handleDragStart = (idx: number) => {
-    setDraggedIdx(idx);
+    handleSelect(idx);
+    setIsActuallyDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsActuallyDragging(false);
+    // Unselect after drag to keep screen clear
+    setDraggedIdx(null);
   };
 
   const handleDrop = (toIdx: number) => {
@@ -92,45 +108,7 @@ export const Inventory = ({
           <p className="text-[9px] font-bold text-slate-600 uppercase">{t('inventory.max_stack')}</p>
         </div>
 
-        {/* Selected Item Info at the Top */}
-        <div className="mb-4 min-h-[5rem]">
-          <AnimatePresence mode="wait">
-            {draggedIdx !== null && inventory[draggedIdx] ? (
-              <motion.div
-                key="selected"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex flex-col mb-3 bg-slate-800/80 p-4 rounded-2xl border border-white/10 shadow-lg relative"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-black text-white uppercase tracking-widest">
-                      {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label) || inventory[draggedIdx]!.type}
-                    </span>
-                    <span className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                      {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description) || t('inventory.no_desc')}
-                    </span>
-                  </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
-                    className="p-2 ml-4 shrink-0 bg-red-950 border border-red-500/30 rounded-xl text-red-500 shadow-md shadow-red-500/10 active:scale-95 transition-all"
-                    title={t('inventory.discard')}
-                  >
-                    <Trash2 size={16} />
-                  </motion.button>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div key="empty" className="h-[4.5rem] flex flex-col items-center justify-center text-slate-600 bg-slate-900/40 rounded-2xl border border-white/5 border-dashed">
-                <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">{t('inventory.click_for_details')}</p>
-                <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">{t('inventory.click_to_move')}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
+        {/* Slots Grid (4x5) */}
         <div className="grid grid-cols-4 gap-3 bg-slate-900/20 p-4 rounded-[2.5rem] border border-white/5">
           {inventory.map((item, idx) => {
             const config = item ? RESOURCE_CONFIG[item.type] : null;
@@ -165,14 +143,21 @@ export const Inventory = ({
                   }}
                   onDragEnd={() => setDraggedIdx(null)}
                   onClick={() => {
-                    if (draggedIdx === null && item) {
-                      setDraggedIdx(idx);
-                    } else if (draggedIdx === idx) {
-                      setDraggedIdx(null);
-                      if (usable) onUseItem(item.type);
-                    } else if (draggedIdx !== null) {
-                      onSwap(draggedIdx, idx);
-                      setDraggedIdx(null);
+                    if (draggedIdx === idx) {
+                      // Second click on the same item -> Use or Deselect
+                      if (usable) {
+                        onUseItem(item.type);
+                        handleSelect(null);
+                      } else {
+                        handleSelect(null);
+                      }
+                    } else {
+                      // Click on a different slot -> Just change selection or deselect
+                      if (item) {
+                        handleSelect(idx);
+                      } else {
+                        handleSelect(null);
+                      }
                     }
                   }}
                   layout
@@ -215,6 +200,111 @@ export const Inventory = ({
           })}
         </div>
       </section>
+
+      {/* Item Detail Floating Bar (Non-blocking) */}
+      <AnimatePresence>
+        {draggedIdx !== null && !isActuallyDragging && inventory[draggedIdx] && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-24 left-6 right-6 bg-slate-800/95 backdrop-blur-xl border border-white/10 rounded-3xl p-5 z-[60] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-4"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "size-12 rounded-xl border flex items-center justify-center shadow-lg",
+                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'legendary' ? "border-amber-500/50 bg-amber-500/10" :
+                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'epic' ? "border-purple-500/50 bg-purple-500/10" :
+                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'rare' ? "border-blue-500/50 bg-blue-500/10" :
+                  "border-white/10 bg-slate-700"
+                )}>
+                  <ResourceIcon 
+                    id={inventory[draggedIdx]!.type} 
+                    config={RESOURCE_CONFIG[inventory[draggedIdx]!.type]!} 
+                    size="md" 
+                  />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white uppercase tracking-widest">
+                    {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label) || inventory[draggedIdx]!.type}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description) || t('inventory.no_desc')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleSelect(null)}
+                  className="size-10 flex items-center justify-center bg-slate-700/50 border border-white/5 rounded-xl text-slate-400 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </motion.button>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <AnimatePresence mode="wait">
+                {isConfirmingDiscard ? (
+                  <motion.div 
+                    key="confirm"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="flex-1 flex gap-2"
+                  >
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { onDiscard(draggedIdx!); handleSelect(null); }}
+                      className="flex-1 py-3 bg-red-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-red-500/20 flex items-center justify-center gap-2"
+                    >
+                      <Trash2 size={14} />
+                      {t('inventory.discard_confirm') || 'Ano, zahodit'}
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setIsConfirmingDiscard(false)}
+                      className="px-6 py-3 bg-slate-700 text-white rounded-xl font-black uppercase text-[10px] tracking-widest border border-white/5"
+                    >
+                      {t('common.cancel') || 'Ne'}
+                    </motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="actions"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="flex-1 flex gap-2 justify-end"
+                  >
+                    {isConsumable(inventory[draggedIdx]!.type) && (
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { onUseItem(inventory[draggedIdx]!.type); handleSelect(null); }}
+                        className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 border-b-2 border-emerald-700"
+                      >
+                        <Zap size={16} fill="currentColor" />
+                        {t('inventory.use_item')}
+                      </motion.button>
+                    )}
+
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setIsConfirmingDiscard(true)}
+                      className="size-12 flex items-center justify-center bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500/20 transition-colors"
+                    >
+                      <Trash2 size={20} />
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

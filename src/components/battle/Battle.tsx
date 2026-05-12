@@ -9,7 +9,7 @@ import {
   Hourglass, Skull, Moon, Lock, Check, Hash, Target
 } from 'lucide-react';
 import type { Monster, LootTableEntry, Localized } from '../../types';
-import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc } from '../../utils';
+import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc, triggerHaptic } from '../../utils';
 import { useTranslation } from 'react-i18next';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
@@ -661,6 +661,7 @@ export const Battle = ({
     }
 
     setPlayerAnim('attack');
+    triggerHaptic('medium');
     if (isSkill) {
       if (ability?.type !== 'attack') playSpell();
       setActiveBurst({ id: Date.now(), type: playerMonster.type, fromSide: 'player', subType: ability?.type });
@@ -856,6 +857,7 @@ export const Battle = ({
     setCatchResult(success);
     
     setCatchAnim(true);
+    triggerHaptic('light');
     setCatchPhase('throwing');
     playSpell();
     
@@ -1051,7 +1053,7 @@ export const Battle = ({
           {onSendEmote && (
             <div className="relative">
               <button onClick={() => setShowEmotes(!showEmotes)} className="p-1.5 rounded-full bg-slate-800/80 text-yellow-500 border border-white/5 active:scale-90"><Smile size={16} /></button>
-              <AnimatePresence>{showEmotes && <motion.div initial={{ opacity: 0, scale: 0.8, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0 }} className="absolute top-12 right-0 flex gap-2 bg-slate-900/95 border border-white/20 p-2.5 rounded-2xl shadow-3xl backdrop-blur-xl z-[7000]">{['🤬', '🖕', '💩', '🤣', '🔥', '💎', '💀', '⚡'].map(e => <button key={e} onClick={() => handleSendEmote(e)} className="size-11 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl text-2xl transition-all active:scale-90">{e}</button>)}</motion.div>}</AnimatePresence>
+              <AnimatePresence>{showEmotes && <motion.div initial={{ opacity: 0, scale: 0.8, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0 }} className="absolute top-12 right-0 grid grid-cols-4 gap-2 bg-slate-900/95 border border-white/20 p-2.5 rounded-2xl shadow-3xl backdrop-blur-xl z-[7000] min-w-[200px]">{['🤬', '🖕', '💩', '🤣', '🔥', '💎', '💀', '⚡'].map(e => <button key={e} onClick={() => handleSendEmote(e)} className="size-11 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl text-2xl transition-all active:scale-90">{e}</button>)}</motion.div>}</AnimatePresence>
             </div>
           )}
           <button onClick={onBack} className="p-1.5 rounded-full bg-slate-800/80 text-slate-400 border border-white/5"><X size={16} /></button>
@@ -1475,7 +1477,7 @@ export const Battle = ({
                     <div className="flex flex-col gap-0.5">
                       <p className="text-[10px] leading-tight text-white/95">
                         <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
-                          {isHeal ? `+${healVal} HP` : isDefense ? 'ŠTÍT 🛡️' : isCurse ? 'KLETBA 💀' : isRegen ? 'REGEN 🌿' : `~${estDmg} DMG`}
+                          {isHeal ? `+${healVal} HP` : isDefense ? `${t('battle.shield')} 🛡️` : isCurse ? `${t('battle.curse')} 💀` : isRegen ? `${t('battle.regen_short')} 🌿` : `~${estDmg} DMG`}
                           {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
                         </span>
                         <span className="text-slate-200 font-bold italic">{getLoc(ab.description, i18n.language)}</span>
@@ -1500,7 +1502,7 @@ export const Battle = ({
               )}
             >
               <Sparkles size={20} />
-              <span className="text-[9px] font-black uppercase mt-1">Skill</span>
+              <span className="text-[9px] font-black uppercase mt-1">{t('battle.skill')}</span>
             </motion.button>
           </div>
           <div className="relative col-span-1 z-[7001]">

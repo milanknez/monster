@@ -51,6 +51,7 @@ import {
   update,
   ref,
   onAuthStateChanged,
+  onValue,
   saveUserBackup,
   loadUserBackup,
   registerReferral,
@@ -144,6 +145,11 @@ function AppContent() {
   const [isBatterySaver, setIsBatterySaver] = useState(() => localStorage.getItem('monster_battery_saver') === 'true')
   const [mapTheme, setMapTheme] = useState<'day' | 'night'>(() => (localStorage.getItem('monster_map_theme') as any) || 'night')
   const [isMapAutoTheme, setIsMapAutoTheme] = useState(() => localStorage.getItem('monster_map_auto_theme') === 'true') // Default false
+  const [spawnRadius, setSpawnRadius] = useState<number>(() => {
+    const saved = localStorage.getItem('monster_spawn_radius');
+    return saved ? parseInt(saved) : 1000;
+  });
+  const [globalRank, setGlobalRank] = useState<number | null>(null);
 
   // Log interception for Android debugging
   useEffect(() => {
@@ -580,6 +586,61 @@ function AppContent() {
       syncReferralProgress(userUid, currentLevel, totalXP, referredBy, playerName || undefined);
     }
   }, [totalXP, currentLevel, userUid, referredBy, playerName]);
+
+  const [leaderboardNearby, setLeaderboardNearby] = useState<{ name: string, mct: number, rank: number, isMe?: boolean }[]>([]);
+  const [leaderboardTop, setLeaderboardTop] = useState<{ name: string, mct: number, rank: number }[]>([]);
+
+  // Global Leaderboard Tracking
+  useEffect(() => {
+    if (!userUid) return;
+    const usersRef = ref(db, 'users');
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      
+      const players = Object.entries(data)
+        .map(([id, val]: [string, any]) => ({
+          id,
+          name: val.playerName || val.name || val.nam || val.n || 'Neznámý lovec',
+          mct: Array.isArray(val.caughtMonsters) ? val.caughtMonsters.length : 
+               (typeof val.mct === 'number' ? val.mct : 
+               typeof val.monsterCount === 'number' ? val.monsterCount : 
+               typeof val.mc === 'number' ? val.mc : 0)
+        }))
+        .filter(p => (p.name !== 'Neznámý lovec' && p.mct > 0) || p.id === userUid)
+        .sort((a, b) => b.mct - a.mct);
+      
+      // Get Top 3
+      const top3 = players.slice(0, 3).map((p, idx) => ({
+        name: p.name,
+        mct: p.mct,
+        rank: idx + 1
+      }));
+      setLeaderboardTop(top3);
+
+      const myIdx = players.findIndex(p => p.id === userUid);
+      if (myIdx !== -1) {
+        setGlobalRank(myIdx + 1);
+        
+        // Get 3 above and 3 below
+        const start = Math.max(0, myIdx - 3);
+        const end = Math.min(players.length, myIdx + 4);
+        const nearby = players.slice(start, end).map((p, idx) => ({
+          name: p.name,
+          mct: p.mct,
+          rank: start + idx + 1,
+          isMe: p.id === userUid
+        }));
+        setLeaderboardNearby(nearby);
+      } else {
+        const myCount = caughtMonsters.length;
+        const higherPlayers = players.filter(p => p.mct > myCount);
+        setGlobalRank(higherPlayers.length + 1);
+        setLeaderboardNearby([]);
+      }
+    });
+    return () => unsubscribe();
+  }, [userUid, caughtMonsters.length]);
 
   // Initialize notifications (Local & Push)
   useEffect(() => {
@@ -1358,6 +1419,9 @@ function AppContent() {
                 onInvite={() => setIsInviteModalOpen(true)}
                 onHatch={handleHatchReferral}
                 onDelete={handleDeleteReferral}
+                globalRank={globalRank}
+                leaderboardNearby={leaderboardNearby}
+                leaderboardTop={leaderboardTop}
               />
             </motion.div>
           )}
@@ -1418,6 +1482,7 @@ function AppContent() {
               addToast={addToast}
               ignoreSpeedLimit={isSpeedLimitDisabled}
               isBatterySaver={isBatterySaver}
+              spawnRadius={spawnRadius}
               mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
               email={user?.email || playerEmail}
             />
@@ -1611,6 +1676,8 @@ function AppContent() {
               localStorage.setItem('monster_map_theme', theme);
               localStorage.setItem('monster_map_auto_theme', auto.toString());
             }}
+            spawnRadius={spawnRadius}
+            onUpdateSpawnRadius={setSpawnRadius}
             onLogin={async () => {
               try {
                 const user = await signInWithGoogle();

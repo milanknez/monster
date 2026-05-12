@@ -29,7 +29,7 @@ export const db = getDatabase(app);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { onAuthStateChanged, ref, get, update, set };
+export { onAuthStateChanged, ref, get, update, set, onValue };
 
 export const signInWithGoogle = async () => {
     try {
