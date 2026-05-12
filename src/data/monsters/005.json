@@ -2,13 +2,13 @@
     "id": "005",
     "name": {
         "cz": "Lávojed Bumkác",
-        "en": "Lava eater Bumkác",
+        "en": "Flame-Eater Bumkác",
         "sk": "Lávojed Bumkác"
     },
     "description": {
-        "cz": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
-        "en": "A big and thick rock from a hot volcano rolling down the hill and making a terrible noise.",
-        "sk": "Veľký a tučný kameň z horúcej sopky, ktorý sa valí z kopca a hrozne pri tom funí."
+        "cz": "Malý, věčně hladový tvoreček s šedivými šupinami a zářivě oranžovou hřívou. Jeho nejoblíbenější pochoutkou je čerstvá, tekutá láva, kterou si s oblibou nabírá do kamenných misek.",
+        "en": "A small, perpetually hungry creature with grey scales and a bright orange mane. Its favorite treat is fresh, liquid lava, which it likes to scoop into stone bowls.",
+        "sk": "Malý, večne hladný tvorček so sivými šupinami a žiarivo oranžovou hrivou. Jeho najobľúbenejšou pochúťkou je čerstvá, tekutá láva, ktorú si s obľubou naberá do kamenných misiek."
     },
     "type": "fire",
     "rarity": "common",

@@ -2,7 +2,7 @@
     "id": "010",
     "name": {
         "cz": "Mňoukožár Divoký",
-        "en": "Mneukožar Wild",
+        "en": "Wild Ember-Cat",
         "sk": "Mňoukožár Divoký"
     },
     "description": {
@@ -21,7 +21,7 @@
         {
             "name": {
                 "cz": "Zářivý prskanec",
-                "en": "A bright sparkler",
+                "en": "Blazing Hiss",
                 "sk": "Žiarivý prskanec"
             },
             "description": {
@@ -36,7 +36,7 @@
         {
             "name": {
                 "cz": "Nabití baterek",
-                "en": "Battery charging",
+                "en": "Ember Surge",
                 "sk": "Nabitie bateriek"
             },
             "description": {

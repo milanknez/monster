@@ -1,52 +1,52 @@
 {
-    "id": "114",
-    "name": {
-        "cz": "Kara Milka",
-        "en": "Kara Milka",
-        "sk": "Kara Milka"
+  "id": "114",
+  "name": {
+    "cz": "Luminis",
+    "en": "Luminis",
+    "sk": "Luminis"
+  },
+  "description": {
+    "cz": "Tento drobný mravenec pochází z hlubin kouzelného lesa. Jeho tělo zdobí jasně svítící žluté body a fialová bioluminiscenční tykadla, která ve tmě jemně pulzují. Je to velmi klidný a přátelský tvor, který svým světlem ukazuje cestu ostatním zbloudilým poutníkům.",
+    "en": "This tiny ant comes from the depths of a magical forest. Its body is decorated with bright glowing yellow spots and purple bioluminescent antennae that pulse gently in the dark. It is a very calm and friendly creature that shows the way to other lost travelers with its light.",
+    "sk": "Tento drobný mravec pochádza z hlbín kúzelného lesa. Jeho telo zdobia jasne svietiace žlté body a fialové bioluminiscenčné tykadlá, ktoré v tme jemne pulzujú. Je to veľmi pokojný a priateľský tvor, ktorý svojím svetlom ukazuje cestu ostatným zblúdeným pútnikom."
+  },
+  "type": "nature",
+  "rarity": "common",
+  "stats": {
+    "hp": 145,
+    "attack": 62,
+    "defense": 38
+  },
+  "abilities": [
+    {
+      "name": {
+        "cz": "Zářivý kousanec",
+        "en": "Glowing Bite",
+        "sk": "Žiarivý hryz"
+      },
+      "description": {
+        "cz": "Prudce se zakousne do nepřítele a využije k tomu svou nečekanou sílu.",
+        "en": "It bites the enemy sharply and uses its unexpected strength for this.",
+        "sk": "Prudko sa zahryzne do nepriateľa a využije na to svoju nečakanú silu."
+      },
+      "type": "attack",
+      "chance": 85,
+      "value": 140
     },
-    "description": {
-        "cz": "Roztomilý hnědý pejsek s narozeninovou čepičkou a dvěma zahnutými zoubky. Je známá svým okouzlujícím zpěvem, který dokáže uklidnit i ty nejdivočejší potvory. Navzdory svému slavnostnímu vzhledu je to mrštný společník, který se v lese cítí jako doma.",
-        "en": "A cute brown dog with a birthday hat and two crooked teeth. She is known for her mesmerizing singing that can calm even the wildest monsters. Despite its solemn appearance, it is an agile companion that feels at home in the forest.",
-        "sk": "Roztomilý hnedý psík s narodeninovou čiapočkou a dvoma zahnutými zúbkami. Je známa svojim očarujúcim spevom, ktorý dokáže upokojiť aj tie najdivokejšie potvory. Napriek svojmu slávnostnému vzhľadu je to mrštný spoločník, ktorý sa v lese cíti ako doma."
-    },
-    "type": "nature",
-    "rarity": "common",
-    "stats": {
-        "hp": 115,
-        "attack": 55,
-        "defense": 45
-    },
-    "abilities": [
-        {
-            "name": {
-                "cz": "Narozeninová píseň",
-                "en": "Birthday song",
-                "sk": "Narodeninová pieseň"
-            },
-            "description": {
-                "cz": "Zpívá melodickou píseň, která léčí část HP.",
-                "en": "Sings a melodious song that heals a portion of HP.",
-                "sk": "Spieva melodickú pieseň, ktorá lieči časť HP."
-            },
-            "type": "heal",
-            "chance": 83,
-            "value": 20
-        },
-        {
-            "name": {
-                "cz": "Zubatý výpad",
-                "en": "A jagged lunge",
-                "sk": "Zubatý výpad"
-            },
-            "description": {
-                "cz": "Rychlý útok svými zahnutými zoubky nahoru.",
-                "en": "A quick attack with its curved fangs upwards.",
-                "sk": "Rýchly útok svojimi zahnutými zúbkami hore."
-            },
-            "type": "attack",
-            "chance": 85,
-            "value": 125
-        }
-    ]
+    {
+      "name": {
+        "cz": "Kyselá kletba",
+        "en": "Acid Curse",
+        "sk": "Kyslá kliatba"
+      },
+      "description": {
+        "cz": "Vypustí mutovanou kyselinu, která nepřítele pomalu rozežírá a oslabuje 2 kola.",
+        "en": "Releases a mutated acid that slowly eats away at the enemy and weakens them two turns.",
+        "sk": "Vypustí mutovanú kyselinu, ktorá nepriateľa pomaly rozožiera a oslabuje ho dve kola."
+      },
+      "type": "curse",
+      "chance": 75,
+      "value": 0.3
+    }
+  ]
 }

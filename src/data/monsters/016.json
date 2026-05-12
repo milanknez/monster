@@ -2,7 +2,7 @@
     "id": "016",
     "name": {
         "cz": "Šupindoslav vodní",
-        "en": "Šupindoslav water",
+        "en": "Scalislav",
         "sk": "Šupindoslav vodný"
     },
     "description": {
@@ -26,7 +26,7 @@
             },
             "description": {
                 "cz": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti.",
-                "en": "Šupindoslav slams a large fin, hitting all nearby enemies.",
+                "en": "Scalislav slams a large fin, hitting all nearby enemies.",
                 "sk": "Šupindoslav udrie veľkou plutvou a zasiahne všetkých nepriateľov v blízkosti."
             },
             "type": "attack",

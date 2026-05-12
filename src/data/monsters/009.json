@@ -2,7 +2,7 @@
     "id": "009",
     "name": {
         "cz": "Zoubko Hlodavec",
-        "en": "Toothless Rodent",
+        "en": "Toothy Rodent",
         "sk": "Zúbko Hlodavec"
     },
     "description": {
@@ -21,7 +21,7 @@
         {
             "name": {
                 "cz": "Hlodavý útok",
-                "en": "A gnawing attack",
+                "en": "Gnawing Bite",
                 "sk": "Hlodavý útok"
             },
             "description": {

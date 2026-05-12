@@ -1,16 +1,16 @@
 {
     "id": "078",
     "name": {
-        "cz": "Listový Kudlanka",
-        "en": "Leaf Mantis",
-        "sk": "Listový Kudlanka"
+        "cz": "Listovníček",
+        "en": "Leaflet",
+        "sk": "Listovníček"
     },
     "type": "nature",
     "rarity": "common",
     "description": {
-        "cz": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
-        "en": "A green predator that looks like an ordinary twig with small leaves until it makes a lightning attack.",
-        "sk": "Zelený predátor, ktorý vyzerá ako obyčajná vetvička s malými lístočkami, kým bleskovo nezaútočí."
+        "cz": "Malý, kulatý a nesmírně roztomilý tvoreček, který se maskuje v hromadách spadaného listí. Má velká zvědavá očka a když se bojí, schová se do kuličky, takže vypadá jako obyčejný trs mechu.",
+        "en": "A small, round and extremely cute creature that camouflages itself in piles of fallen leaves. It has big curious eyes and when it's scared, it hides in a ball, so it looks like an ordinary tuft of moss.",
+        "sk": "Malý, guľatý a nesmierne roztomilý tvorček, ktorý sa maskuje v hromadách opadaného lístia. Má veľké zvedavé očká a keď sa bojí, schová sa do guličky, takže vyzerá ako obyčajný trs machu."
     },
     "stats": {
         "hp": 135,
@@ -20,17 +20,17 @@
     "abilities": [
         {
             "name": {
-                "cz": "Divoké šlahouny",
-                "en": "Wild slugs",
-                "sk": "Divoké šľahúne"
+                "cz": "Listový švih",
+                "en": "Leaf Whip",
+                "sk": "Listový švih"
             },
             "description": {
-                "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-                "en": "The ground beneath the enemy comes alive and whips him hard by the roots.",
-                "sk": "Krajina pod nepriateľom ožije a tvrdo ho šľahne korene."
+                "cz": "Šlehne nepřítele svými pružnými listy.",
+                "en": "Whips the enemy with its flexible leaves.",
+                "sk": "Šľahne nepriateľa svojimi pružnými listami."
             },
             "type": "attack",
-            "chance": 80,
+            "chance": 85,
             "value": 130
         },
         {
@@ -40,13 +40,13 @@
                 "sk": "Fotosyntéza"
             },
             "description": {
-                "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-                "en": "It times its cellular renewal, which makes it regenerate slightly for a certain period of time.",
-                "sk": "Načasuje si bunkovú obnovu, vďaka ktorej sa mierne regeneruje určitý čas."
+                "cz": "Načerpá energii ze slunce a mírně se zregeneruje.",
+                "en": "Draws energy from the sun and regenerates slightly.",
+                "sk": "Načerpá energiu zo slnka a mierne sa zregeneruje."
             },
             "type": "regen",
-            "chance": 65,
-            "value": 15
+            "chance": 70,
+            "value": 20
         }
     ]
 }

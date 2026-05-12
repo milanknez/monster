@@ -2,13 +2,13 @@
     "id": "046",
     "name": {
         "cz": "Kudlanka Vírníková",
-        "en": "Kudlanka Vírníková",
+        "en": "Vortex Mantis",
         "sk": "Kudlanka Vírníková"
     },
     "description": {
-        "cz": "Průsvitná vodní kudlanka s ostrými pilovitými předními končetinami. Dokáže pod vodou vytvořit malý vír, do kterého chytá kořist.",
-        "en": "Translucent water mantis with sharp saw-like forelimbs. It can create a small vortex underwater, in which it catches prey.",
-        "sk": "Priesvitná vodná kudlanka s ostrými pílovitými prednými končatinami. Dokáže pod vodou vytvoriť malý vír, do ktorého chytá korisť."
+        "cz": "Toto hubené a roztomilé mládě vodní kudlanky má velké oranžové oči a neustále mu z tlamy plné malých zoubků ukápne trocha modrých slin. Nad hlavou mu víří proudy magické vody a navzdory svému křehkému vzhledu je to velmi mrštný lovec.",
+        "en": "This skinny and cute baby water mantis has large orange eyes and a bit of blue drool constantly drips from its mouth full of tiny teeth. Streams of magical water swirl over its head and despite its fragile appearance, it is a very agile hunter.",
+        "sk": "Toto chudé a roztomilé mláďa vodnej kudlanky má veľké oranžové oči a neustále mu z tlamy plnej malých zúbkov ukvapne trochu modrých slín. Nad hlavou mu víria prúdy magickej vody a napriek svojmu krehkému vzhľadu je to veľmi mrštný lovec."
     },
     "type": "water",
     "rarity": "common",

@@ -51,6 +51,7 @@
         "buff": "Bonus",
         "curse": "Kletba",
         "regen": "Regenerace",
+        "debuff": "Oslabení",
         "special": "Schopnost",
         "special_val": "Speciální"
       },
@@ -515,7 +516,9 @@
         "curse_cast": "Uvržena kletba!",
         "regen_active": "Aktivována regenerace!",
         "defending": "{{name}} se brání!",
-        "curse_applied": "{{name}} na tebe uvrhl kletbu!"
+        "curse_applied": "{{name}} na tebe uvrhl kletbu!",
+        "debuff_cast": "Nepřítel byl oslepen!",
+        "debuff_applied": "Byl jsi oslepen!"
       },
       "modal": {
         "victory_title": "VÍTĚZSTVÍ!",
@@ -720,6 +723,7 @@
         "buff": "Buff",
         "curse": "Curse",
         "regen": "Regeneration",
+        "debuff": "Debuff",
         "special": "Ability",
         "special_val": "Special"
       },
@@ -1184,7 +1188,9 @@
         "curse_cast": "Curse cast!",
         "regen_active": "Regeneration active!",
         "defending": "{{name}} is defending!",
-        "curse_applied": "{{name}} cast a curse on you!"
+        "curse_applied": "{{name}} cast a curse on you!",
+        "debuff_cast": "Enemy was blinded!",
+        "debuff_applied": "You were blinded!"
       },
       "modal": {
         "victory_title": "VICTORY!",
@@ -1389,6 +1395,7 @@
         "buff": "Bonus",
         "curse": "Kliatba",
         "regen": "Regenerácia",
+        "debuff": "Oslabenie",
         "special": "Schopnosť",
         "special_val": "Špeciálna"
       },
@@ -1865,7 +1872,9 @@
         "curse_cast": "Uvrhnutá kletba!",
         "regen_active": "Aktivovaná regenerácia!",
         "defending": "{{name}} sa bráni!",
-        "curse_applied": "{{name}} na teba uvrhol kletbu!"
+        "curse_applied": "{{name}} na teba uvrhol kletbu!",
+        "debuff_cast": "Nepriateľ bol oslepený!",
+        "debuff_applied": "Bol si oslepený!"
       },
       "modal": {
         "victory_title": "VÍŤAZSTVO!",

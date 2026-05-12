@@ -2,7 +2,7 @@
     "id": "043",
     "name": {
         "cz": "Stonožka Roháček",
-        "en": "Roháček centipede",
+        "en": "Horned Centipede",
         "sk": "Stonožka Roháčik"
     },
     "description": {
@@ -36,7 +36,7 @@
         {
             "name": {
                 "cz": "Rohový náraz",
-                "en": "Corner bump",
+                "en": "Horn Strike",
                 "sk": "Rohový náraz"
             },
             "description": {

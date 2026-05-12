@@ -2,7 +2,7 @@
     "id": "069",
     "name": {
         "cz": "Květomorous Děsivý",
-        "en": "Květomorous Scary",
+        "en": "Grim-Bloom",
         "sk": "Kvetomorous Desivý"
     },
     "description": {
@@ -21,7 +21,7 @@
         {
             "name": {
                 "cz": "Lepkavé sevření",
-                "en": "A sticky grip",
+                "en": "Nectar Trap",
                 "sk": "Lepkavé zovretie"
             },
             "description": {

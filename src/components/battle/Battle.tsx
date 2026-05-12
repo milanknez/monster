@@ -30,7 +30,7 @@ interface DamagePopup {
 }
 
 interface StatusEffect {
-  type: 'burn' | 'slow' | 'paralyze' | 'curse' | 'regen';
+  type: 'burn' | 'slow' | 'paralyze' | 'curse' | 'regen' | 'debuff';
   duration: number;
   value?: number;
   casterAtk?: number;
@@ -134,13 +134,15 @@ const EffectBadges = ({ effects }: { effects: StatusEffect[] }) => (
           e.type === 'slow' ? "bg-blue-500/20 text-blue-400 border-blue-500/40 shadow-blue-500/10" :
             e.type === 'curse' ? "bg-purple-500/20 text-purple-400 border-purple-500/40 shadow-purple-500/10" :
               e.type === 'regen' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-emerald-500/10" :
-                "bg-yellow-500/20 text-yellow-400 border-yellow-500/40 shadow-yellow-500/10"
+                e.type === 'debuff' ? "bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-rose-500/10" :
+                  "bg-yellow-500/20 text-yellow-400 border-yellow-500/40 shadow-yellow-500/10"
       )}>
         {e.type === 'burn' ? <Flame size={12} className="animate-pulse" /> :
           e.type === 'slow' ? <Wind size={12} className="animate-bounce" /> :
             e.type === 'curse' ? <ShieldIcon size={12} className="rotate-180" /> :
               e.type === 'regen' ? <Heart size={12} className="animate-pulse" /> :
-                <Zap size={12} className="animate-pulse" />}
+                e.type === 'debuff' ? <Target size={12} className="animate-pulse" /> :
+                  <Zap size={12} className="animate-pulse" />}
         <span>{e.duration}</span>
       </motion.div>
     ))}
@@ -166,7 +168,7 @@ const RarityBadge = ({ rarity }: { rarity: any }) => {
 
 const SkillEffect = ({ type, fromSide, subType }: { type: string | Localized<string>, fromSide: 'player' | 'enemy', subType: string }) => {
   const isHeal = subType === 'heal' || subType === 'regen';
-  const isCurse = subType === 'curse';
+  const isCurse = subType === 'curse' || subType === 'debuff';
   const isDefense = subType === 'defense';
   const isMelee = subType === 'attack';
   const isClaw = subType === 'claw';
@@ -681,7 +683,12 @@ export const Battle = ({
 
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
       let dmg = res.dmg;
-      if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
+      const currentEffects = turn === 'player' ? playerEffects : enemyEffects;
+      const debuffEffect = currentEffects.find(e => e.type === 'debuff');
+      const missPenalty = debuffEffect ? (debuffEffect.value || 40) : 0;
+      const hitChance = Math.max(ability?.chance || 100, 50) - missPenalty;
+
+      if (ability && Math.random() > hitChance / 100) {
         addLog(t('battle.log.missed', { name: getLoc(ability.name, i18n.language) }));
         addPopup(0, true, { isMiss: true });
         dmg = 0;
@@ -699,6 +706,10 @@ export const Battle = ({
         const s = getFinalStats(playerMonster);
         setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]);
         dmg = 0; addLog(t('battle.log.curse_cast'));
+      }
+      else if (ability?.type === 'debuff') {
+        setEnemyEffects(p => [...p, { type: 'debuff', duration: 2, value: ability.value || 40 }]);
+        dmg = 0; addLog(t('battle.log.debuff_cast'));
       }
       else if (isSkill && ability?.type === 'attack') {
         setTimeout(() => playSlash(), 100);
@@ -913,7 +924,11 @@ export const Battle = ({
           let dmg = res.dmg;
 
           // Special Skill Logic for NPC
-          if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
+          const debuffEffect = enemyEffects.find(e => e.type === 'debuff');
+          const missPenalty = debuffEffect ? (debuffEffect.value || 40) : 0;
+          const hitChance = Math.max(ability?.chance || 100, 50) - missPenalty;
+
+          if (ability && Math.random() > hitChance / 100) {
             addLog(t('battle.log.missed', { name: getLoc(enemyMonster.name, i18n.language) }));
             addPopup(0, false, { isMiss: true });
             dmg = 0;
@@ -930,6 +945,10 @@ export const Battle = ({
             const s = getFinalStats(enemyMonster);
             setPlayerEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]);
             dmg = 0; addLog(t('battle.log.curse_applied', { name: getLoc(enemyMonster.name, i18n.language) }));
+          }
+          else if (ability?.type === 'debuff') {
+            setPlayerEffects(p => [...p, { type: 'debuff', duration: 2, value: ability.value || 40 }]);
+            dmg = 0; addLog(t('battle.log.debuff_applied', { name: getLoc(enemyMonster.name, i18n.language) }));
           }
           if (isSkill && ability?.type === 'attack') {
             setTimeout(() => playSlash(), 100);

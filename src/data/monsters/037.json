@@ -2,7 +2,7 @@
     "id": "037",
     "name": {
         "cz": "Voltinka Čibu",
-        "en": "Voltinka Čibu",
+        "en": "Sparky Chibu",
         "sk": "Voltinka Čibu"
     },
     "description": {
@@ -21,7 +21,7 @@
         {
             "name": {
                 "cz": "Nebeský výboj",
-                "en": "Heavenly discharge",
+                "en": "Sky Discharge",
                 "sk": "Nebeský výboj"
             },
             "description": {
@@ -36,7 +36,7 @@
         {
             "name": {
                 "cz": "Elektrická obnova",
-                "en": "Electrical restoration",
+                "en": "Electric Surge",
                 "sk": "Elektrická obnova"
             },
             "description": {

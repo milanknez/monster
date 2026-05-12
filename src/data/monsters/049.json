@@ -2,13 +2,13 @@
     "id": "049",
     "name": {
         "cz": "Vážka Strašilka",
-        "en": "Dragonfly Scarecrow",
+        "en": "Glimmering Dragonfly",
         "sk": "Vážka Strašilka"
     },
     "description": {
-        "cz": "Obrovská vážka s kovově lesklým tělem a čtyřmi křídly, která při letu vydávají skřípavý zvuk. Má velké čelisti a čtyři páry očí, které vidí vše v okolí.",
-        "en": "A huge dragonfly with a shiny metallic body and four wings that make a screeching sound when in flight. It has large jaws and four pairs of eyes that see everything around it.",
-        "sk": "Obrovská vážka s kovovo lesklým telom a štyrmi krídlami, ktoré pri lete vydávajú škrípavý zvuk. Má veľké čeľuste a štyri páry očí, ktoré vidia všetko v okolí."
+        "cz": "Oslnivě krásná vážka s kovově lesklým tělem, která se prohání nad hlubokými bažinami. Její křídla vypadají jako z broušeného křišťálu a navzdory svému jménu je to spíše zvědavý a hravý průzkumník.",
+        "en": "A dazzlingly beautiful dragonfly with a metallic shiny body that roams over deep swamps. Its wings look like cut crystal and despite its name, it is more of a curious and playful explorer.",
+        "sk": "Oslnivo krásna vážka s kovovo lesklým telom, ktorá sa preháňa nad hlbokými močiarmi. Jej krídla vyzerajú ako z brúseného krištáľu a napriek svojmu menu je to skôr zvedavý a hravý prieskumník."
     },
     "type": "water",
     "rarity": "common",

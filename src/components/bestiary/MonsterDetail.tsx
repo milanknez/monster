@@ -74,6 +74,7 @@ const AbilityCard = ({ ability, originalAbility, idx, monsterType }: { ability: 
       case 'buff': return { label: t('monster.abilities_card.buff'), val: `+${ability.value || 20}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
       case 'curse': return { label: t('monster.abilities_card.curse'), val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
       case 'regen': return { label: t('monster.abilities_card.regen'), val: `+${ability.value || 10}% HP/Tah`, icon: <RefreshCw size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
+      case 'debuff': return { label: t('monster.abilities_card.debuff'), val: `-${ability.value || 40}% Hit`, icon: <Target size={24} />, color: 'text-rose-400', bg: 'bg-rose-500/10', energy: 40 };
       default: return { label: t('monster.abilities_card.special'), val: t('monster.abilities_card.special_val'), icon: <Info size={24} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
     }
   }, [effectiveType, ability.value]);

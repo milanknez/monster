@@ -2,13 +2,13 @@
     "id": "002",
     "name": {
         "cz": "Cákal Vodomil",
-        "en": "Watermelon splashed",
-        "sk": "Čakal Vodomil"
+        "en": "Splashy Water-Lover",
+        "sk": "Cákal Vodomil"
     },
     "description": {
-        "cz": "Usměvavá kapka s neposednýma očičkama. Strašně rád cáká na všechny okolo.",
-        "en": "A smiling blob with restless eyes. He really likes to splash on everyone around him.",
-        "sk": "Usmievavá kvapka s neposednými očičkami. Strašne rád cáka na všetkých okolo."
+        "cz": "Zelený, huňatý tvoreček s velkýma oranžovýma očima, který ze všeho nejvíc miluje skákání do louží a cákání vody na všechny kolem.",
+        "en": "A green, furry creature with large orange eyes who loves nothing more than jumping in puddles and splashing water on everyone around.",
+        "sk": "Zelený, huňatý tvorček s veľkými oranžovými očami, ktorý zo všetkého najviac miluje skákanie do kaluží a cákanie vody na všetkých okolo."
     },
     "type": "water",
     "rarity": "common",

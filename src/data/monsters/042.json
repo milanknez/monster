@@ -2,7 +2,7 @@
     "id": "042",
     "name": {
         "cz": "Osminožka Zubatá",
-        "en": "Toothed Octopus",
+        "en": "Toothy Eight-legger",
         "sk": "Osemnožka Zubatá"
     },
     "description": {
@@ -21,7 +21,7 @@
         {
             "name": {
                 "cz": "Cukrová síť",
-                "en": "Sugar network",
+                "en": "Sugar Web",
                 "sk": "Cukrová sieť"
             },
             "description": {
@@ -36,7 +36,7 @@
         {
             "name": {
                 "cz": "Huňatý skok",
-                "en": "A bushy jump",
+                "en": "Fluffy Jump",
                 "sk": "Huňatý skok"
             },
             "description": {

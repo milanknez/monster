@@ -2,15 +2,15 @@
     "id": "076",
     "name": {
         "cz": "Popelavý Soptík",
-        "en": "Ashy Soptík",
+        "en": "Cinder Salamander",
         "sk": "Popolavý Soptík"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
-        "cz": "Oheň milující mlok žijící v popelu poblíž sopek.",
-        "en": "A fire-loving salamander living in the ashes near volcanoes.",
-        "sk": "Oheň milujúci mlok žijúci v popole blízko sopiek."
+        "cz": "Vzácný, oheň milující mlok, který tráví většinu času v horkém popelu na úpatí aktivních sopek. Jeho kůže neustále jemně doutná a dokáže absorbovat extrémní žár.",
+        "en": "A rare, fire-loving salamander that spends most of its time in the hot ash at the base of active volcanoes. Its skin constantly smolders and can absorb extreme heat.",
+        "sk": "Vzácny, oheň milujúci mlok, ktorý trávi väčšinu času v horúcom popole na úpätí aktívnych sopiek. Jeho koža neustále jemne dymí a dokáže absorbovať extrémny žiar."
     },
     "stats": {
         "hp": 153,

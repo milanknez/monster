@@ -2,14 +2,14 @@
     "id": "075",
     "name": {
         "cz": "Pyrožek teplomyl",
-        "en": "Pyrožek heat-washable",
+        "en": "Pyro Hedgehog",
         "sk": "Pyrožok teplomyl"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
         "cz": "Drobný bodlináč, jehož bodliny jsou ve skutečnosti drobné rozpálené uhlíky. Rád se schovává v ohništích.",
-        "en": "A tiny prickly pear whose spines are actually tiny hot coals. He likes to hide in fireplaces.",
+        "en": "A tiny hedgehog-like creature whose spines are actually tiny hot coals. It likes to hide in fireplaces.",
         "sk": "Drobný bodlináč, ktorého pichliače sú v skutočnosti drobné rozpálené uhlíky. Rád sa schováva v ohniskách."
     },
     "stats": {

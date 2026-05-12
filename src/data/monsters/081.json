@@ -1,16 +1,16 @@
 {
     "id": "081",
     "name": {
-        "cz": "Statický Obláček",
-        "en": "Static Cloud",
-        "sk": "Statický obláčik"
+        "cz": "Jiskřivý Zombík",
+        "en": "Sparky Zombie Boy",
+        "sk": "Iskrivý Zombík"
     },
     "type": "electric",
     "rarity": "common",
     "description": {
-        "cz": "Vzteklý malý bouřkový mráček nabitý statickou elektřinou.",
-        "en": "An angry little storm cloud charged with static electricity.",
-        "sk": "Nahnevaný malý búrkový mráčik nabitý statickou elektrinou."
+        "cz": "Malý, roztomilý chlapec se zelenou kůží a šitými jizvami, který v sobě nosí nečekanou elektrickou energii. Jeho oči září jasně modře a z jeho těla neustále srší malé blesky.",
+        "en": "A small, cute boy with green skin and stitched scars, who carries an unexpected electrical energy within him. His eyes glow bright blue and small lightning bolts constantly burst from his body.",
+        "sk": "Malý, roztomilý chlapec so zelenou kožou a šitými jazvami, ktorý v sebe nosí nečakanú elektrickú energiu. Jeho oči žiaria jasne modro a z jeho tela neustále sršia malé blesky."
     },
     "stats": {
         "hp": 146,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový řetězec",
-                "en": "Lightning chain",
+                "en": "Lightning Chain",
                 "sk": "Bleskový reťazec"
             },
             "description": {
-                "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
-                "en": "Sends a shower of deadly lightning at its target.",
-                "sk": "Vyšle spŕšku smrtiacich bleskov na svoj cieľ."
+                "cz": "Vyšle spršku blesků, které zasáhnou nepřítele přímo do srdce.",
+                "en": "Sends a shower of lightning that hits the enemy directly in the heart.",
+                "sk": "Vyšle spŕšku bleskov, ktoré zasiahnu nepriateľa priamo do srdca."
             },
             "type": "attack",
             "chance": 80,
@@ -35,17 +35,17 @@
         },
         {
             "name": {
-                "cz": "Klektavý šok",
-                "en": "A clattering shock",
-                "sk": "Kľatavý šok"
+                "cz": "Paralytický výboj",
+                "en": "Paralyzing Shock",
+                "sk": "Paralytický výboj"
             },
             "description": {
-                "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-                "en": "Inflicts a paralyzing blow that sends a tick of electrical pain into the target.",
-                "sk": "Uštedrie paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti."
+                "cz": "Uštědří ránu, která nepřítele ochromí elektrickou bolestí.",
+                "en": "Inflicts a blow that paralyzes the enemy with electrical pain.",
+                "sk": "Uštedrí ranu, ktorá nepriateľa ochromí elektrickou bolesťou."
             },
             "type": "curse",
-            "chance": 70,
+            "chance": 75,
             "value": 15
         }
     ]

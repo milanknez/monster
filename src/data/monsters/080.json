@@ -8,9 +8,9 @@
     "type": "nature",
     "rarity": "common",
     "description": {
-        "cz": "Pavouk maskující se barvou březové kůry, nesmírně tichý lov.",
-        "en": "A spider camouflaging itself with the color of birch bark, extremely silent hunting.",
-        "sk": "Pavúk maskujúci sa farbou brezovej kôry, nesmierne tichý lov."
+        "cz": "Záludný pavouk, jehož tělo dokonale imituje texturu a barvu březové kůry. Díky tomuto maskování je v lese téměř neviditelný a trpělivě čeká na svou kořist v naprosté tichosti.",
+        "en": "A cunning spider whose body perfectly imitates the texture and color of birch bark. Thanks to this camouflage, it is almost invisible in the forest and patiently waits for its prey in total silence.",
+        "sk": "Záludný pavúk, ktorého telo dokonale imituje textúru a farbu brezovej kôry. Vďaka tomuto maskovaniu je v lese takmer neviditeľný a trpezlivo čaká na svoju korisť v úplnej tichosti."
     },
     "stats": {
         "hp": 133,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Divoké šlahouny",
-                "en": "Wild slugs",
+                "en": "Wild Tendrils",
                 "sk": "Divoké šľahúne"
             },
             "description": {
                 "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-                "en": "The ground beneath the enemy comes alive and whips him hard by the roots.",
-                "sk": "Krajina pod nepriateľom ožije a tvrdo ho šľahne korene."
+                "en": "The ground beneath the enemy comes alive and whips them hard with roots.",
+                "sk": "Zem pod nepriateľom ožije a tvrdo ho šľahne koreňmi."
             },
             "type": "attack",
             "chance": 80,

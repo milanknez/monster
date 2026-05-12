@@ -1,16 +1,16 @@
 {
     "id": "070",
     "name": {
-        "cz": "Malformátor Všepohlcující",
-        "en": "Malformer All Devouring",
-        "sk": "Malformátor Všepohlcujúce"
+        "cz": "Prastarý Duch Vlka",
+        "en": "Ancient Spirit Wolf",
+        "sk": "Prastarý Duch Vlka"
     },
     "description": {
-        "cz": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
-        "en": "The epitome of absolute mutation and destruction. A giant, ever-overflowing mass of muscle, bone, and hundreds of screaming mouths devouring each other. He has dozens of man-eating tentacles, and instead of blood, black corrosion flows through his veins, which corrodes reality itself.",
-        "sk": "Stelesnenie absolútnej mutácie a skazy. Obrie, neustále sa prelievajúce mäsa svalov, kostí a stovky vrieskajúcich úst, ktoré sa požierajú navzájom. Má desiatky ľudožravých chápadiel a miesto krvi mu v žilách prúdi čierna korózia, ktorá leptá samotnú realitu."
+        "cz": "Legendární strážce hlubokých hvozdů, který se zjevuje jen za úplňku. Jeho tělo je tvořeno prastarým dřevem a mechem, zatímco v jeho očích plane smaragdový oheň samotné přírody. Je ztělesněním síly a moudrosti lesa.",
+        "en": "A legendary guardian of the deep woods that appears only at the full moon. Its body is made of ancient wood and moss, while the emerald fire of nature itself burns in its eyes. It is the embodiment of the forest's strength and wisdom.",
+        "sk": "Legendárny strážca hlbokých lesov, ktorý sa zjavuje len za splnu. Jeho telo je tvorené prastarým drevom a machom, zatiaľ čo v jeho očiach planie smaragdový oheň samotnej prírody. Je stelesnením sily a múdrosti lesa."
     },
-    "type": "water",
+    "type": "nature",
     "rarity": "legendary",
     "stats": {
         "hp": 974,
@@ -20,29 +20,29 @@
     "abilities": [
         {
             "name": {
-                "cz": "Pohlcení Existence",
-                "en": "Absorption of Existence",
-                "sk": "Pohltenie Existencia"
+                "cz": "Smaragdové kousnutí",
+                "en": "Emerald Bite",
+                "sk": "Smaragdové zahryznutie"
             },
             "description": {
-                "cz": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
-                "en": "It drains the life force from all living things around it and transforms it into its own growth.",
-                "sk": "Vysaje životnú silu zo všetkého živého v okolí a premení ju na vlastný rast."
+                "cz": "Prudce se zakousne a do těla nepřítele vypustí čistou přírodní energii.",
+                "en": "Bites sharply and releases pure natural energy into the enemy's body.",
+                "sk": "Prudko sa zahryzne a do tela nepriateľa vypustí čistú prírodnú energiu."
             },
             "type": "attack",
-            "chance": 70,
+            "chance": 75,
             "value": 230
         },
         {
             "name": {
-                "cz": "Vřískot Tisíce Úst",
-                "en": "Scream of a Thousand Mouths",
-                "sk": "Vreskot Tisíce Úst"
+                "cz": "Vytí hvozdu",
+                "en": "Howl of the Deep Wood",
+                "sk": "Vytie hvozdu"
             },
             "description": {
-                "cz": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
-                "en": "Inflicts a psychological attack that paralyzes the enemy with terror and lowers their defenses.",
-                "sk": "Spôsobí psychologický útok, ktorý nepriateľa ochromí hrôzou a zníži jeho obranu."
+                "cz": "Mocné vytí, které ochromí nepřítele hrůzou a sníží jeho obranu.",
+                "en": "A powerful howl that paralyzes the enemy with terror and lowers their defense.",
+                "sk": "Mocné vytie, ktoré ochromí nepriateľa hrôzou a zníži jeho obranu."
             },
             "type": "debuff",
             "chance": 50,
@@ -50,14 +50,14 @@
         },
         {
             "name": {
-                "cz": "Korozivní Sliz",
-                "en": "Corrosive Slime",
-                "sk": "Korozívny Sliz"
+                "cz": "Zakořenění",
+                "en": "Deep Roots",
+                "sk": "Zakorenenie"
             },
             "description": {
-                "cz": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
-                "en": "With each hit, black corrosion sprays out, which gradually eats away at the attacker's armor (Dmg reduction 55-65%)",
-                "sk": "Pri každom zásahu vystrekne čierna korózia, ktorá postupne požiera výzbroj útočníka (Zníženie dmg 55-65%)"
+                "cz": "Obalí se prastarými kořeny a mechem, což mu poskytne neuvěřitelnou ochranu (Snížení dmg 55-65%)",
+                "en": "Wraps itself in ancient roots and moss, providing incredible protection (Dmg reduction 55-65%)",
+                "sk": "Obalí sa prastarými koreňmi a machom, čo mu poskytne neuveriteľnú ochranu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,
