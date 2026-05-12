@@ -2,7 +2,7 @@
     "id": "107",
     "name": {
         "cz": "Strážce Prokletých",
-        "en": "Guardian of the Damned",
+        "en": "Damned Guardian",
         "sk": "Strážca Prekliatych"
     },
     "description": {
@@ -36,7 +36,7 @@
         {
             "name": {
                 "cz": "Duševní Spála",
-                "en": "Mental Burnout",
+                "en": "Soul Burn",
                 "sk": "Duševná Šarlach"
             },
             "description": {
@@ -51,7 +51,7 @@
         {
             "name": {
                 "cz": "Světlonoš Zmaru",
-                "en": "Lightbringer of Doom",
+                "en": "Doom-Bearer",
                 "sk": "Svetlonoš Zmaru"
             },
             "description": {

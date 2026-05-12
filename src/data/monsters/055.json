@@ -1,33 +1,33 @@
 {
     "id": "055",
     "name": {
-        "cz": "Drápohlod Parasitický",
-        "en": "Claw Rodent Parasitic",
-        "sk": "Drápohlod Parasitický"
+        "cz": "Bleskový Šavlozub",
+        "en": "Volt Sabertooth",
+        "sk": "Bleskový Šavlozub"
     },
     "description": {
-        "cz": "Zmutovaný malý hlodavec, kterému z boku vyrostl druhý, zakrnělý a agresivní jedinec. Původní hostitel má vyhaslé oči, zatímco jeho parazitický přívěsek vládne obřími zuby a ostrými drápy. Jejich pohyby jsou trhavé a nepředvídatelné, jak oba mozky bojují o kontrolu nad společným tělem.",
-        "en": "A mutated small rodent that grew a second, stunted and aggressive individual from its side. The original host has dead eyes, while its parasitic appendage rules with giant teeth and sharp claws. Their movements are jerky and unpredictable as both brains fight for control of their shared body.",
-        "sk": "Zmutovaný malý hlodavec, ktorému z boku vyrástol druhý, zakrpatený a agresívny jedinec. Pôvodný hostiteľ má vyhasnuté oči, zatiaľ čo jeho parazitický prívesok vládne obrími zubami a ostrými pazúrmi. Ich pohyby sú trhavé a nepredvídateľné, ako oba mozgy bojujú o kontrolu nad spoločným telom."
+        "cz": "Majestátní šelma s tělem z temného obsidiánu a hřívou z praskajících blesků. Její obří plazmové tesáky dokážou prokousnout i to nejtvrdší brnění a zanechávají po sobě jiskřící stopy energie.",
+        "en": "A majestic beast with a body of dark obsidian and a mane of crackling lightning. Its giant plasma fangs can bite through even the toughest armor, leaving behind sparkling trails of energy.",
+        "sk": "Majestátna šelma s telom z temného obsidiánu a hrivou z praskajúcich bleskov. Jej obrie plazmové tesáky dokážu prehrýzť aj to najtvrdšie brnenie a zanechávajú po sebe iskriace stopy energie."
     },
     "type": "electric",
     "rarity": "rare",
     "stats": {
-        "hp": 213,
-        "attack": 88,
-        "defense": 29
+        "hp": 235,
+        "attack": 92,
+        "defense": 32
     },
     "abilities": [
         {
             "name": {
-                "cz": "Dvojitý Hryz",
-                "en": "Double Bite",
-                "sk": "Dvojitý Hryz"
+                "cz": "Plazmový zákus",
+                "en": "Plasma Bite",
+                "sk": "Plazmový zákus"
             },
             "description": {
-                "cz": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění.",
-                "en": "Both muzzles dig into the target at the same time, dealing a bleeding wound.",
-                "sk": "Obe papule sa zaryjú do cieľa v rovnaký okamih a spôsobia krvácavé zranenie."
+                "cz": "Zaryje své plazmové tesáky do nepřítele a způsobí mu ničivé poškození.",
+                "en": "Digs its plasma fangs into the enemy and deals devastating damage.",
+                "sk": "Zaryje svoje plazmové tesáky do nepriateľa a spôsobí mu ničivé poškodenie."
             },
             "type": "attack",
             "chance": 80,
@@ -35,29 +35,29 @@
         },
         {
             "name": {
-                "cz": "Trhavý Výpad",
-                "en": "Jerky Lunge",
-                "sk": "Trhavý Výpad"
+                "cz": "Blesková hříva",
+                "en": "Lightning Mane",
+                "sk": "Blesková hriva"
             },
             "description": {
-                "cz": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce.",
-                "en": "Thanks to uncontrolled spasms, he rushes forward in a flash and surprises even a prepared defender.",
-                "sk": "Vďaka nekontrolovaným spazmom sa bleskovo vrhne vpred a prekvapí aj pripraveného obrancu."
+                "cz": "Rozžhaví svou hřívu na maximum, což zvýší sílu jeho příštího útoku a uvalí kletbu.",
+                "en": "Heats its mane to the maximum, increasing the strength of its next attack and casting a curse.",
+                "sk": "Rozžhaví svoju hrivu na maximum, čo zvýši silu jeho budúceho útoku a uvalí kliatbu."
             },
-            "type": "extra",
+            "type": "curse",
             "chance": 50,
-            "value": 1.8
+            "value": 15
         },
         {
             "name": {
-                "cz": "Parazitický Vřískot",
-                "en": "Parasitic Scream",
-                "sk": "Parazitický Vreskot"
+                "cz": "Hromový řev",
+                "en": "Thunder Roar",
+                "sk": "Hromový rev"
             },
             "description": {
-                "cz": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
-                "en": "A less developed head will launch a high-frequency screech that disrupts the enemy's concentration.",
-                "sk": "Menej vyvinutá hlava spustí vysokofrekvenčný kotúč, ktorý naruší sústredenie nepriateľa."
+                "cz": "Vypustí mocný řev nabitý energií, který ochromí a oslabí nepřátele.",
+                "en": "Releases a powerful roar charged with energy that paralyzes and weakens enemies.",
+                "sk": "Vypustí mocný rev nabitý energiou, ktorý ochromí a oslabí nepriateľov."
             },
             "type": "debuff",
             "chance": 50,

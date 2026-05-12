@@ -1,14 +1,14 @@
 {
     "id": "014",
     "name": {
-        "cz": "Bahňáček Lísohlav",
-        "en": "Mudslide Foxhead",
-        "sk": "Bahňáčik Lísohlav"
+        "cz": "Močálový Teror",
+        "en": "Swamp Terror",
+        "sk": "Močiarny Teror"
     },
     "description": {
-        "cz": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
-        "en": "A slightly dirty brick-red creature with a wide smile. A small oasis of ferns and green plants grows out of his forehead.",
-        "sk": "Mierne ušmudlaný tehlovo červený tvorček so širokým úsmevom. Z čela mu vyrastá celá malá oáza papradí a zelených rastliniek."
+        "cz": "Obří, temnými silami zmutovaný krokodýl, který vládne nejhlubším močálům. Jeho kůže je tvrdá jako kámen a z jeho tlamy sálá zkažená energie. Je to neúprosný lovec, který svou kořist stáhne pod hladinu dřív, než stačí vykřiknout.",
+        "en": "A giant crocodile mutated by dark forces that rules the deepest swamps. Its skin is as hard as stone and corrupt energy radiates from its mouth. He is a relentless hunter who drags his prey below the surface before they can scream.",
+        "sk": "Obrie, temnými silami zmutovaný krokodíl, ktorý vládne najhlbším močiarom. Jeho koža je tvrdá ako kameň a z jeho papule sála skazená energia. Je to neúprosný lovec, ktorý svoju korisť stiahne pod hladinu skôr, než stačí vykríknuť."
     },
     "type": "nature",
     "rarity": "epic",
@@ -20,14 +20,14 @@
     "abilities": [
         {
             "name": {
-                "cz": "Uplakaná sprška",
-                "en": "Crying shower",
-                "sk": "Uplakaná spŕška"
+                "cz": "Drtivý zákus",
+                "en": "Crushing Bite",
+                "sk": "Drvivý zákus"
             },
             "description": {
-                "cz": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
-                "en": "Drops a shower of ice from above that freezes anyone it hits.",
-                "sk": "Zhora vypustí ľadovú spŕšku, ktorá zmrazí každého, koho trafí."
+                "cz": "Zavře svá masivní kusadla na nepříteli a způsobí mu ničivé poškození.",
+                "en": "Closes its massive jaws on the enemy and deals devastating damage.",
+                "sk": "Zavrie svoje masívne kusadlá na nepriateľovi a spôsobí mu ničivé poškodenie."
             },
             "type": "attack",
             "chance": 80,
@@ -35,18 +35,18 @@
         },
         {
             "name": {
-                "cz": "Tichá bouře",
-                "en": "A silent storm",
-                "sk": "Tichá búrka"
+                "cz": "Bičující ocas",
+                "en": "Tail Whip",
+                "sk": "Bičujúci chvost"
             },
             "description": {
-                "cz": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
-                "en": "It suddenly turns black and makes a terrible thunder, scaring everyone in the vicinity.",
-                "sk": "Zrazu sčernie a strašne zahrmí, čím vydesí všetkých v okolí."
+                "cz": "Prudce šlehne svým obrněným ocasem a zasáhne všechny nepřátele v blízkosti.",
+                "en": "Violently whips its armored tail, hitting all nearby enemies.",
+                "sk": "Prudko šľahne svojím obrneným chvostom a zasiahne všetkých nepriateľov v blízkosti."
             },
-            "type": "extra",
-            "chance": 90,
-            "value": 35
+            "type": "attack",
+            "chance": 75,
+            "value": 140
         }
     ]
 }

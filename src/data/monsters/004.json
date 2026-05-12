@@ -2,13 +2,13 @@
     "id": "004",
     "name": {
         "cz": "Bleskomýš Jiskrná",
-        "en": "Lightning Flash Sparkle",
+        "en": "Volt-Mouse",
         "sk": "Bleskomýš Iskrná"
     },
     "description": {
-        "cz": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
-        "en": "Such a little yellow puff of fur that keeps popping with static electricity. He likes to run in circles.",
-        "sk": "Taký malý žltý obláčik srsti, ktorý neustále praská statickou elektrinou. Rád behá v kruhu."
+        "cz": "Malý žlutý hlodavec s naježenou srstí a výrazným ocasem ve tvaru blesku. Neustále praská statickou elektřinou a jeho ocas slouží jako mocný bleskosvod.",
+        "en": "A small yellow rodent with bristly fur and a distinctive lightning bolt-shaped tail. It constantly crackles with static electricity and its tail serves as a powerful lightning rod.",
+        "sk": "Malý žltý hlodavec s naježenou srsťou a výrazným chvostom vo tvare blesku. Neustále praská statickou elektrinou a jeho chvost slúži jako mocný bleskozvod."
     },
     "type": "electric",
     "rarity": "common",

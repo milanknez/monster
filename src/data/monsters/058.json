@@ -1,33 +1,33 @@
 {
     "id": "058",
     "name": {
-        "cz": "Jiskrohlod Zmutovaný",
-        "en": "Sparklegger Mutated",
-        "sk": "Iskrohlod Zmutovaný"
+        "cz": "Bouřkový Rejnok",
+        "en": "Storm Ray",
+        "sk": "Búrkový Rejnok"
     },
     "description": {
-        "cz": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
-        "en": "A small rodent with antennae instead of ears, whose body is constantly charged with strong electrical energy. His fur is constantly bristling with static electricity and his muzzle shoots blue lightning.",
-        "sk": "Malý hlodavec s anténami namiesto uší, ktorého telom neustále prebíja silná elektrická energia. Jeho srsť je neustále naježená statickou elektrinou a jeho papuľa srší modré blesky."
+        "cz": "Elegantní vzdušný predátor s bioluminiscenčními runami na hřbetě. Pluje bouřkovými mraky a svým dlouhým bleskovým ocasem bičuje vše, co se mu postaví do cesty.",
+        "en": "An elegant aerial predator with bioluminescent runes on its back. It glides through storm clouds and whips everything in its path with its long lightning tail.",
+        "sk": "Elegantný vzdušný predátor s bioluminiscenčnými runami na chrbte. Pláva búrkovými mrakmi a svojím dlhým bleskovým chvostom bičuje všetko, čo sa mu postaví do cesty."
     },
     "type": "electric",
     "rarity": "rare",
     "stats": {
-        "hp": 220,
-        "attack": 85,
-        "defense": 30
+        "hp": 225,
+        "attack": 86,
+        "defense": 31
     },
     "abilities": [
         {
             "name": {
-                "cz": "Elektrický Výboj",
-                "en": "Electric Discharge",
-                "sk": "Elektrický Výboj"
+                "cz": "Bleskový bič",
+                "en": "Lightning Whip",
+                "sk": "Bleskový bič"
             },
             "description": {
-                "cz": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
-                "en": "He releases a chain bolt of lightning from his body that hits and paralyzes the enemy.",
-                "sk": "Vypustí zo svojho tela reťazový blesk, ktorý nepriateľa zasiahne a ochromí."
+                "cz": "Šlehne svým ocasem nabitým energií a uštědří nepříteli elektrický šok.",
+                "en": "Strikes with its energy-charged tail and deals an electric shock to the enemy.",
+                "sk": "Šľahne svojím chvostom nabitým energiou a uštedrí nepriateľovi elektrický šok."
             },
             "type": "attack",
             "chance": 80,
@@ -35,33 +35,33 @@
         },
         {
             "name": {
-                "cz": "Statické Nabití",
-                "en": "Static Charge",
-                "sk": "Statické Nabitie"
+                "cz": "Statické pole",
+                "en": "Static Field",
+                "sk": "Statické pole"
             },
             "description": {
-                "cz": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "He charges his body with a huge amount of energy that increases his next attack. Casts a curse that deals 15% damage from ATK.",
-                "sk": "Nabije svoje telo obrovskou energiou, ktorá zvýši jeho budúci útok. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
-            },
-            "type": "curse",
-            "chance": 50,
-            "value": 15
-        },
-        {
-            "name": {
-                "cz": "Zkrat",
-                "en": "A short cut",
-                "sk": "Skrat"
-            },
-            "description": {
-                "cz": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
-                "en": "Causes an energy blast that weakens the enemy's attack by blinding them with a flash.",
-                "sk": "Spôsobí energetický výbuch, ktorý oslabí útok nepriateľa tým, že ho oslepí zábleskom."
+                "cz": "Vytvoří kolem sebe pole statické elektřiny, které oslabí útoky nepřítele.",
+                "en": "Creates a static electricity field around itself that weakens enemy attacks.",
+                "sk": "Vytvorí okolo seba pole statickej elektriny, ktoré oslabí útoky nepriateľa."
             },
             "type": "debuff",
             "chance": 50,
             "value": 0.3
+        },
+        {
+            "name": {
+                "cz": "Vzdušný tanec",
+                "en": "Aerial Dance",
+                "sk": "Vzdušný tanec"
+            },
+            "description": {
+                "cz": "Díky své mrštnosti se vyhne části poškození a připraví se na protiútok (Snížení dmg 55-65%)",
+                "en": "Thanks to its agility, it avoids some of the damage and prepares for a counterattack (Dmg reduction 55-65%)",
+                "sk": "Vďaka svojej mrštnosti sa vyhne časti poškodenia a pripraví sa na protiútok (Zníženie dmg 55-65%)"
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
         }
     ]
 }
