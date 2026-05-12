@@ -19,7 +19,6 @@ interface DailyQuestsProps {
   onInvite: () => void;
   onHatch: (uid: string) => void;
   onDelete: (uid: string) => void;
-  onDelete: (uid: string) => void;
 }
 
 export const DailyQuests = ({ 

@@ -1357,7 +1357,7 @@ function AppContent() {
               <DailyQuests
                 caughtMonsters={caughtMonsters}
                 dailyDistance={dailyDistance}
-                onClaimReward={handleClaimReward}
+                onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
                 isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                 playerLevel={currentLevel}
                 dailyStats={dailyStats}
