@@ -1,28 +1,52 @@
 {
-  "id": "020",
-  "name": "Bleskoježek",
-  "description": "Malá elektrická kulička s ostny, která se rychle kutálí a při pohybu vyvolává jiskry. Nepřátelé se jí snaží vyhnout, ale ostny je zasáhnou bleskem.",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 120,
-    "attack": 51,
-    "defense": 16
-  },
-  "abilities": [
-    {
-      "name": "Jiskrový kotouč",
-      "description": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "020",
+    "name": {
+        "cz": "Bleskoježek",
+        "en": "Volt Roller",
+        "sk": "Volťák kotúľavý"
     },
-    {
-      "name": "Ostnatý náraz",
-      "description": "Způsobí poškození a má malou šanci paralyzovat nepřítele na jedno kolo.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Malá elektrická kulička s ostny, která se rychle kutálí a při pohybu vyvolává jiskry. Nepřátelé se jí snaží vyhnout, ale ostny je zasáhnou bleskem.",
+        "en": "A creature that rolls fast across the field and hits enemies with electric damage.",
+        "sk": "Stvorenie, ktoré sa rýchlo kotúľa po poli a zasahuje nepriateľov elektrickým poškodením."
+    },
+    "type": "electric",
+    "rarity": "common",
+    "stats": {
+        "hp": 120,
+        "attack": 51,
+        "defense": 16
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Jiskrový kotouč",
+                "en": "Shocking Roll",
+                "sk": "Šokujúci kotúľ"
+            },
+            "description": {
+                "cz": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením.",
+                "en": "A rolling attack with electric charge.",
+                "sk": "Útok kotúľaním s elektrickým nábojom."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Ostnatý náraz",
+                "en": "Spiky Collision",
+                "sk": "Ostnatý náraz"
+            },
+            "description": {
+                "cz": "Způsobí poškození a má malou šanci paralyzovat nepřítele na jedno kolo.",
+                "en": "Hits the enemy with spikes and a chance to paralyze.",
+                "sk": "Zasiahne nepriateľa ostňami s šancou na paralýzu."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

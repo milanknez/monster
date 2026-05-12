@@ -1,28 +1,52 @@
 {
-  "id": "008",
-  "name": "Kořenda Zemitý",
-  "description": "Takový starý moudrý dědeček z větviček, který pořád něco bručí o houbách a jehličí.",
-  "type": "Přírodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 450,
-    "attack": 154,
-    "defense": 74
-  },
-  "abilities": [
-    {
-      "name": "Kořenové sevření",
-      "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
+    "id": "008",
+    "name": {
+        "cz": "Kořenda Zemitý",
+        "en": "Earthy Root",
+        "sk": "Kořenda Zemitý"
     },
-    {
-      "name": "Dech pralesa",
-      "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Takový starý moudrý dědeček z větviček, který pořád něco bručí o houbách a jehličí.",
+        "en": "A wise old man made of twigs, who constantly grumbles about mushrooms and pine needles.",
+        "sk": "Taký starý múdry deduško z vetvičiek, ktorý stále niečo brble o hubách a ihličí."
+    },
+    "type": "nature",
+    "rarity": "epic",
+    "stats": {
+        "hp": 450,
+        "attack": 154,
+        "defense": 74
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kořenové sevření",
+                "en": "Root Grip",
+                "sk": "Koreňové zovretie"
+            },
+            "description": {
+                "cz": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Strong roots emerge from the ground, slowing the enemy and draining their energy.",
+                "sk": "Zo zeme vyrazia silné korene, ktoré nepriateľa spomalia a postupne vysávajú jeho energiu."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Dech pralesa",
+                "en": "Forest Breath",
+                "sk": "Dych pralesa"
+            },
+            "description": {
+                "cz": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí.",
+                "en": "Heals part of its own health and strengthens the defense.",
+                "sk": "Uzdraví časť vlastného zdravia a posilní obranu."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "082",
-  "name": "Výbojový Krysař",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "description": "Chlupatý hlodavec s neustále naježenou srstí probíjející blesky.",
-  "stats": {
-    "hp": 149,
-    "attack": 38,
-    "defense": 12
-  },
-  "abilities": [
-    {
-      "name": "Bleskový řetězec",
-      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "082",
+    "name": {
+        "cz": "Výbojový Krysař",
+        "en": "Crystalline Fox",
+        "sk": "Kryštálová líška"
     },
-    {
-      "name": "Klektavý šok",
-      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-      "type": "curse",
-      "chance": 70,
-      "value": 15
-    }
-  ]
+    "type": "electric",
+    "rarity": "common",
+    "description": {
+        "cz": "Chlupatý hlodavec s neustále naježenou srstí probíjející blesky.",
+        "en": "A beautiful fox with fur made of shining crystals. It can reflect light.",
+        "sk": "Krásna líška s kožuchom z lesklých kryštálov. Dokáže odrážať svetlo."
+    },
+    "stats": {
+        "hp": 149,
+        "attack": 38,
+        "defense": 12
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bleskový řetězec",
+                "en": "Crystal Dash",
+                "sk": "Kryštálový výpad"
+            },
+            "description": {
+                "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
+                "en": "A fast dash attack with crystal power.",
+                "sk": "Rýchly výpad s kryštálovou silou."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Klektavý šok",
+                "en": "Light Reflection",
+                "sk": "Odraz svetla"
+            },
+            "description": {
+                "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+                "en": "Reflects light to blind the enemy.",
+                "sk": "Odrazí svetlo, aby oslepil nepriateľa."
+            },
+            "type": "curse",
+            "chance": 70,
+            "value": 15
+        }
+    ]
 }

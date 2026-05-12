@@ -1,28 +1,52 @@
 {
-  "id": "065",
-  "name": "Kořenohlod Trnitý",
-  "description": "Zmutovaný hybrid rostliny a zvířete s mnoha dřevěnými končetinami a ostrými zuby ve tvaru trnů. Jeho kořeny se dokáží bleskově zavrtat do země.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 209,
-    "attack": 96,
-    "defense": 31
-  },
-  "abilities": [
-    {
-      "name": "Trnový úder",
-      "description": "Sekne nepřítele trny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "065",
+    "name": {
+        "cz": "Kořenohlod Trnitý",
+        "en": "Frozen Sentinel",
+        "sk": "Mrazivý strážca"
     },
-    {
-      "name": "Kořenový štít",
-      "description": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Zmutovaný hybrid rostliny a zvířete s mnoha dřevěnými končetinami a ostrými zuby ve tvaru trnů. Jeho kořeny se dokáží bleskově zavrtat do země.",
+        "en": "An ice golem that guards the entrance to the frozen caves. It is cold and unyielding.",
+        "sk": "Ľadový golem, ktorý stráži vstup do mrazivých jaskýň. Je chladný a neústupný."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 209,
+        "attack": 96,
+        "defense": 31
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Trnový úder",
+                "en": "Ice Punch",
+                "sk": "Ľadový úder"
+            },
+            "description": {
+                "cz": "Sekne nepřítele trny.",
+                "en": "A punch that can freeze the enemy.",
+                "sk": "Úder, ktorý môže zmraziť nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Kořenový štít",
+                "en": "Frost Wall",
+                "sk": "Mrazivá stena"
+            },
+            "description": {
+                "cz": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)",
+                "en": "Creates a wall of ice to protect itself.",
+                "sk": "Vytvorí stenu z ľadu na svoju ochranu."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

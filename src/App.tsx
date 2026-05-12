@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw, Sword, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TutorialOverlay, BATTLE_TUTORIAL_STEPS, HOME_TUTORIAL_STEPS, WORLD_TUTORIAL_STEPS, COLLECTION_TUTORIAL_STEPS, INVENTORY_TUTORIAL_STEPS, CODEX_TUTORIAL_STEPS } from './components/battle/TutorialOverlay'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
-import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier } from './utils'
+import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier, getLoc } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
 
 import { Header } from './components/ui/Header'
@@ -83,6 +84,7 @@ interface DebugLog {
 }
 
 function AppContent() {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('home')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -382,6 +384,12 @@ function AppContent() {
     // 1. Handle Web URL params
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
+    const urlLang = urlParams.get('lang');
+
+    if (urlLang && ['cz', 'en', 'sk'].includes(urlLang)) {
+      i18n.changeLanguage(urlLang);
+    }
+
     if (refCode) {
       processReferralCode(refCode, 'URL');
       const newUrl = window.location.pathname;
@@ -663,7 +671,7 @@ function AppContent() {
         // Create a copy with full HP
         const copy: any = { ...found, caughtAt: Date.now(), currentHP: (found.stats?.hp || 100) * 10 };
         saveMonster(copy, (xp) => addXP(xp));
-        addToast({ title: 'Debug', message: `Příšera ${found.name} (ID: ${id}) přidána!`, type: 'xp' });
+        addToast({ title: 'Debug', message: `Příšera ${getLoc(found.name)} (ID: ${id}) přidána!`, type: 'xp' });
         console.log(`✅ Příšera ${found.name} přidána do sbírky.`);
       } else {
         console.error(`❌ Příšera s ID ${id} neexistuje v databázi.`);
@@ -720,7 +728,7 @@ function AppContent() {
         gems: [null, null, null]
       };
       saveMonster(monsterToSave as any, () => { });
-      addToast({ title: '🧬 Monstrum přidáno!', message: `${base.name} (Lv.${lvl}) se připojilo k tobě!`, type: 'success' });
+      addToast({ title: '🧬 Monstrum přidáno!', message: `${getLoc(base.name)} (Lv.${lvl}) se připojilo k tobě!`, type: 'success' });
     };
 
     (window as any).forceWildEncounter = () => {
@@ -938,22 +946,32 @@ function AppContent() {
   const handleUseItem = (type: any) => {
     const success = consumeResources([{ type, count: 1 }]);
     if (!success) {
-      addToast({ title: 'Chyba', message: 'Tento předmět už nemáš!', type: 'info' });
+      addToast({ title: t('toasts.error'), message: t('toasts.item_missing'), type: 'info' });
       return;
     }
 
     const cfg = RESOURCE_CONFIG[type];
     if (!cfg) return;
 
+    const label = getLoc(cfg.label, i18n.language);
+
     // Apply immediate stat heals
     if (cfg.stats?.hp) {
       const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp; // Since max HP is 100 (for player)
       healHP(amount);
       if (caughtMonsters.length > 0) updateMonsterHP(0, amount);
-      addToast({ title: `${cfg.label} použit`, message: `Vyléčeno ${cfg.statsType === 'perc' ? cfg.stats.hp + '%' : amount} HP.`, type: 'success' });
+      addToast({ 
+        title: t('toasts.item_used', { name: label }), 
+        message: t('toasts.hp_healed', { amount: cfg.statsType === 'perc' ? cfg.stats.hp + '%' : amount }), 
+        type: 'success' 
+      });
     }
     if (cfg.stats?.energy) {
-      addToast({ title: `${cfg.label} použit`, message: 'Energie (Mana) byla doplněna.', type: 'info' });
+      addToast({ 
+        title: t('toasts.item_used', { name: label }), 
+        message: t('toasts.energy_restored'), 
+        type: 'info' 
+      });
     }
 
     // Apply special effects
@@ -961,10 +979,10 @@ function AppContent() {
       const mins = cfg.effectDuration || 15;
       if (cfg.specialEffect === 'xp_boost') {
         activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-        addToast({ title: 'XP Boost aktivován!', message: `Získáváš 2x XP po dobu ${mins} minut.`, type: 'boost' });
+        addToast({ title: t('toasts.xp_boost_title'), message: t('toasts.xp_boost_msg', { mins }), type: 'boost' });
       } else if (cfg.specialEffect === 'hp_regen') {
         activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
-        addToast({ title: 'HP Regen aktivován!', message: `Tvoje regenerace zdraví je posílena na ${mins} minut.`, type: 'success' });
+        addToast({ title: t('toasts.hp_regen_title'), message: t('toasts.hp_regen_msg', { mins }), type: 'success' });
       }
     }
   };
@@ -987,7 +1005,7 @@ function AppContent() {
     }
 
     if (pIdx === -1) {
-      addToast({ title: 'Mrtvá monstra', message: 'Všechna tvá monstra jsou unavená. Musíš je vylečit!', type: 'error' });
+      addToast({ title: t('toasts.monsters_dead'), message: t('toasts.heal_needed'), type: 'error' });
       return;
     }
     if (pvpRole) updateDailyStat('duels');
@@ -1028,8 +1046,8 @@ function AppContent() {
 
     if (activeBattle.pvpRole) {
       addToast({
-        title: 'Vítězství!',
-        message: `Porazil jsi soupeře! Tvůj parťák získal ${xp} XP a kořist: ${lootMsg || 'nic'}.`,
+        title: t('toasts.victory'),
+        message: t('toasts.victory_msg', { xp, loot: lootMsg || 'nic' }),
         type: 'success'
       });
     }
@@ -1038,8 +1056,8 @@ function AppContent() {
   const handleGather = (type: ResourceType, amount: number) => {
     addResource(type, amount)
     addToast({
-      title: 'Surovina získána',
-      message: `${amount}x ${type} přidáno do inventáře`,
+      title: t('toasts.resource_gathered'),
+      message: t('toasts.resource_gathered_msg', { amount, type }),
       type: 'boost'
     })
   }
@@ -1058,7 +1076,7 @@ function AppContent() {
         const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
         removeMonster(myMonster.id, (myMonster as any).caughtAt);
         saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
-        addToast({ title: 'Výměna dokončena!', message: `Získal jsi ${dbM.name}!`, type: 'success' });
+        addToast({ title: t('toasts.trade_done'), message: t('toasts.trade_done_msg', { name: getLoc(dbM.name) }), type: 'success' });
         // Immediately clear state to prevent double execution
         setP2pTrade(null);
       });
@@ -1128,8 +1146,8 @@ function AppContent() {
           <ShoppingBag size={24} />
         </div>
         <div className="text-left w-full">
-          <p className="text-[10px] font-black text-primary uppercase tracking-widest opacity-80">Sektorový Obchod</p>
-          <h3 className=" text-lg font-black text-white uppercase italic leading-tight">Aktivovat Boosty & XP</h3>
+          <p className="text-[10px] font-black text-primary uppercase tracking-widest opacity-80">{t('admin.resources.title')}</p>
+          <h3 className=" text-lg font-black text-white uppercase italic leading-tight">{t('tabs.store')}</h3>
         </div>
       </div>
       <div className="size-8 bg-white/5 rounded-full flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors relative z-10">
@@ -1217,9 +1235,9 @@ function AppContent() {
                 // Přidání XP pro prohru v PVE
                 giveMonsterXP(activeBattle.playerIdx, xp);
                 addXP(xp); // Now also give to player!
-                addToast({ title: 'Těsná prohra', message: `Získal jsi ${xp} XP za zkušenosti ze zápasu!`, type: 'info' });
+                addToast({ title: t('toasts.close_defeat'), message: t('toasts.close_defeat_msg', { xp }), type: 'info' });
               } else {
-                addToast({ title: 'Prohra', message: 'Tvé monstrum bylo poraženo v duelu.', type: 'error' });
+                addToast({ title: t('toasts.defeat'), message: t('toasts.defeat_msg'), type: 'error' });
               }
               setActiveBattle(null);
               setActiveTab('world');
@@ -1249,7 +1267,7 @@ function AppContent() {
               setActiveTab('world');
             }}
             onCatchFail={() => {
-              addToast({ title: 'Uniklo to!', message: 'Monstrum se vysmeklo. Zkus mu ubrat více HP!', type: 'info' });
+              addToast({ title: t('toasts.escaped'), message: t('toasts.escaped_msg'), type: 'info' });
             }}
             onBack={() => {
               if (activeBattle?.spawnId) {
@@ -1275,11 +1293,11 @@ function AppContent() {
       {!selectedMonster && (
         <Header
           title={
-            activeTab === 'vault' ? "Bestiář" :
-              activeTab === 'inventory' ? "Inventář" :
-                activeTab === 'world' ? "Mapa světa" :
-                  activeTab === 'store' ? "Obchod" :
-                    activeTab === 'codex' ? "Laboratoř" :
+            activeTab === 'vault' ? t('tabs.bestiary') :
+              activeTab === 'inventory' ? t('tabs.inventory') :
+                activeTab === 'world' ? t('tabs.world') :
+                  activeTab === 'store' ? t('tabs.store') :
+                    activeTab === 'codex' ? t('tabs.laboratory') :
                       playerName || "Runner"
           }
           showBack={activeTab !== 'home'}
@@ -1368,7 +1386,6 @@ function AppContent() {
 
           {activeTab === 'inventory' && (
             <Inventory
-              key="inventory"
               activeBoosts={activeBoosts}
               inventory={inventory}
               onOpenCodex={() => setActiveTab('codex')}
@@ -1425,8 +1442,15 @@ function AppContent() {
         {/* Overlay Detail */}
         <AnimatePresence>
           {selectedMonster && (
-            <div className="fixed inset-0 z-[1000] bg-slate-900 overflow-y-auto">
-              <MonsterDetail
+            <div className="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center">
+              <motion.div 
+                initial={{ opacity: 0, x: '100%' }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="w-full max-w-lg h-full bg-slate-900 overflow-y-auto relative scrollbar-hide"
+              >
+                <MonsterDetail
                 key="detail"
                 monster={selectedMonster}
                 canRelease={caughtMonsters.length > 1}
@@ -1435,10 +1459,15 @@ function AppContent() {
                 onUsePotion={(type: string) => {
                   const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                   if (idx !== -1) {
-                    if (type === 'hp_potion') {
-                      updateMonsterHP(idx, 100);
-                      consumeResources([{ type: 'hp_potion', count: 1 }]);
-                      addToast({ title: 'Monster uzdraveno', message: 'Lektvar fungoval skvěle!', type: 'success' });
+                    const cfg = RESOURCE_CONFIG[type];
+                    if (cfg && cfg.stats?.hp) {
+                      updateMonsterHP(idx, cfg.stats.hp);
+                      consumeResources([{ type: type as any, count: 1 }]);
+                      addToast({ 
+                        title: t('toasts.monster_healed'), 
+                        message: t('toasts.monster_healed_msg', { amount: cfg.stats.hp }), 
+                        type: 'success' 
+                      });
                     }
                   }
                 }}
@@ -1454,8 +1483,8 @@ function AppContent() {
                     if (type) consumeResources([{ type: type as any, count: 1 }]);
                     if (oldGem) addResource(oldGem as any, 1);
                     addToast({
-                      title: type ? 'Drahokam zasazen' : 'Drahokam vyjmut',
-                      message: type ? 'Staty monstra byly posíleny!' : 'Staty se vrátily do normálu.',
+                      title: type ? t('toasts.gem_inserted') : t('toasts.gem_removed'),
+                      message: type ? t('toasts.gem_inserted_msg') : t('toasts.gem_removed_msg'),
                       type: 'success'
                     });
                   }
@@ -1472,8 +1501,8 @@ function AppContent() {
                     if (type) consumeResources([{ type: type as any, count: 1 }]);
                     if (oldItem) addResource(oldItem as any, 1);
                     addToast({
-                      title: type ? 'Relikvie osazena' : 'Relikvie odebrána',
-                      message: type ? 'Předmět posílil tvé monstrum!' : 'Předmět byl vrácen do batohu.',
+                      title: type ? t('toasts.relic_inserted') : t('toasts.relic_removed'),
+                      message: type ? t('toasts.relic_inserted_msg') : t('toasts.relic_removed_msg'),
                       type: 'success'
                     });
                   }
@@ -1484,8 +1513,8 @@ function AppContent() {
                     updateMonsterStats(idx, stats, itemType);
                     consumeResources([{ type: itemType as any, count: 1 }]);
                     addToast({
-                      title: 'Genetická Mutace!',
-                      message: `${selectedMonster.name} prošel úspěšnou evolucí genů.`,
+                      title: t('toasts.mutation_title'),
+                      message: t('toasts.mutation_msg', { name: getLoc(selectedMonster.name) }),
                       type: 'success'
                     });
                   }
@@ -1498,17 +1527,18 @@ function AppContent() {
                   if (idx !== -1) {
                     removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
                     setSelectedMonster(null);
-                    addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno zpět do divočiny.`, type: 'info' });
+                    addToast({ title: t('toasts.released'), message: t('toasts.released_msg', { name: getLoc(selectedMonster.name) }), type: 'info' });
                   } else {
                     const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
                     if (fallbackIdx !== -1) {
                       removeMonster(selectedMonster.id);
                       setSelectedMonster(null);
-                      addToast({ title: 'Vypuštěno', message: `${selectedMonster.name} bylo propuštěno.`, type: 'info' });
+                      addToast({ title: t('toasts.released'), message: t('toasts.released_msg', { name: getLoc(selectedMonster.name) }), type: 'info' });
                     }
                   }
                 }}
               />
+              </motion.div>
             </div>
           )}
         </AnimatePresence>
@@ -1585,7 +1615,7 @@ function AppContent() {
               try {
                 const user = await signInWithGoogle();
                 if (user) {
-                  addToast({ title: 'Přihlášeno!', message: `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
+                  addToast({ title: t('settings.login_success') || 'Přihlášeno!', message: t('settings.welcome_back', { name: user.displayName || 'lovče' }) || `Vítej zpět, ${user.displayName || 'lovče'}!`, type: 'success' });
                 }
               } catch (err: any) {
                 console.error("Firebase Login Error:", err);
@@ -1613,20 +1643,20 @@ function AppContent() {
             {p2pTrade.step === 'REQUESTING' && (
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <Bluetooth size={48} className="text-blue-500 animate-pulse mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase mb-2">Žádost odesána</h3>
-                <p className="text-sm text-slate-400">Čekám na přijetí od hráče <strong className="text-blue-400">{p2pTrade.partnerName}</strong>...</p>
-                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">Zrušit</button>
+                <h3 className="text-xl font-black text-white uppercase mb-2">{t('p2p_trade.request_sent')}</h3>
+                <p className="text-sm text-slate-400">{t('p2p_trade.waiting_partner', { name: p2pTrade.partnerName })}</p>
+                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">{t('p2p_trade.cancel')}</button>
               </motion.div>
             )}
 
             {p2pTrade.step === 'INCOMING_REQ' && (
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-purple-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <SignalHigh size={48} className="text-purple-500 animate-bounce mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase mb-2">Výměna</h3>
-                <p className="text-sm text-slate-400">Hráč <strong className="text-purple-400">{p2pTrade.partnerName}</strong> ti nabízí výměnu příšer!</p>
+                <h3 className="text-xl font-black text-white uppercase mb-2">{t('p2p_trade.incoming')}</h3>
+                <p className="text-sm text-slate-400">{t('p2p_trade.incoming_msg', { name: p2pTrade.partnerName })}</p>
                 <div className="grid grid-cols-2 gap-3 mt-8">
-                  <button onClick={() => setP2pTrade({ ...p2pTrade, step: 'SELECTING' })} className="px-4 py-3 rounded-xl bg-purple-600 text-white font-black uppercase shadow-lg">Přijmout</button>
-                  <button onClick={() => setP2pTrade(null)} className="px-4 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase">Odmítnout</button>
+                  <button onClick={() => setP2pTrade({ ...p2pTrade, step: 'SELECTING' })} className="px-4 py-3 rounded-xl bg-purple-600 text-white font-black uppercase shadow-lg">{t('p2p_trade.accept')}</button>
+                  <button onClick={() => setP2pTrade(null)} className="px-4 py-3 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase">{t('p2p_trade.reject')}</button>
                 </div>
               </motion.div>
             )}
@@ -1634,39 +1664,39 @@ function AppContent() {
             {p2pTrade.step === 'WAITING_OFFER' && (
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-blue-500/30 rounded-3xl p-8 text-center shadow-2xl">
                 <RefreshCw size={48} className="text-blue-500 animate-spin mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase mb-2">Čekání na nabídku</h3>
-                <p className="text-sm text-slate-400">Hráč <strong className="text-blue-400">{p2pTrade.partnerName}</strong> vybírá příšeru...</p>
-                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">Zrušit</button>
+                <h3 className="text-xl font-black text-white uppercase mb-2">{t('p2p_trade.waiting_offer')}</h3>
+                <p className="text-sm text-slate-400">{t('p2p_trade.partner_selecting', { name: p2pTrade.partnerName })}</p>
+                <button onClick={() => setP2pTrade(null)} className="mt-8 px-6 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold uppercase w-full">{t('p2p_trade.cancel')}</button>
               </motion.div>
             )}
 
             {p2pTrade.step === 'CONFIRMING' && p2pTrade.myMonster && p2pTrade.theirMonster && (
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
-                <h3 className="text-xl font-black text-center text-white uppercase mb-6">Potvrdit Výměnu</h3>
+                <h3 className="text-xl font-black text-center text-white uppercase mb-6">{t('p2p_trade.confirm_title')}</h3>
                 <div className="flex items-center justify-between gap-4 mb-8">
                   <div className="flex-1 text-center bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
-                    <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-2">Dáváš</p>
+                    <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-2">{t('p2p_trade.you_give')}</p>
                     <img src={`/monsters/${p2pTrade.myMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
-                    <p className="text-xs font-bold text-white uppercase">{p2pTrade.myMonster.name}</p>
+                    <p className="text-xs font-bold text-white uppercase">{getLoc(p2pTrade.myMonster.name)}</p>
                     <p className="text-[10px] text-slate-400">LVL {p2pTrade.myMonster.level}</p>
                   </div>
                   <RefreshCw size={24} className="text-slate-500 shrink-0" />
                   <div className="flex-1 text-center bg-green-500/10 p-4 rounded-2xl border border-green-500/20">
-                    <p className="text-[9px] font-black text-green-500 uppercase tracking-widest mb-2">Dostaneš</p>
+                    <p className="text-[9px] font-black text-green-500 uppercase tracking-widest mb-2">{t('p2p_trade.you_get')}</p>
                     <img src={`/monsters/${p2pTrade.theirMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
-                    <p className="text-xs font-bold text-white uppercase">{p2pTrade.theirMonster.name}</p>
+                    <p className="text-xs font-bold text-white uppercase">{getLoc(p2pTrade.theirMonster.name)}</p>
                     <p className="text-[10px] text-slate-400">LVL {p2pTrade.theirMonster.level}</p>
                   </div>
                 </div>
 
                 {p2pTrade.confirmedByMe ? (
                   <div className="w-full text-center py-4 rounded-xl bg-orange-500/20 border border-orange-500/30">
-                    <p className="text-xs font-black text-orange-400 uppercase tracking-widest animate-pulse">Čekání na druhého hráče...</p>
+                    <p className="text-xs font-black text-orange-400 uppercase tracking-widest animate-pulse">{t('p2p_trade.waiting_finish')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => setP2pTrade({ ...p2pTrade, confirmedByMe: true })} className="px-4 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">Dokončit</button>
-                    <button onClick={() => setP2pTrade(null)} className="px-4 py-4 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase transition-transform active:scale-95">Zrušit</button>
+                    <button onClick={() => setP2pTrade({ ...p2pTrade, confirmedByMe: true })} className="px-4 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">{t('p2p_trade.complete')}</button>
+                    <button onClick={() => setP2pTrade(null)} className="px-4 py-4 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase transition-transform active:scale-95">{t('p2p_trade.cancel')}</button>
                   </div>
                 )}
               </motion.div>
@@ -1696,8 +1726,8 @@ function AppContent() {
             <DuelSelectionModal
               caughtMonsters={caughtMonsters}
               opponent={wildEncounter.monster}
-              title="Výběr pro bitvu"
-              description="Zvolte svého šampiona pro divoký střet. Pamatujte, že k boji je potřeba alespoň 80% životů!"
+              title={t('duel.picking')}
+              description={t('duel.picking_desc')}
               onClose={() => setWildEncounter(null)}
               onSelect={(m) => {
                 const monsterToFight = wildEncounter.monster;
@@ -1714,22 +1744,22 @@ function AppContent() {
             {duel.step === 'WAITING_ACCEPT' && (
               <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-sm bg-slate-900 border border-red-500/30 rounded-3xl p-8 text-center">
                 <Sword size={48} className="text-red-500 animate-pulse mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase">Výzva odeslána</h3>
-                <p className="text-sm text-slate-400 mt-2">Čekám na přijetí od hráče <strong className="text-red-400">{duel.partnerName}</strong>...</p>
-                <button onClick={cancelChallenge} className="mt-8 w-full py-3 bg-slate-800 text-slate-400 font-bold rounded-xl uppercase">Zrušit</button>
+                <h3 className="text-xl font-black text-white uppercase">{t('duel.challenge_sent')}</h3>
+                <p className="text-sm text-slate-400 mt-2">{t('duel.waiting_accept', { name: duel.partnerName })}</p>
+                <button onClick={cancelChallenge} className="mt-8 w-full py-3 bg-slate-800 text-slate-400 font-bold rounded-xl uppercase">{t('p2p_trade.cancel')}</button>
               </motion.div>
             )}
 
             {duel.step === 'INCOMING' && (
               <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-sm bg-slate-900 border border-red-500/50 rounded-3xl p-8 text-center shadow-2xl">
                 <Sword size={48} className="text-red-500 animate-bounce mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase">Vyzván na Souboj!</h3>
-                <p className="text-sm text-slate-400 mt-2">Hráč <strong className="text-red-400">{duel.partnerName}</strong> tě vyzývá na duel!</p>
+                <h3 className="text-xl font-black text-white uppercase">{t('duel.incoming')}</h3>
+                <p className="text-sm text-slate-400 mt-2">{t('duel.incoming_msg', { name: duel.partnerName })}</p>
                 <div className="grid grid-cols-2 gap-3 mt-8">
                   <button onClick={() => {
                     notifyAccept();
-                  }} className="py-4 bg-red-600 text-white font-black rounded-xl uppercase text-xs">PŘIJMOUT</button>
-                  <button onClick={rejectChallenge} className="py-4 bg-slate-800 text-slate-400 font-black rounded-xl uppercase text-xs">ODMITNOUT</button>
+                  }} className="py-4 bg-red-600 text-white font-black rounded-xl uppercase text-xs">{t('duel.accept')}</button>
+                  <button onClick={rejectChallenge} className="py-4 bg-slate-800 text-slate-400 font-black rounded-xl uppercase text-xs">{t('duel.reject')}</button>
                 </div>
               </motion.div>
             )}
@@ -1746,8 +1776,8 @@ function AppContent() {
             {duel.step === 'WAITING_OPPONENT_PICK' && (
               <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-sm bg-slate-900 border border-red-500/30 rounded-3xl p-8 text-center">
                 <RefreshCw size={48} className="text-blue-500 animate-spin mx-auto mb-4" />
-                <h3 className="text-xl font-black text-white uppercase italic">Čekám na soupeře...</h3>
-                <p className="text-sm text-slate-400 mt-2">Už máš vybráno, teď se rozhoduje <strong className="text-red-400">{duel.partnerName}</strong>.</p>
+                <h3 className="text-xl font-black text-white uppercase italic">{t('duel.waiting_opponent')}</h3>
+                <p className="text-sm text-slate-400 mt-2">{t('duel.waiting_opponent_msg', { name: duel.partnerName })}</p>
               </motion.div>
             )}
           </div>
@@ -1977,7 +2007,7 @@ function AppContent() {
           setNewMonster(monsterWithMeta);
           addXP(xp);
         });
-        addToast({ title: 'Vajíčko vylíhnuto!', message: `Získal jsi vzácného ${randomMonster.name}!`, type: 'success' });
+        addToast({ title: 'Vajíčko vylíhnuto!', message: `Získal jsi vzácného ${getLoc(randomMonster.name)}!`, type: 'success' });
       }
     } catch (error) {
       console.error(error);

@@ -1,28 +1,52 @@
 {
-  "id": "002",
-  "name": "Cákal Vodomil",
-  "description": "Usměvavá kapka s neposednýma očičkama. Strašně rád cáká na všechny okolo.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 136,
-    "attack": 49,
-    "defense": 16
-  },
-  "abilities": [
-    {
-      "name": "Vodní puls",
-      "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "002",
+    "name": {
+        "cz": "Cákal Vodomil",
+        "en": "Bubble Puffer",
+        "sk": "Bublinatý Nafúkanec"
     },
-    {
-      "name": "Léčivá pramen",
-      "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Usměvavá kapka s neposednýma očičkama. Strašně rád cáká na všechny okolo.",
+        "en": "A round creature that floats in the water and spits slippery bubbles at everything that moves.",
+        "sk": "Guľaté stvorenie, ktoré sa vznáša vo vode a pľuje klzké bubliny na všetko, čo sa pohne."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 136,
+        "attack": 49,
+        "defense": 16
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Vodní puls",
+                "en": "Bubble Cannon",
+                "sk": "Bublinové delo"
+            },
+            "description": {
+                "cz": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást.",
+                "en": "Fires a concentrated stream of bubbles.",
+                "sk": "Vystrelí koncentrovaný prúd bublín."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Léčivá pramen",
+                "en": "Mist Veil",
+                "sk": "Hmlový závoj"
+            },
+            "description": {
+                "cz": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví.",
+                "en": "Surrounds itself with mist to increase dodge chance.",
+                "sk": "Obklopí sa hmlou, aby zvýšil šancu na únik."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        }
+    ]
 }

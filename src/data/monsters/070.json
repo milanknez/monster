@@ -1,35 +1,67 @@
 {
-  "id": "070",
-  "name": "Malformátor Všepohlcující",
-  "description": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
-  "type": "Vodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 974,
-    "attack": 230,
-    "defense": 153
-  },
-  "abilities": [
-    {
-      "name": "Pohlcení Existence",
-      "description": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "070",
+    "name": {
+        "cz": "Malformátor Všepohlcující",
+        "en": "All-consuming Malformator",
+        "sk": "Malformátor Všepohlcující"
     },
-    {
-      "name": "Vřískot Tisíce Úst",
-      "description": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.3
+    "description": {
+        "cz": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
+        "en": "A mutated creature that constantly changes its shape and attempts to consume everything in its path.",
+        "sk": "Zmutované stvorenie, ktoré neustále mení svoj tvar a pokúša sa pohltiť všetko, čo mu stojí v ceste."
     },
-    {
-      "name": "Korozivní Sliz",
-      "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "water",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 974,
+        "attack": 230,
+        "defense": 153
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Pohlcení Existence",
+                "en": "Consume",
+                "sk": "Pohltiť"
+            },
+            "description": {
+                "cz": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
+                "en": "Attempts to consume a part of the enemy to heal itself.",
+                "sk": "Pokúsi sa pohltiť časť nepriateľa, aby sa vyliečil."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Vřískot Tisíce Úst",
+                "en": "Shape Shift",
+                "sk": "Zmena tvaru"
+            },
+            "description": {
+                "cz": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
+                "en": "Changes its shape to increase defense.",
+                "sk": "Zmení svoj tvar, aby zvýšil obranu."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.3
+        },
+        {
+            "name": {
+                "cz": "Korozivní Sliz",
+                "en": "Translated: Korozivní Sliz",
+                "sk": "Korozivní Sliz "
+            },
+            "description": {
+                "cz": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
+                "en": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Damage reduction 55-65%)",
+                "sk": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Zníženie dmg 55-65%)"
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

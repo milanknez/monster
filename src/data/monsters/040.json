@@ -1,35 +1,67 @@
 {
-  "id": "040",
-  "name": "Safírový Kraken",
-  "description": "Obrovský hlavonožec s kůží připomínající hluboký safír. Jeho chapadla jsou pokryta luminiscenčními přísavkami, které dokážou vytvořit elektrické výboje pod vodou.",
-  "type": "Vodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1069,
-    "attack": 255,
-    "defense": 134
-  },
-  "abilities": [
-    {
-      "name": "Hlubinné sevření",
-      "description": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "040",
+    "name": {
+        "cz": "Safírový Kraken",
+        "en": "Sapphire Kraken",
+        "sk": "Safírový Kraken"
     },
-    {
-      "name": "Safírová záře",
-      "description": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "description": {
+        "cz": "Obrovský hlavonožec s kůží připomínající hluboký safír. Jeho chapadla jsou pokryta luminiscenčními přísavkami, které dokážou vytvořit elektrické výboje pod vodou.",
+        "en": "A giant sea monster with sapphire-colored skin and massive tentacles.",
+        "sk": "Obrovské morské monštrum so zafírovo sfarbenou kožou a mohutnými chápadlami."
     },
-    {
-      "name": "Elektrické vlnobití",
-      "description": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele.",
-      "type": "extra",
-      "chance": 65,
-      "value": 45
-    }
-  ]
+    "type": "water",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1069,
+        "attack": 255,
+        "defense": 134
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Hlubinné sevření",
+                "en": "Crushing Tentacles",
+                "sk": "Drvivé chápadlá"
+            },
+            "description": {
+                "cz": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí.",
+                "en": "Crushes the enemy with strong tentacles.",
+                "sk": "Rozdrví nepriateľa silnými chápadlami."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Safírová záře",
+                "en": "Ink Cloud",
+                "sk": "Atramentový mrak"
+            },
+            "description": {
+                "cz": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele.",
+                "en": "Releases ink to confuse the enemy.",
+                "sk": "Vypustí atrament, aby zmätil nepriateľa."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Elektrické vlnobití",
+                "en": "Translated: Elektrické vlnobití",
+                "sk": "Elektrické vlnobití "
+            },
+            "description": {
+                "cz": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele.",
+                "en": "Vypustí do vody silný elektrický discharge, který ochromí všechny okolní nepřátele.",
+                "sk": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní neprátele."
+            },
+            "type": "extra",
+            "chance": 65,
+            "value": 45
+        }
+    ]
 }

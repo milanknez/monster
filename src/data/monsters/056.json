@@ -1,28 +1,67 @@
 {
-  "id": "056",
-  "name": "Chňapík Hlubin",
-  "description": "Průhledná medúza s obří tlamou plnou bioluminiscenčních zubů, které svítí v nejhlubších částech oceánu. Má jedno velké centrální oko a dlouhá růžová chapadla, která používá k přitahování nic netušící kořisti k sobě.",
-  "type": "Vodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 251,
-    "attack": 90,
-    "defense": 27
-  },
-  "abilities": [
-    {
-      "name": "Chapadlový Stisk",
-      "description": "Ovine nepřítele svými chapadly a postupně ho stahuje do své tlamy.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "056",
+    "name": {
+        "cz": "Chňapík Hlubin",
+        "en": "Deep Snapper",
+        "sk": "Chňapík Hlubin"
     },
-    {
-      "name": "Mořská Regenerace",
-      "description": "Využije tlak vody k rychlému zformování svého těla a doplnění HP.",
-      "type": "heal",
-      "chance": 65,
-      "value": 1.5
-    }
-  ]
+    "description": {
+        "cz": "Průhledná medúza s obří tlamou plnou bioluminiscenčních zubů, které svítí v nejhlubších částech oceánu. Má jedno velké centrální oko a dlouhá růžová chapadla, která používá k přitahování nic netušící kořisti k sobě.",
+        "en": "A transparent jellyfish with a massive mouth full of bioluminescent teeth that glow in the deepest parts of the ocean. It has one large central eye and long pink tentacles it uses to lure unsuspecting prey toward itself.",
+        "sk": "Priehľadná medúza s obrovskou tlamou plnou bioluminiscenčných zubov, ktoré svietia v najhlbších častiach oceánu. Má jedno veľké centrálne oko a dlhé ružové chápadlá, ktorými priťahuje nič netušiacu korisť k sebe."
+    },
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 530,
+        "attack": 125,
+        "defense": 85
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bioluminiscenční Past",
+                "en": "Bioluminescent Trap",
+                "sk": "Bioluminiscenčná Pasca"
+            },
+            "description": {
+                "cz": "Záblesk z útrob příšerky nepřítele oslepí a sníží jeho šanci na zásah.",
+                "en": "A flash from the creature's innards blinds the enemy and reduces their hit chance.",
+                "sk": "Záblesk z vnútra príšerky nepriateľa oslepí a zníži jeho šancu na zásah."
+            },
+            "type": "debuff",
+            "chance": 45,
+            "value": 50
+        },
+        {
+            "name": {
+                "cz": "Chapadlový Stisk",
+                "en": "Tentacle Grip",
+                "sk": "Chapadlový Stisk"
+            },
+            "description": {
+                "cz": "Ovine nepřítele svými chapadly a postupně ho stahuje do své tlamy.",
+                "en": "Wraps the enemy in its tentacles and slowly drags it into its maw.",
+                "sk": "Ovinie nepriateľa svojimi chápadlami a postupne ho sťahuje do svojej tlamy."
+            },
+            "type": "attack",
+            "chance": 35,
+            "value": 170
+        },
+        {
+            "name": {
+                "cz": "Mořská Regenerace",
+                "en": "Sea Regeneration",
+                "sk": "Morská Regenerácia"
+            },
+            "description": {
+                "cz": "Využije tlak vody k rychlému zformování svého těla a doplnění HP.",
+                "en": "Uses water pressure to rapidly reform its body and restore HP.",
+                "sk": "Využije tlak vody na rýchle zformovanie svojho tela a doplnenie HP."
+            },
+            "type": "heal",
+            "chance": 20,
+            "value": 150
+        }
+    ]
 }

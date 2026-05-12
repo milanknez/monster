@@ -1,28 +1,52 @@
 {
-  "id": "017",
-  "name": "Prdovous rex",
-  "description": "Obrovský lesní tvor z větví a mechu, který při chůzi zanechává za sebou obláčky prdového dýmu. Strašidelný, ale legrační, dokáže nepřátele rozesmát i paralyzovat smíchem.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 233,
-    "attack": 84,
-    "defense": 28
-  },
-  "abilities": [
-    {
-      "name": "Smradlavý výbuch",
-      "description": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, ",
-      "type": "curse",
-      "chance": 85,
-      "value": 20
+    "id": "017",
+    "name": {
+        "cz": "Prdovous rex",
+        "en": "Blue Hopper",
+        "sk": "Modrý skokan"
     },
-    {
-      "name": "Kořenový náraz",
-      "description": "Z kořenů vyrazí rychlý útok na jednoho nepřítele.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Obrovský lesní tvor z větví a mechu, který při chůzi zanechává za sebou obláčky prdového dýmu. Strašidelný, ale legrační, dokáže nepřátele rozesmát i paralyzovat smíchem.",
+        "en": "A small blue creature that loves to jump around.",
+        "sk": "Malé modré stvorenie, ktoré rado poskakuje."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 233,
+        "attack": 84,
+        "defense": 28
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Smradlavý výbuch",
+                "en": "High Jump",
+                "sk": "Vysoký skok"
+            },
+            "description": {
+                "cz": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, ",
+                "en": "A very high jump attack.",
+                "sk": "Útok veľmi vysokým skokom."
+            },
+            "type": "curse",
+            "chance": 85,
+            "value": 20
+        },
+        {
+            "name": {
+                "cz": "Kořenový náraz",
+                "en": "Kick",
+                "sk": "Kopnutie"
+            },
+            "description": {
+                "cz": "Z kořenů vyrazí rychlý útok na jednoho nepřítele.",
+                "en": "A strong kick.",
+                "sk": "Silné kopnutie."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

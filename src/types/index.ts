@@ -1,14 +1,20 @@
+export interface Localized<T> {
+  cz: T;
+  en: T;
+  sk: T;
+}
+
 export interface Monster {
   id: string;
-  name: string;
-  rarity: string;
+  name: string | Localized<string>;
+  rarity: string | Localized<string>;
   level: number;
-  type: string;
+  type: string | Localized<string>;
   image: string;
-  description: string;
+  description: string | Localized<string>;
   abilities?: {
-    name: string;
-    description: string;
+    name: string | Localized<string>;
+    description: string | Localized<string>;
     icon?: string;
     type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra' | 'curse' | 'regen';
     chance?: number;
@@ -90,8 +96,8 @@ export interface ResourceSpawn {
 
 export interface Recipe {
   id: string;
-  name: string;
-  description: string;
+  name: string | Localized<string>;
+  description: string | Localized<string>;
   requirements: { type: ResourceType, count: number }[];
   result: { type: 'boost' | 'item' | 'resource', id: string, amount: number };
 }
@@ -104,15 +110,15 @@ export interface LootTableEntry {
 }
 
 export type ResourceCategory = 'material' | 'consumable' | 'gem' | 'relic' | 'loot_item';
-export type ItemRarity = 'Běžná' | 'Vzácná' | 'Epická' | 'Legendární';
+export type ItemRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'Běžná' | 'Vzácná' | 'Epická' | 'Legendární';
 
 export interface ResourceConfig {
   color: string;
-  label: string;
+  label: string | Localized<string>;
   icon: string;
   hasCustomIcon?: boolean;
-  description?: string;
-  stats?: { hp?: number; atk?: number; def?: number; energy?: number };
+  description?: string | Localized<string>;
+  stats?: { hp?: number; atk?: number; def?: number; energy?: number; xp?: number };
   statsType?: 'flat' | 'perc';
   category?: ResourceCategory;
   rarity?: ItemRarity;

@@ -1,28 +1,52 @@
 {
-  "id": "035",
-  "name": "Bublík Mořský",
-  "description": "Malý, roztomilý mořský koník s lesklými šupinami a jemnými ploutvemi, který elegantně pluje mezi korály a mořskou trávou, zanechává za sebou drobné bublinky.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 110,
-    "attack": 60,
-    "defense": 34
-  },
-  "abilities": [
-    {
-      "name": "Vlnivý švih",
-      "description": "Útočí rychlým pohybem ocasu, způsobí poškození jednomu nepříteli.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "035",
+    "name": {
+        "cz": "Bublík Mořský",
+        "en": "Marine Bubbles",
+        "sk": "Bublík Mořský"
     },
-    {
-      "name": "Léčivé bublinky",
-      "description": "Vytvoří kouzlo z bublin, které obnoví zdraví spojencům.",
-      "type": "heal",
-      "chance": 100,
-      "value": 25
-    }
-  ]
+    "description": {
+        "cz": "Malý, roztomilý mořský koník s lesklými šupinami a jemnými ploutvemi, který elegantně pluje mezi korály a mořskou trávou, zanechává za sebou drobné bublinky.",
+        "en": "A sea creature that creates defensive bubbles to protect itself and its allies.",
+        "sk": "Morské stvorenie, ktoré vytvára ochranné bubliny na obranu seba a svojich spojencov."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 110,
+        "attack": 60,
+        "defense": 34
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Vlnivý švih",
+                "en": "Bubble Blast",
+                "sk": "Bublinový výbuch"
+            },
+            "description": {
+                "cz": "Útočí rychlým pohybem ocasu, způsobí poškození jednomu nepříteli.",
+                "en": "Explodes a bubble for damage.",
+                "sk": "Nechá vybuchnúť bublinu pre poškodenie."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Léčivé bublinky",
+                "en": "Soothing Foam",
+                "sk": "Upokojujúca pena"
+            },
+            "description": {
+                "cz": "Vytvoří kouzlo z bublin, které obnoví zdraví spojencům.",
+                "en": "Heals wounds with sea foam.",
+                "sk": "Zahojí rany morskou penou."
+            },
+            "type": "heal",
+            "chance": 100,
+            "value": 25
+        }
+    ]
 }

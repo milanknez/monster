@@ -1,35 +1,67 @@
 {
-  "id": "071",
-  "name": "Archivář Zkaženosti",
-  "description": "Bývalý strážce vědění, jehož tělo zmutovalo v hybrid hmyzu a člověka prorostlý prastarými svitky. Má šest hmyzích očí, čtyři páry rukou zakončených kostěnými hroty a jeho kůže je popsána runami, které dýchají temnou magií a elektrickými výboji.",
-  "type": "Elektrická",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 983,
-    "attack": 275,
-    "defense": 151
-  },
-  "abilities": [
-    {
-      "name": "Kletba Nevědění",
-      "description": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.2
+    "id": "071",
+    "name": {
+        "cz": "Archivář Zkaženosti",
+        "en": "Lava Golem",
+        "sk": "Lávový golem"
     },
-    {
-      "name": "Runový Výboj",
-      "description": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "description": {
+        "cz": "Bývalý strážce vědění, jehož tělo zmutovalo v hybrid hmyzu a člověka prorostlý prastarými svitky. Má šest hmyzích očí, čtyři páry rukou zakončených kostěnými hroty a jeho kůže je popsána runami, které dýchají temnou magií a elektrickými výboji.",
+        "en": "A massive golem made of molten rock. Its presence heats up the air around it.",
+        "sk": "Mohutný golem vyrobený z roztavenej skaly. Jeho prítomnosť zohrieva vzduch v jeho okolí."
     },
-    {
-      "name": "Energetické Pokřivení",
-      "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "electric",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 983,
+        "attack": 275,
+        "defense": 151
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kletba Nevědění",
+                "en": "Magma Punch",
+                "sk": "Magmatický úder"
+            },
+            "description": {
+                "cz": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením.",
+                "en": "A punch with a fist of hot magma.",
+                "sk": "Úder päsťou z horúcej magmy."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.2
+        },
+        {
+            "name": {
+                "cz": "Runový Výboj",
+                "en": "Fire Wall",
+                "sk": "Ohnivá stena"
+            },
+            "description": {
+                "cz": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
+                "en": "Creates a wall of fire to block attacks.",
+                "sk": "Vytvorí ohnivú stenu na blokovanie útokov."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Energetické Pokřivení",
+                "en": "Translated: Energetické Pokřivení",
+                "sk": "Energetické Pokrivení"
+            },
+            "description": {
+                "cz": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)",
+                "en": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Damage reduction 55-65%)",
+                "sk": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Zníženie dmg 55-65%)"
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

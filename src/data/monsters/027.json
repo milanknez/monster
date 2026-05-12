@@ -1,28 +1,52 @@
 {
-  "id": "027",
-  "name": "Láskožrout Měkký",
-  "description": "Měkká, roztomilá příšerka, která dokáže pohltit nepřátele svým objímacím tělem. Strašidelná jen trošku, ale hlavně legrační a mazlivá.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 229,
-    "attack": 82,
-    "defense": 27
-  },
-  "abilities": [
-    {
-      "name": "Mazlivý sev",
-      "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
+    "id": "027",
+    "name": {
+        "cz": "Láskožrout Měkký",
+        "en": "Soft Heart-Eater",
+        "sk": "Láskožrout Měkký"
     },
-    {
-      "name": "Plyšový štít",
-      "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Měkká, roztomilá příšerka, která dokáže pohltit nepřátele svým objímacím tělem. Strašidelná jen trošku, ale hlavně legrační a mazlivá.",
+        "en": "A small, fluffy parasite that looks like a plush toy but secretly feeds on the affection and emotions of its owners.",
+        "sk": "Malý, chlpatý parazit, ktorý vyzerá ako plyšová hračka, ale tajne sa kŕmi náklonnosťou a emóciami svojich majiteľov."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 229,
+        "attack": 82,
+        "defense": 27
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Mazlivý sev",
+                "en": "Cute Stare",
+                "sk": "Roztomilý pohľad"
+            },
+            "description": {
+                "cz": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Stares cute to lower enemy's focus.",
+                "sk": "Roztomilo pozerá, aby znížil sústredenie nepriateľa."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Plyšový štít",
+                "en": "Emotional Drain",
+                "sk": "Emocionálne vyčerpanie"
+            },
+            "description": {
+                "cz": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět (Snížení dmg 55-65%)",
+                "en": "Drains the enemy's energy by playing with their emotions.",
+                "sk": "Vysáva energiu nepriateľa hrou s jeho emóciami."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

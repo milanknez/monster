@@ -1,28 +1,52 @@
 {
-  "id": "081",
-  "name": "Statický Obláček",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "description": "Vzteklý malý bouřkový mráček nabitý statickou elektřinou.",
-  "stats": {
-    "hp": 146,
-    "attack": 46,
-    "defense": 12
-  },
-  "abilities": [
-    {
-      "name": "Bleskový řetězec",
-      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "081",
+    "name": {
+        "cz": "Statický Obláček",
+        "en": "Static Cloud",
+        "sk": "Statický Obláček"
     },
-    {
-      "name": "Klektavý šok",
-      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-      "type": "curse",
-      "chance": 70,
-      "value": 15
-    }
-  ]
+    "type": "electric",
+    "rarity": "common",
+    "description": {
+        "cz": "Vzteklý malý bouřkový mráček nabitý statickou elektřinou.",
+        "en": "A small cloud that is constantly charged with static electricity.",
+        "sk": "Malý obláčik, ktorý je neustále nabitý statickou elektrinou."
+    },
+    "stats": {
+        "hp": 146,
+        "attack": 46,
+        "defense": 12
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bleskový řetězec",
+                "en": "Static Shock",
+                "sk": "Statický šok"
+            },
+            "description": {
+                "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
+                "en": "A quick shock of electricity.",
+                "sk": "Rýchly šok elektrinou."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Klektavý šok",
+                "en": "Rainy Mist",
+                "sk": "Daždivá hmla"
+            },
+            "description": {
+                "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
+                "en": "Creates a mist that reduces visibility.",
+                "sk": "Vytvorí hmlu, ktorá znižuje viditeľnosť."
+            },
+            "type": "curse",
+            "chance": 70,
+            "value": 15
+        }
+    ]
 }

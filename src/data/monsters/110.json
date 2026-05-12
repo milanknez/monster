@@ -1,35 +1,67 @@
 {
-  "id": "110",
-  "name": "Oko Prázdnoty",
-  "description": "Pulzující masa masa a žil s jediným gigantickým okem uprostřed. Její pohled proniká realitou a menší oči na výběžcích sledují každý váš pohyb v každé možné časové linii.",
-  "type": "Elektrická",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1250,
-    "attack": 332,
-    "defense": 450
-  },
-  "abilities": [
-    {
-      "name": "Předpověď Konce",
-      "description": "Nikdy nemine a má ohromnou šanci na kritický zásah.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "110",
+    "name": {
+        "cz": "Oko Prázdnoty",
+        "en": "Void Eye",
+        "sk": "Oko Prázdnoty"
     },
-    {
-      "name": "Dezintegrace",
-      "description": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "description": {
+        "cz": "Pulzující masa masa a žil s jediným gigantickým okem uprostřed. Její pohled proniká realitou a menší oči na výběžcích sledují každý váš pohyb v každé možné časové linii.",
+        "en": "A pulsating mass of flesh and veins with a single gigantic eye in the middle. Its gaze penetrates reality and smaller eyes on the projections track your every move in every possible timeline.",
+        "sk": "Pulzujúca masa mäsa a žíl s jediným gigantickým okom uprostred. Jej pohľad preniká realitou a menšie oči na výbežkoch sledujú každý váš pohyb v každej možnej časovej línii."
     },
-    {
-      "name": "Vhled do Budoucna",
-      "description": "Na krátkou chvíli zastaví čas a dočasně zvýší své útočné statistiky.",
-      "type": "buff",
-      "chance": 50,
-      "value": 1.2
-    }
-  ]
+    "type": "electric",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1250,
+        "attack": 332,
+        "defense": 450
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Předpověď Konce",
+                "en": "End Prediction",
+                "sk": "Předpověď konce"
+            },
+            "description": {
+                "cz": "Nikdy nemine a má ohromnou šanci na kritický zásah.",
+                "en": "Never misses and has a great chance of a critical hit.",
+                "sk": "Nikdy neminie a má ohromnú šancu na kritický zásah."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Dezintegrace",
+                "en": "Disintegration",
+                "sk": "Dezintegrace"
+            },
+            "description": {
+                "cz": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy.",
+                "en": "Unleashes a scientifically inexplicable beam that disassembles the enemy into atoms.",
+                "sk": "Vypustí vedecky nevysvetliteľný lúč, ktorý rozoberie nepriateľa na atómy."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Vhled do Budoucna",
+                "en": "Future Insight",
+                "sk": "Vhled do budoucna"
+            },
+            "description": {
+                "cz": "Na krátkou chvíli zastaví čas a dočasně zvýší své útočné statistiky.",
+                "en": "For a short moment stops time and temporarily increases its attack stats.",
+                "sk": "Na krátku chvíľu zastaví čas a dočasne zvýši svoje útočné štatistiky."
+            },
+            "type": "buff",
+            "chance": 50,
+            "value": 1.2
+        }
+    ]
 }

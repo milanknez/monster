@@ -1,28 +1,52 @@
 {
-  "id": "026",
-  "name": "Fekálník Blátivý",
-  "description": "Blátivá, hnusná, ale legrační příšera. Pohybuje se pomalu, zanechává za sebou špinavé stopy a dokáže překvapit nepřátele svým bahnitým útokem.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 224,
-    "attack": 90,
-    "defense": 29
-  },
-  "abilities": [
-    {
-      "name": "Bahnitý šleh",
-      "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
+    "id": "026",
+    "name": {
+        "cz": "Fekálník Blátivý",
+        "en": "Muddy Scoundrel",
+        "sk": "Fekálnik Blátivý"
     },
-    {
-      "name": "Blátivá obrana",
-      "description": "Na jedno kolo se zablátí a sníží přijaté poškození (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Blátivá, hnusná, ale legrační příšera. Pohybuje se pomalu, zanechává za sebou špinavé stopy a dokáže překvapit nepřátele svým bahnitým útokem.",
+        "en": "A stinky creature made of mud and unknown waste that likes to live in dirty gutters.",
+        "sk": "Smradľavé stvorenie z blata a neznámeho odpadu, ktoré si rado hovie v špinavých odkvapoch."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 224,
+        "attack": 90,
+        "defense": 29
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bahnitý šleh",
+                "en": "Sludge Toss",
+                "sk": "Hod kalom"
+            },
+            "description": {
+                "cz": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Throws a ball of foul-smelling sludge.",
+                "sk": "Hodí guľu odporne zapáchajúceho kalu."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Blátivá obrana",
+                "en": "Stink Aura",
+                "sk": "Smradľavá aura"
+            },
+            "description": {
+                "cz": "Na jedno kolo se zablátí a sníží přijaté poškození (Snížení dmg 55-65%)",
+                "en": "Releases a foul odor that weakens the enemy.",
+                "sk": "Vypustí odporný zápach, ktorý oslabí nepriateľa."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

@@ -1,35 +1,67 @@
 {
-  "id": "055",
-  "name": "Drápohlod Parasitický",
-  "description": "Zmutovaný malý hlodavec, kterému z boku vyrostl druhý, zakrnělý a agresivní jedinec. Původní hostitel má vyhaslé oči, zatímco jeho parazitický přívěsek vládne obřími zuby a ostrými drápy. Jejich pohyby jsou trhavé a nepředvídatelné, jak oba mozky bojují o kontrolu nad společným tělem.",
-  "type": "Elektrická",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 213,
-    "attack": 88,
-    "defense": 29
-  },
-  "abilities": [
-    {
-      "name": "Dvojitý Hryz",
-      "description": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "055",
+    "name": {
+        "cz": "Drápohlod Parasitický",
+        "en": "Parasitic Claw-gnawer",
+        "sk": "Drápohlod Parasitický"
     },
-    {
-      "name": "Trhavý Výpad",
-      "description": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce.",
-      "type": "extra",
-      "chance": 50,
-      "value": 1.8
+    "description": {
+        "cz": "Zmutovaný malý hlodavec, kterému z boku vyrostl druhý, zakrnělý a agresivní jedinec. Původní hostitel má vyhaslé oči, zatímco jeho parazitický přívěsek vládne obřími zuby a ostrými drápy. Jejich pohyby jsou trhavé a nepředvídatelné, jak oba mozky bojují o kontrolu nad společným tělem.",
+        "en": "A parasite that latches onto its host and feeds on its energy.",
+        "sk": "Parazit, ktorý sa prichytí na svojho hostiteľa a kŕmi sa jeho energiou."
     },
-    {
-      "name": "Parazitický Vřískot",
-      "description": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.3
-    }
-  ]
+    "type": "electric",
+    "rarity": "rare",
+    "stats": {
+        "hp": 213,
+        "attack": 88,
+        "defense": 29
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Dvojitý Hryz",
+                "en": "Energy Drain",
+                "sk": "Vysávanie energie"
+            },
+            "description": {
+                "cz": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění.",
+                "en": "Drains energy from the enemy.",
+                "sk": "Vysáva energiu z nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Trhavý Výpad",
+                "en": "Claw Scratch",
+                "sk": "Škrabnutie pazúrom"
+            },
+            "description": {
+                "cz": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce.",
+                "en": "A quick scratch with sharp claws.",
+                "sk": "Rýchle poškriabanie ostrými pazúrmi."
+            },
+            "type": "extra",
+            "chance": 50,
+            "value": 1.8
+        },
+        {
+            "name": {
+                "cz": "Parazitický Vřískot",
+                "en": "Translated: Parazitický Vřískot",
+                "sk": "Parazitický Vrískot"
+            },
+            "description": {
+                "cz": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
+                "en": "Translated: Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
+                "sk": "Méne vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustredení neprítele."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.3
+        }
+    ]
 }

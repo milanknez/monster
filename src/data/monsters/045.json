@@ -1,28 +1,52 @@
 {
-  "id": "045",
-  "name": "Bubla Krab",
-  "description": "Malý modrý krab, který místo bublin vyfukuje ostré krystaly. Má jedno klepeto mnohem větší než druhé a neustále jím cvaká.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 145,
-    "attack": 46,
-    "defense": 35
-  },
-  "abilities": [
-    {
-      "name": "Krystalový výfuk",
-      "description": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele.",
-      "type": "extra",
-      "chance": 50,
-      "value": 20
+    "id": "045",
+    "name": {
+        "cz": "Bubla Krab",
+        "en": "Bubble Crab",
+        "sk": "Bubla Krab"
     },
-    {
-      "name": "Cvak ruku",
-      "description": "Uskřípne nepřítele svým velkým klepetem a způsobí střední poškození.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
-    }
-  ]
+    "description": {
+        "cz": "Malý modrý krab, který místo bublin vyfukuje ostré krystaly. Má jedno klepeto mnohem větší než druhé a neustále jím cvaká.",
+        "en": "A small crab that lives on the beach and loves to play in sea bubbles.",
+        "sk": "Malý krab, ktorý žije na pláži a rád sa hrá v morských bublinách."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 145,
+        "attack": 46,
+        "defense": 35
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Krystalový výfuk",
+                "en": "Pincer Snap",
+                "sk": "Cvaknutie klepetom"
+            },
+            "description": {
+                "cz": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele.",
+                "en": "Snaps its pincers at the enemy.",
+                "sk": "Cvakne klepetami po nepriateľovi."
+            },
+            "type": "extra",
+            "chance": 50,
+            "value": 20
+        },
+        {
+            "name": {
+                "cz": "Cvak ruku",
+                "en": "Bubble Screen",
+                "sk": "Bublinová clona"
+            },
+            "description": {
+                "cz": "Uskřípne nepřítele svým velkým klepetem a způsobí střední poškození.",
+                "en": "Creates a wall of bubbles to hide.",
+                "sk": "Vytvorí stenu z bublín, aby sa skryl."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        }
+    ]
 }

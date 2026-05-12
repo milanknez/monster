@@ -1,28 +1,52 @@
 {
-  "id": "063",
-  "name": "Plamenošváb Obří",
-  "description": "Zmutovaný hmyz s průhlednými křídly z čistého ohně a masivními kusadly, která jsou rozžhavená doruda.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 244,
-    "attack": 87,
-    "defense": 33
-  },
-  "abilities": [
-    {
-      "name": "Kusadlový stisk",
-      "description": "Sevře nepřítele a popálí ho.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "063",
+    "name": {
+        "cz": "Plamenošváb Obří",
+        "en": "Giant Flame-roach",
+        "sk": "Plamenošváb Obří"
     },
-    {
-      "name": "Ohnivý nálet",
-      "description": "Rychlý útok ze vzduchu.",
-      "type": "extra",
-      "chance": 50,
-      "value": 1.6
-    }
-  ]
+    "description": {
+        "cz": "Zmutovaný hmyz s průhlednými křídly z čistého ohně a masivními kusadly, která jsou rozžhavená doruda.",
+        "en": "A massive cockroach that is always on fire. It is very hard to kill.",
+        "sk": "Obrovský šváb, ktorý neustále horí. Je veľmi ťažké ho zabiť."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 244,
+        "attack": 87,
+        "defense": 33
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kusadlový stisk",
+                "en": "Flame Dash",
+                "sk": "Ohnivý výpad"
+            },
+            "description": {
+                "cz": "Sevře nepřítele a popálí ho.",
+                "en": "Charges at the enemy while on fire.",
+                "sk": "Vrazí do nepriateľa, zatiaľ čo horí."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Ohnivý nálet",
+                "en": "Hard Shell",
+                "sk": "Tvrdý pancier"
+            },
+            "description": {
+                "cz": "Rychlý útok ze vzduchu.",
+                "en": "Protects itself with a heat-resistant shell.",
+                "sk": "Chráni sa teplovzdorným pancierom."
+            },
+            "type": "extra",
+            "chance": 50,
+            "value": 1.6
+        }
+    ]
 }

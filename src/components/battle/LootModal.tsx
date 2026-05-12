@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Gift, ChevronRight } from 'lucide-react';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { useGameSound } from '../../data/sounds';
+import { useTranslation } from 'react-i18next';
+import { getLoc } from '../../utils';
 
 import { ResourceIcon } from '../ui/ResourceIcon';
 
@@ -33,6 +35,7 @@ export const LootModal = ({
   onComplete,
   isInventoryFull
 }: LootModalProps) => {
+  const { t } = useTranslation();
   const { playVictory, playClick } = useGameSound();
 
   const handleOpenChest = () => {
@@ -55,7 +58,7 @@ export const LootModal = ({
             className="w-full max-w-sm bg-slate-900 border-2 border-primary/30 rounded-[3rem] p-10 text-center shadow-[0_20px_60px_rgba(0,0,0,1)]"
           >
             <Trophy size={60} className="text-primary mx-auto mb-6 drop-shadow-[0_0_25px_#0db9f2]" />
-            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">VÍTĚZSTVÍ!</h2>
+            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('battle.modal.victory_title')}</h2>
 
             {/* XP Badge */}
             <motion.div
@@ -68,7 +71,7 @@ export const LootModal = ({
                 <Trophy size={14} fill="currentColor" />
               </div>
               <span className="text-lg font-black text-emerald-400 tabular-nums tracking-tight">+{winXP} XP</span>
-              <span className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest ml-1">Získáno</span>
+              <span className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest ml-1">{t('battle.modal.xp_earned')}</span>
             </motion.div>
 
             <div className="relative mb-8 flex justify-center min-h-[160px] w-full">
@@ -83,7 +86,7 @@ export const LootModal = ({
                   <div className="relative z-10">
                     <Gift size={110} className="text-primary drop-shadow-[0_0_15px_rgba(13,185,242,0.8)]" />
                   </div>
-                  <p className="mt-4 text-[12px] font-black tracking-widest text-primary animate-pulse uppercase">Klikni k otevření</p>
+                  <p className="mt-4 text-[12px] font-black tracking-widest text-primary animate-pulse uppercase">{t('battle.modal.click_to_open')}</p>
                 </motion.div>
               ) : (
                 <div className="grid grid-cols-2 gap-4 w-full">
@@ -103,7 +106,7 @@ export const LootModal = ({
                           <div className="size-12 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform">
                             <ResourceIcon id={i.type} config={config as any} size="lg" className="filter drop-shadow-xl" />
                           </div>
-                          <span className="text-[9px] font-black text-white uppercase tracking-wider block opacity-70 text-center">{config.label}</span>
+                          <span className="text-[9px] font-black text-white uppercase tracking-wider block opacity-70 text-center">{getLoc(config.label)}</span>
 
                           <span className="absolute -top-1 -right-1 bg-primary text-black text-[12px] font-black size-7 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-lg">
                             {i.count}
@@ -116,7 +119,7 @@ export const LootModal = ({
                   <div className="col-span-2 flex flex-col items-center mt-4 pt-4 border-t border-white/5 relative z-10 w-full">
                     {isInventoryFull && (
                       <div className="mb-2 text-red-400 font-bold bg-red-500/10 px-3 py-1 rounded-full text-[9px] uppercase tracking-widest border border-red-500/20">
-                        Tvůj batoh je plný
+                        {t('battle.modal.inventory_full')}
                       </div>
                     )}
                     <motion.button
@@ -125,7 +128,7 @@ export const LootModal = ({
                       onClick={onComplete}
                       className="py-2.5 px-6 mt-1 text-xs bg-primary text-black font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-primary/20"
                     >
-                      {loot.every(l => l.collected) ? 'Pokračovat' : 'Sebrat vše & Odejít'} <ChevronRight size={18} />
+                      {loot.every(l => l.collected) ? t('battle.modal.continue') : t('battle.modal.collect_all')} <ChevronRight size={18} />
                     </motion.button>
                   </div>
                 </div>

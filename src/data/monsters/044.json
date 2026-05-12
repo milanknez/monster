@@ -1,28 +1,52 @@
 {
-  "id": "044",
-  "name": "Beruška Bradavička",
-  "description": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 150,
-    "attack": 38,
-    "defense": 22
-  },
-  "abilities": [
-    {
-      "name": "Bradavičkové světlo",
-      "description": "Vystřelí silný záblesk, který oslní nepřítele.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "044",
+    "name": {
+        "cz": "Beruška Bradavička",
+        "en": "Warty Ladybug",
+        "sk": "Beruška Bradavička"
     },
-    {
-      "name": "Tvrdá krovka",
-      "description": "Zpevní svou ochranu a sníží příchozí poškození o 30% (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 75,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
+        "en": "A strange ladybug with warts on its shell that can release poison.",
+        "sk": "Zvláštna lienka s bradavicami na pancieri, ktoré môžu uvoľňovať jed."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 150,
+        "attack": 38,
+        "defense": 22
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bradavičkové světlo",
+                "en": "Poison Spot",
+                "sk": "Jedovatá bodka"
+            },
+            "description": {
+                "cz": "Vystřelí silný záblesk, který oslní nepřítele.",
+                "en": "Releases poison from its spots.",
+                "sk": "Uvoľní jed zo svojich bodiek."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Tvrdá krovka",
+                "en": "Hard Fly-by",
+                "sk": "Tvrdý nálet"
+            },
+            "description": {
+                "cz": "Zpevní svou ochranu a sníží příchozí poškození o 30% (Snížení dmg 55-65%)",
+                "en": "A fast flying attack.",
+                "sk": "Rýchly letecký útok."
+            },
+            "type": "defense",
+            "chance": 75,
+            "value": 60
+        }
+    ]
 }

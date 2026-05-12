@@ -1,28 +1,52 @@
 {
-  "id": "007",
-  "name": "Bubliko Vlnař",
-  "description": "Vypadá jako kulatá vodní bublina a hrozně ráda skáče do kaluží.",
-  "type": "Vodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 460,
-    "attack": 140,
-    "defense": 70
-  },
-  "abilities": [
-    {
-      "name": "Gigantická tsunamy",
-      "description": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "007",
+    "name": {
+        "cz": "Bubliko Vlnař",
+        "en": "Thorny Bush",
+        "sk": "Trnitý Ker"
     },
-    {
-      "name": "Mořský hněv",
-      "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Vypadá jako kulatá vodní bublina a hrozně ráda skáče do kaluží.",
+        "en": "An animated bush full of sharp thorns. It moves slowly but is dangerous to touch.",
+        "sk": "Oživený ker plný ostrých tŕňov. Pohybuje sa pomaly, ale je nebezpečný na dotyk."
+    },
+    "type": "water",
+    "rarity": "epic",
+    "stats": {
+        "hp": 460,
+        "attack": 140,
+        "defense": 70
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Gigantická tsunamy",
+                "en": "Thorn Whip",
+                "sk": "Tŕňový bič"
+            },
+            "description": {
+                "cz": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
+                "en": "Lashes out with thorny branches.",
+                "sk": "Zaútočí tŕnitými vetvami."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Mořský hněv",
+                "en": "Spiky Shield",
+                "sk": "Ostnatý štít"
+            },
+            "description": {
+                "cz": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
+                "en": "Protects itself with a wall of thorns.",
+                "sk": "Chráni sa stenou z tŕňov."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        }
+    ]
 }

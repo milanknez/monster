@@ -1,35 +1,67 @@
 {
-  "id": "101",
-  "name": "Stínožrout Zor",
-  "description": "Prastará entita utkaná z nejčistší temnoty. Nepohybuje se, ale stíny v jeho okolí ožívají a pohlcují vše živé. Traduje se, že spatřit jeho tvář znamená ztratit vlastní identitu.",
-  "type": "Elektrická",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1250,
-    "attack": 357,
-    "defense": 180
-  },
-  "abilities": [
-    {
-      "name": "Hostina Stínů",
-      "description": "Vysaje životní sílu nepřítele a část si ponechá pro svou regeneraci.",
-      "type": "heal",
-      "chance": 65,
-      "value": 1.8
+    "id": "101",
+    "name": {
+        "cz": "Stínožrout Zor",
+        "en": "Shadow Feast",
+        "sk": "Hostina Stínů"
     },
-    {
-      "name": "Dotek Prázdnoty",
-      "description": "Zasadí ránu tak chladnou, že nepřítel na chvíli zkamení hrůzou.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "description": {
+        "cz": "Prastará entita utkaná z nejčistší temnoty. Nepohybuje se, ale stíny v jeho okolí ožívají a pohlcují vše živé. Traduje se, že spatřit jeho tvář znamená ztratit vlastní identitu.",
+        "en": "A creature that feeds on the shadows of others, leaving them cold and empty.",
+        "sk": "Stvorenie, ktoré sa kŕmi tieňmi ostatných a zanecháva ich chladných a prázdnych."
     },
-    {
-      "name": "Zatemnění Mysli",
-      "description": "Zahalí bojiště do temnoty, která drasticky snižuje nepřítelův útok.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
-    }
-  ]
+    "type": "electric",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1250,
+        "attack": 357,
+        "defense": 180
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Hostina Stínů",
+                "en": "Shadow Feast",
+                "sk": "Hostina stínů"
+            },
+            "description": {
+                "cz": "Vysaje životní sílu nepřítele a část si ponechá pro svou regeneraci.",
+                "en": "Drains the life force of the enemy and keeps some for its regeneration.",
+                "sk": "Vysaje životnú silu nepriateľa a časť si ponechá pre svoju regeneráciu."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 1.8
+        },
+        {
+            "name": {
+                "cz": "Dotek Prázdnoty",
+                "en": "Touch of the Void",
+                "sk": "Dotek prázdnoty"
+            },
+            "description": {
+                "cz": "Zasadí ránu tak chladnou, že nepřítel na chvíli zkamení hrůzou.",
+                "en": "Delivers a strike so cold the enemy freezes in terror.",
+                "sk": "Zasadí ranu takú chladnú, že nepriateľ na chvíľu zkamenie hrôzou."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Zatemnění Mysli",
+                "en": "Mind Clouding",
+                "sk": "Zatemnění mysli"
+            },
+            "description": {
+                "cz": "Zahalí bojiště do temnoty, která drasticky snižuje nepřítelův útok.",
+                "en": "Shrouds the battlefield in darkness, drastically reducing enemy attack.",
+                "sk": "Zahalí bojište do temnoty, ktorá drasticky znižuje nepriateľov útok."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.5
+        }
+    ]
 }

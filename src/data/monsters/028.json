@@ -1,28 +1,52 @@
 {
-  "id": "028",
-  "name": "Mazlík Hegeš",
-  "description": "Malá, nenápadná myší příšerka s velkýma očima a rychlými tlapkami. Vypadá roztomile, ale dokáže překvapit rychlými útoky a zmatením nepřátel.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 138,
-    "attack": 44,
-    "defense": 18
-  },
-  "abilities": [
-    {
-      "name": "Rychlé kousnutí",
-      "description": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "028",
+    "name": {
+        "cz": "Mazlík Hegeš",
+        "en": "Nasty Pet",
+        "sk": "Mazlík Hegeš"
     },
-    {
-      "name": "Zmatený úprk",
-      "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Malá, nenápadná myší příšerka s velkýma očima a rychlými tlapkami. Vypadá roztomile, ale dokáže překvapit rychlými útoky a zmatením nepřátel.",
+        "en": "A creature that looks like a friendly pet but is actually quite nasty and loves to bite.",
+        "sk": "Stvorenie, ktoré vyzerá ako priateľský maznáčik, ale v skutočnosti je dosť nepríjemné a rado hryzie."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 138,
+        "attack": 44,
+        "defense": 18
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Rychlé kousnutí",
+                "en": "Nasty Bite",
+                "sk": "Nepríjemný kúsanec"
+            },
+            "description": {
+                "cz": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
+                "en": "A bite that leaves a mark.",
+                "sk": "Kúsanec, ktorý zanechá stopu."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Zmatený úprk",
+                "en": "Playful Trip",
+                "sk": "Hravé potknutie"
+            },
+            "description": {
+                "cz": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout (Snížení dmg 55-65%)",
+                "en": "Trips the enemy while playing.",
+                "sk": "Potkne nepriateľa počas hry."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "037",
-  "name": "Voltinka Čibu",
-  "description": "Malá odvážná čivava stojící na kopci, chytá blesky z nebe. Srst jí vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 120,
-    "attack": 38,
-    "defense": 48
-  },
-  "abilities": [
-    {
-      "name": "Nebeský výboj",
-      "description": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "037",
+    "name": {
+        "cz": "Voltinka Čibu",
+        "en": "Voltaic Chibu",
+        "sk": "Voltinka Čibu"
     },
-    {
-      "name": "Elektrická obnova",
-      "description": "Použije energii blesků k doražení nepřítele.",
-      "type": "extra",
-      "chance": 85,
-      "value": 30
-    }
-  ]
+    "description": {
+        "cz": "Malá odvážná čivava stojící na kopci, chytá blesky z nebe. Srst jí vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
+        "en": "A small electric creature that is very energetic and always on the move.",
+        "sk": "Malé elektrické stvorenie, ktoré je veľmi energické a neustále v pohybe."
+    },
+    "type": "electric",
+    "rarity": "common",
+    "stats": {
+        "hp": 120,
+        "attack": 38,
+        "defense": 48
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Nebeský výboj",
+                "en": "Volt Tackle",
+                "sk": "Volťácky výpad"
+            },
+            "description": {
+                "cz": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením.",
+                "en": "Charges at the enemy with electric power.",
+                "sk": "Vrazí do nepriateľa s elektrickou silou."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Elektrická obnova",
+                "en": "Speed Boost",
+                "sk": "Zrýchlenie"
+            },
+            "description": {
+                "cz": "Použije energii blesků k doražení nepřítele.",
+                "en": "Increases speed for a short time.",
+                "sk": "Na krátky čas zvýši rýchlosť."
+            },
+            "type": "extra",
+            "chance": 85,
+            "value": 30
+        }
+    ]
 }

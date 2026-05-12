@@ -1,28 +1,52 @@
 {
-  "id": "085",
-  "name": "Energetický Brokolit",
-  "description": "Temná zmutovaná brokolice se zubatými okraji a mnoha žlutýma očima, které sledují každý váš pohyb. Její stonky jiskří smrtící elektřinou.",
-  "type": "Elektrická",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 380,
-    "attack": 125,
-    "defense": 55
-  },
-  "abilities": [
-    {
-      "name": "Jehličnatý výboj",
-      "description": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "085",
+    "name": {
+        "cz": "Energetický Brokolit",
+        "en": "Spectral Knight",
+        "sk": "Prízračný rytier"
     },
-    {
-      "name": "Bleskové ochromení",
-      "description": "Vysílá vlny statické elektřiny, které oslabují svaly a snižují sílu útoku nepřítele.",
-      "type": "curse",
-      "chance": 65,
-      "value": 30
-    }
-  ]
+    "description": {
+        "cz": "Temná zmutovaná brokolice se zubatými okraji a mnoha žlutýma očima, které sledují každý váš pohyb. Její stonky jiskří smrtící elektřinou.",
+        "en": "A ghostly knight that haunts ancient ruins. It is very strong and tough.",
+        "sk": "Prízračný rytier, ktorý straší v starobylých ruinách. Je veľmi silný a odolný."
+    },
+    "type": "electric",
+    "rarity": "epic",
+    "stats": {
+        "hp": 380,
+        "attack": 125,
+        "defense": 55
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Jehličnatý výboj",
+                "en": "Spectral Blade",
+                "sk": "Prízračná čepeľ"
+            },
+            "description": {
+                "cz": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele.",
+                "en": "Attacks with a ghostly sword.",
+                "sk": "Zaútočí prízračným mečom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Bleskové ochromení",
+                "en": "Ghostly Guard",
+                "sk": "Prízračná stráž"
+            },
+            "description": {
+                "cz": "Vysílá vlny statické elektřiny, které oslabují svaly a snižují sílu útoku nepřítele.",
+                "en": "Increases defense by becoming partially ethereal.",
+                "sk": "Zvyšuje obranu tým, že sa stane čiastočne éterickým."
+            },
+            "type": "curse",
+            "chance": 65,
+            "value": 30
+        }
+    ]
 }

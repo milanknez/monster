@@ -198,7 +198,7 @@ export function useMonsters(addToast: (toast: any) => void) {
     });
   }, []);
 
-    const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number }, itemId?: string) => {
+    const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number, xp?: number }, itemId?: string) => {
     setCaughtMonsters(prev => {
       const updated = [...prev]
       if (!updated[monsterIdx]) return prev
@@ -209,6 +209,27 @@ export function useMonsters(addToast: (toast: any) => void) {
         hp: oldStats.hp + (stats.hp || 0),
         attack: oldStats.attack + (stats.atk || 0),
         defense: oldStats.defense + (stats.def || 0)
+      }
+
+      if (stats.xp) {
+        const oldLevel = m.level;
+        m.xp = (m.xp || 0) + stats.xp;
+        
+        // Relative Level up logic
+        let nextLevelReq = getTotalXPForLevel(m.level + 1) - getTotalXPForLevel(m.level);
+        while (m.xp >= nextLevelReq) {
+          m.xp -= nextLevelReq;
+          m.level++;
+          nextLevelReq = getTotalXPForLevel(m.level + 1) - getTotalXPForLevel(m.level);
+        }
+
+        if (m.level > oldLevel) {
+          addToast({
+            title: 'LEVEL UP!',
+            message: `${m.name} postoupil na úroveň ${m.level}!`,
+            type: 'success'
+          })
+        }
       }
 
       if (itemId) {
@@ -223,7 +244,7 @@ export function useMonsters(addToast: (toast: any) => void) {
       updated[monsterIdx] = m
       return updated
     })
-  }, [])
+  }, [addToast])
 
   const equipItem = useCallback((monsterIdx: number, itemIdx: number, itemType: string | null) => {
     setCaughtMonsters(prev => {

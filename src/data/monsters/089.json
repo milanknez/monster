@@ -1,28 +1,52 @@
 {
-  "id": "089",
-  "name": "Ledová Tříšťka",
-  "description": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
-  "type": "Vodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 320,
-    "attack": 155,
-    "defense": 40
-  },
-  "abilities": [
-    {
-      "name": "Mrazivý řez",
-      "description": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "089",
+    "name": {
+        "cz": "Ledová Tříšťka",
+        "en": "Ice Splinter",
+        "sk": "Ledová Tříšťka"
     },
-    {
-      "name": "Hluboké zmrazení",
-      "description": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
-      "type": "curse",
-      "chance": 65,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
+        "en": "A small creature made of sharp ice splinters.",
+        "sk": "Malé stvorenie vyrobené z ostrých ľadových úlomkov."
+    },
+    "type": "water",
+    "rarity": "epic",
+    "stats": {
+        "hp": 320,
+        "attack": 155,
+        "defense": 40
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Mrazivý řez",
+                "en": "Ice Splinter",
+                "sk": "Ľadový úlomok"
+            },
+            "description": {
+                "cz": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
+                "en": "Attacks with a sharp shard of ice.",
+                "sk": "Zaútočí ostrým úlomkom ľadu."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Hluboké zmrazení",
+                "en": "Frozen Body",
+                "sk": "Zamrznuté telo"
+            },
+            "description": {
+                "cz": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
+                "en": "Increases defense with its icy skin.",
+                "sk": "Zvyšuje obranu svojou ľadovou kožou."
+            },
+            "type": "curse",
+            "chance": 65,
+            "value": 35
+        }
+    ]
 }

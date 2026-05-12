@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, ArrowLeftRight } from 'lucide-react';
-import { cn } from '../../utils';
+import { cn, getLoc } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -13,16 +14,17 @@ export const TradeSelectionModal = ({
   caughtMonsters: Monster[], 
   onSelect: (m: Monster) => void, 
   onClose: () => void,
-  offeringMonster?: { id: string, name: string, level: number }
+  offeringMonster?: { id: string, name: any, level: number }
 }) => {
+  const { t, i18n } = useTranslation();
   return (
     <div className="fixed inset-0 z-[2100] flex flex-col bg-background-dark">
       <div className="p-6 border-b border-primary/20 flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-black text-slate-100 uppercase tracking-tighter">Vyber k výměně</h3>
+          <h3 className="text-xl font-black text-slate-100 uppercase tracking-tighter">{t('trade.select_trade')}</h3>
           {offeringMonster && (
             <p className="text-[10px] text-primary font-bold uppercase tracking-widest">
-              Za {offeringMonster.name} LVL {offeringMonster.level}
+              {t('trade.for')} {getLoc(offeringMonster.name, i18n.language)} LVL {offeringMonster.level}
             </p>
           )}
         </div>
@@ -44,7 +46,7 @@ export const TradeSelectionModal = ({
             >
               <div className="flex items-center gap-4">
                 <div className="size-14 bg-black/40 rounded-xl p-2 border border-white/5 relative">
-                  <img src={monster.image} className="w-full h-full object-contain" />
+                  <img src={monster.image} className="w-full h-full object-contain" alt={getLoc(monster.name, i18n.language)} />
                   
                   {/* Jewel Sockets */}
                   <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex flex-row gap-[1px] bg-slate-900/60 p-[3px] px-1 rounded-full backdrop-blur-sm border border-white/5 shadow-lg">
@@ -71,8 +73,8 @@ export const TradeSelectionModal = ({
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-black text-slate-100 uppercase tracking-tight">{monster.name}</h4>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">LVL {monster.level} • {monster.type}</p>
+                  <h4 className="font-black text-slate-100 uppercase tracking-tight">{getLoc(monster.name, i18n.language)}</h4>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">LVL {monster.level} • {getLoc(monster.type, i18n.language)}</p>
                 </div>
               </div>
               <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
@@ -82,14 +84,14 @@ export const TradeSelectionModal = ({
           ))
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <p className="text-slate-500 font-bold uppercase tracking-widest">Nemáš žádné příšerky k výměně</p>
+            <p className="text-slate-500 font-bold uppercase tracking-widest">{t('trade.no_monsters')}</p>
           </div>
         )}
       </div>
       
       <div className="p-6 bg-slate-950/80 backdrop-blur-xl border-t border-white/5">
         <p className="text-[10px] text-slate-500 text-center font-bold uppercase tracking-[0.2em] leading-relaxed">
-          Zvolte jednu z vlastních příšerek, kterou pošlete výměnou za exemplář od druhého lovce.
+          {t('trade.trade_desc')}
         </p>
       </div>
     </div>

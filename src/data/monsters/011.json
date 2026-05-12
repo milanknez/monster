@@ -1,28 +1,52 @@
 {
-  "id": "011",
-  "name": "Fire Dragon",
-  "description": "Usměvavý modrý drak s oranžovým krunýřkem, který si hoví na čerstvých sopkách. Občas chrlí malinké plamínky na zahřátí.",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 131,
-    "attack": 46,
-    "defense": 18
-  },
-  "abilities": [
-    {
-      "name": "Bublinový úkryt",
-      "description": "Schová se do obří bubliny, která pohltí jeden cizí útok (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
+    "id": "011",
+    "name": {
+        "cz": "Fire Dragon",
+        "en": "Fire Dragonlet",
+        "sk": "Ohnivý Dráčik"
     },
-    {
-      "name": "Hod oblázkem",
-      "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Usměvavý modrý drak s oranžovým krunýřkem, který si hoví na čerstvých sopkách. Občas chrlí malinké plamínky na zahřátí.",
+        "en": "A small fire dragon, surprisingly quick and hot for its size.",
+        "sk": "Malý ohnivý drak, prekvapivo rýchly a horúci na svoju veľkosť."
+    },
+    "type": "fire",
+    "rarity": "common",
+    "stats": {
+        "hp": 131,
+        "attack": 46,
+        "defense": 18
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bublinový úkryt",
+                "en": "Ember Spit",
+                "sk": "Pľutie uhlíkov"
+            },
+            "description": {
+                "cz": "Schová se do obří bubliny, která pohltí jeden cizí útok (Snížení dmg 55-65%)",
+                "en": "Spits small burning embers.",
+                "sk": "Pľuje malé horiace uhlíky."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        },
+        {
+            "name": {
+                "cz": "Hod oblázkem",
+                "en": "Smoke Screen",
+                "sk": "Dymová clona"
+            },
+            "description": {
+                "cz": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat.",
+                "en": "Creates a cloud of smoke to hide.",
+                "sk": "Vytvorí oblak dymu, aby sa skryl."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

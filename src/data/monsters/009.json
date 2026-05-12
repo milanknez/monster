@@ -1,28 +1,52 @@
 {
-  "id": "009",
-  "name": "Zoubko Hlodavec",
-  "description": "Tenhle chlupatý rarášek umí během vteřiny rozkousat celou hůl. Nejradši spí ve vyhlodaných dírách v kmenu.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 240,
-    "attack": 87,
-    "defense": 28
-  },
-  "abilities": [
-    {
-      "name": "Hlodavý útok",
-      "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
+    "id": "009",
+    "name": {
+        "cz": "Zoubko Hlodavec",
+        "en": "Cloudy Sheep",
+        "sk": "Obláčková Ovca"
     },
-    {
-      "name": "Mechová regenerace",
-      "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Tenhle chlupatý rarášek umí během vteřiny rozkousat celou hůl. Nejradši spí ve vyhlodaných dírách v kmenu.",
+        "en": "A sheep with wool so fluffy and light that it can float slightly above the ground.",
+        "sk": "Ovca s vlnou takou nadýchanou a ľahkou, že sa dokáže vznášať kúsok nad zemou."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 240,
+        "attack": 87,
+        "defense": 28
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Hlodavý útok",
+                "en": "Soft Bounce",
+                "sk": "Mäkký odraz"
+            },
+            "description": {
+                "cz": "Rychlý útok ostrými zuby, který může snížit obranu protivníka (Snížení dmg 55-65%)",
+                "en": "Attacks by bouncing off the enemy.",
+                "sk": "Zaútočí odrazom od nepriateľa."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        },
+        {
+            "name": {
+                "cz": "Mechová regenerace",
+                "en": "Woolly Guard",
+                "sk": "Vlnená stráž"
+            },
+            "description": {
+                "cz": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví.",
+                "en": "Uses its wool to soften incoming damage.",
+                "sk": "Použije svoju vlnu na stlmenie prichádzajúceho poškodenia."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        }
+    ]
 }

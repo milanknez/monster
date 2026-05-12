@@ -1,28 +1,52 @@
 {
-  "id": "004",
-  "name": "Bleskomýš Jiskrná",
-  "description": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 119,
-    "attack": 52,
-    "defense": 17
-  },
-  "abilities": [
-    {
-      "name": "Bleskový výboj",
-      "description": "Uvolní nahromaděnou energii v podobě ničivého blesku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
+    "id": "004",
+    "name": {
+        "cz": "Bleskomýš Jiskrná",
+        "en": "Sparky Mouse",
+        "sk": "Iskrivý Myšiak"
     },
-    {
-      "name": "Statické nabití",
-      "description": "Zvýší rychlost útoku a šanci na ochromení nepřítele.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
+        "en": "A small rodent with fur that is constantly crackling with static electricity. It can jump very high.",
+        "sk": "Malý hlodavec s kožuchom, ktorý neustále praská statickou elektrinou. Dokáže skákať veľmi vysoko."
+    },
+    "type": "electric",
+    "rarity": "common",
+    "stats": {
+        "hp": 119,
+        "attack": 52,
+        "defense": 17
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bleskový výboj",
+                "en": "Quick Shock",
+                "sk": "Rýchly šok"
+            },
+            "description": {
+                "cz": "Uvolní nahromaděnou energii v podobě ničivého blesku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "A sudden electric discharge.",
+                "sk": "Náhly elektrický výboj."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Statické nabití",
+                "en": "Static Charge",
+                "sk": "Statický náboj"
+            },
+            "description": {
+                "cz": "Zvýší rychlost útoku a šanci na ochromení nepřítele.",
+                "en": "Charges its body with energy for the next attack.",
+                "sk": "Nabije svoje telo energiou pre ďalší útok."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

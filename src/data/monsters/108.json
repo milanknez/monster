@@ -1,35 +1,67 @@
 {
-  "id": "108",
-  "name": "Plíživá Hniloba",
-  "description": "Průsvitný hmyz velký jako dům, který tvoří neviditelná hnízda pod zemí. Jakoukoli jeho oběť potká stejný osud: nevýslovné pomalé vyschnutí.",
-  "type": "Přírodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 950,
-    "attack": 391,
-    "defense": 200
-  },
-  "abilities": [
-    {
-      "name": "Infekce",
-      "description": "Nenapadné kousnutí, které dočasně ochromí celkovou sílu nepřítele.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
+    "id": "108",
+    "name": {
+        "cz": "Plíživá Hniloba",
+        "en": "Creeping Rot",
+        "sk": "Plíživá Hniloba"
     },
-    {
-      "name": "Vysátí Tekutin",
-      "description": "Brutální útok, který okamžitě obnoví část vlastních životů luhováním sil nepřítele.",
-      "type": "heal",
-      "chance": 65,
-      "value": 1.5
+    "description": {
+        "cz": "Průsvitný hmyz velký jako dům, který tvoří neviditelná hnízda pod zemí. Jakoukoli jeho oběť potká stejný osud: nevýslovné pomalé vyschnutí.",
+        "en": "A translucent insect as large as a house that forms invisible nests underground. Any of its victims will meet the same fate: an unspeakable slow drying up.",
+        "sk": "Priesvitný hmyz veľký ako dom, ktorý tvorí neviditeľné hniezda pod zemou. Akúkoľvek jeho obeť stretne rovnaký osud: nevýslovné pomalé vyschnutie."
     },
-    {
-      "name": "Parazitická Vlna",
-      "description": "Prudká salva hnilobných spor, které zasáhnou vše živé i mrtvé.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
-    }
-  ]
+    "type": "nature",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 950,
+        "attack": 391,
+        "defense": 200
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Infekce",
+                "en": "Infection",
+                "sk": "Infekce"
+            },
+            "description": {
+                "cz": "Nenapadné kousnutí, které dočasně ochromí celkovou sílu nepřítele.",
+                "en": "An inconspicuous bite that temporarily paralyzes the enemy's overall strength.",
+                "sk": "Nenápadné kúsnutie, ktoré dočasne ochromí celkovú silu nepriateľa."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.5
+        },
+        {
+            "name": {
+                "cz": "Vysátí Tekutin",
+                "en": "Fluid Drain",
+                "sk": "Vysátí tekutin"
+            },
+            "description": {
+                "cz": "Brutální útok, který okamžitě obnoví část vlastních životů luhováním sil nepřítele.",
+                "en": "A brutal attack that immediately restores some of its own lives by leaching the enemy's strength.",
+                "sk": "Brutálny útok, ktorý okamžite obnoví časť vlastných životov lúhovaním síl nepriateľa."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 1.5
+        },
+        {
+            "name": {
+                "cz": "Parazitická Vlna",
+                "en": "Parasitic Wave",
+                "sk": "Parazitická vlna"
+            },
+            "description": {
+                "cz": "Prudká salva hnilobných spor, které zasáhnou vše živé i mrtvé.",
+                "en": "A fierce volley of rot spores that hit everything living and dead.",
+                "sk": "Prudká salva hnilobných spór, ktoré zasiahnu všetko živé i mŕtve."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        }
+    ]
 }

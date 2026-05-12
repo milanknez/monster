@@ -1,28 +1,52 @@
 {
-  "id": "092",
-  "name": "Chilli Raketa",
-  "description": "Vysušená červená paprička s tváří plnou jehličnatých zubů. Z jejího konce šlehá neutichající ohnivý proud, který ji pohání vpřed jako střelu.",
-  "type": "Ohnivá",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 310,
-    "attack": 160,
-    "defense": 35
-  },
-  "abilities": [
-    {
-      "name": "Kapsaicinový náraz",
-      "description": "Narazí do nepřítele v plné rychlosti a vyvolá ohnivou explozi.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "092",
+    "name": {
+        "cz": "Chilli Raketa",
+        "en": "Chilli Rocket",
+        "sk": "Chilli Raketa"
     },
-    {
-      "name": "Adrenalinový žár",
-      "description": "Vstříkne do herního pole pálivý koncentrát, který zvýší jeho rychlost a dravost.",
-      "type": "buff",
-      "chance": 75,
-      "value": 0.3
-    }
-  ]
+    "description": {
+        "cz": "Vysušená červená paprička s tváří plnou jehličnatých zubů. Z jejího konce šlehá neutichající ohnivý proud, který ji pohání vpřed jako střelu.",
+        "en": "A rocket-shaped chilli pepper that can launch itself at enemies.",
+        "sk": "Paprička chilli v tvare rakety, ktorá sa dokáže vystreliť na nepriateľov."
+    },
+    "type": "fire",
+    "rarity": "epic",
+    "stats": {
+        "hp": 310,
+        "attack": 160,
+        "defense": 35
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kapsaicinový náraz",
+                "en": "Hot Launch",
+                "sk": "Horúci štart"
+            },
+            "description": {
+                "cz": "Narazí do nepřítele v plné rychlosti a vyvolá ohnivou explozi.",
+                "en": "Launches itself at high speed.",
+                "sk": "Vystrelí sa vysokou rýchlosťou."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Adrenalinový žár",
+                "en": "Spicy Trail",
+                "sk": "Pálivá stopa"
+            },
+            "description": {
+                "cz": "Vstříkne do herního pole pálivý koncentrát, který zvýší jeho rychlost a dravost.",
+                "en": "Leaves a trail of spicy smoke.",
+                "sk": "Zanechá stopu pálivého dymu."
+            },
+            "type": "buff",
+            "chance": 75,
+            "value": 0.3
+        }
+    ]
 }

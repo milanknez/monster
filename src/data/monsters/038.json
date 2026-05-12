@@ -1,28 +1,52 @@
 {
-  "id": "038",
-  "name": "Krystalový Šnek",
-  "description": "Obrovský šnek s ulitou tvořenou z čistých ametystových krystalů. Jeho sliz za sebou zanechává cestu z mrazivého světla, která zpomaluje každého, kdo do ní vstoupí.",
-  "type": "Přírodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 460,
-    "attack": 100,
-    "defense": 100
-  },
-  "abilities": [
-    {
-      "name": "Krystalová barikáda",
-      "description": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 75,
-      "value": 60
+    "id": "038",
+    "name": {
+        "cz": "Krystalový Šnek",
+        "en": "Crystal Snail",
+        "sk": "Krystalový Šnek"
     },
-    {
-      "name": "Mrazivý sliz",
-      "description": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
-    }
-  ]
+    "description": {
+        "cz": "Obrovský šnek s ulitou tvořenou z čistých ametystových krystalů. Jeho sliz za sebou zanechává cestu z mrazivého světla, která zpomaluje každého, kdo do ní vstoupí.",
+        "en": "A slow snail with a shell made of beautiful but hard crystals.",
+        "sk": "Pomalý slimák s domčekom z krásnych, ale tvrdých kryštálov."
+    },
+    "type": "nature",
+    "rarity": "epic",
+    "stats": {
+        "hp": 460,
+        "attack": 100,
+        "defense": 100
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Krystalová barikáda",
+                "en": "Crystal Beam",
+                "sk": "Kryštálový lúč"
+            },
+            "description": {
+                "cz": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu (Snížení dmg 55-65%)",
+                "en": "Fires a beam of light from its shell.",
+                "sk": "Vystrelí svetelný lúč zo svojej ulity."
+            },
+            "type": "defense",
+            "chance": 75,
+            "value": 60
+        },
+        {
+            "name": {
+                "cz": "Mrazivý sliz",
+                "en": "Reflective Shell",
+                "sk": "Odrazivý pancier"
+            },
+            "description": {
+                "cz": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele.",
+                "en": "Reflects part of the incoming damage.",
+                "sk": "Odrazí časť prichádzajúceho poškodenia."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        }
+    ]
 }

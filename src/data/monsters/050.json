@@ -1,35 +1,67 @@
 {
-  "id": "050",
-  "name": "Baboškrabka Zlověstná",
-  "description": "Prastará a děsivá bytost obývající nejhlubší hvozdy. Tato legendární Baba Jaga má rozcuchané, špinavé šedé vlasy, na nose velkou bradavici a z hrbaté postavy jí trčí kostěné ostny. Vládne mocnou lopatou ukovanou z meteoru a očarovanou kořeny světa. Její smích věští zkázu každému, kdo naruší klid přírody.",
-  "type": "Přírodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1067,
-    "attack": 239,
-    "defense": 139
-  },
-  "abilities": [
-    {
-      "name": "Úder Epickou Lopatou",
-      "description": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "050",
+    "name": {
+        "cz": "Baboškrabka Zlověstná",
+        "en": "Cloud Whale",
+        "sk": "Obláková Veľryba"
     },
-    {
-      "name": "Kletba Hlubokého Lesa",
-      "description": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
+    "description": {
+        "cz": "Prastará a děsivá bytost obývající nejhlubší hvozdy. Tato legendární Baba Jaga má rozcuchané, špinavé šedé vlasy, na nose velkou bradavici a z hrbaté postavy jí trčí kostěné ostny. Vládne mocnou lopatou ukovanou z meteoru a očarovanou kořeny světa. Její smích věští zkázu každému, kdo naruší klid přírody.",
+        "en": "A majestic whale that swims through the clouds instead of water.",
+        "sk": "Majestátna veľryba, ktorá namiesto vody pláva v oblakoch."
     },
-    {
-      "name": "Hnilobný Závan",
-      "description": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
-    }
-  ]
+    "type": "nature",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1067,
+        "attack": 239,
+        "defense": 139
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Úder Epickou Lopatou",
+                "en": "Cloud Crash",
+                "sk": "Oblákový náraz"
+            },
+            "description": {
+                "cz": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
+                "en": "Crashes into the enemy with its massive body.",
+                "sk": "Narazí do nepriateľa svojím mohutným telom."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Kletba Hlubokého Lesa",
+                "en": "Sky Song",
+                "sk": "Pieseň nebies"
+            },
+            "description": {
+                "cz": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí.",
+                "en": "A song that calms and heals allies.",
+                "sk": "Pieseň, ktorá upokojuje a lieči spojencov."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.5
+        },
+        {
+            "name": {
+                "cz": "Hnilobný Závan",
+                "en": "Rotten Breath",
+                "sk": "Hnilobný závan"
+            },
+            "description": {
+                "cz": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
+                "en": "A cloud of rot is released from the shovel, gradually draining life from the enemy.",
+                "sk": "Z lopaty sa uvoľní oblak hniloby, ktorý postupne vysáva život z nepriateľa."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        }
+    ]
 }

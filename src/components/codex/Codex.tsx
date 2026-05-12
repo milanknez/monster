@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Beaker, Sparkles, AlertCircle, RefreshCw, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { InventoryItem, Recipe, ResourceType } from '../../types';
-import { cn } from '../../utils';
+import { cn, getLoc } from '../../utils';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { ResourceIcon } from '../ui/ResourceIcon';
 
@@ -15,10 +16,11 @@ export const Laboratory = ({
   inventory: (InventoryItem | null)[],
   onCraft: (recipe: Recipe) => void
 }) => {
+  const { t, i18n } = useTranslation();
   const { playLabStart, playLabComplete } = useGameSound();
   const [craftingRecipeId, setCraftingRecipeId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<'vše' | 'lektvary' | 'drahokamy' | 'relikvie'>('vše');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'potions' | 'gems' | 'relics'>('all');
 
   const getItemCount = (type: ResourceType) => {
     return inventory.reduce((acc, slot) => {
@@ -56,16 +58,16 @@ export const Laboratory = ({
     .filter(([id, config]) => config.recipe && config.recipe.length > 0)
     .map(([id, config]) => ({
       id,
-      name: config.label || id,
-      description: config.description || '',
+      name: getLoc(config.label, i18n.language) || id,
+      description: getLoc(config.description, i18n.language) || '',
       requirements: config.recipe! as any,
       result: { type: 'item' as const, id, amount: config.recipeAmount || 1 }
     }))
     .filter(recipe => {
-      if (activeCategory === 'vše') return true;
-      if (activeCategory === 'lektvary') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
-      if (activeCategory === 'drahokamy') return recipe.id.includes('gem');
-      if (activeCategory === 'relikvie') return recipe.id.includes('loot') || RESOURCE_CONFIG[recipe.id]?.category === 'relic';
+      if (activeCategory === 'all') return true;
+      if (activeCategory === 'potions') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
+      if (activeCategory === 'gems') return recipe.id.includes('gem');
+      if (activeCategory === 'relics') return recipe.id.includes('loot') || RESOURCE_CONFIG[recipe.id]?.category === 'relic';
       return true;
     });
 
@@ -77,13 +79,13 @@ export const Laboratory = ({
         <div className="inline-flex items-center justify-center p-2.5 rounded-xl bg-secondary/10 border border-secondary/20 text-secondary mb-3">
           <Beaker size={24} />
         </div>
-        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Laboratoř</h2>
-        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest opacity-80">Syntéza lektvarů a relikvií</p>
+        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">{t('laboratory.title')}</h2>
+        <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest opacity-80">{t('laboratory.subtitle')}</p>
       </div>
 
       {/* Category Tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-        {(['vše', 'lektvary', 'drahokamy', 'relikvie'] as const).map(cat => (
+        {(['all', 'potions', 'gems', 'relics'] as const).map(cat => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -94,7 +96,7 @@ export const Laboratory = ({
                 : "bg-slate-900/50 border-white/5 text-slate-500 hover:border-white/10"
             )}
           >
-            {cat === 'vše' ? 'Vše' : cat === 'lektvary' ? 'Lektvary' : cat === 'drahokamy' ? 'Gemy' : 'Relikvie'}
+            {t(`laboratory.categories.${cat}`)}
           </button>
         ))}
       </div>
@@ -124,9 +126,9 @@ export const Laboratory = ({
                   ready || active
                     ? "bg-slate-900 border-secondary/30"
                     : "bg-slate-900/40 border-white/5 opacity-80",
-                  rarity === 'Legendární' ? "border-amber-500/50" :
-                  rarity === 'Epická' ? "border-purple-500/50" :
-                  rarity === 'Vzácná' ? "border-blue-500/50" : ""
+                  rarity === 'legendary' ? "border-amber-500/50" :
+                  rarity === 'epic' ? "border-purple-500/50" :
+                  rarity === 'rare' ? "border-blue-500/50" : ""
                 )}
               >
                 {/* Card Content */}
@@ -176,7 +178,7 @@ export const Laboratory = ({
                   {active && (
                     <div className="mt-auto mb-2">
                       <div className="flex justify-between items-end mb-1">
-                        <p className="text-[8px] font-black text-secondary uppercase tracking-widest animate-pulse">Pracuji...</p>
+                        <p className="text-[8px] font-black text-secondary uppercase tracking-widest animate-pulse">{t('laboratory.working')}</p>
                         <p className="text-[9px] font-black text-white italic">{Math.floor(progress)}%</p>
                       </div>
                       <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
@@ -201,11 +203,11 @@ export const Laboratory = ({
                       )}
                     >
                       {!hasSpace ? (
-                        <><AlertCircle size={12} /> Plno</>
+                        <><AlertCircle size={12} /> {t('laboratory.full')}</>
                       ) : materialsMet ? (
-                        <><Zap size={12} /> Vyrobit</>
+                        <><Zap size={12} /> {t('laboratory.craft')}</>
                       ) : (
-                        <><AlertCircle size={12} /> Chybí</>
+                        <><AlertCircle size={12} /> {t('laboratory.missing')}</>
                       )}
                     </button>
                   )}

@@ -1,28 +1,52 @@
 {
-  "id": "024",
-  "name": "Kotvoplak",
-  "description": "Mocná vodní příšera, která drží obrovskou kotvu nebo kladivo. Plave pod vodou a dokáže zasáhnout nepřátele s velkou silou. Strašidelná. Pojídá své druhy.",
-  "type": "Vodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1092,
-    "attack": 258,
-    "defense": 141
-  },
-  "abilities": [
-    {
-      "name": "Kotvový úder",
-      "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "024",
+    "name": {
+        "cz": "Kotvoplak",
+        "en": "Desert Worm",
+        "sk": "Púštny červ"
     },
-    {
-      "name": "Podvodní rána",
-      "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Mocná vodní příšera, která drží obrovskou kotvu nebo kladivo. Plave pod vodou a dokáže zasáhnout nepřátele s velkou silou. Strašidelná. Pojídá své druhy.",
+        "en": "A worm that lives in the hot desert sands.",
+        "sk": "Červ, ktorý žije v horúcich púštnych pieskoch."
+    },
+    "type": "water",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1092,
+        "attack": 258,
+        "defense": 141
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kotvový úder",
+                "en": "Sand Burrow",
+                "sk": "Piesočné zahrabanie"
+            },
+            "description": {
+                "cz": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
+                "en": "Attacks from underground.",
+                "sk": "Útočí z podzemia."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Podvodní rána",
+                "en": "Grit Spit",
+                "sk": "Pľutie piesku"
+            },
+            "description": {
+                "cz": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
+                "en": "Blinds the enemy with sand.",
+                "sk": "Oslepí nepriateľa pieskom."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

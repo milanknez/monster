@@ -1,0 +1,1666 @@
+{
+  "001": {
+    "name": "Plamínek Horkobřich",
+    "description": "Malý oživlý uhlík, který se snadno rozzlobí. Má pořád hlad a polyká žhavé kameny.",
+    "abilities": [
+      {
+        "name": "Plamenný dech",
+        "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny."
+      },
+      {
+        "name": "Lávová aura",
+        "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "002": {
+    "name": "Cákal Vodomil",
+    "description": "Usměvavá kapka s neposednýma očičkama. Strašně rád cáká na všechny okolo.",
+    "abilities": [
+      {
+        "name": "Vodní puls",
+        "description": "Vysílá silnou rázovou vlnu vody, která může nepřítele zmást."
+      },
+      {
+        "name": "Léčivý pramen",
+        "description": "Vyvolá proud čisté vody, který okamžitě obnoví část zdraví."
+      }
+    ]
+  },
+  "003": {
+    "name": "Pařezík Větvoslav",
+    "description": "Oživlý kus starého dřeva, na kterém roste pravý mech. Je strašně pomalý, ale milý.",
+    "abilities": [
+      {
+        "name": "Kořenové vězení",
+        "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo."
+      },
+      {
+        "name": "Fotosyntéza",
+        "description": "Využívá sluneční světlo k postupné regeneraci zdraví."
+      }
+    ]
+  },
+  "004": {
+    "name": "Bleskomýš Jiskrná",
+    "description": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
+    "abilities": [
+      {
+        "name": "Bleskový výboj",
+        "description": "Uvolní nahromaděnou energii v podobě ničivého blesku. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Statické nabití",
+        "description": "Zvýší rychlost útoku a šanci na ochromení nepřítele."
+      }
+    ]
+  },
+  "005": {
+    "name": "Lávojed Bumkác",
+    "description": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
+    "abilities": [
+      {
+        "name": "Erupce",
+        "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele."
+      },
+      {
+        "name": "Ztuhlá láva",
+        "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "006": {
+    "name": "Listoočko Šustivé",
+    "description": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
+    "abilities": [
+      {
+        "name": "Listová břitva",
+        "description": "Vysílá ostré listy, které proříznou i brnění."
+      },
+      {
+        "name": "Tanec ve větru",
+        "description": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      }
+    ]
+  },
+  "007": {
+    "name": "Bubliko Vlnař",
+    "description": "Vypadá jako kulatá vodní bublina a hrozně ráda skáče do kaluží.",
+    "abilities": [
+      {
+        "name": "Gigantická tsunamy",
+        "description": "Vyvolá obrovskou vlnu, která smete vše v cestě."
+      },
+      {
+        "name": "Mořský hněv",
+        "description": "Zvýší sílu útoků v závislosti na zbývajícím zdraví."
+      }
+    ]
+  },
+  "008": {
+    "name": "Prastarý Strážce",
+    "description": "Mohutná bytost zformovaná z prastarých kořenů a zčernalého dřeva, která nekompromisně střeží hranice zakázaného hvozdu.",
+    "abilities": [
+      {
+        "name": "Kořenové sevření",
+        "description": "Ze země vyrazí silné kořeny, které nepřítele zpomalí a postupně vysávají jeho energii. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Dech pralesa",
+        "description": "Uzdraví část vlastního zdraví a posílí obranu všech přírodních bytostí v okolí."
+      }
+    ]
+  },
+  "009": {
+    "name": "Zoubko Hlodavec",
+    "description": "Tenhle chlupatý rarášek umí během vteřiny rozkousat celou hůl. Nejradši spí ve vyhlodaných dírách v kmenu.",
+    "abilities": [
+      {
+        "name": "Hlodavý útok",
+        "description": "Rychlý útok ostrými zuby, který může snížit obranu protivníka (Snížení dmg 55-65%)"
+      },
+      {
+        "name": "Mechová regenerace",
+        "description": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví."
+      }
+    ]
+  },
+  "010": {
+    "name": "Mňoukožár Divoký",
+    "description": "Malé kotě neznámého původu s obrovskýma svítícíma oranžovýma očima. Toulá se začarovaným lesem a miluje lovení jiskřiček v táboráku.",
+    "abilities": [
+      {
+        "name": "Zářivý prskanec",
+        "description": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí."
+      },
+      {
+        "name": "Nabití baterek",
+        "description": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      }
+    ]
+  },
+  "011": {
+    "name": "Ohnivý Dráček",
+    "description": "Usměvavý modrý drak s oranžovým krunýřkem, který si hoví na čerstvých sopkách. Občas chrlí malinké plamínky na zahřátí.",
+    "abilities": [
+      {
+        "name": "Bublinový úkryt",
+        "description": "Schová se do obří bubliny, která pohltí jeden cizí útok (Snížení dmg 55-65%)"
+      },
+      {
+        "name": "Hod oblázkem",
+        "description": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat."
+      }
+    ]
+  },
+  "012": {
+    "name": "Drako Plam",
+    "description": "Zlobivý malý uličník až z podzemí. Má rovnou tři veliké oči a šest hbitých rukou, do kterých chytá žhavé uhlíky ze země.",
+    "abilities": [
+      {
+        "name": "Hřejivé obětí",
+        "description": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně."
+      },
+      {
+        "name": "Jiskřivý poskok",
+        "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek."
+      }
+    ]
+  },
+  "013": {
+    "name": "Mechový Žhavibřich",
+    "description": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
+    "abilities": [
+      {
+        "name": "Medové pohlazení",
+        "description": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit."
+      },
+      {
+        "name": "Bodnutí včelky",
+        "description": "Z tajné kapsičky vypustí rozzlobenou včelu, která rychle zažene nepřátele."
+      }
+    ]
+  },
+  "014": {
+    "name": "Bažinný Postrach",
+    "description": "Predátor číhající v hlubokých močálech. Jeho široký úsměv není znakem přátelství, ale mrazivým varováním před stovkami jehličkovitých zubů.",
+    "abilities": [
+      {
+        "name": "Uplakaná sprška",
+        "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí."
+      },
+      {
+        "name": "Tichá bouře",
+        "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí."
+      }
+    ]
+  },
+  "015": {
+    "name": "Bába z cukrárny",
+    "description": "Strašidelná a nevyzpytatelná bába z cukrárny, která vláčí obří donuty jako zbraně. Nikdy neodmítne sladkou odměnu, ale když se rozzlobí, její donutové útoky jsou ničivé.",
+    "abilities": [
+      {
+        "name": "Donutový vír",
+        "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození."
+      },
+      {
+        "name": "Cukrová past",
+        "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí (Snížení dmg 55-65%)"
+      },
+      {
+        "name": "Bonbonový štít",
+        "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "016": {
+    "name": "Šupindoslav vodní",
+    "description": "Mutantní kapr s obrovskou ploutví, který se rád plazí mezi korály. Má podivně lesklé šupiny a děsí ostatní ryby, ale není zlý.",
+    "abilities": [
+      {
+        "name": "Vodní náraz",
+        "description": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti."
+      },
+      {
+        "name": "Lesklé šupiny",
+        "description": "Odráží část poškození zpět na útočníka."
+      }
+    ]
+  },
+  "017": {
+    "name": "Prdovous rex",
+    "description": "Obrovský lesní tvor z větví a mechu, který při chůzi zanechává za sebou obláčky prdového dýmu. Strašidelný, ale legrační, dokáže nepřátele rozesmát i paralyzovat smíchem.",
+    "abilities": [
+      {
+        "name": "Smradlavý výbuch",
+        "description": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, "
+      },
+      {
+        "name": "Kořenový náraz",
+        "description": "Z kořenů vyrazí rychlý útok na jednoho nepřítele."
+      }
+    ]
+  },
+  "018": {
+    "name": "Voltový Predátor",
+    "description": "Smrtící elektrický had s naježenými ostny, které neustále pulzují vysokým napětím. Vteřina nepozornosti znamená smrtící výboj.",
+    "abilities": [
+      {
+        "name": "Ohnivý blesk",
+        "description": "Vystřelí elektrický výboj ze svých ostnů na všechny nepřátele v okolí."
+      },
+      {
+        "name": "Elektrický štít",
+        "description": "Na jedno kolo zvyšuje obranu a odráží část poškození zpět útočníkovi (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "019": {
+    "name": "Bleskokvět dvojhlavý",
+    "description": "Elektrická masožravá květina s dvěma hlavami, které chňapou po všem kolem. Když se rozčílí, mezi květy prskají jiskry a vydávají malé elektrické výboje.",
+    "abilities": [
+      {
+        "name": "Jiskrový chňapák",
+        "description": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli."
+      },
+      {
+        "name": "Elektrické výboje",
+        "description": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu."
+      }
+    ]
+  },
+  "020": {
+    "name": "Bleskoježek",
+    "description": "Malá elektrická kulička s ostny, která se rychle kutálí a při pohybu vyvolává jiskry. Nepřátelé se jí snaží vyhnout, ale ostny je zasáhnou bleskem.",
+    "abilities": [
+      {
+        "name": "Jiskrový kotouč",
+        "description": "Rychle se kutálí po poli a zasahuje všechny nepřátele, na které narazí, elektrickým poškozením."
+      },
+      {
+        "name": "Ostnatý náraz",
+        "description": "Způsobí poškození a má malou šanci paralyzovat nepřítele na jedno kolo."
+      }
+    ]
+  },
+  "021": {
+    "name": "Kraboshell skála",
+    "description": "Mocná želva s pevnou skořápkou a moudrým výrazem. Pomalejší pohyb, ale těžko ji zraníš. Milá a spolehlivá, dokáže chránit své přátele.",
+    "abilities": [
+      {
+        "name": "Skořápkový náraz",
+        "description": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením."
+      },
+      {
+        "name": "Ochranný pancíř",
+        "description": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "022": {
+    "name": "Žouža Drapák",
+    "description": "Mutantní žížala s dlouhými paznechty s drápy na konci, které dokážou chňapnout po nepřátelích. Strašidelná i legrační zároveň, ideální na překvapení nepřátel ve hře.",
+    "abilities": [
+      {
+        "name": "Chapadlový útok",
+        "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození."
+      },
+      {
+        "name": "Plazivá obrana",
+        "description": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "023": {
+    "name": "Slizohad",
+    "description": "Vodní příšera pokrytá jedovatou slizovinou. Pohybuje se plovoucím klouzavým způsobem a může zasáhnout nepřátele jedem. Strašidelná a nebezpečná, ale stále trochu legrační.",
+    "abilities": [
+      {
+        "name": "Jedovatý dotek",
+        "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol."
+      },
+      {
+        "name": "Klouzavý útěk",
+        "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "024": {
+    "name": "Kotvoplak",
+    "description": "Mocná vodní příšera, která drží obrovskou kotvu nebo kladivo. Plave pod vodou a dokáže zasáhnout nepřátele s velkou silou. Strašidelná. Pojídá své druhy.",
+    "abilities": [
+      {
+        "name": "Kotvový úder",
+        "description": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením."
+      },
+      {
+        "name": "Podvodní rána",
+        "description": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo."
+      }
+    ]
+  },
+  "025": {
+    "name": "Král Pařezoplam",
+    "description": "Ohnivý pařez, který slouží jako živý plamenomet. Dokáže vypálit oblaka ohně na nepřátele, strašidelný a impozantní, ale stále trochu legrační a epický.",
+    "abilities": [
+      {
+        "name": "Plamenomet",
+        "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu."
+      },
+      {
+        "name": "Ohnivý štít",
+        "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "026": {
+    "name": "Fekálník Blátivý",
+    "description": "Blátivá, hnusná, ale legrační příšera. Pohybuje se pomalu, zanechává za sebou špinavé stopy a dokáže překvapit nepřátele svým bahnitým útokem.",
+    "abilities": [
+      {
+        "name": "Bahnitý šleh",
+        "description": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Blátivá obrana",
+        "description": "Na jedno kolo se zablátí a sníží přijaté poškození (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "027": {
+    "name": "Láskožrout Měkký",
+    "description": "Měkká, roztomilá příšerka, která dokáže pohltit nepřátele svým objímacím tělem. Strašidelná jen trošku, ale hlavně legrační a mazlivá.",
+    "abilities": [
+      {
+        "name": "Mazlivý sev",
+        "description": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Plyšový štít",
+        "description": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "028": {
+    "name": "Mazlík Hegeš",
+    "description": "Malá, nenápadná myší příšerka s velkýma očima a rychlými tlapkami. Vypadá roztomile, ale dokáže překvapit rychlými útoky a zmatením nepřátel.",
+    "abilities": [
+      {
+        "name": "Rychlé kousnutí",
+        "description": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození."
+      },
+      {
+        "name": "Zmatený úprk",
+        "description": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "029": {
+    "name": "Drápek žhavík",
+    "description": "Zmutovaná šelma s rozpálenými drápy a žhnoucíma očima. Každý jeho pohyb zanechává stopy popela.",
+    "abilities": [
+      {
+        "name": "Žhavý sek",
+        "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození."
+      },
+      {
+        "name": "Popelavý výbuch",
+        "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "030": {
+    "name": "Slizák Krup",
+    "description": "Podivný mutantní tvor složený z hustého zeleného slizu. Neustále mění tvar a pohlcuje vše, co se k němu přiblíží.",
+    "abilities": [
+      {
+        "name": "Slizové obalení",
+        "description": "Krup se obalí slizem a na jedno kolo výrazně zvýší obranu (Snížení dmg 55-65%)"
+      },
+      {
+        "name": "Pohlcení",
+        "description": "Zasáhne nepřítele slizem a postupně mu ubírá životy po dobu 2 kol."
+      }
+    ]
+  },
+  "031": {
+    "name": "Švábomyš Ron",
+    "description": "Odpudivý vodní mutant připomínající křížence švába a myši. Má dlouhý lysý ocas, chitinový krunýř a tenké nožky, kterými se plazí po dně. Rád se skrývá ve špíně a kalu, kde tiše číhá na kořist.",
+    "abilities": [
+      {
+        "name": "Kalný výpad",
+        "description": "Švábomyš se vynoří z kalu a rychle kousne nepřítele, čímž má šanci ho oslabit."
+      },
+      {
+        "name": "Chitinový odraz",
+        "description": "Tvrdý krunýř odrazí část poškození zpět na útočníka."
+      }
+    ]
+  },
+  "032": {
+    "name": "Spidi bot",
+    "description": "Mutantní kombinace chobotnice a pavouka. Má osm dlouhých chapadel zakončených ostrými háky, kterými se přichytává ke stěnám i nepřátelům. Pohybuje se tiše pod vodou i po souši. Loví ze zálohy, omotává kořist a postupně ji drtí. Velmi inteligentní a extrémně nebezpečný predátor.",
+    "abilities": [
+      {
+        "name": "Chapadlová past",
+        "description": "Omotá nepřítele chapadly, způsobí vysoké poškození a má šanci ho znehybnit na jedno kolo."
+      },
+      {
+        "name": "Jedovatý výstřik",
+        "description": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60% (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "033": {
+    "name": "Dotty Rose",
+    "description": "Přirozený pes se skvrnitou srstí, rychlý a bystrý. Dobře reaguje na povely a je skvělý lovec i společník. Má silný čich a rychlé reflexy, což mu umožňuje vyhledávat a pronásledovat kořist či cizince.",
+    "abilities": [
+      {
+        "name": "Rychlý útok",
+        "description": "Útok vysokou rychlostí na jednoho nepřítele."
+      },
+      {
+        "name": "Čichové vyhledávání",
+        "description": "Odhalí nepřátele a zvyšuje šanci zásahu příštího útoku."
+      }
+    ]
+  },
+  "034": {
+    "name": "Flamík Popelka",
+    "description": "Malá, roztomilá ohnivá liška s žhnoucíma očima a drápky, které zanechávají stopy jisker a popela při každém pohybu.",
+    "abilities": [
+      {
+        "name": "Jiskřivý švih",
+        "description": "Rychlý úder rozpáleným drápem, způsobí silné poškození jednomu nepříteli."
+      },
+      {
+        "name": "Popelavý vír",
+        "description": "Vyvolá vír popela a jisker. Od všech nepřítele a sníží útok  v příštím kole o 80% (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "035": {
+    "name": "Bublík Mořský",
+    "description": "Malý, roztomilý mořský koník s lesklými šupinami a jemnými ploutvemi, který elegantně pluje mezi korály a mořskou trávou, zanechává za sebou drobné bublinky.",
+    "abilities": [
+      {
+        "name": "Vlnivý švih",
+        "description": "Útočí rychlým pohybem ocasu, způsobí poškození jednomu nepříteli."
+      },
+      {
+        "name": "Léčivé bublinky",
+        "description": "Vytvoří kouzlo z bublin, které obnoví zdraví spojencům."
+      }
+    ]
+  },
+  "036": {
+    "name": "Plasmarík Ed",
+    "description": "Malý energický králík držící zářící plazmovou kouli, která praská blesky. Je rychlý, srst mu jemně vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
+    "abilities": [
+      {
+        "name": "Plazmový výboj",
+        "description": "Uvolní soustředěnou plazmovou energii na jednoho nepřítele a způsobí silné poškození."
+      },
+      {
+        "name": "Elektro léčba",
+        "description": "Vytvoří jiskřící bublinu, která obnoví 25% zdraví."
+      }
+    ]
+  },
+  "037": {
+    "name": "Voltinka Čibu",
+    "description": "Malá odvážná čivava stojící na kopci, chytá blesky z nebe. Srst jí vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
+    "abilities": [
+      {
+        "name": "Nebeský výboj",
+        "description": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením."
+      },
+      {
+        "name": "Elektrická obnova",
+        "description": "Použije energii blesků k doražení nepřítele."
+      }
+    ]
+  },
+  "038": {
+    "name": "Krystalový Šnek",
+    "description": "Obrovský šnek s ulitou tvořenou z čistých ametystových krystalů. Jeho sliz za sebou zanechává cestu z mrazivého světla, která zpomaluje každého, kdo do ní vstoupí.",
+    "abilities": [
+      {
+        "name": "Krystalová barikáda",
+        "description": "Sbalí se do své ulity a vytvoří kolem sebe štít z krystalů, který výrazně zvýší jeho obranu (Snížení dmg 55-65%)"
+      },
+      {
+        "name": "Mrazivý sliz",
+        "description": "Vypustí vlnu mrazivého slizu, který ochladí a zpomalí nepřítele."
+      }
+    ]
+  },
+  "039": {
+    "name": "Sopečná Hydra",
+    "description": "Tříhlavá hydra, která žije v kráterech aktivních sopek. Místo krve jí v žilách proudí tekutá láva a každá její hlava ovládá jiný aspekt ohně.",
+    "abilities": [
+      {
+        "name": "Trojnásobný dech",
+        "description": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě."
+      },
+      {
+        "name": "Lávová regenerace",
+        "description": "Využije teplo k zacelení svých ran a posílení útoku."
+      },
+      {
+        "name": "Soptící hněv",
+        "description": "Způsobí výbuch lávy v širokém okolí, který poškodí všechny nepřátele."
+      }
+    ]
+  },
+  "040": {
+    "name": "Safírový Kraken",
+    "description": "Obrovský hlavonožec s kůží připomínající hluboký safír. Jeho chapadla jsou pokryta luminiscenčními přísavkami, které dokážou vytvořit elektrické výboje pod vodou.",
+    "abilities": [
+      {
+        "name": "Hlubinné sevření",
+        "description": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí."
+      },
+      {
+        "name": "Safírová záře",
+        "description": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele."
+      },
+      {
+        "name": "Elektrické vlnobití",
+        "description": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele."
+      }
+    ]
+  },
+  "041": {
+    "name": "Mešníček Chlupatý",
+    "description": "Malý, kulatý tvoreček pokrytý měkkým zeleným mechem. Místo uší má dva dubové lístky a neustále hledá čerstvou ranní rosu.",
+    "abilities": [
+      {
+        "name": "Rosný dotek",
+        "description": "Vystříkne kapku magické rosy, která osvěží spojence nebo lehce oslabí nepřítele."
+      },
+      {
+        "name": "Mechové maskování",
+        "description": "Splyne s okolím a sníží šanci nepřítele na zásah. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      }
+    ]
+  },
+  "042": {
+    "name": "Osminožka Zubatá",
+    "description": "Malý huňatý pavouček s velkýma modrýma očima a jedním vyčnívajícím zoubkem. Rád plete sítě z cukrové vaty.",
+    "abilities": [
+      {
+        "name": "Cukrová síť",
+        "description": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo."
+      },
+      {
+        "name": "Huňatý skok",
+        "description": "Skočí na nepřítele a překvapí ho svou vahou."
+      }
+    ]
+  },
+  "043": {
+    "name": "Stonožka Roháček",
+    "description": "Pestrobarevná stonožka s malými zakroucenými rohy na každém článku těla. Je velmi rychlá a miluje závody v trávě.",
+    "abilities": [
+      {
+        "name": "Sprintér",
+        "description": "Zvýší svou rychlost a příští útok doručí dříve. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Rohový náraz",
+        "description": "Udeří svými malými rohy a způsobí střední poškození."
+      }
+    ]
+  },
+  "044": {
+    "name": "Beruška Bradavička",
+    "description": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
+    "abilities": [
+      {
+        "name": "Bradavičkové světlo",
+        "description": "Vystřelí silný záblesk, který oslní nepřítele."
+      },
+      {
+        "name": "Tvrdá krovka",
+        "description": "Zpevní svou ochranu a sníží příchozí poškození o 30% (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "045": {
+    "name": "Bubla Krab",
+    "description": "Malý modrý krab, který místo bublin vyfukuje ostré krystaly. Má jedno klepeto mnohem větší než druhé a neustále jím cvaká.",
+    "abilities": [
+      {
+        "name": "Krystalový výfuk",
+        "description": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele."
+      },
+      {
+        "name": "Cvak ruku",
+        "description": "Uskřípne nepřítele svým velkým klepetem a způsobí střední poškození."
+      }
+    ]
+  },
+  "046": {
+    "name": "Kudlanka Vírníková",
+    "description": "Průsvitná vodní kudlanka s ostrými pilovitými předními končetinami. Dokáže pod vodou vytvořit malý vír, do kterého chytá kořist.",
+    "abilities": [
+      {
+        "name": "Pilovitý řez",
+        "description": "Rychle zaútočí svými předními končetinami a rozsekne nepřítele."
+      },
+      {
+        "name": "Malý vír",
+        "description": "Vytvoří mini vír, který zmýlí nepřítele a na jedno kolo mu sníží obranu."
+      }
+    ]
+  },
+  "047": {
+    "name": "Žabička Trnoploutvá",
+    "description": "Malá tyrkysová žába s blánami zakončenými ostrými drápky. Má na zádech řadu svítících trnů a ráda skáče na nic netušící kolemjdoucí.",
+    "abilities": [
+      {
+        "name": "Drápový skok",
+        "description": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky."
+      },
+      {
+        "name": "Trnový odraz",
+        "description": "Zpevní se a trny na zádech odrazí část poškození zpět (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "048": {
+    "name": "Medúzka Vlasatá",
+    "description": "Malá růžová medúza s dlouhými chapadly, která připomínají svítící vlasy. Její dotek způsobuje brnění a dočasné ochromení.",
+    "abilities": [
+      {
+        "name": "Elektrický dotek",
+        "description": "Zasáhne nepřítele svými chapadly a způsobí mu slabý elektrický šok."
+      },
+      {
+        "name": "Ochromující záře",
+        "description": "Vystřelí záblesk světla, který má šanci nepřítele na jedno kolo ochromit."
+      }
+    ]
+  },
+  "049": {
+    "name": "Vážka Strašilka",
+    "description": "Obrovská vážka s kovově lesklým tělem a čtyřmi křídly, která při letu vydávají skřípavý zvuk. Má velké čelisti a čtyři páry očí, které vidí vše v okolí.",
+    "abilities": [
+      {
+        "name": "Skřípavý nálet",
+        "description": "Rychle proletí kolem nepřítele a sekne ho svými křídly."
+      },
+      {
+        "name": "Čelistní stisk",
+        "description": "Zakousne se do nepřítele svými silnými čelistmi."
+      }
+    ]
+  },
+  "050": {
+    "name": "Baboškrabka Zlověstná",
+    "description": "Prastará a děsivá bytost obývající nejhlubší hvozdy. Tato legendární Baba Jaga má rozcuchané, špinavé šedé vlasy, na nose velkou bradavici a z hrbaté postavy jí trčí kostěné ostny. Vládne mocnou lopatou ukovanou z meteoru a očarovanou kořeny světa. Její smích věští zkázu každému, kdo naruší klid přírody.",
+    "abilities": [
+      {
+        "name": "Úder Epickou Lopatou",
+        "description": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit."
+      },
+      {
+        "name": "Kletba Hlubokého Lesa",
+        "description": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí."
+      },
+      {
+        "name": "Hnilobný Závan",
+        "description": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele."
+      }
+    ]
+  },
+  "051": {
+    "name": "Mother Kitty",
+    "description": "Zanedbaná postava v potrhaných vrstvách oblečení, kterou vždy doprovází legie divokých, hladových koček. Žije ve stínech velkoměsta a její kočky nejsou jen mazlíčci, ale prodloužená ruka její pomstychtivé vůle.",
+    "abilities": [
+      {
+        "name": "Kočičí Armáda",
+        "description": "Vypustí hejno hladových koček, které nepřítele poškrábou a pokoušou."
+      },
+      {
+        "name": "Pronikavé Mňoukání",
+        "description": "Děsivý jekot koček ochromí nepřítele hrůzou."
+      },
+      {
+        "name": "Infikované Drápy",
+        "description": "Útok, který kromě zranění způsobí i otravu špínou z ulic."
+      }
+    ]
+  },
+  "052": {
+    "name": "Mandragora Křičivá",
+    "description": "Magická rostlina, jejíž kořen připomíná nevzhledné lidské mládě. Zatímco v klidu jen tiše podřimuje v květináči, po vytažení ze země spustí ohlušující vřískot, který dokáže omráčit i dospělého kouzelníka. Její listy jsou však ceněnou ingrediencí pro přípravu léčivých lektvarů.",
+    "abilities": [
+      {
+        "name": "Ohlušující Jekot",
+        "description": "Vypustí pronikavý výkřik, který nepřítele ochromí a sníží jeho přesnost."
+      },
+      {
+        "name": "Šlehnutí Listem",
+        "description": "Rychle šlehne svými tuhými listy a způsobí řezné rány."
+      },
+      {
+        "name": "Hojivá Míza",
+        "description": "Uvolní regenerační esenci z kořenů, která jí postupně doplňuje zdraví."
+      }
+    ]
+  },
+  "053": {
+    "name": "Chramtal Zubatý",
+    "description": "Malý, kulatý tvor tvořený převážně hustou černou srstí a neuvěřitelně velkou tlamou. Jeho čelisti ukrývají řady neproporcionálně velkých a ostrých zubů, kterými dokáže rozdrtit i ten nejtvrdší kámen. Přestože působí na první pohled roztomile, jeho nenasytnost nezná mezí a dokáže v mžiku pozřít věci dvakrát větší než je on sám.",
+    "abilities": [
+      {
+        "name": "Drtivý Stisk",
+        "description": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele."
+      },
+      {
+        "name": "Svinutí do Kuličky",
+        "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "054": {
+    "name": "Slinotvor Malformovaný",
+    "description": "Tento tvor je hromadou svalů a slizu, která se neustále přetváří. Má několik neukotvených očí plovoucích v rosolovitém těle a z každé jeho praskliny vytéká lepkavá, fluoreskující tekutina. Jeho dech páchne po staré hnilobě a jeho kůže je pokryta pulzujícími vřídky, které při prasknutí uvolňují toxický mrak.",
+    "abilities": [
+      {
+        "name": "Toxicita Slizu",
+        "description": "Oprská nepřítele svým lepkavým slizem, který ho postupně rozežírá a oslabuje."
+      },
+      {
+        "name": "Slizká Regenerace",
+        "description": "Část jeho těla se rozpustí a znovu zformuje, čímž si vyléčí utržené rány."
+      },
+      {
+        "name": "Ochromující Pach",
+        "description": "Uvolní oblak hnilobného plynu, který nepřítele na chvíli zcela ochromí."
+      }
+    ]
+  },
+  "055": {
+    "name": "Drápohlod Parasitický",
+    "description": "Zmutovaný malý hlodavec, kterému z boku vyrostl druhý, zakrnělý a agresivní jedinec. Původní hostitel má vyhaslé oči, zatímco jeho parazitický přívěsek vládne obřími zuby a ostrými drápy. Jejich pohyby jsou trhavé a nepředvídatelné, jak oba mozky bojují o kontrolu nad společným tělem.",
+    "abilities": [
+      {
+        "name": "Dvojitý Hryz",
+        "description": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění."
+      },
+      {
+        "name": "Trhavý Výpad",
+        "description": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce."
+      },
+      {
+        "name": "Parazitický Vřískot",
+        "description": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele."
+      }
+    ]
+  },
+  "056": {
+    "name": "Chňapík Hlubin",
+    "description": "Průhledná medúza s obří tlamou plnou bioluminiscenčních zubů, které svítí v nejhlubších částech oceánu. Má jedno velké centrální oko a dlouhá růžová chapadla, která používá k přitahování nic netušící kořisti k sobě.",
+    "abilities": [
+      {
+        "name": "Chapadlový Stisk",
+        "description": "Ovine nepřítele svými chapadly a postupně ho stahuje do své tlamy."
+      },
+      {
+        "name": "Mořská Regenerace",
+        "description": "Využije tlak vody k rychlému zformování svého těla a doplnění HP."
+      }
+    ]
+  },
+  "057": {
+    "name": "Ropuše přítulná",
+    "description": "Zmutovaná obří žába s třemi páry očí a zakrnělými černými křídly na zádech. Její kůže neustále produkuje jedovatý modrý sliz a její mrštný jazyk je vybaven ostrými háčky.",
+    "abilities": [
+      {
+        "name": "Slizká Sprcha",
+        "description": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození."
+      },
+      {
+        "name": "Jazykový Výpad",
+        "description": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem."
+      },
+      {
+        "name": "Plachtění",
+        "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "058": {
+    "name": "Jiskrohlod Zmutovaný",
+    "description": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
+    "abilities": [
+      {
+        "name": "Elektrický Výboj",
+        "description": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí."
+      },
+      {
+        "name": "Statické Nabití",
+        "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK."
+      },
+      {
+        "name": "Zkrat",
+        "description": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem."
+      }
+    ]
+  },
+  "059": {
+    "name": "Bleskovec Víceoký",
+    "description": "Levitující koule čisté energie s desítkami malých očí po celém obvodu. Uprostřed má jednu vertikální tlamu a dokáže se v mžiku teleportovat na krátké vzdálenosti díky bleskovému impulsu.",
+    "abilities": [
+      {
+        "name": "Blesková Tlama",
+        "description": "Kousnutí s prvkem vysokého napětí, které proniká i brněním."
+      },
+      {
+        "name": "Oko Blesku",
+        "description": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb."
+      },
+      {
+        "name": "Plazmový Puls",
+        "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "060": {
+    "name": "Škvarkavec Popelavý",
+    "description": "Zmutovaný tvor připomínající psa, jehož tělo je tvořeno chladnoucí lávou a popelem. Skrz praskliny v jeho kůži prosvítá žhnoucí jádro a jeho dech tvoří hustý černý dým.",
+    "abilities": [
+      {
+        "name": "Popelavý kousanec",
+        "description": "Kousnutí, které způsobí popáleniny popelem."
+      },
+      {
+        "name": "Kouřová clona",
+        "description": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "061": {
+    "name": "Ohňohuba Sliznatá",
+    "description": "Rosolovitá masa tekuté lávy s mnoha nepravidelně rozmístěnými oky. Z její obří tlamy neustále odkapává tekutý oheň, který zapaluje vše v okolí.",
+    "abilities": [
+      {
+        "name": "Lávový plivanec",
+        "description": "Plivne kus tekutého ohně."
+      },
+      {
+        "name": "Žhnoucí tělo",
+        "description": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "062": {
+    "name": "Uhlíkovec Vícehlavý",
+    "description": "Kráčející hromada žhoucího uhlí se třemi vřískajícími hlavami tvořenými modrým plamenem. Každá hlava má vlastní řadu ostrých zubů.",
+    "abilities": [
+      {
+        "name": "Trojitý křik",
+        "description": "Všechny hlavy zařvou a ochromí nepřítele."
+      },
+      {
+        "name": "Modrý žár",
+        "description": "Extrémně horký útok plamenem."
+      }
+    ]
+  },
+  "063": {
+    "name": "Plamenošváb Obří",
+    "description": "Zmutovaný hmyz s průhlednými křídly z čistého ohně a masivními kusadly, která jsou rozžhavená doruda.",
+    "abilities": [
+      {
+        "name": "Kusadlový stisk",
+        "description": "Sevře nepřítele a popálí ho."
+      },
+      {
+        "name": "Ohnivý nálet",
+        "description": "Rychlý útok ze vzduchu."
+      }
+    ]
+  },
+  "064": {
+    "name": "Solární Vyvrhel",
+    "description": "Vyhublý, deformovaný tvor s kůží připomínající povrch slunce. Neustále z něj vyzařuje nesnesitelný žár a kouř, který oslepuje okolí.",
+    "abilities": [
+      {
+        "name": "Sluneční záře",
+        "description": "Oslní nepřítele zábleskem."
+      },
+      {
+        "name": "Plazmový výboj",
+        "description": "Vystřelí kus plazmy ze svého těla."
+      }
+    ]
+  },
+  "065": {
+    "name": "Kořenohlod Trnitý",
+    "description": "Zmutovaný hybrid rostliny a zvířete s mnoha dřevěnými končetinami a ostrými zuby ve tvaru trnů. Jeho kořeny se dokáží bleskově zavrtat do země.",
+    "abilities": [
+      {
+        "name": "Trnový úder",
+        "description": "Sekne nepřítele trny."
+      },
+      {
+        "name": "Kořenový štít",
+        "description": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "066": {
+    "name": "Houbovous Zamořený",
+    "description": "Bytost tvořená houbami a plísní se svítícími sporami. Pod širokým kloboukem skrývá obří tlamu plnou hubovitých zubů.",
+    "abilities": [
+      {
+        "name": "Mrak spor",
+        "description": "Uvolní jedovaté spory."
+      },
+      {
+        "name": "Houbová regenerace",
+        "description": "Vyléčí se pomocí plísně."
+      }
+    ]
+  },
+  "067": {
+    "name": "Listopad Morový",
+    "description": "Tvor pokrytý mrtvými, hnijícími listy, které ztvrdly na ostré čepele. Jeho oči jsou mléčně bílé a beze stop života.",
+    "abilities": [
+      {
+        "name": "Listová bouře",
+        "description": "Vystřelí na nepřítele ostré listy."
+      },
+      {
+        "name": "Hnilobný dech",
+        "description": "Oslabí nepříatele pachem smrti."
+      }
+    ]
+  },
+  "068": {
+    "name": "Větvořez Parazitický",
+    "description": "Stromovité monstrum s dlouhýma pavoučíma nohama ze dřeva a druhým parazitickým výrůstkem v podobě dravého květu.",
+    "abilities": [
+      {
+        "name": "Větvený útok",
+        "description": "Seknutí mnoha větvemi naráz."
+      },
+      {
+        "name": "Parazitické kousnutí",
+        "description": "Kousnutí druhou hlavou."
+      }
+    ]
+  },
+  "069": {
+    "name": "Květomorous Děsivý",
+    "description": "Nádherný květ, který po otevření odhalí strašlivou, zmutovanou tvář s řadami zubů, z nichž kape lepkavý nektar.",
+    "abilities": [
+      {
+        "name": "Lepkavé sevření",
+        "description": "Uvězní nepřítele v nektaru."
+      },
+      {
+        "name": "Smrtící pyl",
+        "description": "Vystřelí pyl, který působí halucinace."
+      }
+    ]
+  },
+  "070": {
+    "name": "Malformátor Všepohlcující",
+    "description": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
+    "abilities": [
+      {
+        "name": "Pohlcení Existence",
+        "description": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst."
+      },
+      {
+        "name": "Vřískot Tisíce Úst",
+        "description": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu."
+      },
+      {
+        "name": "Korozivní Sliz",
+        "description": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "071": {
+    "name": "Archivář Zkaženosti",
+    "description": "Bývalý strážce vědění, jehož tělo zmutovalo v hybrid hmyzu a člověka prorostlý prastarými svitky. Má šest hmyzích očí, čtyři páry rukou zakončených kostěnými hroty a jeho kůže je popsána runami, které dýchají temnou magií a elektrickými výboji.",
+    "abilities": [
+      {
+        "name": "Kletba Nevědění",
+        "description": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením."
+      },
+      {
+        "name": "Runový Výboj",
+        "description": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši."
+      },
+      {
+        "name": "Energetické Pokřivení",
+        "description": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "072": {
+    "name": "Matka Všeplísně",
+    "description": "Děsivá mutace pavoučí královny s hnijícím ženským torzem, ze kterého vyrůstají masivní houby. Místo očí má stovky svítících vředů a z jejích noh vytéká nákaza, která v mžiku mění živou tkáň v hnilobný prach.",
+    "abilities": [
+      {
+        "name": "Nákaza Hnilobou",
+        "description": "Infikuje cíl plísní, která se šíří tělem a drasticky snižuje jeho sílu."
+      },
+      {
+        "name": "Hnilobné Kousnutí",
+        "description": "Zasadí ránu čelistmi plnými jedovatého hnisu."
+      },
+      {
+        "name": "Podhoubí Zkázy",
+        "description": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele."
+      }
+    ]
+  },
+  "073": {
+    "name": "Ohnivý skřítek",
+    "description": "Malý zlomyslný skřítek tvořený rozpálenými uhlíky.",
+    "abilities": [
+      {
+        "name": "Spalující žár",
+        "description": "Vystřelí ohnivou kouli, která silně popálí cíl."
+      },
+      {
+        "name": "Ohnivý tanec",
+        "description": "Rychlý pohyb v plamenech, který sníží utržené zranění o 55-65%."
+      }
+    ]
+  },
+  "074": {
+    "name": "Lávový brouk",
+    "description": "Brouk s velmi tvrdým krunýřem z chladnoucí magmy.",
+    "abilities": [
+      {
+        "name": "Lávový plivanec",
+        "description": "Vystříkne proud tekuté lávy, který zasáhne nepřítele."
+      },
+      {
+        "name": "Žhavý krunýř",
+        "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění o 55-65%."
+      }
+    ]
+  },
+  "075": {
+    "name": "Pyrožek teplomyl",
+    "description": "Drobný bodlináč, jehož bodliny jsou ve skutečnosti drobné rozpálené uhlíky. Rád se schovává v ohništích.",
+    "abilities": [
+      {
+        "name": "Spalující žár",
+        "description": "Vystřelí ohnivou kouli, která silně popálí cíl."
+      },
+      {
+        "name": "Žhavý krunýř",
+        "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "076": {
+    "name": "Popelavý Soptík",
+    "description": "Oheň milující mlok žijící v popelu poblíž sopek.",
+    "abilities": [
+      {
+        "name": "Spalující žár",
+        "description": "Vystřelí ohnivou kouli, která silně popálí cíl."
+      },
+      {
+        "name": "Žhavý krunýř",
+        "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění o 55-65%."
+      }
+    ]
+  },
+  "077": {
+    "name": "Flarbat Ohnivák",
+    "description": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
+    "abilities": [
+      {
+        "name": "Spalující žár",
+        "description": "Vystřelí ohnivou kouli, která silně popálí cíl."
+      },
+      {
+        "name": "Žhavý krunýř",
+        "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění o 55-65%."
+      }
+    ]
+  },
+  "078": {
+    "name": "Listová Kudlanka",
+    "description": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
+    "abilities": [
+      {
+        "name": "Divoké šlahouny",
+        "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny."
+      },
+      {
+        "name": "Fotosyntéza",
+        "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas."
+      }
+    ]
+  },
+  "079": {
+    "name": "Kořenový Golem",
+    "description": "Malý hromotluk upletený z kořínků a lián.",
+    "abilities": [
+      {
+        "name": "Divoké šlahouny",
+        "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny."
+      },
+      {
+        "name": "Fotosyntéza",
+        "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas."
+      }
+    ]
+  },
+  "080": {
+    "name": "Březový Pavouk",
+    "description": "Pavouk maskující se barvou březové kůry, nesmírně tichý lov.",
+    "abilities": [
+      {
+        "name": "Ovinutí pavučinou",
+        "description": "Vystřelí lepkavou pavučinu, která omezí pohyb nepřítele."
+      },
+      {
+        "name": "Fotosyntéza",
+        "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas."
+      }
+    ]
+  },
+  "081": {
+    "name": "Zombík Voltík",
+    "description": "Malý, překvapivě roztomilý nemrtvý, který slouží jako přírodní baterie. Neustále kolem sebe prská drobné jiskry.",
+    "abilities": [
+      {
+        "name": "Statický kousanec",
+        "description": "Kousne nepřítele a uštědří mu nepříjemný elektrický šok."
+      },
+      {
+        "name": "Posmrtný výboj",
+        "description": "Uvolní nahromaděnou energii v silném záblesku, který oslabí cíl."
+      }
+    ]
+  },
+  "082": {
+    "name": "Výbojový Krysař",
+    "description": "Chlupatý hlodavec s neustále naježenou srstí probíjející blesky.",
+    "abilities": [
+      {
+        "name": "Bleskový řetězec",
+        "description": "Vyšle spršku smrtících blesků na svůj cíl."
+      },
+      {
+        "name": "Elektrický šok",
+        "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti."
+      }
+    ]
+  },
+  "083": {
+    "name": "Bleskový Kolibřík",
+    "description": "Téměř neviditelný ptáček zanechávající stopy jisker.",
+    "abilities": [
+      {
+        "name": "Bleskový řetězec",
+        "description": "Vyšle spršku smrtících blesků na svůj cíl."
+      },
+      {
+        "name": "Klektavý šok",
+        "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti."
+      }
+    ]
+  },
+  "084": {
+    "name": "Neonový Štír",
+    "description": "Jeho tělo září neonově modrými výboji nahrazujícími klasický jed.",
+    "abilities": [
+      {
+        "name": "Bleskový řetězec",
+        "description": "Vyšle spršku smrtících blesků na svůj cíl."
+      },
+      {
+        "name": "Klektavý šok",
+        "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti po dobu 2 kola."
+      }
+    ]
+  },
+  "085": {
+    "name": "Energetický Brokolit",
+    "description": "Temná zmutovaná brokolice se zubatými okraji a mnoha žlutýma očima, které sledují každý váš pohyb. Její stonky jiskří smrtící elektřinou.",
+    "abilities": [
+      {
+        "name": "Jehličnatý výboj",
+        "description": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele."
+      },
+      {
+        "name": "Bleskové ochromení",
+        "description": "Vysílá vlny statické elektřiny, které oslabují svaly a snižují sílu útoku nepřítele."
+      }
+    ]
+  },
+  "086": {
+    "name": "Statický Toast",
+    "description": "Zuhelnatělý kus toustu, který se probral k životu s neuhasitelným hladem. Jeho široká tlama je plná ostrých spálených drobků.",
+    "abilities": [
+      {
+        "name": "Vysokonapěťový stisk",
+        "description": "Zakousne se do nepřítele a pustí do něj silný elektrický proud."
+      },
+      {
+        "name": "Křupavé nabití",
+        "description": "Pohltí statickou elektřinu z okolí a dočasně drasticky zvýší svou útočnou sílu."
+      }
+    ]
+  },
+  "087": {
+    "name": "Plazmový Meloun",
+    "description": "Rozšklebený meloun, v jehož nitru pulzuje fialové plazma. Místo sladké dužiny má tlamu plnou černých semen ostrých jako břitva.",
+    "abilities": [
+      {
+        "name": "Plazmová exploze",
+        "description": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl."
+      },
+      {
+        "name": "Plazmová obnova",
+        "description": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví."
+      }
+    ]
+  },
+  "088": {
+    "name": "Chapadlová Rolka",
+    "description": "Kousek sushi, který odmítl být sněden. Z rýže vyrašila slizká chapadla s ostny a syrový losos na vrchu začal sledovat okolí lidským okem.",
+    "abilities": [
+      {
+        "name": "Injekce wasabi",
+        "description": "Bodne nepřítele chapadlem napuštěným pálivým jedem."
+      },
+      {
+        "name": "Slizká past",
+        "description": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele."
+      }
+    ]
+  },
+  "089": {
+    "name": "Ledová Tříšťka",
+    "description": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
+    "abilities": [
+      {
+        "name": "Mrazivý řez",
+        "description": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány."
+      },
+      {
+        "name": "Hluboké zmrazení",
+        "description": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu."
+      }
+    ]
+  },
+  "090": {
+    "name": "Kapající Kobliha",
+    "description": "Plesnivý donut s pavoučíma nohama z tuhého těsta. Uprostřed má temný vodní vír, který do sebe vtahuje vše živé.",
+    "abilities": [
+      {
+        "name": "Abysvální sirup",
+        "description": "Vystříkne lepkavou temnou polevu, která pohlcuje životní sílu."
+      },
+      {
+        "name": "Cukrová regenerace",
+        "description": "Nasává sladkou polevu zpět do svých ran, čímž si obnovuje ztracené zdraví."
+      }
+    ]
+  },
+  "091": {
+    "name": "Pizza Inferno",
+    "description": "Zuhelnatělý trojúhelník pizzy s pepperoni očima, které vás neustále sledují. Místo sýra po ní stéká vařící láva a z okraje trčí kosti.",
+    "abilities": [
+      {
+        "name": "Lávový déšť",
+        "description": "Potřísní nepřítele vařícím sýrem a lávou z povrchu."
+      },
+      {
+        "name": "Lávová aura",
+        "description": "Rozžhaví sýr na svém povrchu, což zvýší sílu ohnivých útoků po zbytek boje."
+      }
+    ]
+  },
+  "092": {
+    "name": "Chilli Raketa",
+    "description": "Vysušená červená paprička s tváří plnou jehličnatých zubů. Z jejího konce šlehá neutichající ohnivý proud, který ji pohání vpřed jako střelu.",
+    "abilities": [
+      {
+        "name": "Kapsaicinový náraz",
+        "description": "Narazí do nepřítele v plné rychlosti a vyvolá ohnivou explozi."
+      },
+      {
+        "name": "Adrenalinový žár",
+        "description": "Vstříkne do herního pole pálivý koncentrát, který zvýší jeho rychlost a dravost."
+      }
+    ]
+  },
+  "093": {
+    "name": "Vulkanický Párek",
+    "description": "Rozšklebený, rudě žhnoucí párek se stovkami nožiček jako stonožka. Po celé délce má řadu ostrých uhelných zubů a kape z něj lávový kečup.",
+    "abilities": [
+      {
+        "name": "Uzený šleh",
+        "description": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny."
+      },
+      {
+        "name": "Žíravá uzenost",
+        "description": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu."
+      }
+    ]
+  },
+  "094": {
+    "name": "Mutagenní Mrkev",
+    "description": "Zkroucený kořen, který se vertikálně rozestoupil, aby vytvořil tlamu plnou nepravidelných tesáků. Její listy se změnily v mrštné pařáty.",
+    "abilities": [
+      {
+        "name": "Kořenové sevření",
+        "description": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny."
+      },
+      {
+        "name": "Půdní infuze",
+        "description": "Zaboří kořeny do země a okamžitě načerpá minerály pro bleskové vyléčení ran."
+      }
+    ]
+  },
+  "095": {
+    "name": "Banana Bum",
+    "description": "Přezrálý banán s velkým podlitým okem uprostřed. Jeho okraje jsou ostré jako břitva a jeho slupky připomínají dravčí pařáty.",
+    "abilities": [
+      {
+        "name": "Seknutí slupkou",
+        "description": "Rychle zaútočí ostrými okraji slupek, které způsobují krvácení."
+      },
+      {
+        "name": "Nabroušení slupek",
+        "description": "Zpevní své okraje na úroveň diamantu, čímž extrémně zvýší poškození příštích útoků."
+      }
+    ]
+  },
+  "096": {
+    "name": "Květákový Král",
+    "description": "Bledý mutantní květák, jehož povrch připomíná lidský mozek. Skrývá v sobě desítky malých zubatých tlam a jeho listy jsou ostré jako pily.",
+    "abilities": [
+      {
+        "name": "Parazitární spóry",
+        "description": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho."
+      },
+      {
+        "name": "Mozková mlha",
+        "description": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku."
+      }
+    ]
+  },
+  "097": {
+    "name": "Zoubková víla",
+    "description": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
+    "abilities": [
+      {
+        "name": "Totální extrakce",
+        "description": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly."
+      },
+      {
+        "name": "Prokletí bezzubých",
+        "description": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele."
+      }
+    ]
+  },
+  "098": {
+    "name": "Lego Opravář",
+    "description": "Oživlá stavebnicová figurka se žlutou kůží, které místo jedné ruky vyrostl obří hydraulický klíč. Její tělo je poskládané z náhodných barevných kostek a z prasklin unikají nebezpečné elektrické výboje.",
+    "abilities": [
+      {
+        "name": "Utažení matky",
+        "description": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí."
+      },
+      {
+        "name": "Odpálený kondenzátor",
+        "description": "Vystřelí salvu jisker, které dočasně zvýší jeho útočnou sílu i rychlost."
+      }
+    ]
+  },
+  "101": {
+    "name": "Stínožrout Zor",
+    "description": "Prastará entita utkaná z nejčistší temnoty. Nepohybuje se, ale stíny v jeho okolí ožívají a pohlcují vše živé. Traduje se, že spatřit jeho tvář znamená ztratit vlastní identitu.",
+    "abilities": [
+      {
+        "name": "Hostina Stínů",
+        "description": "Vysaje životní sílu nepřítele a část si ponechá pro svou regeneraci."
+      },
+      {
+        "name": "Dotek Prázdnoty",
+        "description": "Zasadí ránu tak chladnou, že nepřítel na chvíli zkamení hrůzou."
+      },
+      {
+        "name": "Zatemnění Mysli",
+        "description": "Zahalí bojiště do temnoty, která drasticky snižuje nepřítelův útok."
+      }
+    ]
+  },
+  "102": {
+    "name": "Krvavý Šeptal",
+    "description": "Vysoká, vyhublá postava v potrhaném rudém rouchu. Nemá ústa, přesto jeho hlas slyšíte přímo ve své hlavě, jak vám našeptává nevýslovné hrůzy a váš nevyhnutelný konec.",
+    "abilities": [
+      {
+        "name": "Hlas Šílenství",
+        "description": "Způsobí nepříteli psychický kolaps a ochromí ho na několik kol."
+      },
+      {
+        "name": "Krvavý Rituál",
+        "description": "Otevře rány nepřítele a vysaje z něj veškerou zbývající energii."
+      },
+      {
+        "name": "Pach Smrti",
+        "description": "Šíří kolem sebe auru strachu, která zvyšuje jeho vlastní útočnou sílu."
+      }
+    ]
+  },
+  "103": {
+    "name": "Mrtvolný Loutkář",
+    "description": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
+    "abilities": [
+      {
+        "name": "Zvrácená Marioneta",
+        "description": "Odrazí 50 % utrženého poškození zpět na útočníka."
+      },
+      {
+        "name": "Vlákna Osudu",
+        "description": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly."
+      },
+      {
+        "name": "Armáda Stínů",
+        "description": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě."
+      }
+    ]
+  },
+  "104": {
+    "name": "Hnijící Přízrak",
+    "description": "Beztvará masa hnijícího masa a řas z prastarých bažin, která se neustále přeskupuje a vylučuje leptavé toxické výpary.",
+    "abilities": [
+      {
+        "name": "Morová Mlha",
+        "description": "Zamoří bojiště, čímž trvale snižuje obranu soupeře každým kolem."
+      },
+      {
+        "name": "Slizké Chapadlo",
+        "description": "Prudký úder, který zanechá leptavou látku rozežírající zbroj."
+      },
+      {
+        "name": "Vlna Hniloby",
+        "description": "Plošně poškodí nepřítele a část sil použije k vlastnímu zacelení."
+      }
+    ]
+  },
+  "105": {
+    "name": "Beztvará Hrůza",
+    "description": "Obří chobotnicovitá entita s nekonečně se kroutícími chapadly.",
+    "abilities": [
+      {
+        "name": "Mutace Chaosu",
+        "description": "Náhodně změní své staty, aby se přizpůsobila nepříteli."
+      },
+      {
+        "name": "Roztržení Reality",
+        "description": "Vykouzlí trhlinu, která dočasně poškodí nepřítelovu obranu i útok."
+      },
+      {
+        "name": "Přízračné Kousnutí",
+        "description": "Zasadí ránu čelistmi z jiné dimenze, která ignoruje veškeré brnění."
+      }
+    ]
+  },
+  "106": {
+    "name": "Green Taur",
+    "description": "Prastarý minotaur zrozený v hlubinách propasti. Jeho tělo je prorostlé temnými krystaly a z jeho rohů i tlamy šlehají plameny jedovatě zeleného ohně. Každý jeho krok spaluje zemi a jeho přítomnost deformuje realitu.",
+    "abilities": [
+      {
+        "name": "Zelené Peklo",
+        "description": "Vyšlehne vlnu zeleného ohně, která spaluje nepřítele a zanechává jedovatý efekt v čase."
+      },
+      {
+        "name": "Krystalický Náraz",
+        "description": "Rozběhne se vpřed a udeří nepřítele rohy posílenými krystaly, čímž způsobí masivní poškození."
+      },
+      {
+        "name": "Aura Zeleného Plamene",
+        "description": "Temný oheň kolem minotaura oslabuje nepřátele a postupně chrání tvé životy (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "107": {
+    "name": "Strážce Prokletých",
+    "description": "Ohnivý obr, v jehož nitru hoří modré plameny utrpení. Nese lucernu, ve které jsou uvězněny duše tisíců padlých bojovníků, které mu dodávají neskonalou sílu.",
+    "abilities": [
+      {
+        "name": "Očistný Plamen",
+        "description": "Vypustí ničivou explozi doprovázenou výkřiky uvězněných duší."
+      },
+      {
+        "name": "Duševní Spála",
+        "description": "Popálí duši nepřítele, čímž dočasně sníží jeho šanci na kritický zásah."
+      },
+      {
+        "name": "Světlonoš Zmaru",
+        "description": "Z lucerny vyletí duše, které posílí strážcův útok."
+      }
+    ]
+  },
+  "108": {
+    "name": "Plíživá Hniloba",
+    "description": "Průsvitný hmyz velký jako dům, který tvoří neviditelná hnízda pod zemí. Jakoukoli jeho oběť potká stejný osud: nevýslovné pomalé vyschnutí.",
+    "abilities": [
+      {
+        "name": "Infekce",
+        "description": "Nenapadné kousnutí, které dočasně ochromí celkovou sílu nepřítele."
+      },
+      {
+        "name": "Vysátí Tekutin",
+        "description": "Brutální útok, který okamžitě obnoví část vlastních životů luhováním sil nepřítele."
+      },
+      {
+        "name": "Parazitická Vlna",
+        "description": "Prudká salva hnilobných spor, které zasáhnou vše živé i mrtvé."
+      }
+    ]
+  },
+  "109": {
+    "name": "Démonický Pán Popela",
+    "description": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
+    "abilities": [
+      {
+        "name": "Pekelné Sežehnutí",
+        "description": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany."
+      },
+      {
+        "name": "Uhelná Bouře",
+        "description": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele."
+      },
+      {
+        "name": "Sopečný Výbuch",
+        "description": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy."
+      }
+    ]
+  },
+  "110": {
+    "name": "Oko Prázdnoty",
+    "description": "Pulzující masa masa a žil s jediným gigantickým okem uprostřed. Její pohled proniká realitou a menší oči na výběžcích sledují každý váš pohyb v každé možné časové linii.",
+    "abilities": [
+      {
+        "name": "Předpověď Konce",
+        "description": "Nikdy nemine a má ohromnou šanci na kritický zásah."
+      },
+      {
+        "name": "Dezintegrace",
+        "description": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy."
+      },
+      {
+        "name": "Vhled do Budoucna",
+        "description": "Na krátkou chvíli zastaví čas a dočasně zvýší své útočné statistiky."
+      }
+    ]
+  },
+  "111": {
+    "name": "Želvo Shark",
+    "description": "Želvo Shark je vodní čaroděj chaosu – tvrdý krunýř jako tank, zuby ostré jako škrabky na sýr a ocas, který rád mává, když nikdo nekouká. Skáče z vody jako šílenec, překvapuje nepřátele a občas se při tom zamotá do vlastního krunýře. Vypadá hrozivě… dokud nezakopne o svou vlastní ploutev.",
+    "abilities": [
+      {
+        "name": "Drtivý skus",
+        "description": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli."
+      },
+      {
+        "name": "Krunýřový štít",
+        "description": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "112": {
+    "name": "Planktogon",
+    "description": "Planktogon je zvláštní vodní mutant složený z tisíců zářících planktonů, které drží pohromadě jako živá hmota. Na první pohled působí roztomile – světélkuje, vznáší se a tiše bublá. Jakmile se ale přiblíží nepřítel, jeho tělo se stáhne do hustší formy a odhalí řady drobných ostrých zoubků a malá drápovitá chapadla. Rád si hraje… ale jeho hry často bolí.",
+    "abilities": [
+      {
+        "name": "Svítivý roj",
+        "description": "Vystřelí roj planktonu, který obklopí nepřítele a způsobí drobné poškození."
+      },
+      {
+        "name": "Regenerační shluk",
+        "description": "Planktony se semknou a rychle zacelí poškození, čímž si obnoví 25% zdraví."
+      }
+    ]
+  },
+  "113": {
+    "name": "Hydrox",
+    "description": "Hydrox je nestabilní vodní mutant připomínající živou chemickou směs. Jeho tělo neustále víří, bublá a mění tvar, jako by se každou vteřinu rozpadal a znovu skládal. Z průsvitné kapaliny vystupují ostré zuby a dlouhá drápovitá ramena, která dokážou šlehat jako bič. Působí hravě a zvědavě, ale jeho dotek pálí a leptá. Nikdy nevíš, jestli si chce hrát… nebo tě rozpustit.",
+    "abilities": [
+      {
+        "name": "Kyselinový výboj",
+        "description": "Vystříkne proud žíravé kapaliny, který způsobí vysoké poškození a může oslabit obranu nepřítele."
+      },
+      {
+        "name": "Tekuté tělo",
+        "description": "Rozteče se a část útoků projde skrz něj, čímž sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)"
+      }
+    ]
+  },
+  "114": {
+    "name": "Kara Milka",
+    "description": "Roztomilý hnědý pejsek s narozeninovou čepičkou a dvěma zahnutými zoubky. Je známá svým okouzlujícím zpěvem, který dokáže uklidnit i ty nejdivočejší potvory. Navzdory svému slavnostnímu vzhledu je to mrštný společník, který se v lese cítí jako doma.",
+    "abilities": [
+      {
+        "name": "Narozeninová píseň",
+        "description": "Zpívá melodickou píseň, která léčí část HP."
+      },
+      {
+        "name": "Zubatý výpad",
+        "description": "Rychlý útok svými zahnutými zoubky nahoru."
+      }
+    ]
+  }
+}

@@ -1,28 +1,52 @@
 {
-  "id": "069",
-  "name": "Květomorous Děsivý",
-  "description": "Nádherný květ, který po otevření odhalí strašlivou, zmutovanou tvář s řadami zubů, z nichž kape lepkavý nektar.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 247,
-    "attack": 83,
-    "defense": 33
-  },
-  "abilities": [
-    {
-      "name": "Lepkavé sevření",
-      "description": "Uvězní nepřítele v nektaru.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.6
+    "id": "069",
+    "name": {
+        "cz": "Květomorous Děsivý",
+        "en": "Terrifying Flower-ghoul",
+        "sk": "Květomorous Děsivý"
     },
-    {
-      "name": "Smrtící pyl",
-      "description": "Vystřelí pyl, který působí halucinace.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
-    }
-  ]
+    "description": {
+        "cz": "Nádherný květ, který po otevření odhalí strašlivou, zmutovanou tvář s řadami zubů, z nichž kape lepkavý nektar.",
+        "en": "A plant monster that looks like a beautiful flower but is actually a terrifying ghoul that eats insects and animals.",
+        "sk": "Rastlinné monštrum, ktoré vyzerá ako krásna kvetina, ale v skutočnosti je to desivý ghúl, ktorý žerie hmyz a zvieratá."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 247,
+        "attack": 83,
+        "defense": 33
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Lepkavé sevření",
+                "en": "Nasty Bite",
+                "sk": "Nepríjemný kúsanec"
+            },
+            "description": {
+                "cz": "Uvězní nepřítele v nektaru.",
+                "en": "A bite with sharp plant teeth.",
+                "sk": "Kúsanec s ostrými rastlinnými zubami."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.6
+        },
+        {
+            "name": {
+                "cz": "Smrtící pyl",
+                "en": "Pollen Trap",
+                "sk": "Peľová pasca"
+            },
+            "description": {
+                "cz": "Vystřelí pyl, který působí halucinace.",
+                "en": "Releases pollen that traps and confuses the enemy.",
+                "sk": "Uvoľní peľ, ktorý chytí a zmätie nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        }
+    ]
 }

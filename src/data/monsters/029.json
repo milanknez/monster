@@ -1,28 +1,52 @@
 {
-  "id": "029",
-  "name": "Drápek žhavík",
-  "description": "Zmutovaná šelma s rozpálenými drápy a žhnoucíma očima. Každý jeho pohyb zanechává stopy popela.",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 118,
-    "attack": 51,
-    "defense": 17
-  },
-  "abilities": [
-    {
-      "name": "Žhavý sek",
-      "description": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "029",
+    "name": {
+        "cz": "Drápek žhavík",
+        "en": "Glow Claw",
+        "sk": "Drápek žhavík"
     },
-    {
-      "name": "Popelavý výbuch",
-      "description": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Zmutovaná šelma s rozpálenými drápy a žhnoucíma očima. Každý jeho pohyb zanechává stopy popela.",
+        "en": "A creature with glowing claws that can cut through almost anything.",
+        "sk": "Stvorenie so žiariacimi pazúrmi, ktoré dokážu prerezať takmer čokoľvek."
+    },
+    "type": "fire",
+    "rarity": "common",
+    "stats": {
+        "hp": 118,
+        "attack": 51,
+        "defense": 17
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Žhavý sek",
+                "en": "Glow Slash",
+                "sk": "Žiariaci sek"
+            },
+            "description": {
+                "cz": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození.",
+                "en": "A powerful slash with glowing claws.",
+                "sk": "Silný sek žiariacimi pazúrmi."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Popelavý výbuch",
+                "en": "Inner Fire",
+                "sk": "Vnútorný oheň"
+            },
+            "description": {
+                "cz": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu (Snížení dmg 55-65%)",
+                "en": "Increases attack power for a short time.",
+                "sk": "Na krátky čas zvyšuje silu útoku."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

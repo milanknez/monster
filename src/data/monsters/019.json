@@ -1,28 +1,52 @@
 {
-  "id": "019",
-  "name": "Bleskokvět dvojhlavý",
-  "description": "Elektrická masožravá květina s dvěma hlavami, které chňapou po všem kolem. Když se rozčílí, mezi květy prskají jiskry a vydávají malé elektrické výboje.",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 139,
-    "attack": 49,
-    "defense": 19
-  },
-  "abilities": [
-    {
-      "name": "Jiskrový chňapák",
-      "description": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "019",
+    "name": {
+        "cz": "Bleskokvět dvojhlavý",
+        "en": "Double-headed Sparkflower",
+        "sk": "Bleskokvet dvojhlavý"
     },
-    {
-      "name": "Elektrické výboje",
-      "description": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Elektrická masožravá květina s dvěma hlavami, které chňapou po všem kolem. Když se rozčílí, mezi květy prskají jiskry a vydávají malé elektrické výboje.",
+        "en": "An electric carnivorous flower with two heads that snap at everything around. When angry, sparks fly between the flowers and emit small electric discharges.",
+        "sk": "Elektrická mäsožravá kvetina s dvoma hlavami, ktoré chňapú po všetkom okolo. Keď sa rozčúli, medzi kvetmi prskajú iskry a vydávajú malé elektrické výboje."
+    },
+    "type": "electric",
+    "rarity": "common",
+    "stats": {
+        "hp": 139,
+        "attack": 49,
+        "defense": 19
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Jiskrový chňapák",
+                "en": "Spark Snapper",
+                "sk": "Iskrový chňapák"
+            },
+            "description": {
+                "cz": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli.",
+                "en": "Both heads strike fiercely and cause electric damage to one enemy.",
+                "sk": "Obe hlavy prudko zaútočia a spôsobia elektrické poškodenie jednému nepriateľovi."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Elektrické výboje",
+                "en": "Electric Discharges",
+                "sk": "Elektrické výboje"
+            },
+            "description": {
+                "cz": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu.",
+                "en": "Emits random small lightning bolts that hit all enemies in range.",
+                "sk": "Vydáva náhodné malé blesky, ktoré zasiahnu všetkých nepriateľov v dosahu."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "018",
-  "name": "Pan Energyhaďák",
-  "description": "Hadí elektrická příšerka s ostny, ze kterých tryskají blesky. Rychlá a neposedná, dokáže zastrašit nepřátele i rozsvítit celý boj.",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 122,
-    "attack": 50,
-    "defense": 20
-  },
-  "abilities": [
-    {
-      "name": "Ohnivý blesk",
-      "description": "Vystřelí elektrický výboj ze svých ostnů na všechny nepřátele v okolí.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "018",
+    "name": {
+        "cz": "Pan Energyhaďák",
+        "en": "Mr. Energy Snake",
+        "sk": "Pán Energyhad"
     },
-    {
-      "name": "Elektrický štít",
-      "description": "Na jedno kolo zvyšuje obranu a odráží část poškození zpět útočníkovi (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Hadí elektrická příšerka s ostny, ze kterých tryskají blesky. Rychlá a neposedná, dokáže zastrašit nepřátele i rozsvítit celý boj.",
+        "en": "A snake glowing with blue energy that likes to drink leftover energy from old batteries.",
+        "sk": "Modrou energiou svietiaci had, ktorý rád upíja zvyšky energie zo starých batérií."
+    },
+    "type": "electric",
+    "rarity": "common",
+    "stats": {
+        "hp": 122,
+        "attack": 50,
+        "defense": 20
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Ohnivý blesk",
+                "en": "Static Bite",
+                "sk": "Statický kúsanec"
+            },
+            "description": {
+                "cz": "Vystřelí elektrický výboj ze svých ostnů na všechny nepřátele v okolí.",
+                "en": "A bite that leaves a static charge.",
+                "sk": "Kúsanec, ktorý zanechá statický náboj."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Elektrický štít",
+                "en": "Spark Dash",
+                "sk": "Iskrový výpad"
+            },
+            "description": {
+                "cz": "Na jedno kolo zvyšuje obranu a odráží část poškození zpět útočníkovi (Snížení dmg 55-65%)",
+                "en": "A fast dash with sparks.",
+                "sk": "Rýchly výpad s iskrami."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

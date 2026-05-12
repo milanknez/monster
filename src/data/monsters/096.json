@@ -1,28 +1,52 @@
 {
-  "id": "096",
-  "name": "Květákový Král",
-  "description": "Bledý mutantní květák, jehož povrch připomíná lidský mozek. Skrývá v sobě desítky malých zubatých tlam a jeho listy jsou ostré jako pily.",
-  "type": "Přírodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 480,
-    "attack": 105,
-    "defense": 75
-  },
-  "abilities": [
-    {
-      "name": "Parazitární spóry",
-      "description": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "096",
+    "name": {
+        "cz": "Květákový Král",
+        "en": "Cauliflower King",
+        "sk": "Květákový Král"
     },
-    {
-      "name": "Mozková mlha",
-      "description": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku.",
-      "type": "curse",
-      "chance": 75,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Bledý mutantní květák, jehož povrch připomíná lidský mozek. Skrývá v sobě desítky malých zubatých tlam a jeho listy jsou ostré jako pily.",
+        "en": "The king of all vegetables, a giant cauliflower with a crown.",
+        "sk": "Kráľ všetkej zeleniny, obrovský karfiol s korunou."
+    },
+    "type": "nature",
+    "rarity": "epic",
+    "stats": {
+        "hp": 480,
+        "attack": 105,
+        "defense": 75
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Parazitární spóry",
+                "en": "Royal Smash",
+                "sk": "Kráľovský úder"
+            },
+            "description": {
+                "cz": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
+                "en": "A powerful smash attack.",
+                "sk": "Silný úderový útok."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Mozková mlha",
+                "en": "Vegetable Shield",
+                "sk": "Zeleninový štít"
+            },
+            "description": {
+                "cz": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku.",
+                "en": "Protects itself with other vegetables.",
+                "sk": "Chráni sa ostatnou zeleninou."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 35
+        }
+    ]
 }

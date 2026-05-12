@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skull, ChevronRight, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DefeatModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ export const DefeatModal = ({
   winXP,
   onComplete
 }: DefeatModalProps) => {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -25,9 +27,9 @@ export const DefeatModal = ({
                <Skull size={40} className="text-red-500" />
             </div>
             
-            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">PORÁŽKA</h2>
+            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('battle.modal.defeat_title')}</h2>
             <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6 px-4 leading-relaxed">
-              Tvé monstrum bylo vyčerpáno, ale každý souboj tě posouvá dál!
+              {t('battle.modal.defeat_desc')}
             </p>
 
             {/* XP Badge */}
@@ -41,7 +43,7 @@ export const DefeatModal = ({
                 <Zap size={14} fill="currentColor" />
               </div>
               <span className="text-lg font-black text-blue-400 tabular-nums tracking-tight">+{winXP} XP</span>
-              <span className="text-[10px] font-black text-blue-500/60 uppercase tracking-widest ml-1">Utěcha</span>
+              <span className="text-[10px] font-black text-blue-500/60 uppercase tracking-widest ml-1">{t('battle.modal.xp_consolation')}</span>
             </motion.div>
 
             <motion.button
@@ -49,7 +51,7 @@ export const DefeatModal = ({
               onClick={onComplete}
               className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl border border-white/5"
             >
-              Vrátit se na mapu <ChevronRight size={18} />
+              {t('battle.modal.back_to_map')} <ChevronRight size={18} />
             </motion.button>
           </motion.div>
         </div>

@@ -1,35 +1,67 @@
 {
-  "id": "107",
-  "name": "Strážce Prokletých",
-  "description": "Ohnivý obr, v jehož nitru hoří modré plameny utrpení. Nese lucernu, ve které jsou uvězněny duše tisíců padlých bojovníků, které mu dodávají neskonalou sílu.",
-  "type": "Ohnivá",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1150,
-    "attack": 493,
-    "defense": 150
-  },
-  "abilities": [
-    {
-      "name": "Očistný Plamen",
-      "description": "Vypustí ničivou explozi doprovázenou výkřiky uvězněných duší.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "107",
+    "name": {
+        "cz": "Strážce Prokletých",
+        "en": "Guardian of the Accursed",
+        "sk": "Strážce Prokletých"
     },
-    {
-      "name": "Duševní Spála",
-      "description": "Popálí duši nepřítele, čímž dočasně sníží jeho šanci na kritický zásah.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
+    "description": {
+        "cz": "Ohnivý obr, v jehož nitru hoří modré plameny utrpení. Nese lucernu, ve které jsou uvězněny duše tisíců padlých bojovníků, které mu dodávají neskonalou sílu.",
+        "en": "A fiery giant in whose interior blue flames of suffering burn. He carries a lantern in which the souls of thousands of fallen warriors are imprisoned, giving him immense strength.",
+        "sk": "Ohnivý obor, v ktorého vnútri horia modré plamene utrpenia. Nesie lucernu, v ktorej sú uväznené duše tisícov padlých bojovníkov, ktoré mu dodávajú neskonalú silu."
     },
-    {
-      "name": "Světlonoš Zmaru",
-      "description": "Z lucerny vyletí duše, které posílí strážcův útok.",
-      "type": "buff",
-      "chance": 50,
-      "value": 0.6
-    }
-  ]
+    "type": "fire",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1150,
+        "attack": 493,
+        "defense": 150
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Očistný Plamen",
+                "en": "Purifying Flame",
+                "sk": "Očistný plamen"
+            },
+            "description": {
+                "cz": "Vypustí ničivou explozi doprovázenou výkřiky uvězněných duší.",
+                "en": "Unleashes a devastating explosion accompanied by the screams of imprisoned souls.",
+                "sk": "Vypustí ničivú explóziu sprevádzanú výkrikmi uväznených duší."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Duševní Spála",
+                "en": "Souls Burn",
+                "sk": "Duševní spála"
+            },
+            "description": {
+                "cz": "Popálí duši nepřítele, čímž dočasně sníží jeho šanci na kritický zásah.",
+                "en": "Burns the enemy's soul, temporarily reducing their chance of a critical hit.",
+                "sk": "Popáli dušu nepriateľa, čím dočasne zníži jeho šancu na kritický zásah."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.5
+        },
+        {
+            "name": {
+                "cz": "Světlonoš Zmaru",
+                "en": "Bringer of Ruin",
+                "sk": "Světlonoš zmaru"
+            },
+            "description": {
+                "cz": "Z lucerny vyletí duše, které posílí strážcův útok.",
+                "en": "Souls fly out of the lantern, strengthening the guardian's attack.",
+                "sk": "Z lucerny vyletia duše, ktoré posilnia strážcov útok."
+            },
+            "type": "buff",
+            "chance": 50,
+            "value": 0.6
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "010",
-  "name": "Mňoukožár Divoký",
-  "description": "Malé kotě neznámého původu s obrovskýma svítícíma oranžovýma očima. Toulá se začarovaným lesem a miluje lovení jiskřiček v táboráku.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 200,
-    "attack": 78,
-    "defense": 28
-  },
-  "abilities": [
-    {
-      "name": "Zářivý prskanec",
-      "description": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "010",
+    "name": {
+        "cz": "Mňoukožár Divoký",
+        "en": "Glow Worm",
+        "sk": "Svetielkujúci Červ"
     },
-    {
-      "name": "Nabití baterek",
-      "description": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
-    }
-  ]
+    "description": {
+        "cz": "Malé kotě neznámého původu s obrovskýma svítícíma oranžovýma očima. Toulá se začarovaným lesem a miluje lovení jiskřiček v táboráku.",
+        "en": "A small worm that lives in caves and glows in various colors to lure prey.",
+        "sk": "Malý červ, ktorý žije v jaskyniach a žiari rôznymi farbami, aby nalákal korisť."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 200,
+        "attack": 78,
+        "defense": 28
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Zářivý prskanec",
+                "en": "Bright Flash",
+                "sk": "Jasný záblesk"
+            },
+            "description": {
+                "cz": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí.",
+                "en": "A blinding flash of light.",
+                "sk": "Oslepujúci záblesk svetla."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Nabití baterek",
+                "en": "Sticky Trail",
+                "sk": "Lepkavá stopa"
+            },
+            "description": {
+                "cz": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Leaves a sticky substance that slows down the enemy.",
+                "sk": "Zanechá lepkavú látku, ktorá spomalí nepriateľa."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        }
+    ]
 }

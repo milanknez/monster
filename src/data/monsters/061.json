@@ -1,28 +1,52 @@
 {
-  "id": "061",
-  "name": "Ohňohuba Sliznatá",
-  "description": "Rosolovitá masa tekuté lávy s mnoha nepravidelně rozmístěnými oky. Z její obří tlamy neustále odkapává tekutý oheň, který zapaluje vše v okolí.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 230,
-    "attack": 84,
-    "defense": 31
-  },
-  "abilities": [
-    {
-      "name": "Lávový plivanec",
-      "description": "Plivne kus tekutého ohně.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "061",
+    "name": {
+        "cz": "Ohňohuba Sliznatá",
+        "en": "Slimy Fire-mouth",
+        "sk": "Ohňohuba Sliznatá"
     },
-    {
-      "name": "Žhnoucí tělo",
-      "description": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Rosolovitá masa tekuté lávy s mnoha nepravidelně rozmístěnými oky. Z její obří tlamy neustále odkapává tekutý oheň, který zapaluje vše v okolí.",
+        "en": "A strange creature with a mouth that breathes fire and a body covered in slime.",
+        "sk": "Zvláštne stvorenie s tlamou, ktorá chrlí oheň, a telom pokrytým slizom."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 230,
+        "attack": 84,
+        "defense": 31
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Lávový plivanec",
+                "en": "Fire Slime",
+                "sk": "Ohnivý sliz"
+            },
+            "description": {
+                "cz": "Plivne kus tekutého ohně.",
+                "en": "Throws flaming slime at the enemy.",
+                "sk": "Hádže horiaci sliz na nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Žhnoucí tělo",
+                "en": "Sticky Burn",
+                "sk": "Lepkavý popálenina"
+            },
+            "description": {
+                "cz": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)",
+                "en": "Burns the enemy with sticky fire.",
+                "sk": "Popáli nepriateľa lepkavým ohňom."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

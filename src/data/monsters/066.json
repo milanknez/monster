@@ -1,28 +1,52 @@
 {
-  "id": "066",
-  "name": "Houbovous Zamořený",
-  "description": "Bytost tvořená houbami a plísní se svítícími sporami. Pod širokým kloboukem skrývá obří tlamu plnou hubovitých zubů.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 232,
-    "attack": 90,
-    "defense": 32
-  },
-  "abilities": [
-    {
-      "name": "Mrak spor",
-      "description": "Uvolní jedovaté spory.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "066",
+    "name": {
+        "cz": "Houbovous Zamořený",
+        "en": "Tidal Guardian",
+        "sk": "Prílivový strážca"
     },
-    {
-      "name": "Houbová regenerace",
-      "description": "Vyléčí se pomocí plísně.",
-      "type": "heal",
-      "chance": 65,
-      "value": 1.4
-    }
-  ]
+    "description": {
+        "cz": "Bytost tvořená houbami a plísní se svítícími sporami. Pod širokým kloboukem skrývá obří tlamu plnou hubovitých zubů.",
+        "en": "A sea creature that protects the coral reefs. It can control the flow of water.",
+        "sk": "Morské stvorenie, ktoré chráni koralové útesy. Dokáže ovládať tok vody."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 232,
+        "attack": 90,
+        "defense": 32
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Mrak spor",
+                "en": "Water Shield",
+                "sk": "Vodný štít"
+            },
+            "description": {
+                "cz": "Uvolní jedovaté spory.",
+                "en": "A shield made of swirling water.",
+                "sk": "Štít vyrobený z víriacej vody."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Houbová regenerace",
+                "en": "Current Pull",
+                "sk": "Ťah prúdu"
+            },
+            "description": {
+                "cz": "Vyléčí se pomocí plísně.",
+                "en": "Pulls the enemy closer with a water current.",
+                "sk": "Pritiahne nepriateľa bližšie pomocou vodného prúdu."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 1.4
+        }
+    ]
 }

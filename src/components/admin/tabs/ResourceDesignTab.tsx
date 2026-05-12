@@ -1,34 +1,45 @@
 import { Upload, Plus, Trash2, Search, Filter, Image as ImageIcon, Smile } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '../../../utils'
+import { cn, getLoc, RARITY_COLORS } from '../../../utils'
+import { useTranslation } from 'react-i18next'
 import { ResourceCategory, ItemRarity } from '../../../types'
 import { ResourceIcon } from '../../ui/ResourceIcon'
 import { useEffect } from 'react'
 
-const CATEGORIES: { id: ResourceCategory | 'all', label: string }[] = [
-  { id: 'all', label: 'Vše' },
-  { id: 'material', label: 'Suroviny' },
-  { id: 'consumable', label: 'Lektvary' },
-  { id: 'gem', label: 'Gemy' },
-  { id: 'relic', label: 'Relikvie' },
-];
-
-const RARITIES: ItemRarity[] = ['Běžná', 'Vzácná', 'Epická', 'Legendární'];
-
-const RARITY_COLORS: Record<ItemRarity, string> = {
-  'Běžná': 'text-slate-400 bg-slate-400/10 border-slate-400/20',
-  'Vzácná': 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-  'Epická': 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-  'Legendární': 'text-amber-400 bg-amber-400/10 border-amber-400/20',
-};
-
 export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleResourceImageUpload }: any) => {
+  const { t, i18n } = useTranslation();
+  
+  const CATEGORIES: { id: ResourceCategory | 'all', label: string }[] = [
+    { id: 'all', label: 'Vše' },
+    { id: 'material', label: 'Materiály' },
+    { id: 'consumable', label: 'Spotřební' },
+    { id: 'gem', label: 'Drahokamy' },
+    { id: 'relic', label: 'Relikvie' },
+  ];
+
+  const RARITIES: ItemRarity[] = ['Běžná', 'Vzácná', 'Epická', 'Legendární'];
+
+  const RARITY_LABELS: Partial<Record<ItemRarity, string>> = {
+    'Běžná': 'Běžná',
+    'Vzácná': 'Vzácná',
+    'Epická': 'Epická',
+    'Legendární': 'Legendární',
+  };
+  
+  // Actually, rarities are usually shared with monster rarities, but let's check if we have them in translations
+  // I will use direct keys if I added them to admin, otherwise fallback.
+  // Wait, I should check translations.json again for rarity keys. 
+  // I didn't add global rarity keys to common, they were in bestiary or so?
+  // Let's just use the values from system_values and localize them via getLoc if they are objects.
+  // But here they are strings in the constant.
+  
   const [search, setSearch] = useState('');
   const [activeCat, setActiveCat] = useState<ResourceCategory | 'all'>('all');
   const [activeRarity, setActiveRarity] = useState<ItemRarity | 'all'>('all');
   const [availableImages, setAvailableImages] = useState<string[]>([]);
 
+  const [activeLang, setActiveLang] = useState<'cz' | 'en' | 'sk'>('cz');
   const [openPickerId, setOpenPickerId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,12 +57,13 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
   const filteredItems = useMemo(() => {
     return Object.entries(resourceConfig)
       .filter(([id, conf]: [string, any]) => {
-        const matchesSearch = conf.label.toLowerCase().includes(search.toLowerCase()) || id.toLowerCase().includes(search.toLowerCase());
+        const labelStr = typeof conf.label === 'object' ? (conf.label[i18n.language] || conf.label['cz'] || '') : (conf.label || '');
+        const matchesSearch = labelStr.toLowerCase().includes(search.toLowerCase()) || id.toLowerCase().includes(search.toLowerCase());
         const matchesCat = activeCat === 'all' || conf.category === activeCat;
         const matchesRar = activeRarity === 'all' || conf.rarity === activeRarity;
         return matchesSearch && matchesCat && matchesRar;
       });
-  }, [resourceConfig, search, activeCat, activeRarity]);
+  }, [resourceConfig, search, activeCat, activeRarity, i18n.language]);
 
   return (
     <div className="space-y-8">
@@ -69,6 +81,21 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                 )}
               >
                 {cat.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex bg-black/40 rounded-2xl p-1 gap-1 shrink-0">
+            {['cz', 'en', 'sk'].map(lang => (
+              <button
+                key={lang}
+                onClick={() => setActiveLang(lang as any)}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  activeLang === lang ? "bg-indigo-500 text-white shadow-lg" : "text-white/40 hover:text-white"
+                )}
+              >
+                {lang}
               </button>
             ))}
           </div>
@@ -104,19 +131,19 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
           <input 
             value={search} 
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Hledat item..." 
+            placeholder="Hledat předmět..." 
             className="w-full bg-black border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm text-white focus:border-primary/50 outline-none" 
           />
         </div>
       </div>
 
       <div className="hidden xl:flex items-center gap-4 px-4 pb-2 text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 mb-2">
-        <div className="w-12 shrink-0 text-center">Ikona</div>
-        <div className="w-48 shrink-0">ID & Název</div>
-        <div className="w-48 shrink-0">Typ a Vzácnost</div>
-        <div className="w-40 shrink-0 text-center">Vzhled</div>
-        <div className="w-40 shrink-0 text-center">Bonusy</div>
-        <div className="flex-1">Lore & Popis</div>
+        <div className="w-12 shrink-0 text-center">IKONA</div>
+        <div className="w-48 shrink-0">NÁZEV</div>
+        <div className="w-48 shrink-0">KATEGORIE</div>
+        <div className="w-40 shrink-0 text-center">VZHLED</div>
+        <div className="w-40 shrink-0 text-center">BONUSY</div>
+        <div className="flex-1">LORE / POPIS</div>
         <div className="w-8 shrink-0"></div>
       </div>
 
@@ -153,9 +180,13 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
               <div className="flex flex-col w-full xl:w-48 shrink-0">
                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-1 mb-0.5">{rid}</p>
                 <input 
-                  value={conf.label} 
-                  onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, label: e.target.value}})} 
+                  value={typeof conf.label === 'object' ? (conf.label[activeLang] || '') : (activeLang === 'cz' ? conf.label : '')} 
+                  onChange={(e) => {
+                    const currentLabel = typeof conf.label === 'object' ? conf.label : { cz: conf.label, en: conf.label, sk: conf.label };
+                    setResourceConfig({...resourceConfig, [rid]: {...conf, label: {...currentLabel, [activeLang]: e.target.value}}});
+                  }} 
                   className="w-full bg-transparent border border-transparent hover:border-white/5 text-white font-black uppercase px-2 py-1 focus:ring-0 text-xs leading-tight rounded-lg focus:bg-white/5 transition-colors" 
+                  placeholder={`Název (${activeLang.toUpperCase()})...`}
                 />
               </div>
 
@@ -186,13 +217,13 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                     onClick={() => setResourceConfig({...resourceConfig, [rid]: {...conf, hasCustomIcon: false}})}
                     className={cn("flex-1 px-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center gap-1", !conf.hasCustomIcon ? "bg-primary text-slate-950" : "text-slate-500 hover:text-white")}
                   >
-                    <Smile size={10} /> Emoji
+                    <Smile size={10} /> Emoji Ikonka
                   </button>
                   <button 
                     onClick={() => setResourceConfig({...resourceConfig, [rid]: {...conf, hasCustomIcon: true}})}
                     className={cn("flex-1 px-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center gap-1", conf.hasCustomIcon ? "bg-primary text-slate-950" : "text-slate-500 hover:text-white")}
                   >
-                    <ImageIcon size={10} /> PNG
+                    <ImageIcon size={10} /> PNG Obrázek
                   </button>
                 </div>
 
@@ -237,7 +268,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                                 exit={{ opacity: 0, scale: 0.9, y: 5 }}
                                 className="absolute bottom-full mb-2 left-0 w-[280px] max-h-72 overflow-y-auto bg-slate-900 border border-white/10 rounded-[1.2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[200] p-2 custom-scrollbar backdrop-blur-xl origin-bottom-left"
                               >
-                                <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Galerie PNG (8 sloupců):</p>
+                                <p className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Galerie Dostupných Ikon</p>
                                 <div className="grid grid-cols-8 gap-1">
                                   {[rid, ...availableImages.filter(img => img !== rid)].map(img => (
                                     <button
@@ -264,18 +295,18 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                         <button 
-                          onClick={() => document.getElementById(`icon-upload-${rid}`)?.click()}
-                          className="text-[7px] font-black uppercase text-primary/70 hover:text-primary transition-colors flex items-center gap-1"
-                         >
-                           <Upload size={8} /> Nahrát jiný
-                         </button>
-                         <input 
-                          type="color" 
-                          value={conf.color} 
-                          onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, color: e.target.value}})} 
-                          className="size-5 bg-transparent border-none p-0 cursor-pointer overflow-hidden rounded-lg" 
-                        />
+                          <button 
+                           onClick={() => document.getElementById(`icon-upload-${rid}`)?.click()}
+                           className="text-[7px] font-black uppercase text-primary/70 hover:text-primary transition-colors flex items-center gap-1"
+                          >
+                            <Upload size={8} /> Nahrát jiný PNG
+                          </button>
+                          <input 
+                           type="color" 
+                           value={conf.color} 
+                           onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, color: e.target.value}})} 
+                           className="size-5 bg-transparent border-none p-0 cursor-pointer overflow-hidden rounded-lg" 
+                         />
                       </div>
                     </div>
                   )}
@@ -284,7 +315,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
 
               {conf.category === 'material' ? (
                 <div className="flex items-center justify-center w-full xl:w-40 shrink-0 bg-black/10 rounded-xl p-1 border border-white/5 opacity-50">
-                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Surovina</p>
+                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Surovina (Materiál)</p>
                 </div>
               ) : (
                 <div className="flex gap-0.5 w-full xl:w-40 shrink-0 bg-black/30 rounded-xl p-1 border border-white/5 hover:bg-black/50 transition-colors">
@@ -332,9 +363,12 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
               <div className="flex flex-col gap-2 w-full xl:w-auto xl:flex-1">
                 <div className="flex items-center gap-3 w-full">
                   <input 
-                    value={conf.description || ''} 
-                    onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, description: e.target.value}})} 
-                    placeholder="Zadejte lore/popisek..."
+                    value={typeof conf.description === 'object' ? (conf.description[activeLang] || '') : (activeLang === 'cz' ? conf.description : '')} 
+                    onChange={(e) => {
+                      const currentDesc = typeof conf.description === 'object' ? conf.description : { cz: conf.description, en: conf.description, sk: conf.description };
+                      setResourceConfig({...resourceConfig, [rid]: {...conf, description: {...currentDesc, [activeLang]: e.target.value}}});
+                    }} 
+                    placeholder={`Lore / Popis (${activeLang.toUpperCase()})...`}
                     className="flex-1 bg-black/30 border border-white/5 rounded-xl px-3 py-2 text-[10px] text-slate-400 focus:border-white/20 hover:bg-black/50 transition-all font-medium h-[34px]" 
                   />
                   <button 
@@ -351,20 +385,20 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
 
                 {conf.category === 'consumable' && (
                   <div className="flex items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-purple-500/10 w-full">
-                    <span className="text-[8px] font-black text-purple-400/70 uppercase tracking-widest pl-1 shrink-0">Efekt:</span>
+                    <span className="text-[8px] font-black text-purple-400/70 uppercase tracking-widest pl-1 shrink-0">Speciální Efekt</span>
                     <select
                       value={conf.specialEffect || 'none'}
                       onChange={(e) => setResourceConfig({...resourceConfig, [rid]: {...conf, specialEffect: e.target.value as any}})}
                       className="bg-black/40 border border-white/5 rounded px-2 py-1 text-[10px] text-white focus:ring-0 outline-none w-28"
                     >
-                      <option value="none">Žádný</option>
-                      <option value="xp_boost">2x Zkušenosti (XP)</option>
+                      <option value="none">Žádný efekt</option>
+                      <option value="xp_boost">XP Boost (+%)</option>
                       <option value="hp_regen">Regenerace HP</option>
                     </select>
                     
                     {conf.specialEffect && conf.specialEffect !== 'none' && (
                       <div className="flex items-center bg-black/40 rounded border border-white/10 overflow-hidden ml-auto">
-                        <span className="text-[8px] text-slate-500 px-1.5 bg-white/5 uppercase font-bold py-1">Minuty</span>
+                        <span className="text-[8px] text-slate-500 px-1.5 bg-white/5 uppercase font-bold py-1">Minut</span>
                         <input 
                           type="text" 
                           inputMode="numeric"
@@ -381,7 +415,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                 )}
 
                 <div className="flex flex-wrap items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5 w-full">
-                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest pl-1 shrink-0">Recept:</span>
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest pl-1 shrink-0">Receptura</span>
                   {(conf.recipe || []).map((req: any, reqIdx: number) => (
                     <div key={reqIdx} className="flex items-center bg-black/40 rounded flex-shrink-0 border border-white/10 overflow-hidden">
                       <select 
@@ -393,7 +427,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                         }}
                         className="bg-transparent border-none text-[9px] py-0.5 px-1 w-[80px] truncate text-white focus:ring-0 cursor-pointer"
                       >
-                         {Object.keys(resourceConfig).map(t => <option key={t} value={t} className="bg-slate-900">{resourceConfig[t]?.icon} {resourceConfig[t]?.label || t}</option>)}
+                         {Object.keys(resourceConfig).map(t => <option key={t} value={t} className="bg-slate-900">{resourceConfig[t]?.icon} {getLoc(resourceConfig[t]?.label, i18n.language) || t}</option>)}
                       </select>
                       <span className="text-[9px] text-slate-500 px-1 bg-white/5">x</span>
                       <input 
@@ -427,12 +461,12 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                     }}
                     className="text-[8px] font-black uppercase text-primary hover:bg-primary/10 px-2 py-1 rounded transition-all border border-primary/20 bg-primary/5"
                   >
-                    + Přísada
+                    + Ingredience
                   </button>
 
                   {conf.recipe && conf.recipe.length > 0 && (
                      <div className="flex items-center gap-1.5 ml-auto bg-black/40 border border-white/10 rounded px-1.5 py-0.5">
-                        <span className="text-[8px] text-emerald-500/70 uppercase font-black">Vyrobí se:</span>
+                        <span className="text-[8px] text-emerald-500/70 uppercase font-black">Výsledek (ks)</span>
                         <input 
                           type="text" 
                           inputMode="numeric"
@@ -448,7 +482,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5 w-full">
-                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest pl-1 shrink-0">Drop:</span>
+                  <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest pl-1 shrink-0">Drop Nastavení</span>
                   <div className="flex items-center bg-black/40 rounded border border-white/10 overflow-hidden">
                     <span className="text-[8px] text-slate-500 px-1.5 bg-white/5 uppercase font-bold py-1">Váha</span>
                     <input 
@@ -487,7 +521,7 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
                       className="bg-white/5 border-none text-[9px] w-6 p-0 py-0.5 text-center text-white font-bold focus:ring-0"
                     />
                   </div>
-                  <p className="text-[8px] text-slate-600 italic ml-2">(S jakou pravděpodobností padá mezi předměty stejné vzácnosti)</p>
+                  <p className="text-[8px] text-slate-600 italic ml-2">Nastavte šanci na nalezení při průzkumu mapy</p>
                 </div>
               </div>
 
@@ -501,13 +535,13 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
             setResourceConfig({
               ...resourceConfig, 
               [id]: { 
-                label: 'Nový Předmět', 
+                label: { cz: 'Nový Předmět', en: 'New Item', sk: 'Nový Predmet' }, 
                 color: '#ffffff', 
                 icon: '📦', 
                 hasCustomIcon: false, 
                 category: 'relic',
                 rarity: 'Běžná',
-                description: '', 
+                description: { cz: '', en: '', sk: '' }, 
                 stats: { hp: 0, atk: 0, def: 0 } 
               }
             });
@@ -517,11 +551,11 @@ export const ResourceDesignTab = ({ resourceConfig, setResourceConfig, handleRes
           <div className="size-8 rounded-full border-2 border-dashed border-current flex items-center justify-center group-hover:scale-110 transition-transform">
             <Plus size={16} />
           </div>
-          <span className="text-[10px] font-black uppercase tracking-[3px]">Přidat Nový Předmět</span>
+          <span className="text-[10px] font-black uppercase tracking-[3px]">Přidat nový předmět</span>
         </button>
       </motion.div>
     </div>
   );
-}
+};
 
 

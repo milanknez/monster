@@ -1,66 +1,30 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, QrCode, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack, getMonsterDefense, getTotalXPForLevel, getMonsterPower, TYPE_ICONS } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack, getMonsterDefense, getTotalXPForLevel, getMonsterPower, TYPE_ICONS, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, RARITY_THEME } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
+import { useTranslation } from 'react-i18next';
 
-
-
-
-
-const RARITY_THEME: Record<string, { text: string, border: string, bg: string, glow: string, card: string, decor: string }> = {
-  'Běžná': {
-    text: 'text-slate-400',
-    border: 'border-slate-500/20',
-    bg: 'bg-slate-500',
-    glow: 'bg-slate-500',
-    card: 'border-white/5 bg-slate-900/40',
-    decor: 'border-white/5'
-  },
-  'Vzácná': {
-    text: 'text-blue-400',
-    border: 'border-blue-400',
-    bg: 'bg-blue-500',
-    glow: 'bg-blue-500',
-    card: 'border-blue-500/40 bg-blue-500/5 shadow-blue-500/20',
-    decor: 'border-blue-500/30'
-  },
-  'Epická': {
-    text: 'text-purple-400',
-    border: 'border-purple-400',
-    bg: 'bg-purple-500',
-    glow: 'bg-purple-500',
-    card: 'border-purple-500/40 bg-purple-500/5 shadow-purple-500/20',
-    decor: 'border-purple-500/30'
-  },
-  'Legendární': {
-    text: 'text-amber-400',
-    border: 'border-amber-400',
-    bg: 'bg-amber-500',
-    glow: 'bg-amber-500',
-    card: 'border-amber-500/40 bg-amber-500/5 shadow-amber-500/20',
-    decor: 'border-amber-500/30'
-  }
-}
-
+import systemValues from '../../data/system_values.json';
 import { useGameSound } from '../../data/sounds';
 
 export const Bestiary = ({ caughtMonsters, onSelect }: {
   caughtMonsters: Monster[],
   onSelect: (m: Monster) => void
 }) => {
+  const { t, i18n } = useTranslation();
   const { playBookFlip, playClick } = useGameSound();
-  const [filter, setFilter] = useState('Vše')
-  const rarities = ['Vše', 'Běžná', 'Vzácná', 'Epická', 'Legendární']
+  const [filter, setFilter] = useState('all')
+  const rarities = ['all', ...systemValues.monsterRarities.map((r: any) => getLoc(r, 'cz'))]
 
   const caughtFiltered = caughtMonsters
-    .filter(m => filter === 'Vše' || m.rarity === filter)
+    .filter(m => filter === 'all' || getLoc(m.rarity, 'cz') === filter)
     .sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
 
   const uncaughtInDB = monsterDB
-    .filter(m => filter === 'Vše' || m.rarity === filter)
+    .filter(m => filter === 'all' || getLoc(m.rarity, 'cz') === filter)
     .filter(m => !caughtMonsters.some(cm => cm.id === m.id))
     .slice(0, 6); // Limit unknown monsters to 6 items
 
@@ -74,18 +38,18 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
       <div className="flex flex-col gap-3 p-6 bg-primary/5 border-b border-primary/10">
         <div className="flex justify-between items-start">
           <div className="flex flex-col">
-            <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">Globální Hodnocení</p>
-            <p className="text-slate-100 text-2xl font-black uppercase tracking-tighter">Sběratel Úr. {Math.floor(caughtMonsters.length / 5) + 1}</p>
+            <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">{t('bestiary.global_rating')}</p>
+            <p className="text-slate-100 text-2xl font-black uppercase tracking-tighter">{t('bestiary.collector_lv')} {Math.floor(caughtMonsters.length / 5) + 1}</p>
           </div>
 
           <div className="flex gap-2">
             <div className="text-right flex flex-col items-end">
               <p className="text-slate-100 text-sm font-black uppercase">
                 {new Set(caughtMonsters.map(m => m.id)).size} / {monsterDB.length}
-                <span className="text-primary/60 ml-1">Druhů</span>
+                <span className="text-primary/60 ml-1">{t('bestiary.species_count')}</span>
               </p>
               <p className="text-slate-500 text-[10px] font-black uppercase mt-0.5">
-                {caughtMonsters.length} celkem chyceno
+                {caughtMonsters.length} {t('bestiary.total_caught')}
               </p>
             </div>
           </div>
@@ -98,15 +62,16 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
           />
         </div>
         <div className="flex justify-between">
-          <p className="text-primary text-[10px] font-black uppercase">{Math.round((new Set(caughtMonsters.map(m => m.id)).size / monsterDB.length) * 100)}% Kompletní</p>
-          <p className="text-slate-500 text-[10px] font-black uppercase">Další milník: {caughtMonsters.length + (5 - (caughtMonsters.length % 5))}</p>
+          <p className="text-primary text-[10px] font-black uppercase">{Math.round((new Set(caughtMonsters.map(m => m.id)).size / monsterDB.length) * 100)}% {t('bestiary.complete')}</p>
+          <p className="text-slate-500 text-[10px] font-black uppercase">{t('bestiary.next_milestone')}: {caughtMonsters.length + (5 - (caughtMonsters.length % 5))}</p>
         </div>
       </div>
 
       <div className="sticky top-16 z-30 bg-background-dark/95 backdrop-blur-md border-b border-white/5">
         <div className="flex px-4 gap-6 overflow-x-auto no-scrollbar scroll-smooth py-4">
           {rarities.map(r => {
-            const theme = RARITY_THEME[r];
+            const theme = RARITY_THEME[r] || RARITY_THEME['all'];
+            const label = r === 'all' ? t('bestiary.filter_all') : getLoc(systemValues.monsterRarities.find((mr: any) => (typeof mr === 'object' ? mr.cz : mr) === r), i18n.language);
             const firstLetterClass = theme ? theme.text : "text-primary";
             
             return (
@@ -121,7 +86,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   filter === r ? "text-slate-100" : "text-slate-500 hover:text-slate-300"
                 )}
               >
-                <span className={firstLetterClass}>{r[0]}</span>{r.slice(1)}
+                <span className={firstLetterClass}>{label[0]}</span>{label.slice(1)}
                 {filter === r && (
                   <motion.div layoutId="filter-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_10px_#0db9f2]" />
                 )}
@@ -134,8 +99,8 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
       <div className="grid grid-cols-2 gap-4 p-4">
         {allToDisplay.map((m: any, idx) => {
           const isCaught = 'caughtAt' in m || caughtMonsters.some(cm => cm.id === m.id && cm.level === m.level && (cm.xp || 0) === (m.xp || 0));
-          const colors = TYPE_COLORS[m.type] || TYPE_COLORS['Default'];
-          const theme = RARITY_THEME[m.rarity] || RARITY_THEME['Běžná'];
+          const colors = getMonsterColors(m.type);
+          const theme = getRarityTheme(m.rarity);
 
           return (
             <motion.div
@@ -151,7 +116,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               )}
             >
               {/* Decorative Frame for Rare/Epic/Legendary */}
-              {isCaught && m.rarity !== 'Běžná' && (
+              {isCaught && getLoc(m.rarity, 'cz') !== 'Běžná' && (
                 <>
                   <div className={cn(
                     "absolute inset-0 pointer-events-none border-2 rounded-2xl z-30 opacity-60",
@@ -243,7 +208,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   {/* Content */}
                   <div className="absolute bottom-12 left-2 p-1.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 z-20 pointer-events-none flex items-center shadow-lg">
                     {(() => {
-                      const Icon = TYPE_ICONS[m.type];
+                      const Icon = getMonsterTypeIcon(m.type);
                       return Icon ? <Icon size={14} className={colors.text} /> : null;
                     })()}
                   </div>
@@ -252,8 +217,8 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                     className="absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                   />
                   <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none mb-1">
-                    <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{m.name}</p>
-                    <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", theme.text)}>{m.rarity}</p>
+                    <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{getLoc(m.name, i18n.language)}</p>
+                    <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", theme.text)}>{getLoc(m.rarity, i18n.language)}</p>
                   </div>
 
                   {/* XP Level Bar at the very bottom */}
@@ -276,7 +241,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               ) : (
                 <div className="flex flex-col items-center justify-center size-full gap-2 opacity-50 pointer-events-none">
                   <Lock size={32} className="text-slate-600" />
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Neznámý</p>
+                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{t('bestiary.unknown_species')}</p>
 
                   {/* Empty sockets for unknown monster */}
                   <div className="flex gap-2.5 mt-1.5">

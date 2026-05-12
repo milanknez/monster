@@ -1,28 +1,52 @@
 {
-  "id": "048",
-  "name": "Medúzka Vlasatá",
-  "description": "Malá růžová medúza s dlouhými chapadly, která připomínají svítící vlasy. Její dotek způsobuje brnění a dočasné ochromení.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 130,
-    "attack": 42,
-    "defense": 30
-  },
-  "abilities": [
-    {
-      "name": "Elektrický dotek",
-      "description": "Zasáhne nepřítele svými chapadly a způsobí mu slabý elektrický šok.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "048",
+    "name": {
+        "cz": "Medúzka Vlasatá",
+        "en": "Hairy Jellyfish",
+        "sk": "Medúzka Vlasatá"
     },
-    {
-      "name": "Ochromující záře",
-      "description": "Vystřelí záblesk světla, který má šanci nepřítele na jedno kolo ochromit.",
-      "type": "extra",
-      "chance": 60,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Malá růžová medúza s dlouhými chapadly, která připomínají svítící vlasy. Její dotek způsobuje brnění a dočasné ochromení.",
+        "en": "A jellyfish with long hair-like tentacles that can deliver a painful sting.",
+        "sk": "Medúza s dlhými vlasovými chápadlami, ktoré môžu spôsobiť bolestivé uštipnutie."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 130,
+        "attack": 42,
+        "defense": 30
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Elektrický dotek",
+                "en": "Sting Ray",
+                "sk": "Pŕhlivý lúč"
+            },
+            "description": {
+                "cz": "Zasáhne nepřítele svými chapadly a způsobí mu slabý elektrický šok.",
+                "en": "A painful sting with tentacles.",
+                "sk": "Bolestivé uštipnutie chápadlami."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Ochromující záře",
+                "en": "Glow Pulse",
+                "sk": "Žiariaci pulz"
+            },
+            "description": {
+                "cz": "Vystřelí záblesk světla, který má šanci nepřítele na jedno kolo ochromit.",
+                "en": "Releases a pulse of light to stun the enemy.",
+                "sk": "Uvoľní svetelný pulz, ktorý omráči nepriateľa."
+            },
+            "type": "extra",
+            "chance": 60,
+            "value": 20
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "112",
-  "name": "Planktogon",
-  "description": "Planktogon je zvláštní vodní mutant složený z tisíců zářících planktonů, které drží pohromadě jako živá hmota. Na první pohled působí roztomile – světélkuje, vznáší se a tiše bublá. Jakmile se ale přiblíží nepřítel, jeho tělo se stáhne do hustší formy a odhalí řady drobných ostrých zoubků a malá drápovitá chapadla. Rád si hraje… ale jeho hry často bolí.",
-  "type": "Vodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 260,
-    "attack": 68,
-    "defense": 50
-  },
-  "abilities": [
-    {
-      "name": "Svítivý roj",
-      "description": "Vystřelí roj planktonu, který obklopí nepřítele a způsobí drobné poškození.",
-      "type": "extra",
-      "chance": 90,
-      "value": 30
+    "id": "112",
+    "name": {
+        "cz": "Planktogon",
+        "en": "Planktogon",
+        "sk": "Planktogon"
     },
-    {
-      "name": "Regenerační shluk",
-      "description": "Planktony se semknou a rychle zacelí poškození, čímž si obnoví 25% zdraví.",
-      "type": "heal",
-      "chance": 80,
-      "value": 25
-    }
-  ]
+    "description": {
+        "cz": "Planktogon je zvláštní vodní mutant složený z tisíců zářících planktonů, které drží pohromadě jako živá hmota. Na první pohled působí roztomile – světélkuje, vznáší se a tiše bublá. Jakmile se ale přiblíží nepřítel, jeho tělo se stáhne do hustší formy a odhalí řady drobných ostrých zoubků a malá drápovitá chapadla. Rád si hraje… ale jeho hry často bolí.",
+        "en": "Planktogon is a strange water mutant composed of thousands of glowing plankton held together like a living mass. At first glance it seems cute - it glows, floats and quietly bubbles. But as soon as an enemy approaches, its body contracts into a denser form and reveals rows of tiny sharp teeth and small clawed tentacles. It likes to play... but its games often hurt.",
+        "sk": "Planktogon je zvláštny vodný mutant zložený z tisícov žiariacich planktónov, ktoré držia pohromade ako živá hmota. Na prvý pohľad pôsobí roztomilo – svetielkuje, vznáša sa a ticho buble. Akonáhle sa ale priblíži nepriateľ, jeho telo sa stiahne do hustejšej formy a odhalí rady drobných ostrých zúbkov a malé drápovité chápadlá. Rád sa hrá… ale jeho hry často bolia."
+    },
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 260,
+        "attack": 68,
+        "defense": 50
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Svítivý roj",
+                "en": "Glowing Swarm",
+                "sk": "Svítivý roj"
+            },
+            "description": {
+                "cz": "Vystřelí roj planktonu, který obklopí nepřítele a způsobí drobné poškození.",
+                "en": "Fires a swarm of plankton that surrounds the enemy and causes minor damage.",
+                "sk": "Vystrelí roj planktónu, ktorý obklopí nepriateľa a spôsobí drobné poškodenie."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 30
+        },
+        {
+            "name": {
+                "cz": "Regenerační shluk",
+                "en": "Regenerative Cluster",
+                "sk": "Regenerační shluk"
+            },
+            "description": {
+                "cz": "Planktony se semknou a rychle zacelí poškození, čímž si obnoví 25% zdraví.",
+                "en": "The plankton clump together and quickly heal damage, restoring 25% health.",
+                "sk": "Planktóny sa zomknú a rýchlo zacelia poškodenie, čím si obnovia 25% zdravia."
+            },
+            "type": "heal",
+            "chance": 80,
+            "value": 25
+        }
+    ]
 }

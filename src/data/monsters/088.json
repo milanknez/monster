@@ -1,28 +1,52 @@
 {
-  "id": "088",
-  "name": "Chapadlová Rolka",
-  "description": "Kousek sushi, který odmítl být sněden. Z rýže vyrašila slizká chapadla s ostny a syrový losos na vrchu začal sledovat okolí lidským okem.",
-  "type": "Vodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 360,
-    "attack": 130,
-    "defense": 50
-  },
-  "abilities": [
-    {
-      "name": "Injekce wasabi",
-      "description": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "088",
+    "name": {
+        "cz": "Chapadlová Rolka",
+        "en": "Frost Wyvern",
+        "sk": "Mrazivý vyvern"
     },
-    {
-      "name": "Slizká past",
-      "description": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele.",
-      "type": "curse",
-      "chance": 75,
-      "value": 40
-    }
-  ]
+    "description": {
+        "cz": "Kousek sushi, který odmítl být sněden. Z rýže vyrašila slizká chapadla s ostny a syrový losos na vrchu začal sledovat okolí lidským okem.",
+        "en": "A dragon-like creature that rules the frozen wastes. Its breath can freeze time itself.",
+        "sk": "Drakovité stvorenie, ktoré vládne mrazivým pustatinám. Jeho dych dokáže zmraziť samotný čas."
+    },
+    "type": "water",
+    "rarity": "epic",
+    "stats": {
+        "hp": 360,
+        "attack": 130,
+        "defense": 50
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Injekce wasabi",
+                "en": "Frost Breath",
+                "sk": "Mrazivý dych"
+            },
+            "description": {
+                "cz": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
+                "en": "A breath of extreme cold.",
+                "sk": "Dych extrémneho chladu."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Slizká past",
+                "en": "Wing Gust",
+                "sk": "Závan krídel"
+            },
+            "description": {
+                "cz": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele.",
+                "en": "A strong wind that slows enemies.",
+                "sk": "Silný vietor, ktorý spomalí nepriateľov."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 40
+        }
+    ]
 }

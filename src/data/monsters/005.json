@@ -1,28 +1,52 @@
 {
-  "id": "005",
-  "name": "Lávojed Bumkác",
-  "description": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 118,
-    "attack": 52,
-    "defense": 19
-  },
-  "abilities": [
-    {
-      "name": "Erupce",
-      "description": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "005",
+    "name": {
+        "cz": "Lávojed Bumkác",
+        "en": "Magma Turtle",
+        "sk": "Magmatická Korytnačka"
     },
-    {
-      "name": "Ztuhlá láva",
-      "description": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 85,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
+        "en": "A slow turtle with a shell made of hardened lava. When it gets angry, its shell starts to glow red hot.",
+        "sk": "Pomalá korytnačka s pancierom z tvrdnutej lávy. Keď sa nahnevá, jej pancier začne žiariť dočervena."
+    },
+    "type": "fire",
+    "rarity": "common",
+    "stats": {
+        "hp": 118,
+        "attack": 52,
+        "defense": 19
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Erupce",
+                "en": "Magma Bash",
+                "sk": "Magmatický úder"
+            },
+            "description": {
+                "cz": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
+                "en": "A heavy blow with its glowing shell.",
+                "sk": "Ťažký úder rozžeraveným pancierom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Ztuhlá láva",
+                "en": "Heat Wall",
+                "sk": "Tepelná stena"
+            },
+            "description": {
+                "cz": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu (Snížení dmg 55-65%)",
+                "en": "Increases defense by radiating extreme heat.",
+                "sk": "Zvyšuje obranu vyžarovaním extrémneho tepla."
+            },
+            "type": "defense",
+            "chance": 85,
+            "value": 60
+        }
+    ]
 }

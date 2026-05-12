@@ -1,28 +1,52 @@
 {
-  "id": "023",
-  "name": "Slizohad",
-  "description": "Vodní příšera pokrytá jedovatou slizovinou. Pohybuje se plovoucím klouzavým způsobem a může zasáhnout nepřátele jedem. Strašidelná a nebezpečná, ale stále trochu legrační.",
-  "type": "Vodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 222,
-    "attack": 81,
-    "defense": 27
-  },
-  "abilities": [
-    {
-      "name": "Jedovatý dotek",
-      "description": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "023",
+    "name": {
+        "cz": "Slizohad",
+        "en": "Mud Golem",
+        "sk": "Bahnitý golem"
     },
-    {
-      "name": "Klouzavý útěk",
-      "description": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Vodní příšera pokrytá jedovatou slizovinou. Pohybuje se plovoucím klouzavým způsobem a může zasáhnout nepřátele jedem. Strašidelná a nebezpečná, ale stále trochu legrační.",
+        "en": "A golem made of thick mud.",
+        "sk": "Golem vyrobený z hustého bahna."
+    },
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 222,
+        "attack": 81,
+        "defense": 27
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Jedovatý dotek",
+                "en": "Mud Slam",
+                "sk": "Bahnitý úder"
+            },
+            "description": {
+                "cz": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
+                "en": "A heavy strike with mud.",
+                "sk": "Ťažký úder bahnom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Klouzavý útěk",
+                "en": "Slow Bind",
+                "sk": "Pomalé zovretie"
+            },
+            "description": {
+                "cz": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo (Snížení dmg 55-65%)",
+                "en": "Slows down the enemy.",
+                "sk": "Spomalí nepriateľa."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

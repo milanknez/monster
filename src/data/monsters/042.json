@@ -1,28 +1,52 @@
 {
-  "id": "042",
-  "name": "Osminožka Zubatá",
-  "description": "Malý huňatý pavouček s velkýma modrýma očima a jedním vyčnívajícím zoubkem. Rád plete sítě z cukrové vaty.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 135,
-    "attack": 44,
-    "defense": 18
-  },
-  "abilities": [
-    {
-      "name": "Cukrová síť",
-      "description": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "042",
+    "name": {
+        "cz": "Osminožka Zubatá",
+        "en": "Toothly Octopus",
+        "sk": "Osminožka Zubatá"
     },
-    {
-      "name": "Huňatý skok",
-      "description": "Skočí na nepřítele a překvapí ho svou vahou.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
-    }
-  ]
+    "description": {
+        "cz": "Malý huňatý pavouček s velkýma modrýma očima a jedním vyčnívajícím zoubkem. Rád plete sítě z cukrové vaty.",
+        "en": "A sea octopus that unusually has sharp teeth on its tentacles.",
+        "sk": "Morská chobotnica, ktorá má nezvyčajne ostré zuby na svojich chápadlách."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 135,
+        "attack": 44,
+        "defense": 18
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Cukrová síť",
+                "en": "Toothy Grip",
+                "sk": "Zubatý úchop"
+            },
+            "description": {
+                "cz": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo.",
+                "en": "Bites the enemy while holding them.",
+                "sk": "Hryzie nepriateľa, zatiaľ čo ho drží."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Huňatý skok",
+                "en": "Water Jet",
+                "sk": "Prúd vody"
+            },
+            "description": {
+                "cz": "Skočí na nepřítele a překvapí ho svou vahou.",
+                "en": "Shoots a high-pressure jet of water.",
+                "sk": "Vystrelí prúd vody pod vysokým tlakom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        }
+    ]
 }

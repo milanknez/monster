@@ -1,28 +1,52 @@
 {
-  "id": "006",
-  "name": "Listoočko Šustivé",
-  "description": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 137,
-    "attack": 45,
-    "defense": 17
-  },
-  "abilities": [
-    {
-      "name": "Listová břitva",
-      "description": "Vysílá ostré listy, které proříznou i brnění.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "006",
+    "name": {
+        "cz": "Listoočko Šustivé",
+        "en": "Frosty Owl",
+        "sk": "Mrazivá Sova"
     },
-    {
-      "name": "Tanec ve větru",
-      "description": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
-    }
-  ]
+    "description": {
+        "cz": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
+        "en": "A nocturnal bird with feathers as cold as ice. Its eyes glow blue in the dark.",
+        "sk": "Nočný vták s perím studeným ako ľad. Jeho oči v tme žiaria namodro."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 137,
+        "attack": 45,
+        "defense": 17
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Listová břitva",
+                "en": "Ice Shards",
+                "sk": "Ľadové úlomky"
+            },
+            "description": {
+                "cz": "Vysílá ostré listy, které proříznou i brnění.",
+                "en": "Fires sharp shards of ice at the enemy.",
+                "sk": "Vystrelí na nepriateľa ostré úlomky ľadu."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Tanec ve větru",
+                "en": "Blizzard Wings",
+                "sk": "Krídla blizardu"
+            },
+            "description": {
+                "cz": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Creates a cold wind that slows down the enemy.",
+                "sk": "Vytvorí studený vietor, ktorý spomalí nepriateľa."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        }
+    ]
 }

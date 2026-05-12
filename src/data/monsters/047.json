@@ -1,28 +1,52 @@
 {
-  "id": "047",
-  "name": "Žabička Trnoploutvá",
-  "description": "Malá tyrkysová žába s blánami zakončenými ostrými drápky. Má na zádech řadu svítících trnů a ráda skáče na nic netušící kolemjdoucí.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 160,
-    "attack": 40,
-    "defense": 20
-  },
-  "abilities": [
-    {
-      "name": "Drápový skok",
-      "description": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "047",
+    "name": {
+        "cz": "Žabička Trnoploutvá",
+        "en": "Thorn-fin Frog",
+        "sk": "Žabička Trnoploutvá"
     },
-    {
-      "name": "Trnový odraz",
-      "description": "Zpevní se a trny na zádech odrazí část poškození zpět (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 75,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Malá tyrkysová žába s blánami zakončenými ostrými drápky. Má na zádech řadu svítících trnů a ráda skáče na nic netušící kolemjdoucí.",
+        "en": "A small frog with sharp thorns on its fins that it uses to defend itself in water.",
+        "sk": "Malá žabka s ostrými tŕňmi na plutvách, ktoré používa na sebaobranu vo vode."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 160,
+        "attack": 40,
+        "defense": 20
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Drápový skok",
+                "en": "Thorn Kick",
+                "sk": "Tŕňový kop"
+            },
+            "description": {
+                "cz": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky.",
+                "en": "A powerful kick with thorny legs.",
+                "sk": "Silný kop tŕnitými nohami."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Trnový odraz",
+                "en": "Water Leap",
+                "sk": "Vodný skok"
+            },
+            "description": {
+                "cz": "Zpevní se a trny na zádech odrazí část poškození zpět (Snížení dmg 55-65%)",
+                "en": "A high leap to surprise the enemy.",
+                "sk": "Vysoký skok, ktorým prekvapí nepriateľa."
+            },
+            "type": "defense",
+            "chance": 75,
+            "value": 60
+        }
+    ]
 }

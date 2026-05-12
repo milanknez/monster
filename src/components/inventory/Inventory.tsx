@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, Clock, Star, Zap, Beaker, Sparkles, Wand2, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Boost, InventoryItem } from '../../types';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
-import { cn } from '../../utils';
+import { cn, getLoc } from '../../utils';
 import { ResourceIcon } from '../ui/ResourceIcon';
 
 export const Inventory = ({
@@ -21,6 +22,7 @@ export const Inventory = ({
   onUseItem: (type: string) => void,
   onDiscard: (idx: number) => void
 }) => {
+  const { t } = useTranslation();
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
   const handleDragStart = (idx: number) => {
@@ -35,7 +37,7 @@ export const Inventory = ({
   };
 
   const isConsumable = (type: string) => {
-    return ['xp_booster', 'hp_potion', 'energy_drink'].includes(type);
+    return ['xp_booster', 'hp_potion', 'hp_potion_large', 'energy_drink'].includes(type);
   }
 
   return (
@@ -53,7 +55,7 @@ export const Inventory = ({
       {/* Active Boosts Section */}
       {activeBoosts.length > 0 && (
         <section className="px-6 mb-8">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Aktivní Efekty</h3>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">{t('inventory.active_effects')}</h3>
           <div className="grid grid-cols-1 gap-2">
             {activeBoosts.map((boost, idx) => (
               <motion.div
@@ -67,8 +69,8 @@ export const Inventory = ({
                     {boost.type === 'xp_boost' ? <Star size={18} fill="currentColor" /> : <Zap size={18} fill="currentColor" />}
                   </div>
                   <div>
-                    <p className="text-xs font-black text-white uppercase">{boost.type === 'xp_boost' ? 'XP Elixír' : 'Energetický Nápoj'}</p>
-                    <p className="text-[10px] font-bold text-emerald-500/70 uppercase">Bonus {boost.multiplier}x</p>
+                    <p className="text-xs font-black text-white uppercase">{boost.type === 'xp_boost' ? t('inventory.xp_elixir') : t('inventory.energy_drink')}</p>
+                    <p className="text-[10px] font-bold text-emerald-500/70 uppercase">{t('inventory.bonus')} {boost.multiplier}x</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -86,8 +88,8 @@ export const Inventory = ({
       {/* Slots Grid (4x5) */}
       <section className="px-6">
         <div className="flex justify-between items-end mb-4 pr-1">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kapacita ({inventory.filter(i => i).length} / {inventory.length})</h3>
-          <p className="text-[9px] font-bold text-slate-600 uppercase">Max stack: 20x</p>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('inventory.capacity')} ({inventory.filter(i => i).length} / {inventory.length})</h3>
+          <p className="text-[9px] font-bold text-slate-600 uppercase">{t('inventory.max_stack')}</p>
         </div>
 
         {/* Selected Item Info at the Top */}
@@ -104,17 +106,17 @@ export const Inventory = ({
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
                     <span className="text-sm font-black text-white uppercase tracking-widest">
-                      {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label || inventory[draggedIdx]!.type}
+                      {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.label) || inventory[draggedIdx]!.type}
                     </span>
                     <span className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                      {RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description || 'Žádný popis.'}
+                      {getLoc(RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.description) || t('inventory.no_desc')}
                     </span>
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => { onDiscard(draggedIdx); setDraggedIdx(null); }}
                     className="p-2 ml-4 shrink-0 bg-red-950 border border-red-500/30 rounded-xl text-red-500 shadow-md shadow-red-500/10 active:scale-95 transition-all"
-                    title="Zahodit"
+                    title={t('inventory.discard')}
                   >
                     <Trash2 size={16} />
                   </motion.button>
@@ -122,8 +124,8 @@ export const Inventory = ({
               </motion.div>
             ) : (
               <motion.div key="empty" className="h-[4.5rem] flex flex-col items-center justify-center text-slate-600 bg-slate-900/40 rounded-2xl border border-white/5 border-dashed">
-                <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">Klikni na předmět pro detaily</p>
-                <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">Kliknutím vybereš, dalším klikem jinam přesuneš</p>
+                <p className="text-[10px] uppercase font-black tracking-widest text-center mt-1 pb-1">{t('inventory.click_for_details')}</p>
+                <p className="text-[8px] uppercase font-bold tracking-wider opacity-50 italic">{t('inventory.click_to_move')}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -177,9 +179,9 @@ export const Inventory = ({
                   className={cn(
                     "aspect-square rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center group relative",
                     item
-                      ? (config?.rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer active:scale-95" :
-                        config?.rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)] cursor-pointer active:scale-95" :
-                          config?.rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)] cursor-pointer active:scale-95" :
+                      ? (getLoc(config?.rarity, 'cz') === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer active:scale-95" :
+                        getLoc(config?.rarity, 'cz') === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.2)] cursor-pointer active:scale-95" :
+                          getLoc(config?.rarity, 'cz') === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)] cursor-pointer active:scale-95" :
                             "bg-slate-800 border-white/10 shadow-lg cursor-pointer active:scale-95")
                       : "bg-slate-900/60 border-slate-800/40 shadow-inner overflow-hidden",
                     isSelected ? "ring-2 ring-primary scale-105 z-30 shadow-[0_0_15px_rgba(13,185,242,0.4)]" : "",

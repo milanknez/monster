@@ -1,28 +1,52 @@
 {
-  "id": "075",
-  "name": "Pyrožek teplomyl",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "description": "Drobný bodlináč, jehož bodliny jsou ve skutečnosti drobné rozpálené uhlíky. Rád se schovává v ohništích.",
-  "stats": {
-    "hp": 142,
-    "attack": 46,
-    "defense": 22
-  },
-  "abilities": [
-    {
-      "name": "Spalující žár",
-      "description": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "075",
+    "name": {
+        "cz": "Pyrožek teplomyl",
+        "en": "Heat-loving Pyro-horn",
+        "sk": "Pyrožek teplomyl"
     },
-    {
-      "name": "Žhavý krunýř",
-      "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 80,
-      "value": 60
-    }
-  ]
+    "type": "fire",
+    "rarity": "common",
+    "description": {
+        "cz": "Drobný bodlináč, jehož bodliny jsou ve skutečnosti drobné rozpálené uhlíky. Rád se schovává v ohništích.",
+        "en": "A creature with a single horn that glows with heat and loves to stay in warm places.",
+        "sk": "Stvorenie s jedným rohom, ktorý žiari teplom a miluje pobyt na teplých miestach."
+    },
+    "stats": {
+        "hp": 142,
+        "attack": 46,
+        "defense": 22
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Spalující žár",
+                "en": "Heat Horn",
+                "sk": "Tepelný roh"
+            },
+            "description": {
+                "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
+                "en": "Attacks with its glowing hot horn.",
+                "sk": "Zaútočí svojím rozžeraveným rohom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Žhavý krunýř",
+                "en": "Warm Aura",
+                "sk": "Teplá aura"
+            },
+            "description": {
+                "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
+                "en": "Heals itself with heat.",
+                "sk": "Uzdravuje sa teplom."
+            },
+            "type": "defense",
+            "chance": 80,
+            "value": 60
+        }
+    ]
 }

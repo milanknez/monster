@@ -1,28 +1,52 @@
 {
-  "id": "041",
-  "name": "Mešníček Chlupatý",
-  "description": "Malý, kulatý tvoreček pokrytý měkkým zeleným mechem. Místo uší má dva dubové lístky a neustále hledá čerstvou ranní rosu.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 140,
-    "attack": 42,
-    "defense": 20
-  },
-  "abilities": [
-    {
-      "name": "Rosný dotek",
-      "description": "Vystříkne kapku magické rosy, která osvěží spojence nebo lehce oslabí nepřítele.",
-      "type": "heal",
-      "chance": 65,
-      "value": 15
+    "id": "041",
+    "name": {
+        "cz": "Mešníček Chlupatý",
+        "en": "Hairy Moss-man",
+        "sk": "Mešníček Chlupatý"
     },
-    {
-      "name": "Mechové maskování",
-      "description": "Splyne s okolím a sníží šanci nepřítele na zásah. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 75,
-      "value": 15
-    }
-  ]
+    "description": {
+        "cz": "Malý, kulatý tvoreček pokrytý měkkým zeleným mechem. Místo uší má dva dubové lístky a neustále hledá čerstvou ranní rosu.",
+        "en": "A forest creature covered in thick moss that protects it from attacks.",
+        "sk": "Lesné stvorenie pokryté hustým machom, ktorý ho chráni pred útokmi."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 140,
+        "attack": 42,
+        "defense": 20
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Rosný dotek",
+                "en": "Mossy Slap",
+                "sk": "Machový úder"
+            },
+            "description": {
+                "cz": "Vystříkne kapku magické rosy, která osvěží spojence nebo lehce oslabí nepřítele.",
+                "en": "A heavy slap with a mossy hand.",
+                "sk": "Ťažký úder machovou rukou."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Mechové maskování",
+                "en": "Forest Camouflage",
+                "sk": "Lesné maskovanie"
+            },
+            "description": {
+                "cz": "Splyne s okolím a sníží šanci nepřítele na zásah. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Hides in the forest to dodge attacks.",
+                "sk": "Skryje sa v lese, aby sa vyhol útokom."
+            },
+            "type": "curse",
+            "chance": 75,
+            "value": 15
+        }
+    ]
 }

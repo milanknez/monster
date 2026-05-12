@@ -1,28 +1,52 @@
 {
-  "id": "098",
-  "name": "Lego Opravář",
-  "description": "Oživlá stavebnicová figurka se žlutou kůží, které místo jedné ruky vyrostl obří hydraulický klíč. Její tělo je poskládané z náhodných barevných kostek a z prasklin unikají nebezpečné elektrické výboje.",
-  "type": "Elektrická",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 360,
-    "attack": 140,
-    "defense": 60
-  },
-  "abilities": [
-    {
-      "name": "Utažení matky",
-      "description": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "098",
+    "name": {
+        "cz": "Lego Opravář",
+        "en": "Lego Repairman",
+        "sk": "Lego Opravář"
     },
-    {
-      "name": "Odpálený kondenzátor",
-      "description": "Vystřelí salvu jisker, které dočasně zvýší jeho útočnou sílu i rychlost.",
-      "type": "buff",
-      "chance": 70,
-      "value": 0.4
-    }
-  ]
+    "description": {
+        "cz": "Oživlá stavebnicová figurka se žlutou kůží, které místo jedné ruky vyrostl obří hydraulický klíč. Její tělo je poskládané z náhodných barevných kostek a z prasklin unikají nebezpečné elektrické výboje.",
+        "en": "An animated building figure with yellow skin, who has grown a giant hydraulic wrench instead of one hand. Its body is assembled from random colorful blocks and dangerous electrical sparks leak from the cracks.",
+        "sk": "Oživená stavebnicová figúrka so žltou kožou, ktorej namiesto jednej ruky vyrástol obrí hydraulický kľúč. Jej telo je poskladané z náhodných farebných kociek a z prasklín unikajú nebezpečné elektrické výboje."
+    },
+    "type": "electric",
+    "rarity": "epic",
+    "stats": {
+        "hp": 360,
+        "attack": 140,
+        "defense": 60
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Utažení matky",
+                "en": "Hydraulic Wrench",
+                "sk": "Hydraulický kľúč"
+            },
+            "description": {
+                "cz": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí.",
+                "en": "A heavy strike with a giant wrench.",
+                "sk": "Ťažký úder obrovským kľúčom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Odpálený kondenzátor",
+                "en": "Block Barrier",
+                "sk": "Kocková bariéra"
+            },
+            "description": {
+                "cz": "Vystřelí salvu jisker, které dočasně zvýší jeho útočnou sílu i rychlost.",
+                "en": "Creates a barrier from building blocks.",
+                "sk": "Vytvorí bariéru zo stavebných kociek."
+            },
+            "type": "buff",
+            "chance": 70,
+            "value": 0.4
+        }
+    ]
 }

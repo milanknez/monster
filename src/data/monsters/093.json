@@ -1,28 +1,52 @@
 {
-  "id": "093",
-  "name": "Vulkanický Párek",
-  "description": "Rozšklebený, rudě žhnoucí párek se stovkami nožiček jako stonožka. Po celé délce má řadu ostrých uhelných zubů a kape z něj lávový kečup.",
-  "type": "Ohnivá",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 420,
-    "attack": 120,
-    "defense": 60
-  },
-  "abilities": [
-    {
-      "name": "Uzený šleh",
-      "description": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "093",
+    "name": {
+        "cz": "Vulkanický Párek",
+        "en": "Volcanic Sausage",
+        "sk": "Vulkanický Párek"
     },
-    {
-      "name": "Žíravá uzenost",
-      "description": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu.",
-      "type": "curse",
-      "chance": 80,
-      "value": 40
-    }
-  ]
+    "description": {
+        "cz": "Rozšklebený, rudě žhnoucí párek se stovkami nožiček jako stonožka. Po celé délce má řadu ostrých uhelných zubů a kape z něj lávový kečup.",
+        "en": "A sausage creature that lives in volcanic areas and is always hot.",
+        "sk": "Párkové stvorenie, ktoré žije vo vulkanických oblastiach a je vždy horúce."
+    },
+    "type": "fire",
+    "rarity": "epic",
+    "stats": {
+        "hp": 420,
+        "attack": 120,
+        "defense": 60
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Uzený šleh",
+                "en": "Sizzling Strike",
+                "sk": "Prskavý úder"
+            },
+            "description": {
+                "cz": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
+                "en": "A hot sizzle attack.",
+                "sk": "Horúci prskavý útok."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Žíravá uzenost",
+                "en": "Hot Grease",
+                "sk": "Horúca masť"
+            },
+            "description": {
+                "cz": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu.",
+                "en": "Spits hot grease at the enemy.",
+                "sk": "Pľuje horúcu masť na nepriateľa."
+            },
+            "type": "curse",
+            "chance": 80,
+            "value": 40
+        }
+    ]
 }

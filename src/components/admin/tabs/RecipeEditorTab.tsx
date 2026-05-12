@@ -1,10 +1,12 @@
 import { Plus, Trash2, X } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { cn } from '../../../utils'
+import { cn, getLoc } from '../../../utils'
+import { useTranslation } from 'react-i18next'
 
 import { ResourceIcon } from '../../ui/ResourceIcon'
 
 export const RecipeEditorTab = ({ recipes, setRecipes, resourceConfig }: any) => {
+  const { i18n } = useTranslation();
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {recipes.map((recipe: any, rIdx: number) => (
@@ -19,7 +21,7 @@ export const RecipeEditorTab = ({ recipes, setRecipes, resourceConfig }: any) =>
                        onChange={(e) => { const newRecs = [...recipes]; newRecs[rIdx].result.id = e.target.value; setRecipes(newRecs); }}
                        className="absolute inset-0 opacity-0 cursor-pointer"
                      >
-                       {Object.keys(resourceConfig).map(t => <option key={t} value={t}>{resourceConfig[t]?.icon} {resourceConfig[t]?.label || t}</option>)}
+                       {Object.keys(resourceConfig).map(t => <option key={t} value={t}>{resourceConfig[t]?.icon} {getLoc(resourceConfig[t]?.label, i18n.language) || t}</option>)}
                      </select>
                      <Plus size={16} className="text-white" />
                   </div>
@@ -61,7 +63,7 @@ export const RecipeEditorTab = ({ recipes, setRecipes, resourceConfig }: any) =>
                    <div key={reqIdx} className="flex items-center gap-2 bg-black/60 border border-white/5 px-2 py-1 rounded-xl">
                      <ResourceIcon id={req.type} config={resourceConfig[req.type] || {}} size="sm" />
                      <select value={req.type} onChange={(e) => { const newRecs = [...recipes]; newRecs[rIdx].requirements[reqIdx].type = e.target.value; setRecipes(newRecs); }} className="bg-transparent border-none text-[10px] p-0 focus:ring-0 text-white cursor-pointer">
-                       {Object.keys(resourceConfig).map(t => <option key={t} value={t} className="bg-slate-900">{resourceConfig[t]?.icon} {resourceConfig[t]?.label || t}</option>)}
+                       {Object.keys(resourceConfig).map(t => <option key={t} value={t} className="bg-slate-900">{resourceConfig[t]?.icon} {getLoc(resourceConfig[t]?.label, i18n.language) || t}</option>)}
                      </select>
                      <input type="number" value={req.count} onChange={(e) => { const newRecs = [...recipes]; newRecs[rIdx].requirements[reqIdx].count = parseInt(e.target.value); setRecipes(newRecs); }} className="w-8 bg-transparent border-none text-[10px] p-0 text-right focus:ring-0 text-primary font-black" />
                      <button onClick={() => { const newRecs = [...recipes]; newRecs[rIdx].requirements = newRecs[rIdx].requirements.filter((_: any, i: number) => i !== reqIdx); setRecipes(newRecs); }}><X size={10} className="text-slate-600" /></button>

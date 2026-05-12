@@ -1,0 +1,14 @@
+{
+  "monsterTypes": [
+    { "cz": "Ohnivá", "en": "Fire", "sk": "Ohnivá" },
+    { "cz": "Vodní", "en": "Water", "sk": "Vodná" },
+    { "cz": "Přírodní", "en": "Nature", "sk": "Prírodná" },
+    { "cz": "Elektrická", "en": "Electric", "sk": "Elektrická" }
+  ],
+  "monsterRarities": [
+    { "cz": "Běžná", "en": "Common", "sk": "Bežná" },
+    { "cz": "Vzácná", "en": "Rare", "sk": "Vzácna" },
+    { "cz": "Epická", "en": "Epic", "sk": "Epická" },
+    { "cz": "Legendární", "en": "Legendary", "sk": "Legendárna" }
+  ]
+}

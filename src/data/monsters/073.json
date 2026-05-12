@@ -1,28 +1,52 @@
 {
-  "id": "073",
-  "name": "Ohnivý Skřítek",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "description": "Malý zlomyslný skřítek tvořený rozpálenými uhlíky.",
-  "stats": {
-    "hp": 123,
-    "attack": 43,
-    "defense": 20
-  },
-  "abilities": [
-    {
-      "name": "Spalující žár",
-      "description": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "073",
+    "name": {
+        "cz": "Ohnivý Skřítek",
+        "en": "Fire Imp",
+        "sk": "Ohnivý Skřítek"
     },
-    {
-      "name": "Žhavý krunýř",
-      "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "fire",
+    "rarity": "common",
+    "description": {
+        "cz": "Malý zlomyslný skřítek tvořený rozpálenými uhlíky.",
+        "en": "A small mischievous spirit of fire that likes to start small blazes.",
+        "sk": "Malý zlomyseľný duch ohňa, ktorý rád zakladá malé požiare."
+    },
+    "stats": {
+        "hp": 123,
+        "attack": 43,
+        "defense": 20
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Spalující žár",
+                "en": "Fireball",
+                "sk": "Ohnivá guľa"
+            },
+            "description": {
+                "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
+                "en": "Throws a small fireball at the enemy.",
+                "sk": "Hodí malú ohnivú guľu na nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Žhavý krunýř",
+                "en": "Ember Spark",
+                "sk": "Uhlíková iskra"
+            },
+            "description": {
+                "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
+                "en": "A quick spark that can burn.",
+                "sk": "Rýchla iskra, ktorá môže popáliť."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

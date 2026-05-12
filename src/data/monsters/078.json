@@ -1,28 +1,52 @@
 {
-  "id": "078",
-  "name": "Listový Kudlanka",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "description": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
-  "stats": {
-    "hp": 135,
-    "attack": 48,
-    "defense": 15
-  },
-  "abilities": [
-    {
-      "name": "Divoké šlahouny",
-      "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "078",
+    "name": {
+        "cz": "Listový Kudlanka",
+        "en": "Leafy Mantis",
+        "sk": "Listový Kudlanka"
     },
-    {
-      "name": "Fotosyntéza",
-      "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-      "type": "regen",
-      "chance": 65,
-      "value": 15
-    }
-  ]
+    "type": "nature",
+    "rarity": "common",
+    "description": {
+        "cz": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
+        "en": "A mantis that is perfectly camouflaged among the leaves of the forest.",
+        "sk": "Modlivka, ktorá je dokonale maskovaná medzi listami v lese."
+    },
+    "stats": {
+        "hp": 135,
+        "attack": 48,
+        "defense": 15
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Divoké šlahouny",
+                "en": "Leaf Blade",
+                "sk": "Listová čepeľ"
+            },
+            "description": {
+                "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
+                "en": "Attacks with its sharp leaf-like arms.",
+                "sk": "Zaútočí svojimi ostrými ramenami podobnými listom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Fotosyntéza",
+                "en": "Nature's Hiding",
+                "sk": "Skrytie v prírode"
+            },
+            "description": {
+                "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
+                "en": "Hides in the foliage to avoid being hit.",
+                "sk": "Skryje sa v lístí, aby sa vyhol zásahu."
+            },
+            "type": "regen",
+            "chance": 65,
+            "value": 15
+        }
+    ]
 }

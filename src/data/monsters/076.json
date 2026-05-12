@@ -1,28 +1,52 @@
 {
-  "id": "076",
-  "name": "Popelavý Soptík",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "description": "Oheň milující mlok žijící v popelu poblíž sopek.",
-  "stats": {
-    "hp": 153,
-    "attack": 45,
-    "defense": 13
-  },
-  "abilities": [
-    {
-      "name": "Spalující žár",
-      "description": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "076",
+    "name": {
+        "cz": "Popelavý Soptík",
+        "en": "Shadow Wolf",
+        "sk": "Tieňový vlk"
     },
-    {
-      "name": "Žhavý krunýř",
-      "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "fire",
+    "rarity": "common",
+    "description": {
+        "cz": "Oheň milující mlok žijící v popelu poblíž sopek.",
+        "en": "A wolf that moves through the shadows and can disappear instantly.",
+        "sk": "Vlk, ktorý sa pohybuje v tieňoch a dokáže okamžite zmiznúť."
+    },
+    "stats": {
+        "hp": 153,
+        "attack": 45,
+        "defense": 13
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Spalující žár",
+                "en": "Shadow Leap",
+                "sk": "Tieňový skok"
+            },
+            "description": {
+                "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
+                "en": "Jumps out of the shadows to attack.",
+                "sk": "Vyskočí z tieňov, aby zaútočil."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Žhavý krunýř",
+                "en": "Howl of the Night",
+                "sk": "Vytie noci"
+            },
+            "description": {
+                "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
+                "en": "A howl that strikes fear into the enemy.",
+                "sk": "Vytie, ktoré vyvoláva strach u nepriateľa."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

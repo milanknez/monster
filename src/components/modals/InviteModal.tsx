@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Copy, Share2, Mail, CheckCircle2, QrCode, Send, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { inviteByEmail } from '../../lib/firebase';
 import { APP_CONFIG } from '../../config';
 import { Share } from '@capacitor/share';
@@ -18,7 +19,9 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   const [isInviting, setIsInviting] = useState(false);
   const [showQR, setShowQR] = useState(false);
   
-  const inviteLink = `${APP_CONFIG.PROD_URL}/landing/invite.html?ref=${referralCode}`;
+  const { i18n, t } = useTranslation();
+  const currentLang = i18n.language.split('-')[0] || 'cz';
+  const inviteLink = `${APP_CONFIG.PROD_URL}/landing/invite.html?ref=${referralCode}&lang=${currentLang}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);
@@ -29,7 +32,11 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   const handleShare = async () => {
     const shareData = {
       title: 'Monster Collector',
-      text: 'Pojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus:',
+      text: currentLang === 'en' 
+        ? 'Come hunt monsters with me in the real world! Register through my link and get a bonus:' 
+        : currentLang === 'sk'
+        ? 'Poď loviť príšery so mnou v reálnom svete! Zaregistruj sa cez môj odkaz a získaj bonus:'
+        : 'Pojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus:',
       url: inviteLink,
     };
 
@@ -58,8 +65,12 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
     try {
       await inviteByEmail(referralCode, email);
       
-      const subject = encodeURIComponent('Monster Collector - Pozvánka');
-      const body = encodeURIComponent(`Ahoj,\n\npojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus do začátku:\n\n${inviteLink}\n\nTěším se na lovu!`);
+      const subject = encodeURIComponent(currentLang === 'en' ? 'Monster Collector - Invitation' : currentLang === 'sk' ? 'Monster Collector - Pozvánka' : 'Monster Collector - Pozvánka');
+      const body = encodeURIComponent(currentLang === 'en' 
+        ? `Hi,\n\ncome hunt monsters with me in the real world! Register through my link and get a bonus to start:\n\n${inviteLink}\n\nHappy hunting!`
+        : currentLang === 'sk'
+        ? `Ahoj,\n\npoď loviť príšery so mnou v reálnom svete! Zaregistruj sa cez môj odkaz a získaj bonus do začiatku:\n\n${inviteLink}\n\nTeším sa na lov!`
+        : `Ahoj,\n\npojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus do začátku:\n\n${inviteLink}\n\nTěším se na lovu!`);
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 
       setEmail('');

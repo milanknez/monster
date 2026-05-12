@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { Monster } from '../types'
+import type { Monster, Localized } from '../types'
 import { monsterDB } from '../data/monsters'
 import { watchTradeSignals, sendTradeSignal, clearTradeSignal } from '../lib/firebase'
 
@@ -8,7 +8,7 @@ export type P2PTradeState = {
   partnerName: string;
   partnerUid?: string;
   myMonster?: Monster;
-  theirMonster?: { id: string, level: number, name: string };
+  theirMonster?: { id: string, level: number, name: string | Localized<string> };
   confirmedByMe?: boolean;
   confirmedByThem?: boolean;
 };
@@ -91,7 +91,7 @@ export function useP2PTrade(playerName: string | null, addToast: (toast: any) =>
     }
   }, [p2pTrade?.step, p2pTrade?.myMonster, p2pTrade?.confirmedByMe, playerName]);
 
-  const handleCompleteTrade = (onSuccess: (myMonster: Monster, theirMonster: { id: string, level: number, name: string }) => void) => {
+  const handleCompleteTrade = (onSuccess: (myMonster: Monster, theirMonster: { id: string, level: number, name: string | Localized<string> }) => void) => {
     if (p2pTrade?.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
       if (p2pTrade.myMonster && p2pTrade.theirMonster) {
         onSuccess(p2pTrade.myMonster, p2pTrade.theirMonster);

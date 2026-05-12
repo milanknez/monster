@@ -1,28 +1,52 @@
 {
-  "id": "094",
-  "name": "Mutagenní Mrkev",
-  "description": "Zkroucený kořen, který se vertikálně rozestoupil, aby vytvořil tlamu plnou nepravidelných tesáků. Její listy se změnily v mrštné pařáty.",
-  "type": "Přírodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 390,
-    "attack": 135,
-    "defense": 55
-  },
-  "abilities": [
-    {
-      "name": "Kořenové sevření",
-      "description": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "094",
+    "name": {
+        "cz": "Mutagenní Mrkev",
+        "en": "Mutagenic Carrot",
+        "sk": "Mutagenní Mrkev"
     },
-    {
-      "name": "Půdní infuze",
-      "description": "Zaboří kořeny do země a okamžitě načerpá minerály pro bleskové vyléčení ran.",
-      "type": "heal",
-      "chance": 70,
-      "value": 150
-    }
-  ]
+    "description": {
+        "cz": "Zkroucený kořen, který se vertikálně rozestoupil, aby vytvořil tlamu plnou nepravidelných tesáků. Její listy se změnily v mrštné pařáty.",
+        "en": "A carrot that has mutated and grown multiple legs and eyes.",
+        "sk": "Mrkva, ktorá zmutovala a narástlo jej viacero nôh a očí."
+    },
+    "type": "nature",
+    "rarity": "epic",
+    "stats": {
+        "hp": 390,
+        "attack": 135,
+        "defense": 55
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kořenové sevření",
+                "en": "Root Jab",
+                "sk": "Koreňový vpich"
+            },
+            "description": {
+                "cz": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny.",
+                "en": "Jabs the enemy with its roots.",
+                "sk": "Bodá nepriateľa svojimi koreňmi."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Půdní infuze",
+                "en": "Eye Flash",
+                "sk": "Záblesk očí"
+            },
+            "description": {
+                "cz": "Zaboří kořeny do země a okamžitě načerpá minerály pro bleskové vyléčení ran.",
+                "en": "Blinds the enemy with multiple eyes.",
+                "sk": "Oslepí nepriateľa viacerými očami."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 150
+        }
+    ]
 }

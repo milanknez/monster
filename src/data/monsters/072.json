@@ -1,35 +1,67 @@
 {
-  "id": "072",
-  "name": "Matka Všeplísně",
-  "description": "Děsivá mutace pavoučí královny s hnijícím ženským torzem, ze kterého vyrůstají masivní houby. Místo očí má stovky svítících vředů a z jejích noh vytéká nákaza, která v mžiku mění živou tkáň v hnilobný prach.",
-  "type": "Přírodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 951,
-    "attack": 253,
-    "defense": 133
-  },
-  "abilities": [
-    {
-      "name": "Nákaza Hnilobou",
-      "description": "Infikuje cíl plísní, která se šíří tělem a drasticky snižuje jeho sílu.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.4
+    "id": "072",
+    "name": {
+        "cz": "Matka Všeplísně",
+        "en": "Abyssal Horror",
+        "sk": "Hrôza z priepasti"
     },
-    {
-      "name": "Hnilobné Kousnutí",
-      "description": "Zasadí ránu čelistmi plnými jedovatého hnisu.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "description": {
+        "cz": "Děsivá mutace pavoučí královny s hnijícím ženským torzem, ze kterého vyrůstají masivní houby. Místo očí má stovky svítících vředů a z jejích noh vytéká nákaza, která v mžiku mění živou tkáň v hnilobný prach.",
+        "en": "A creature from the deepest parts of the ocean that is rarely seen and highly dangerous.",
+        "sk": "Stvorenie z najhlbších častí oceánu, ktoré je málokedy videné a vysoko nebezpečné."
     },
-    {
-      "name": "Podhoubí Zkázy",
-      "description": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele.",
-      "type": "heal",
-      "chance": 65,
-      "value": 2
-    }
-  ]
+    "type": "nature",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 951,
+        "attack": 253,
+        "defense": 133
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Nákaza Hnilobou",
+                "en": "Deep Bite",
+                "sk": "Hlbinný kúsanec"
+            },
+            "description": {
+                "cz": "Infikuje cíl plísní, která se šíří tělem a drasticky snižuje jeho sílu.",
+                "en": "A bite that can crush heavy pressure suits.",
+                "sk": "Kúsanec, ktorý dokáže rozdrviť ťažké tlakové obleky."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.4
+        },
+        {
+            "name": {
+                "cz": "Hnilobné Kousnutí",
+                "en": "Gloom Aura",
+                "sk": "Aura temnoty"
+            },
+            "description": {
+                "cz": "Zasadí ránu čelistmi plnými jedovatého hnisu.",
+                "en": "A dark aura that lowers enemy morale.",
+                "sk": "Temná aura, ktorá znižuje morálku nepriateľa."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Podhoubí Zkázy",
+                "en": "Mycelium of Doom",
+                "sk": "Podhubie skazy"
+            },
+            "description": {
+                "cz": "Celé bojiště pokryje lepkavou plísní, která jí doplňuje zdraví a zpomaluje nepřítele.",
+                "en": "Infests the battlefield with mold.",
+                "sk": "Zamorí bojisko plesňou."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 2
+        }
+    ]
 }

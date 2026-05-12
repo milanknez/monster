@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Map as MapIcon, Target, Trophy, CheckCircle2, Timer, UserPlus, Sparkles, Sword } from 'lucide-react';
-import { cn } from '../../utils';
+import { useTranslation } from 'react-i18next';
+import { cn, getLoc, RARITY_MAP } from '../../utils';
 
 import { Monster } from '../../types';
 import { ReferralList, type ReferralEntry } from '../referrals/ReferralList';
@@ -32,6 +33,7 @@ export const DailyQuests = ({
   onHatch,
   onDelete
 }: DailyQuestsProps) => {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState('');
   const [claimedQuests, setClaimedQuests] = useState<number[]>(() => {
     try {
@@ -88,13 +90,16 @@ export const DailyQuests = ({
   const todayTimestamp = todayStart.getTime();
 
   const monstersToday = caughtMonsters.filter(m => m.caughtAt && m.caughtAt >= todayTimestamp);
-  const rareCount = monstersToday.filter(m => ['Vzácná', 'Epická', 'Legendární'].includes(m.rarity)).length;
+  const rareCount = monstersToday.filter(m => {
+    const r = RARITY_MAP[getLoc(m.rarity, 'cz')];
+    return ['rare', 'epic', 'legendary'].includes(r);
+  }).length;
 
   const quests = [
     {
       id: 1,
-      title: 'Efektivní lovec',
-      desc: 'Chyť 5 příšerek',
+      title: t('quests.list.q1_title'),
+      desc: t('quests.list.q1_desc'),
       progress: Math.min(monstersToday.length, 5),
       total: 5,
       icon: Target,
@@ -105,8 +110,8 @@ export const DailyQuests = ({
     },
     {
       id: 2,
-      title: 'Lovec vzácných',
-      desc: 'Chyť 3 vzácné příšerky',
+      title: t('quests.list.q2_title'),
+      desc: t('quests.list.q2_desc'),
       progress: Math.min(rareCount, 3),
       total: 3,
       icon: Trophy,
@@ -117,8 +122,8 @@ export const DailyQuests = ({
     },
     {
       id: 3,
-      title: 'Průzkum města',
-      desc: 'Ujdi dnes 2.0 km',
+      title: t('quests.list.q3_title'),
+      desc: t('quests.list.q3_desc'),
       progress: Math.min(Number((dailyDistance / 1000).toFixed(1)), 2.0),
       total: 2.0,
       icon: MapIcon,
@@ -129,8 +134,8 @@ export const DailyQuests = ({
     },
     {
       id: 4,
-      title: 'Vyzývatel',
-      desc: 'Vyzvi hráče na souboj',
+      title: t('quests.list.q4_title'),
+      desc: t('quests.list.q4_desc'),
       progress: Math.min(dailyStats.duels, 1),
       total: 1,
       icon: Sword,
@@ -142,8 +147,8 @@ export const DailyQuests = ({
     },
     {
       id: 5,
-      title: 'Lovec epiků',
-      desc: 'Poraž 3 epické nestvůry',
+      title: t('quests.list.q5_title'),
+      desc: t('quests.list.q5_desc'),
       progress: Math.min(dailyStats.epics, 3),
       total: 3,
       icon: Sparkles,
@@ -156,8 +161,8 @@ export const DailyQuests = ({
     },
     {
       id: 6,
-      title: 'Legendární přemožitel',
-      desc: 'Poraž legendární nestvůru',
+      title: t('quests.list.q6_title'),
+      desc: t('quests.list.q6_desc'),
       progress: Math.min(dailyStats.legendaries, 1),
       total: 1,
       icon: Trophy,
@@ -200,10 +205,10 @@ export const DailyQuests = ({
       {/* Daily Quests Section */}
       <section>
         <div className="flex justify-between items-center mb-4 px-1">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Denní protokoly</h3>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t('quests.daily_protocols')}</h3>
           <div className="flex items-center gap-1 text-[10px] text-primary font-black uppercase">
             <Timer size={12} />
-            <span>RESETOVÁNÍ ZA {timeLeft}</span>
+            <span>{t('quests.reset_in', { time: timeLeft })}</span>
           </div>
         </div>
         <div className="space-y-3">
@@ -235,7 +240,7 @@ export const DailyQuests = ({
                       onClick={() => handleClaim(quest.id, quest.reward)}
                       className="bg-green-500 hover:bg-green-400 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-tighter transition-all active:scale-95 shadow-lg shadow-green-500/20"
                     >
-                      Získat {isXPBoosted ? `+${quest.reward * 2}` : `+${quest.reward}`} XP
+                      {t('quests.claim_reward', { xp: isXPBoosted ? quest.reward * 2 : quest.reward })}
                     </button>
                   ) : (
                     <>
@@ -261,7 +266,7 @@ export const DailyQuests = ({
       <section className="pb-8">
         <div className="flex justify-between items-center mb-4 px-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Celoživotní úkoly</h3>
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t('quests.lifetime_tasks')}</h3>
             <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-black">BONUS</span>
           </div>
           <button 
@@ -269,7 +274,7 @@ export const DailyQuests = ({
             className="flex items-center gap-1.5 text-[10px] text-primary font-black uppercase hover:text-white transition-colors"
           >
             <UserPlus size={14} />
-            <span>Pozvat přítele</span>
+            <span>{t('quests.invite_friend')}</span>
           </button>
         </div>
 
@@ -279,8 +284,8 @@ export const DailyQuests = ({
                  <Sparkles size={20} className="text-primary" />
               </div>
               <div className="flex-1">
-                 <p className="text-xs font-black text-slate-100 leading-tight uppercase">Získej Vzácné Vajíčko</p>
-                 <p className="text-[10px] text-slate-500 font-medium">Za každého přítele, který dosáhne 3. úrovně.</p>
+                 <p className="text-xs font-black text-slate-100 leading-tight uppercase">{t('quests.rare_egg')}</p>
+                 <p className="text-[10px] text-slate-500 font-medium">{t('quests.egg_desc')}</p>
               </div>
            </div>
 

@@ -1,35 +1,52 @@
 {
-  "id": "059",
-  "name": "Bleskovec Víceoký",
-  "description": "Levitující koule čisté energie s desítkami malých očí po celém obvodu. Uprostřed má jednu vertikální tlamu a dokáže se v mžiku teleportovat na krátké vzdálenosti díky bleskovému impulsu.",
-  "type": "Elektrická",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 244,
-    "attack": 82,
-    "defense": 34
-  },
-  "abilities": [
-    {
-      "name": "Blesková Tlama",
-      "description": "Kousnutí s prvkem vysokého napětí, které proniká i brněním.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "059",
+    "name": {
+        "cz": "Bleskovec Víceoký",
+        "en": "Multi-eyed Lightning Bolt",
+        "sk": "Bleskovec Víceoký"
     },
-    {
-      "name": "Oko Blesku",
-      "description": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.6
+    "description": {
+        "cz": "Levitující koule čisté energie s desítkami malých očí po celém obvodu. Uprostřed má jednu vertikální tlamu a dokáže se v mžiku teleportovat na krátké vzdálenosti díky bleskovému impulsu.",
+        "en": "A creature that looks like a ball of lightning with multiple eyes watching in all directions.",
+        "sk": "Stvorenie, ktoré vyzerá ako guľa bleskov s viacerými očami sledujúcimi všetky smery."
     },
-    {
-      "name": "Plazmový Puls",
-      "description": "Vypustí do okolí ochrannou vlnu plazmy, která odráží část útoků (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 213,
+        "attack": 89,
+        "defense": 29
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Blesková Tlama",
+                "en": "Lightning Pulse",
+                "sk": "Bleskový pulz"
+            },
+            "description": {
+                "cz": "Kousnutí s prvkem vysokého napětí, které proniká i brněním.",
+                "en": "Releases a pulse of electric energy.",
+                "sk": "Uvoľní pulz elektrickej energie."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Oko Blesku",
+                "en": "All-seeing Eye",
+                "sk": "Vševediace oko"
+            },
+            "description": {
+                "cz": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb.",
+                "en": "Increases chance to hit the enemy.",
+                "sk": "Zvyšuje šancu na zasiahnutie nepriateľa."
+            },
+            "type": "heal",
+            "chance": 65,
+            "value": 1.5
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "032",
-  "name": "Spidi bot",
-  "description": "Mutantní kombinace chobotnice a pavouka. Má osm dlouhých chapadel zakončených ostrými háky, kterými se přichytává ke stěnám i nepřátelům. Pohybuje se tiše pod vodou i po souši. Loví ze zálohy, omotává kořist a postupně ji drtí. Velmi inteligentní a extrémně nebezpečný predátor.",
-  "type": "Vodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 450,
-    "attack": 153,
-    "defense": 68
-  },
-  "abilities": [
-    {
-      "name": "Chapadlová past",
-      "description": "Omotá nepřítele chapadly, způsobí vysoké poškození a má šanci ho znehybnit na jedno kolo.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "032",
+    "name": {
+        "cz": "Spidi bot",
+        "en": "Speedy Bot",
+        "sk": "Spidi bot"
     },
-    {
-      "name": "Jedovatý výstřik",
-      "description": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60% (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 80,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Mutantní kombinace chobotnice a pavouka. Má osm dlouhých chapadel zakončených ostrými háky, kterými se přichytává ke stěnám i nepřátelům. Pohybuje se tiše pod vodou i po souši. Loví ze zálohy, omotává kořist a postupně ji drtí. Velmi inteligentní a extrémně nebezpečný predátor.",
+        "en": "A small robot built for high speed. It can zip around the battlefield.",
+        "sk": "Malý robot postavený pre vysokú rýchlosť. Dokáže sa rýchlo pohybovať po bojisku."
+    },
+    "type": "water",
+    "rarity": "epic",
+    "stats": {
+        "hp": 450,
+        "attack": 153,
+        "defense": 68
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Chapadlová past",
+                "en": "Turbo Dash",
+                "sk": "Turbo výpad"
+            },
+            "description": {
+                "cz": "Omotá nepřítele chapadly, způsobí vysoké poškození a má šanci ho znehybnit na jedno kolo.",
+                "en": "A very fast dash attack.",
+                "sk": "Veľmi rýchly útočný výpad."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Jedovatý výstřik",
+                "en": "Signal Jam",
+                "sk": "Rušenie signálu"
+            },
+            "description": {
+                "cz": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60% (Snížení dmg 55-65%)",
+                "en": "Disrupts the enemy's sensors.",
+                "sk": "Naruší senzory nepriateľa."
+            },
+            "type": "defense",
+            "chance": 80,
+            "value": 60
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "114",
-  "name": "Kara Milka",
-  "description": "Roztomilý hnědý pejsek s narozeninovou čepičkou a dvěma zahnutými zoubky. Je známá svým okouzlujícím zpěvem, který dokáže uklidnit i ty nejdivočejší potvory. Navzdory svému slavnostnímu vzhledu je to mrštný společník, který se v lese cítí jako doma.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 115,
-    "attack": 55,
-    "defense": 45
-  },
-  "abilities": [
-    {
-      "name": "Narozeninová píseň",
-      "description": "Zpívá melodickou píseň, která léčí část HP.",
-      "type": "heal",
-      "chance": 83,
-      "value": 20
+    "id": "114",
+    "name": {
+        "cz": "Kara Milka",
+        "en": "Kara Milka",
+        "sk": "Kara Milka"
     },
-    {
-      "name": "Zubatý výpad",
-      "description": "Rychlý útok svými zahnutými zoubky nahoru.",
-      "type": "attack",
-      "chance": 85,
-      "value": 125
-    }
-  ]
+    "description": {
+        "cz": "Roztomilý hnědý pejsek s narozeninovou čepičkou a dvěma zahnutými zoubky. Je známá svým okouzlujícím zpěvem, který dokáže uklidnit i ty nejdivočejší potvory. Navzdory svému slavnostnímu vzhledu je to mrštný společník, který se v lese cítí jako doma.",
+        "en": "A cute brown dog with a birthday hat and two curved teeth. She is known for her charming singing that can calm even the wildest monsters. Despite her festive appearance, she is a nimble companion who feels right at home in the forest.",
+        "sk": "Roztomilý hnedý psík s narodeninovou čiapočkou a dvoma zahnutými zúbkami. Je známa svojím očarujúcim spevom, ktorý dokáže upokojiť aj tie najdivokejšie potvory. Napriek svojmu slávnostnému vzhľadu je to mrštný spoločník, ktorý sa v lese cíti ako doma."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 115,
+        "attack": 55,
+        "defense": 45
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Narozeninová píseň",
+                "en": "Birthday Song",
+                "sk": "Narozeninová píseň"
+            },
+            "description": {
+                "cz": "Zpívá melodickou píseň, která léčí část HP.",
+                "en": "Sings a melodic song that heals some HP.",
+                "sk": "Spieva melodickú pieseň, ktorá lieči časť HP."
+            },
+            "type": "heal",
+            "chance": 83,
+            "value": 20
+        },
+        {
+            "name": {
+                "cz": "Zubatý výpad",
+                "en": "Toothy Lunge",
+                "sk": "Zubatý výpad"
+            },
+            "description": {
+                "cz": "Rychlý útok svými zahnutými zoubky nahoru.",
+                "en": "A quick attack with its curved teeth pointing upwards.",
+                "sk": "Rýchly útok svojimi zahnutými zúbkami nahor."
+            },
+            "type": "attack",
+            "chance": 85,
+            "value": 125
+        }
+    ]
 }

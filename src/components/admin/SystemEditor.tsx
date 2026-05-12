@@ -3,25 +3,29 @@ import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
   Beaker, Gem, Droplets,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
-  Sword, Shield, Heart, Sparkles, Info, Check, Users
+  Sword, Shield, Heart, Sparkles, Info, Check, Users, Globe, Languages
 } from 'lucide-react'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { monsterDB } from '../../data/monsters'
 import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
-import { cn, TYPE_COLORS, TYPE_ICONS } from '../../utils'
+import { cn, TYPE_COLORS, TYPE_ICONS, getMonsterColors, getMonsterTypeIcon, getMonsterRarityColor, getLoc, RARITY_COLORS } from '../../utils'
 import { SYSTEM_SETTINGS } from '../../data/settings'
 import { db } from '../../lib/firebase'
-import { ref, onValue } from 'firebase/database'
+import { ref, onValue, set } from 'firebase/database'
+import translationsData from '../../data/translations.json'
+import systemValues from '../../data/system_values.json'
 
 // Tabs
 import { MonsterEditorTab } from './tabs/MonsterEditorTab'
 import { ResourceDesignTab } from './tabs/ResourceDesignTab'
 import { UserManagementTab } from './tabs/UserManagementTab'
+import { TranslationEditorTab } from './tabs/TranslationEditorTab'
 
 // --- Constants ---
-const MONSTER_TYPES = ['Ohnivá', 'Vodní', 'Přírodní', 'Elektrická']
-const MONSTER_RARITIES = ['Běžná', 'Vzácná', 'Epická', 'Legendární']
+const MONSTER_TYPES = ['fire', 'water', 'nature', 'electric']
+const MONSTER_RARITIES = ['common', 'rare', 'epic', 'legendary']
 
 
 
@@ -30,15 +34,12 @@ function Snowflake(props: any) {
 }
 
 const TYPE_EMOJIS: Record<string, string> = {
-  'Ohnivá': '🔥', 'Vodní': '💧', 'Přírodní': '🌿', 'Elektrická': '⚡'
+  'fire': '🔥', 'water': '💧', 'nature': '🌿', 'electric': '⚡'
 }
 
-const RARITY_COLORS: Record<string, string> = {
-  'Běžná': 'text-slate-400', 'Vzácná': 'text-blue-400', 'Epická': 'text-purple-400', 'Legendární': 'text-amber-400'
-}
 
 const RARITY_EMOJIS: Record<string, string> = {
-  'Běžná': '⚪', 'Vzácná': '🔵', 'Epická': '🟣', 'Legendární': '✨'
+  'common': '⚪', 'rare': '🔵', 'epic': '🟣', 'legendary': '✨'
 }
 
 const ABILITY_TYPES = [
@@ -50,7 +51,7 @@ const ABILITY_TYPES = [
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 50, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 
-type EditorTab = 'monsters' | 'resources' | 'users' | 'settings';
+type EditorTab = 'monsters' | 'resources' | 'users' | 'languages' | 'settings';
 
 
 interface SystemEditorProps {
@@ -84,6 +85,7 @@ const renderTimeBadge = (timestamp: number) => {
 };
 
 export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
+  const { t, i18n } = useTranslation()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [passInput, setPassInput] = useState('')
   const [activeTab, setActiveTab] = useState<EditorTab>('monsters')
@@ -101,6 +103,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   
   // Players State
   const [players, setPlayers] = useState<any[]>([])
+
+  // Translation & System Values State
+  const [translationResources, setTranslationResources] = useState(translationsData as any)
+  const [monsterTypes, setMonsterTypes] = useState(systemValues.monsterTypes)
+  const [monsterRarities, setMonsterRarities] = useState(systemValues.monsterRarities)
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
 
   // Preview States
@@ -130,45 +137,45 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
   // Sync Players
   useEffect(() => {
-    const playersRef = ref(db, 'players');
+    const presenceRef = ref(db, 'presence');
     const usersRef = ref(db, 'users');
 
-    let playersMap: Record<string, any> = {};
+    let presenceMap: Record<string, any> = {};
     let usersMap: Record<string, any> = {};
 
     const mergeAndSet = () => {
-      const allUids = Array.from(new Set([...Object.keys(playersMap), ...Object.keys(usersMap)]));
+      const allUids = Array.from(new Set([...Object.keys(presenceMap), ...Object.keys(usersMap)]));
       const combined = allUids.map(id => {
-        const pData = playersMap[id] || {};
+        const pData = presenceMap[id] || {};
         const uData = usersMap[id] || {};
         
-        // Priority: Players node (live) -> Users node (backup) -> Fallbacks
-        const finalLevel = pData.level !== undefined ? pData.level : (uData.currentLevel || uData.level || 1);
-        const finalName = pData.name || uData.playerName || uData.name || 'Lovec';
+        // Priority: Presence node (live) -> Users node (backup) -> Fallbacks
+        const finalLevel = pData.lvl !== undefined ? pData.lvl : (uData.currentLevel || uData.level || 1);
+        const finalName = getLoc(pData.nam || uData.playerName || uData.name || 'Lovec', 'cz');
 
         return {
           id,
           name: finalName,
           level: finalLevel,
-          monsterCount: pData.monsterCount || uData.caughtMonsters?.length || 0,
-          isOnline: !!pData.isOnline,
-          lastActive: pData.lastActive || uData.updatedAt || 0,
+          monsterCount: pData.mct || uData.caughtMonsters?.length || 0,
+          isOnline: !!pData.onl,
+          lastActive: pData.act || uData.updatedAt || 0,
           lat: pData.lat || uData.lat || 0,
           lng: pData.lng || uData.lng || 0,
-          avatarStyle: pData.avatarStyle || uData.avatarStyle || 'bottts',
-          avatarSeed: pData.avatarSeed || uData.avatarSeed || id,
-          // We can still spread uData/pData but we keep our keys prioritized
+          avatarStyle: pData.avs || uData.avatarStyle || 'bottts',
+          avatarSeed: pData.avd || uData.avatarSeed || id,
+          // Zachováváme kompletní data pro detaily
           inventory: uData.inventory || [],
           caughtMonsters: uData.caughtMonsters || [],
-          email: uData.email || pData.email || (uData.playerName?.includes('@') ? uData.playerName : (pData.name?.includes('@') ? pData.name : null))
+          email: uData.email || pData.eml || (uData.playerName?.includes('@') ? uData.playerName : (pData.nam?.includes('@') ? pData.nam : null))
         };
       }).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
 
       setPlayers(combined);
     };
 
-    const unsubPlayers = onValue(playersRef, (snapshot) => {
-      playersMap = snapshot.val() || {};
+    const unsubPresence = onValue(presenceRef, (snapshot) => {
+      presenceMap = snapshot.val() || {};
       mergeAndSet();
     });
 
@@ -178,7 +185,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     });
 
     return () => {
-      unsubPlayers();
+      unsubPresence();
       unsubUsers();
     };
   }, []);
@@ -187,10 +194,10 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     const newId = (Math.max(...monsters.map(m => parseInt(m.id))) + 1).toString().padStart(3, '0');
     const newMonster = {
       id: newId,
-      name: 'Nová příšerka',
-      description: 'Popis...',
-      type: 'Ohnivá',
-      rarity: 'Běžná',
+      name: { cz: 'Nová Příšerka', en: 'New Monster', sk: 'Nová príšerka' },
+      description: { cz: 'Zde zadejte lore nebo popis příšerky...', en: 'Description...', sk: 'Popis...' },
+      type: 'fire',
+      rarity: 'common',
       stats: { hp: 100, attack: 50, defense: 40, speed: 50 },
       abilities: []
     };
@@ -341,7 +348,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       <div className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
           <div className="size-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20"><ShieldAlert className="text-red-500" size={32} /></div>
-          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">SECURE ZONE</h1>
+          <h1 className="text-2xl font-black text-white uppercase tracking-tighter">ZABEZPEČENÁ ZÓNA</h1>
           <input type="password" value={passInput} onChange={(e) => setPassInput(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-center text-white font-black tracking-[0.5em] focus:border-primary/50" placeholder="••••" />
           <button onClick={() => passInput === 'bmxbmx' ? setIsAuthenticated(true) : alert('Nesprávný kód')} className="w-full py-4 bg-primary text-slate-950 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all">Autorizovat</button>
         </motion.div>
@@ -359,13 +366,15 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         {/* TAB SWITCHER */}
         <div className="p-4 border-b border-white/5 grid grid-cols-5 gap-2">
           {[
-            { id: 'monsters', icon: Settings2, label: 'Monstra' },
-            { id: 'resources', icon: Palette, label: 'Předměty' },
-            { id: 'users', icon: Users, label: 'Uživatelé' }
-          ].map(t => (
-            <button key={t.id} onClick={() => { setActiveTab(t.id as EditorTab); setSelectedMonsterId(null); }} className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border transition-all", activeTab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-black/40 border-white/5 text-slate-500 hover:text-slate-300")}>
-              <t.icon size={16} />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-tight">{t.label}</span>
+            { id: 'monsters', icon: Settings2, label: 'Příšery' },
+            { id: 'resources', icon: Palette, label: 'Suroviny' },
+            { id: 'users', icon: Users, label: 'Hráči' },
+            { id: 'languages', icon: Globe, label: 'Jazyky' },
+            { id: 'settings', icon: Settings2, label: 'Systém' }
+          ].map(tab => (
+            <button key={tab.id} onClick={() => { setActiveTab(tab.id as EditorTab); setSelectedMonsterId(null); }} className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border transition-all", activeTab === tab.id ? "bg-primary/20 border-primary text-primary" : "bg-black/40 border-white/5 text-slate-500 hover:text-slate-300")}>
+              <tab.icon size={16} />
+              <span className="text-[8px] font-black uppercase tracking-widest leading-tight">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -374,32 +383,32 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="p-4 border-b border-white/5 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-black text-sm uppercase tracking-widest text-primary">Katalog</h2>
+                <h2 className="font-black text-sm uppercase tracking-widest text-primary">KATALOG</h2>
                 <button onClick={handleAddNewMonster} className="p-1.5 bg-primary/10 hover:bg-primary/20 rounded-lg text-primary transition-all"><Plus size={18} /></button>
               </div>
               <div className="space-y-3">
                 <input type="text" placeholder="Hledat název..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
                 <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1">
                   {['Vše', ...MONSTER_RARITIES].map(r => {
-                    const colorClass = r === 'Vše' ? (sidebarFilter === 'Vše' ? 'bg-primary border-primary text-slate-950 px-3' : 'bg-white/5 border-white/5 text-slate-500') : (sidebarFilter === r ? cn(RARITY_COLORS[r], "bg-white/10 border-current shadow-lg shadow-white/5") : "bg-white/5 border-white/5 text-slate-500 opacity-60 hover:opacity-100");
+                    const colorClass = r === 'Vše' ? (sidebarFilter === 'Vše' ? 'bg-primary border-primary text-slate-950 px-3' : 'bg-white/5 border-white/5 text-slate-500') : (sidebarFilter === r ? cn(getMonsterRarityColor(r), "bg-white/10 border-current shadow-lg shadow-white/5") : "bg-white/5 border-white/5 text-slate-500 opacity-60 hover:opacity-100");
                     return (
                       <button
                         key={r}
                         onClick={() => setSidebarFilter(r)}
                         className={cn("px-2 py-1 rounded-md text-[10px] font-black uppercase whitespace-nowrap border transition-all", colorClass)}
                       >
-                        {r}
+                        {r === 'Vše' ? 'Vše' : t(`rarities.${r}`)}
                       </button>
                     )
                   })}
                 </div>
                 <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1">
                   {['Vše', ...MONSTER_TYPES].map(type => {
-                    const Icon = TYPE_ICONS[type];
-                    const colors = TYPE_COLORS[type] || TYPE_COLORS.Default;
+                    const Icon = getMonsterTypeIcon(type);
+                    const colors = getMonsterColors(type);
                     return (
                       <button key={type} onClick={() => setElementFilter(type)} className={cn("p-1.5 rounded-md border transition-all", elementFilter === type ? cn(colors.bg, colors.border, colors.text) : "bg-white/5 border-white/5 text-slate-600")}>
-                        {Icon ? <Icon size={12} /> : <span className="text-[10px] font-black px-1">ALL</span>}
+                        {Icon ? <Icon size={12} title={type === 'Vše' ? 'Vše' : t(`monster_types.${type}`)} /> : <span className="text-[10px] font-black px-1 uppercase">Vše</span>}
                       </button>
                     )
                   })}
@@ -408,18 +417,18 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             </div>
             <div className="flex-1 overflow-y-auto p-3 grid grid-cols-4 gap-2 content-start">
               {monsters
-                .filter(m => sidebarFilter === 'Vše' || m.rarity === sidebarFilter)
-                .filter(m => elementFilter === 'Vše' || m.type === elementFilter)
-                .filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                .filter(m => sidebarFilter === 'Vše' || getLoc(m.rarity, 'cz') === sidebarFilter)
+                .filter(m => elementFilter === 'Vše' || getLoc(m.type, 'cz') === elementFilter)
+                .filter(m => getLoc(m.name, 'cz').toLowerCase().includes(searchQuery.toLowerCase()))
                 .map(m => (
                   <button key={m.id} onClick={() => setSelectedMonsterId(m.id)} className={cn("relative aspect-square rounded-2xl transition-all border flex flex-col items-center justify-between p-2 overflow-hidden", selectedMonsterId === m.id ? "bg-primary border-primary shadow-[0_0_15px_rgba(13,185,242,0.4)]" : "bg-black/60 border-white/5 hover:border-white/20")}>
-                    <div className={cn("absolute top-1 right-1 p-0.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 z-10", selectedMonsterId === m.id ? "text-slate-950" : (TYPE_COLORS[m.type]?.text || 'text-white'))}>
-                      {TYPE_ICONS[m.type] && (() => { const Icon = TYPE_ICONS[m.type]; return <Icon size={8} />; })()}
+                    <div className={cn("absolute top-1 right-1 p-0.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 z-10", selectedMonsterId === m.id ? "text-slate-950" : (getMonsterColors(m.type)?.text || 'text-white'))}>
+                      {(() => { const Icon = getMonsterTypeIcon(m.type); return Icon ? <Icon size={8} /> : null; })()}
                     </div>
                     <div className="flex-1 flex items-center justify-center w-full">
                       <img src={`/monsters/${m.id}.png`} className="w-full h-full object-contain filter drop-shadow-md" onError={(e) => (e.currentTarget.style.display = 'none')} />
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-0.5 bg-black/80"><div className={cn("text-[8px] font-black truncate uppercase text-center", selectedMonsterId === m.id ? "text-primary" : (RARITY_COLORS[m.rarity] || 'text-white'))}>{m.name}</div></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-0.5 bg-black/80"><div className={cn("text-[8px] font-black truncate uppercase text-center", selectedMonsterId === m.id ? "text-primary" : (getMonsterRarityColor(m.rarity) || 'text-white'))}>{getLoc(m.name, 'cz')}</div></div>
                   </button>
                 ))
               }
@@ -452,7 +461,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                        )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-black truncate text-white uppercase group-hover:text-primary transition-colors">{p.name || 'Hráč'}</div>
+                      <div className="text-[11px] font-black truncate text-white uppercase group-hover:text-primary transition-colors">{p.name || 'Lovec'}</div>
                       <div className="text-[9px] font-medium text-slate-500 truncate group-hover:text-slate-400 transition-colors">
                         {p.email || (p.name?.includes('@') ? p.name : '')}
                       </div>
@@ -472,7 +481,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 opacity-50 grayscale">
             <div className="size-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center"><Settings2 size={32} /></div>
-            <p className="text-[11px] font-black uppercase tracking-[0.3em] leading-relaxed">Konfigurace<br />globálních parametrů</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.3em] leading-relaxed">Globální<br />Nastavení </p>
           </div>
         )}
 
@@ -489,7 +498,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter">
-                {activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : 'Resource Design')}
+                {activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : (activeTab === 'languages' ? 'Jazyky & Hodnoty' : 'Resource Design'))}
               </h1>
               <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[11px]">
                 {activeTab === 'users' ? 'Monitoring a správa registrovaných hráčů' : 'Administrace herních datových struktur'}
@@ -565,14 +574,20 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
           <AnimatePresence mode="wait">
             {activeTab === 'monsters' && monsterForm && (
-              <MonsterEditorTab
-                monsterForm={monsterForm} setMonsterForm={setMonsterForm}
-                MONSTER_TYPES={MONSTER_TYPES} MONSTER_RARITIES={MONSTER_RARITIES}
-                TYPE_COLORS={TYPE_COLORS} TYPE_EMOJIS={TYPE_EMOJIS}
-                RARITY_EMOJIS={RARITY_EMOJIS} RARITY_COLORS={RARITY_COLORS}
+              <MonsterEditorTab 
+                monsterForm={monsterForm} 
+                setMonsterForm={setMonsterForm}
+                MONSTER_TYPES={MONSTER_TYPES}
+                MONSTER_RARITIES={MONSTER_RARITIES}
+                TYPE_COLORS={TYPE_COLORS}
+                TYPE_EMOJIS={TYPE_EMOJIS}
+                RARITY_EMOJIS={RARITY_EMOJIS}
+                RARITY_COLORS={RARITY_COLORS}
                 ABILITY_TYPES={ABILITY_TYPES}
-                handleImageUpload={handleImageUpload} tempImageUrl={tempImageUrl}
-                imgError={imgError} setImgError={setImgError}
+                handleImageUpload={handleImageUpload}
+                tempImageUrl={tempImageUrl}
+                imgError={imgError}
+                setImgError={setImgError}
               />
             )}
 
@@ -583,9 +598,31 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
             {activeTab === 'users' && (
               <UserManagementTab 
-                players={players} 
-                selectedPlayerId={selectedPlayerId} 
-                setSelectedPlayerId={setSelectedPlayerId} 
+                players={players}
+                selectedPlayerId={selectedPlayerId}
+                setSelectedPlayerId={setSelectedPlayerId}
+              />
+            )}
+
+            {activeTab === 'languages' && (
+              <TranslationEditorTab 
+                resources={translationResources}
+                onSave={(newRes) => {
+                  setTranslationResources(newRes);
+                  if (window.location.hostname === 'localhost') {
+                    handleSaveConfig('translations' as any, newRes);
+                  }
+                }}
+                monsterTypes={monsterTypes}
+                monsterRarities={monsterRarities}
+                onSaveValues={(types, rarities) => {
+                  const newVal = { monsterTypes: types, monsterRarities: rarities };
+                  setMonsterTypes(types);
+                  setMonsterRarities(rarities);
+                  if (window.location.hostname === 'localhost') {
+                    handleSaveConfig('system_values' as any, newVal);
+                  }
+                }}
               />
             )}
 
@@ -593,17 +630,35 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         </div>
       </main>
 
-      {/* JSON Editor Modal */}
       <AnimatePresence>
         {isJsonModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-3xl overflow-hidden flex flex-col max-h-[80vh]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.9 }} 
+              className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-3xl overflow-hidden flex flex-col max-h-[80vh]"
+            >
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <h3 className="text-lg font-black text-white uppercase tracking-tight italic">RAW JSON EDITOR</h3>
                 <button onClick={() => setIsJsonModalOpen(false)} className="text-slate-500 hover:text-white"><X size={24} /></button>
               </div>
-              <div className="flex-1 p-6 bg-black/40"><textarea value={jsonInput} onChange={(e) => setJsonInput(e.target.value)} className="w-full h-full min-h-[400px] bg-transparent text-emerald-400 font-mono text-xs outline-none resize-none p-4 custom-scrollbar" spellCheck={false} /></div>
-              <div className="p-6 border-t border-white/5 bg-slate-900/50 flex gap-3 justify-end"><button onClick={() => setIsJsonModalOpen(false)} className="px-6 py-3 text-xs font-black uppercase text-slate-500">Zrušit</button><button onClick={applyJsonChanges} className="px-8 py-3 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase shadow-lg shadow-primary/10">Použít změny</button></div>
+              <div className="flex-1 p-6 bg-black/40">
+                <textarea 
+                  value={jsonInput} 
+                  onChange={(e) => setJsonInput(e.target.value)} 
+                  className="w-full h-full min-h-[400px] bg-transparent text-emerald-400 font-mono text-xs outline-none resize-none p-4 custom-scrollbar" 
+                  spellCheck={false} 
+                />
+              </div>
+              <div className="p-6 border-t border-white/5 bg-slate-900/50 flex gap-3 justify-end">
+                <button onClick={() => setIsJsonModalOpen(false)} className="px-6 py-3 text-xs font-black uppercase text-slate-500">
+                  Zrušit
+                </button>
+                <button onClick={applyJsonChanges} className="px-8 py-3 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase shadow-lg shadow-primary/10">
+                  Použít změny
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

@@ -1,28 +1,52 @@
 {
-  "id": "087",
-  "name": "Plazmový Meloun",
-  "description": "Rozšklebený meloun, v jehož nitru pulzuje fialové plazma. Místo sladké dužiny má tlamu plnou černých semen ostrých jako břitva.",
-  "type": "Elektrická",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 450,
-    "attack": 110,
-    "defense": 65
-  },
-  "abilities": [
-    {
-      "name": "Plazmová exploze",
-      "description": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "087",
+    "name": {
+        "cz": "Plazmový Meloun",
+        "en": "Plasma Melon",
+        "sk": "Plazmový Meloun"
     },
-    {
-      "name": "Plazmová obnova",
-      "description": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví.",
-      "type": "regen",
-      "chance": 65,
-      "value": 15
-    }
-  ]
+    "description": {
+        "cz": "Rozšklebený meloun, v jehož nitru pulzuje fialové plazma. Místo sladké dužiny má tlamu plnou černých semen ostrých jako břitva.",
+        "en": "A melon that is filled with plasma instead of juice. It can be explosive.",
+        "sk": "Melón, ktorý je namiesto šťavy naplnený plazmou. Môže byť výbušný."
+    },
+    "type": "electric",
+    "rarity": "epic",
+    "stats": {
+        "hp": 450,
+        "attack": 110,
+        "defense": 65
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Plazmová exploze",
+                "en": "Plasma Blast",
+                "sk": "Plazmový výbuch"
+            },
+            "description": {
+                "cz": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
+                "en": "Explodes with plasma energy.",
+                "sk": "Vybuchne s plazmovou energiou."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Plazmová obnova",
+                "en": "Sweet Glow",
+                "sk": "Sladká žiara"
+            },
+            "description": {
+                "cz": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví.",
+                "en": "Heals itself with energy.",
+                "sk": "Uzdravuje sa energiou."
+            },
+            "type": "regen",
+            "chance": 65,
+            "value": 15
+        }
+    ]
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils';
 
 export interface TutorialStep {
@@ -11,56 +12,56 @@ export interface TutorialStep {
 
 export const BATTLE_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Boj začíná! 🌟",
-    m: "Narazil jsi na příšeru! Tvým úkolem je ji buď porazit v boji, nebo oslabit a chytit do týmu. Výběr je na tobě!",
+    t: "tutorial.battle.start_title",
+    m: "tutorial.battle.start_msg",
     pos: "center",
     spotlight: "none"
   },
   {
-    t: "Soupeř 👹",
-    m: "Tento červený pruh nahoře ukazuje životy (HP) soupeře. Snížíš-li je na nulu, monstrum porazíš a získáš zkušenosti a kořist.",
+    t: "tutorial.battle.opponent_title",
+    m: "tutorial.battle.opponent_msg",
     pos: "bottom",
     spotlight: "enemy-stats"
   },
   {
-    t: "Tvůj Status 🛡️",
-    m: "Zde vidíš své HP (zelená) a Energii (modrá). Energii potřebuješ pro používání silných Skillů.",
+    t: "tutorial.battle.status_title",
+    m: "tutorial.battle.status_msg",
     pos: "bottom",
     spotlight: "player-stats"
   },
   {
-    t: "Základní Útok ⚔️",
-    m: "Tlačítko 'ÚTOK' nestojí žádnou energii. Naopak ti každým zásahem 25 Energie dobije!",
+    t: "tutorial.battle.attack_title",
+    m: "tutorial.battle.attack_msg",
     pos: "top",
     spotlight: "attack"
   },
   {
-    t: "Dovednosti ⚡",
-    m: "Kliknutím na 'Skills' otevřeš nabídku unikátních schopností tvého monstra. Stojí energii, ale jsou mnohem silnější.",
+    t: "tutorial.battle.skills_title",
+    m: "tutorial.battle.skills_msg",
     pos: "top",
     spotlight: "skills"
   },
   {
-    t: "Inventář 🎒",
-    m: "Tady najdeš své lektvary. Můžeš se vyléčit nebo doplnit manu přímo během boje.",
+    t: "tutorial.battle.inventory_title",
+    m: "tutorial.battle.inventory_msg",
     pos: "top",
     spotlight: "inventory"
   },
   {
-    t: "Strategie: Odchyt 🕸️",
-    m: "Pokud chceš monstrum získat, musíš ho nejdříve oslabit (dostat HP k nule). Čím méně má HP, tím vyšší je šance na úspěch!",
+    t: "tutorial.battle.strategy_title",
+    m: "tutorial.battle.strategy_msg",
     pos: "center",
     spotlight: "enemy-stats"
   },
   {
-    t: "Tlačítko Chytit! 🎯",
-    m: "Až bude nepřítel oslaben, klikni na 'CHYTIT'. Pokud uspěješ, monstrum se přidá k tvé sbírce. Pokud ho ale zabiješ, šance na chycení zmizí!",
+    t: "tutorial.battle.catch_title",
+    m: "tutorial.battle.catch_msg",
     pos: "top",
     spotlight: "catch"
   },
   {
-    t: "Hodně Štěstí! 🍀",
-    m: "Teď už víš vše potřebné. Rozhodni se moudře a vybojuj své vítězství!",
+    t: "tutorial.battle.luck_title",
+    m: "tutorial.battle.luck_msg",
     pos: "center",
     spotlight: "none"
   }
@@ -68,55 +69,55 @@ export const BATTLE_TUTORIAL_STEPS: TutorialStep[] = [
 
 export const HOME_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Vítej! 🌟",
-    m: "Tady uvidíš svůj pokrok, úroveň a denní výzvy.",
+    t: "tutorial.home.welcome_title",
+    m: "tutorial.home.welcome_msg",
     pos: "center"
   },
   {
-    t: "Profil 👤",
-    m: "Svou postavu si můžeš přizpůsobit v nastavení.",
+    t: "tutorial.home.profile_title",
+    m: "tutorial.home.profile_msg",
     pos: "center"
   },
   {
-    t: "Menu 📱",
-    m: "Dole najdeš navigaci. Zkus kliknout na 'MAPA' (Zeměkoule)!",
+    t: "tutorial.home.menu_title",
+    m: "tutorial.home.menu_msg",
     pos: "center"
   }
 ];
 
 export const WORLD_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Mapa 🗺️",
-    m: "Svět kolem tebe. Monstra se spawnují podle tvé GPS pozice.",
+    t: "tutorial.world.map_title",
+    m: "tutorial.world.map_msg",
     pos: "center"
   },
   {
-    t: "Pohyb 🏎️",
-    m: "Hra sleduje rychlost – hrej za chůze pro nejlepší zážitek.",
+    t: "tutorial.world.movement_title",
+    m: "tutorial.world.movement_msg",
     pos: "center"
   }
 ];
 
 export const COLLECTION_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Tým 📚",
-    m: "Tady spravuješ své příšery a vylepšuješ je drahokamy.",
+    t: "tutorial.collection.team_title",
+    m: "tutorial.collection.team_msg",
     pos: "center"
   }
 ];
 
 export const INVENTORY_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Batoh 🎒",
-    m: "Sleduj své suroviny a vylepšuj kapacitu svého vybavení.",
+    t: "tutorial.inventory.backpack_title",
+    m: "tutorial.inventory.backpack_msg",
     pos: "center"
   }
 ];
 
 export const CODEX_TUTORIAL_STEPS: TutorialStep[] = [
   {
-    t: "Laboratoř 🧪",
-    m: "Vyráběj vzácné předměty ze surovin nalezených na mapě.",
+    t: "tutorial.codex.lab_title",
+    m: "tutorial.codex.lab_msg",
     pos: "center"
   }
 ];
@@ -129,9 +130,10 @@ interface TutorialOverlayProps {
 }
 
 export const TutorialOverlay = ({ step, onNext, enemyName, steps = BATTLE_TUTORIAL_STEPS }: TutorialOverlayProps) => {
+  const { t } = useTranslation();
   const [rect, setRect] = React.useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const current = steps[step] || steps[steps.length - 1];
-  const message = current.m.replace('${enemyName}', enemyName || 'nepřítel');
+  const message = t(current.m, { enemyName: enemyName || t('tutorial.common.enemy_placeholder') });
 
   React.useEffect(() => {
     const updateRect = () => {
@@ -217,7 +219,7 @@ export const TutorialOverlay = ({ step, onNext, enemyName, steps = BATTLE_TUTORI
         >
           <h3 className="text-sm font-black text-white mb-3 uppercase italic tracking-tighter flex items-center gap-2">
             <span className="size-6 bg-primary text-slate-950 rounded-full flex items-center justify-center text-[11px] not-italic shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)]">{step + 1}</span>
-            {current.t}
+            {t(current.t)}
           </h3>
           <p className="text-slate-300 text-[13px] leading-relaxed mb-5 italic opacity-90">{message}</p>
 
@@ -228,7 +230,7 @@ export const TutorialOverlay = ({ step, onNext, enemyName, steps = BATTLE_TUTORI
             }}
             className="w-full py-3 bg-primary text-slate-950 font-black rounded-xl hover:bg-primary-light active:scale-95 transition-all uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
           >
-            {step === steps.length - 1 ? "Rozumím, jdeme na to!" : "Další krok"}
+            {step === steps.length - 1 ? t('tutorial.common.finish') : t('tutorial.common.next')}
           </button>
         </motion.div>
       </div>

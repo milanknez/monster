@@ -53,7 +53,8 @@ export const logout = () => signOut(auth);
 const getAnonymousId = () => {
     let id = localStorage.getItem('monster_collector_uid');
     if (!id) {
-        id = 'player_' + Math.random().toString(36).substring(2, 10);
+        // Zkráceno na 6 znaků pro úsporu MB v Realtime Databázi
+        id = Math.random().toString(36).substring(2, 8).toUpperCase();
         localStorage.setItem('monster_collector_uid', id);
     }
     return id;
@@ -62,7 +63,7 @@ const getAnonymousId = () => {
 export const PLAYER_UID = getAnonymousId();
 
 /**
- * Synchronizuje polohu a stav hráče do Firebase
+ * Synchronizuje polohu a stav hráče do Firebase (úsporný uzel pro mapu)
  */
 export const syncPlayerToFirebase = (data: {
     uid?: string,
@@ -77,33 +78,38 @@ export const syncPlayerToFirebase = (data: {
     activeMonster?: { id: string, level: number, name: string, stats: any }
 }) => {
     const uid = data.uid || PLAYER_UID;
-    const playerRef = ref(db, `players/${uid}`);
+    const presenceRef = ref(db, `presence/${uid}`);
 
+    // Úsporné 3-písmenné klíče pro snížení MB přenosu
     const statusData = {
-        name: data.name,
-        level: data.level,
-        monsterCount: data.monsterCount,
+        nam: data.name,
+        lvl: data.level,
+        mct: data.monsterCount,
         lat: data.lat,
         lng: data.lng,
-        avatarStyle: data.avatarStyle,
-        avatarSeed: data.avatarSeed,
-        email: data.email || null,
-        activeMonster: data.activeMonster || null,
-        lastActive: Date.now(),
-        isOnline: true
+        avs: data.avatarStyle,
+        avd: data.avatarSeed,
+        eml: data.email || null,
+        mon: data.activeMonster || null,
+        act: Date.now(),
+        onl: true
     };
 
-    set(playerRef, statusData);
+    set(presenceRef, statusData);
+
+    // Indexace kódu pro bleskové vyhledávání bez stahování celé DB
+    const shortCode = uid.slice(-6).toUpperCase();
+    set(ref(db, `codes/${shortCode}`), uid);
 
     // Při odpojení (zavření aplikace) nastavit offline stav
-    onDisconnect(playerRef).update({
-        isOnline: false,
-        lastActive: Date.now()
+    onDisconnect(presenceRef).update({
+        onl: false,
+        act: Date.now()
     });
 };
 
 /**
- * Uloží kompletní data uživatele (online záloha)
+ * Uloží kompletní data uživatele (online záloha) - zůstává v uzlu users
  */
 export const saveUserBackup = async (uid: string, data: any) => {
     const backupRef = ref(db, `users/${uid}`);
@@ -123,7 +129,7 @@ export const loadUserBackup = async (uid: string) => {
 };
 
 /**
- * Vyhledá plné UID podle krátkého 6-místného kódu (posledních 6 znaků UID)
+ * Vyhledá plné UID podle krátkého 6-místného kódu přes index codes/
  */
 export const resolveReferralCode = async (code: string): Promise<string> => {
     if (!code) return "";
@@ -132,29 +138,22 @@ export const resolveReferralCode = async (code: string): Promise<string> => {
     if (code.length > 10) return code;
 
     const normalizedCode = code.toUpperCase();
-    console.log(`[Referral/Resolve] Pokus o vyhledání UID pro kód: ${normalizedCode}`);
+    console.log(`[Referral/Resolve] Vyhledávání v indexu pro kód: ${normalizedCode}`);
 
     try {
-        const playersRef = ref(db, 'players');
-        const snapshot = await get(playersRef);
+        const codeRef = ref(db, `codes/${normalizedCode}`);
+        const snapshot = await get(codeRef);
         
         if (snapshot.exists()) {
-            const players = snapshot.val();
-            // Najdeme UID, které končí na zadaný kód
-            const foundUid = Object.keys(players).find(uid => 
-                uid.toUpperCase().endsWith(normalizedCode)
-            );
-            
-            if (foundUid) {
-                console.log(`[Referral/Resolve] Kód ${normalizedCode} vyřešen na UID: ${foundUid}`);
-                return foundUid;
-            }
+            const fullUid = snapshot.val();
+            console.log(`[Referral/Resolve] Kód nalezen! UID: ${fullUid}`);
+            return fullUid;
         }
     } catch (err) {
-        console.error("[Referral/Resolve] Chyba při vyhledávání kódu:", err);
+        console.error("[Referral/Resolve] Chyba v indexu:", err);
     }
 
-    return code; // Fallback na původní kód
+    return code; // Fallback
 };
 
 /**
@@ -338,8 +337,8 @@ export const checkEmailInvitation = async (email: string) => {
  * Poslouchá změny všech ostatních hráčů v databázi
  */
 export const watchNearbyPlayers = (currentUid: string, callback: (players: any[]) => void) => {
-    const playersRef = ref(db, 'players');
-    return onValue(playersRef, (snapshot) => {
+    const presenceRef = ref(db, 'presence');
+    return onValue(presenceRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) {
             callback([]);
@@ -350,7 +349,17 @@ export const watchNearbyPlayers = (currentUid: string, callback: (players: any[]
             .filter(([id]) => id !== currentUid) // Vyfiltrovat sebe
             .map(([id, val]: [string, any]) => ({
                 id,
-                ...val,
+                name: val.nam,
+                level: val.lvl,
+                monsterCount: val.mct,
+                lat: val.lat,
+                lng: val.lng,
+                avatarStyle: val.avs,
+                avatarSeed: val.avd,
+                email: val.eml,
+                activeMonster: val.mon,
+                lastActive: val.act,
+                isOnline: val.onl
             }));
 
         callback(playersArray);

@@ -1,28 +1,52 @@
 {
-  "id": "022",
-  "name": "Žouža Drapák",
-  "description": "Mutantní žížala s dlouhými paznechty s drápy na konci, které dokážou chňapnout po nepřátelích. Strašidelná i legrační zároveň, ideální na překvapení nepřátel ve hře.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 130,
-    "attack": 49,
-    "defense": 18
-  },
-  "abilities": [
-    {
-      "name": "Chapadlový útok",
-      "description": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "022",
+    "name": {
+        "cz": "Žouža Drapák",
+        "en": "Storm Hawk",
+        "sk": "Búrkový jastrab"
     },
-    {
-      "name": "Plazivá obrana",
-      "description": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Mutantní žížala s dlouhými paznechty s drápy na konci, které dokážou chňapnout po nepřátelích. Strašidelná i legrační zároveň, ideální na překvapení nepřátel ve hře.",
+        "en": "A bird that rides the storm clouds.",
+        "sk": "Vták, ktorý jazdí na búrkových mrakoch."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 130,
+        "attack": 49,
+        "defense": 18
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Chapadlový útok",
+                "en": "Lightning Strike",
+                "sk": "Úder blesku"
+            },
+            "description": {
+                "cz": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození.",
+                "en": "A quick strike like lightning.",
+                "sk": "Rýchly úder ako blesk."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Plazivá obrana",
+                "en": "Wind Slash",
+                "sk": "Veterný sek"
+            },
+            "description": {
+                "cz": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození (Snížení dmg 55-65%)",
+                "en": "Slashes with the power of wind.",
+                "sk": "Sekne silou vetra."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

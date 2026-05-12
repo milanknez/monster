@@ -1,35 +1,67 @@
 {
-  "id": "015",
-  "name": "Bába z cukrárny",
-  "description": "Strašidelná a nevyzpytatelná bába z cukrárny, která vláčí obří donuty jako zbraně. Nikdy neodmítne sladkou odměnu, ale když se rozzlobí, její donutové útoky jsou ničivé.",
-  "type": "Přírodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 955,
-    "attack": 233,
-    "defense": 133
-  },
-  "abilities": [
-    {
-      "name": "Donutový vír",
-      "description": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "015",
+    "name": {
+        "cz": "Bába z cukrárny",
+        "en": "Winged Whiz",
+        "sk": "Krídlatý Frnk"
     },
-    {
-      "name": "Cukrová past",
-      "description": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
+    "description": {
+        "cz": "Strašidelná a nevyzpytatelná bába z cukrárny, která vláčí obří donuty jako zbraně. Nikdy neodmítne sladkou odměnu, ale když se rozzlobí, její donutové útoky jsou ničivé.",
+        "en": "A small bird that moves so fast it makes a 'whiz' sound.",
+        "sk": "Malý vtáčik, ktorý sa pohybuje tak rýchlo, že vydáva zvuk 'frnk'."
     },
-    {
-      "name": "Bonbonový štít",
-      "description": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "type": "nature",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 955,
+        "attack": 233,
+        "defense": 133
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Donutový vír",
+                "en": "Sonic Peck",
+                "sk": "Sonické zobnutie"
+            },
+            "description": {
+                "cz": "Roztočí obří donut, který zasáhne všechny nepřátele a způsobí velké poškození.",
+                "en": "A very fast peck.",
+                "sk": "Veľmi rýchle zobnutie."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Cukrová past",
+                "en": "Gust",
+                "sk": "Závan"
+            },
+            "description": {
+                "cz": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí (Snížení dmg 55-65%)",
+                "en": "Creates a small gust of wind.",
+                "sk": "Vytvorí malý závan vetra."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        },
+        {
+            "name": {
+                "cz": "Bonbonový štít",
+                "en": "Candy Shield",
+                "sk": "Bonbonový štít "
+            },
+            "description": {
+                "cz": "Obalí se lepkavým bonbonovým štítem, který absorbuje jeden silný útok (Snížení dmg 55-65%)",
+                "en": "Wraps itself in a sticky candy shield that absorbs one strong attack (Damage reduction 55-65%)",
+                "sk": "Obalí sa lepkavým bonbónovým štítom, ktorý absorbuje jeden silný útok (Zníženie dmg 55-65%)"
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

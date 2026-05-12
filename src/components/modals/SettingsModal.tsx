@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon } from 'lucide-react';
+import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useState, useEffect } from 'react';
 import { cn, getPlayerRank } from '../../utils';
@@ -88,6 +89,7 @@ export const SettingsModal = ({
   onUpdateMapTheme
 }: SettingsModalProps) => {
 
+  const { t, i18n } = useTranslation();
   const { isMuted, setIsMuted } = useSoundSystem();
   const [tempName, setTempName] = useState(playerName);
   const [tempEmail, setTempEmail] = useState(playerEmail || '');
@@ -163,7 +165,7 @@ export const SettingsModal = ({
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-800/50">
               <h2 className="text-xl font-black text-slate-100 uppercase tracking-wider">
-                {showConfirmReset ? 'Smazat vše' : 'Nastavení'}
+                {showConfirmReset ? t('settings.delete_all') : t('settings.title')}
               </h2>
               <button 
                 onClick={onClose}
@@ -187,11 +189,9 @@ export const SettingsModal = ({
                        <Trash2 size={40} className="animate-bounce" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-white uppercase mb-2 text-center">Cesta do pekla?</h3>
+                      <h3 className="text-lg font-black text-white uppercase mb-2 text-center">{t('settings.reset_confirm_title')}</h3>
                       <p className="text-xs text-slate-500 font-bold uppercase tracking-tight leading-relaxed text-center">
-                        Opravdu chceš smazat veškerý svůj postup? <br/>
-                        Tato akce je nevratná! <br/>
-                        Navždy přijdeš o všechny své příšery a úroveň.
+                        {t('settings.reset_confirm_desc')}
                       </p>
                     </div>
 
@@ -203,13 +203,13 @@ export const SettingsModal = ({
                          }}
                          className="w-full py-4 bg-red-600 text-white font-black rounded-2xl uppercase text-[11px] tracking-widest shadow-lg shadow-red-900/40 hover:brightness-110 active:scale-95 transition-all"
                        >
-                         ANO, CHCI ZAČÍT ZNOVU
+                         {t('settings.reset_confirm_btn')}
                        </button>
                        <button
                          onClick={() => setShowConfirmReset(false)}
                          className="w-full py-4 bg-slate-800 text-slate-400 font-black rounded-2xl uppercase text-[11px] tracking-widest hover:bg-slate-700 transition-all active:scale-95"
                        >
-                         NENE, ZPĚT DO HRY
+                         {t('settings.reset_cancel_btn')}
                        </button>
                     </div>
                   </motion.div>
@@ -225,7 +225,7 @@ export const SettingsModal = ({
                     <section className="space-y-6">
                       <div className="flex items-center gap-2 text-primary">
                         <User size={16} className="fill-current opacity-20" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Profil Runnera</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('settings.profile')}</span>
                       </div>
                       
                       <div className="flex flex-col items-center gap-4">
@@ -250,7 +250,7 @@ export const SettingsModal = ({
                              {getPlayerRank(caughtCount)}
                            </p>
                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest opacity-60">
-                             Sbírka: {caughtCount} / {totalMonsters} monster
+                             {t('settings.collection')}: {caughtCount} / {totalMonsters}
                            </p>
                         </div>
 
@@ -273,12 +273,12 @@ export const SettingsModal = ({
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px]">Přezdívka lovce</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px]">{t('settings.nickname')}</label>
                         <input
                           type="text"
                           value={tempName}
                           onChange={(e) => setTempName(e.target.value)}
-                          placeholder="Zadej své jméno..."
+                          placeholder={t('settings.nickname_placeholder')}
                           className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-primary/50 transition-colors font-bold"
                         />
                       </div>
@@ -288,32 +288,73 @@ export const SettingsModal = ({
                     <section className="space-y-4">
                       <div className="flex items-center gap-2 text-primary">
                         <Bell size={16} className="fill-current opacity-20" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Nastavení Herního UI</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('settings.game_ui')}</span>
                       </div>
                       
                       <div className="space-y-3">
                         <Toggle 
-                          label="Šetřič baterie (Méně přesná GPS)" 
+                          label={t('settings.battery_saver')} 
                           active={isBatterySaver} 
                           onToggle={onToggleBatterySaver} 
                           icon={<Shield size={14} className="text-primary" />}
                         />
                         <Toggle 
-                          label="Push notifikace" 
+                          label={t('settings.notifications')} 
                           active={notifications} 
                           onToggle={() => setNotifications(!notifications)} 
                         />
                         <Toggle 
-                          label="Zvukové efekty" 
+                          label={t('settings.sound')} 
                           icon={<Volume2 size={14} />}
                           active={!isMuted} 
                           onToggle={() => setIsMuted(!isMuted)} 
                         />
                         <Toggle 
-                          label="Haptická odezva" 
+                          label={t('settings.haptic')} 
                           active={vibration} 
                           onToggle={() => setVibration(!vibration)} 
                         />
+                      </div>
+                    </section>
+
+                    {/* Jazyk */}
+                    <section className="space-y-4">
+                      <div className="flex items-center gap-2 text-primary">
+                        <Globe size={16} className="fill-current opacity-20" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('settings.language')}</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                        <button
+                          onClick={() => i18n.changeLanguage('cz')}
+                          className={cn(
+                            "py-3 rounded-xl transition-all font-bold text-[10px] flex items-center justify-center gap-1.5",
+                            i18n.language.startsWith('cz') ? "bg-primary text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                          )}
+                        >
+                          <span className="text-sm">🇨🇿</span>
+                          CZ
+                        </button>
+                        <button
+                          onClick={() => i18n.changeLanguage('sk')}
+                          className={cn(
+                            "py-3 rounded-xl transition-all font-bold text-[10px] flex items-center justify-center gap-1.5",
+                            i18n.language.startsWith('sk') ? "bg-primary text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                          )}
+                        >
+                          <span className="text-sm">🇸🇰</span>
+                          SK
+                        </button>
+                        <button
+                          onClick={() => i18n.changeLanguage('en')}
+                          className={cn(
+                            "py-3 rounded-xl transition-all font-bold text-[10px] flex items-center justify-center gap-1.5",
+                            i18n.language.startsWith('en') ? "bg-primary text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                          )}
+                        >
+                          <span className="text-sm">🇺🇸</span>
+                          EN
+                        </button>
                       </div>
                     </section>
 
@@ -321,12 +362,12 @@ export const SettingsModal = ({
                     <section className="space-y-4">
                       <div className="flex items-center gap-2 text-primary">
                         <MapIcon size={16} className="fill-current opacity-20" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Zobrazení Mapy</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('settings.map')}</span>
                       </div>
                       
                       <div className="space-y-3">
                         <Toggle 
-                          label="Automatické den/noc" 
+                          label={t('settings.auto_day_night')} 
                           active={isMapAutoTheme} 
                           onToggle={() => onUpdateMapTheme(mapTheme, !isMapAutoTheme)} 
                           icon={<RefreshCw size={14} className={cn(isMapAutoTheme && "animate-spin")} />}
@@ -342,7 +383,7 @@ export const SettingsModal = ({
                               )}
                             >
                               <Sun size={14} />
-                              DENNÍ
+                              {t('settings.day')}
                             </button>
                             <button
                               onClick={() => onUpdateMapTheme('night', false)}
@@ -352,7 +393,7 @@ export const SettingsModal = ({
                               )}
                             >
                               <Moon size={14} />
-                              NOČNÍ
+                              {t('settings.night')}
                             </button>
                           </div>
                         )}
@@ -363,13 +404,13 @@ export const SettingsModal = ({
                     <section className="space-y-4 pt-4">
                       <div className="flex items-center gap-2 text-red-500">
                         <Shield size={16} className="fill-current opacity-20" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Správa účtu</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('settings.account')}</span>
                       </div>
                       
                       <div className="space-y-3">
                         <div className="mb-2">
                           <label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-widest text-[9px] mb-1 block">
-                            {googleEmail ? 'Zálohovaný Google Email' : 'Můj Lovecký Email'}
+                            {googleEmail ? t('settings.email_backup') : t('settings.email_personal')}
                           </label>
                           {googleEmail ? (
                              <div className="w-full bg-slate-950/50 border border-emerald-500/10 rounded-2xl px-4 py-3 text-emerald-500/80 font-medium flex items-center justify-between gap-3 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
@@ -377,7 +418,7 @@ export const SettingsModal = ({
                                   <Mail size={16} className="text-emerald-500/40 shrink-0" />
                                   <span className="truncate text-xs font-bold">{googleEmail}</span>
                                </div>
-                               <div className="px-2 py-0.5 bg-emerald-500/10 rounded text-[7px] font-black uppercase tracking-widest text-emerald-500 border border-emerald-500/20">Synced</div>
+                               <div className="px-2 py-0.5 bg-emerald-500/10 rounded text-[7px] font-black uppercase tracking-widest text-emerald-500 border border-emerald-500/20">{t('settings.synced')}</div>
                              </div>
                           ) : (
                              <div className="relative">
@@ -385,7 +426,7 @@ export const SettingsModal = ({
                                  type="email"
                                  value={tempEmail}
                                  onChange={(e) => setTempEmail(e.target.value)}
-                                 placeholder="Zadej svůj email..."
+                                 placeholder={t('settings.email_placeholder')}
                                  className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 pl-11 text-slate-100 focus:outline-none focus:border-primary/50 transition-colors font-bold text-xs"
                                />
                                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
@@ -395,7 +436,7 @@ export const SettingsModal = ({
 
                          {isGoogleLinked && lastSync && (
                             <div className="flex items-center justify-between px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-xl mb-3">
-                               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Poslední Cloud Záloha</span>
+                               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('settings.last_sync')}</span>
                                <span className="text-[10px] text-emerald-500/80 font-black">{new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                          )}
@@ -410,8 +451,8 @@ export const SettingsModal = ({
                                   <User size={18} />
                                 </div>
                                 <div className="text-left">
-                                  <p className="text-sm font-bold text-slate-100">Odhlásit se</p>
-                                  <p className="text-[10px] text-slate-500 font-medium tracking-tight">Vypne synchronizaci s tímto účtem</p>
+                                  <p className="text-sm font-bold text-slate-100">{t('settings.logout')}</p>
+                                  <p className="text-[10px] text-slate-500 font-medium tracking-tight">{t('settings.logout_desc')}</p>
                                 </div>
                               </div>
                             </button>
@@ -426,7 +467,7 @@ export const SettingsModal = ({
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                               </svg>
-                              <span className="font-black uppercase text-[10px] tracking-[0.1em]">Propojit s Google účtem</span>
+                              <span className="font-black uppercase text-[10px] tracking-[0.1em]">{t('settings.login')}</span>
                             </button>
                          )}
 
@@ -439,8 +480,8 @@ export const SettingsModal = ({
                                <Trash2 size={18} />
                             </div>
                             <div className="text-left">
-                              <p className="text-sm font-bold text-red-100">Resetovat postup</p>
-                              <p className="text-[10px] text-red-500/60 font-medium whitespace-nowrap">Smaže tvůj herní profil z tohoto zařízení</p>
+                              <p className="text-sm font-bold text-red-100">{t('settings.reset')}</p>
+                              <p className="text-[10px] text-red-500/60 font-medium whitespace-nowrap">{t('settings.reset_desc')}</p>
                             </div>
                           </div>
                         </button>
@@ -458,14 +499,14 @@ export const SettingsModal = ({
                 onClick={onClose}
                 className="flex-1 py-4 rounded-2xl font-bold text-slate-400 hover:bg-white/5 transition-all uppercase text-xs tracking-widest"
               >
-                Zrušit
+                {t('settings.cancel')}
               </button>
               <button
                 onClick={handleSave}
                 className="flex-[2] py-4 bg-primary text-slate-950 rounded-2xl font-black flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all uppercase text-xs tracking-widest shadow-lg shadow-primary/20"
               >
                 <Save size={16} />
-                Uložit nastavení
+                {t('settings.save')}
               </button>
             </div>
           </motion.div>

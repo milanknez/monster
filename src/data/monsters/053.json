@@ -1,28 +1,52 @@
 {
-  "id": "053",
-  "name": "Chramtal Zubatý",
-  "description": "Malý, kulatý tvor tvořený převážně hustou černou srstí a neuvěřitelně velkou tlamou. Jeho čelisti ukrývají řady neproporcionálně velkých a ostrých zubů, kterými dokáže rozdrtit i ten nejtvrdší kámen. Přestože působí na první pohled roztomile, jeho nenasytnost nezná mezí a dokáže v mžiku pozřít věci dvakrát větší než je on sám.",
-  "type": "Elektrická",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 214,
-    "attack": 81,
-    "defense": 28
-  },
-  "abilities": [
-    {
-      "name": "Drtivý Stisk",
-      "description": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "053",
+    "name": {
+        "cz": "Chramtal Zubatý",
+        "en": "Toothy Chomper",
+        "sk": "Chramtal Zubatý"
     },
-    {
-      "name": "Svinutí do Kuličky",
-      "description": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Malý, kulatý tvor tvořený převážně hustou černou srstí a neuvěřitelně velkou tlamou. Jeho čelisti ukrývají řady neproporcionálně velkých a ostrých zubů, kterými dokáže rozdrtit i ten nejtvrdší kámen. Přestože působí na první pohled roztomile, jeho nenasytnost nezná mezí a dokáže v mžiku pozřít věci dvakrát větší než je on sám.",
+        "en": "A creature that is basically just a giant mouth with legs. It eats anything.",
+        "sk": "Stvorenie, ktoré je v podstate len obrovská tlama s nohami. Zje čokoľvek."
+    },
+    "type": "electric",
+    "rarity": "rare",
+    "stats": {
+        "hp": 214,
+        "attack": 81,
+        "defense": 28
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Drtivý Stisk",
+                "en": "Big Bite",
+                "sk": "Veľký kúsanec"
+            },
+            "description": {
+                "cz": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
+                "en": "A massive bite that can crush bone.",
+                "sk": "Masívny kúsanec, ktorý dokáže rozdrviť kosti."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Svinutí do Kuličky",
+                "en": "Swallow Whole",
+                "sk": "Prehltnutie vcelku"
+            },
+            "description": {
+                "cz": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)",
+                "en": "Attempts to swallow the enemy.",
+                "sk": "Pokúsi sa prehltnúť nepriateľa."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "111",
-  "name": "Želvo Shark",
-  "description": "Želvo Shark je vodní čaroděj chaosu – tvrdý krunýř jako tank, zuby ostré jako škrabky na sýr a ocas, který rád mává, když nikdo nekouká. Skáče z vody jako šílenec, překvapuje nepřátele a občas se při tom zamotá do vlastního krunýře. Vypadá hrozivě… dokud nezakopne o svou vlastní ploutev.",
-  "type": "Vodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 260,
-    "attack": 60,
-    "defense": 60
-  },
-  "abilities": [
-    {
-      "name": "Drtivý skus",
-      "description": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "111",
+    "name": {
+        "cz": "Želvo Shark",
+        "en": "Turtle Shark",
+        "sk": "Želvo Shark"
     },
-    {
-      "name": "Krunýřový štít",
-      "description": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 80,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Želvo Shark je vodní čaroděj chaosu – tvrdý krunýř jako tank, zuby ostré jako škrabky na sýr a ocas, který rád mává, když nikdo nekouká. Skáče z vody jako šílenec, překvapuje nepřátele a občas se při tom zamotá do vlastního krunýře. Vypadá hrozivě… dokud nezakopne o svou vlastní ploutev.",
+        "en": "Turtle Shark is a water wizard of chaos - hard shell like a tank, teeth sharp as cheese graters and a tail that likes to wave when nobody is looking. It jumps out of the water like a maniac, surprising enemies and sometimes getting tangled in its own shell. It looks fearsome... until it trips over its own fin.",
+        "sk": "Želvo Shark je vodný čarodej chaosu – tvrdý krunýř ako tank, zuby ostré ako škrabky na syr a ocas, ktorý rád máva, keď sa nikto nepozerá. Skáče z vody ako šialenec, prekvapuje nepriateľov a občas sa pritom zamotá do vlastného krunýřa. Vyzerá hrozivo… kým nezakopne o svoju vlastnú plutvu."
+    },
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 260,
+        "attack": 60,
+        "defense": 60
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Drtivý skus",
+                "en": "Crushing Bite",
+                "sk": "Drtivý skus"
+            },
+            "description": {
+                "cz": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli.",
+                "en": "Attacks with powerful jaws and causes high damage to one enemy.",
+                "sk": "Zaútočí silnými čeľusťami a spôsobí vysoké poškodenie jednému nepriateľovi."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Krunýřový štít",
+                "en": "Shell Shield",
+                "sk": "Krunýřový štít"
+            },
+            "description": {
+                "cz": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
+                "en": "Retracts into its shell and significantly reduces damage taken for one round.",
+                "sk": "Zatiahne sa do krunýřa a výrazne zníži prijaté poškodenie na jedno kolo."
+            },
+            "type": "defense",
+            "chance": 80,
+            "value": 60
+        }
+    ]
 }

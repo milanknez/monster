@@ -1,28 +1,52 @@
 {
-  "id": "062",
-  "name": "Uhlíkovec Vícehlavý",
-  "description": "Kráčející hromada žhoucího uhlí se třemi vřískajícími hlavami tvořenými modrým plamenem. Každá hlava má vlastní řadu ostrých zubů.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 229,
-    "attack": 90,
-    "defense": 33
-  },
-  "abilities": [
-    {
-      "name": "Trojitý křik",
-      "description": "Všechny hlavy zařvou a ochromí nepřítele.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.6
+    "id": "062",
+    "name": {
+        "cz": "Uhlíkovec Vícehlavý",
+        "en": "Multi-headed Ember",
+        "sk": "Uhlíkovec Vícehlavý"
     },
-    {
-      "name": "Modrý žár",
-      "description": "Extrémně horký útok plamenem.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
-    }
-  ]
+    "description": {
+        "cz": "Kráčející hromada žhoucího uhlí se třemi vřískajícími hlavami tvořenými modrým plamenem. Každá hlava má vlastní řadu ostrých zubů.",
+        "en": "A fire creature with multiple heads, each breathing out small embers.",
+        "sk": "Ohnivé stvorenie s viacerými hlavami, z ktorých každá vyfukuje malé uhlíky."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 229,
+        "attack": 90,
+        "defense": 33
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Trojitý křik",
+                "en": "Ember Breath",
+                "sk": "Uhlíkový dych"
+            },
+            "description": {
+                "cz": "Všechny hlavy zařvou a ochromí nepřítele.",
+                "en": "Each head breathes out embers.",
+                "sk": "Každá hlava vyfukuje uhlíky."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.6
+        },
+        {
+            "name": {
+                "cz": "Modrý žár",
+                "en": "Flicker Dodge",
+                "sk": "Mihotavý únik"
+            },
+            "description": {
+                "cz": "Extrémně horký útok plamenem.",
+                "en": "Moves like a flickering flame to dodge.",
+                "sk": "Pohybuje sa ako mihotavý plameň, aby sa vyhol útoku."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        }
+    ]
 }

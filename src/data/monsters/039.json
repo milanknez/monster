@@ -1,35 +1,67 @@
 {
-  "id": "039",
-  "name": "Sopečná Hydra",
-  "description": "Tříhlavá hydra, která žije v kráterech aktivních sopek. Místo krve jí v žilách proudí tekutá láva a každá její hlava ovládá jiný aspekt ohně.",
-  "type": "Ohnivá",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1047,
-    "attack": 243,
-    "defense": 144
-  },
-  "abilities": [
-    {
-      "name": "Trojnásobný dech",
-      "description": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "039",
+    "name": {
+        "cz": "Sopečná Hydra",
+        "en": "Volcanic Hydra",
+        "sk": "Sopečná Hydra"
     },
-    {
-      "name": "Lávová regenerace",
-      "description": "Využije teplo k zacelení svých ran a posílení útoku.",
-      "type": "heal",
-      "chance": 70,
-      "value": 30
+    "description": {
+        "cz": "Tříhlavá hydra, která žije v kráterech aktivních sopek. Místo krve jí v žilách proudí tekutá láva a každá její hlava ovládá jiný aspekt ohně.",
+        "en": "A multi-headed beast that lives in lava and breathes fire from all its heads.",
+        "sk": "Viacuhlavá beštia, ktorá žije v láve a chrlí oheň zo všetkých svojich hláv."
     },
-    {
-      "name": "Soptící hněv",
-      "description": "Způsobí výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
-      "type": "extra",
-      "chance": 65,
-      "value": 1.5
-    }
-  ]
+    "type": "fire",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1047,
+        "attack": 243,
+        "defense": 144
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Trojnásobný dech",
+                "en": "Triple Breath",
+                "sk": "Trojitý dych"
+            },
+            "description": {
+                "cz": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
+                "en": "Attacks with fire from three heads.",
+                "sk": "Zaútočí ohňom z troch hláv."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Lávová regenerace",
+                "en": "Lava Spit",
+                "sk": "Pľutie lávy"
+            },
+            "description": {
+                "cz": "Využije teplo k zacelení svých ran a posílení útoku.",
+                "en": "Spits hot lava at the enemy.",
+                "sk": "Pľuje horúcu lávu na nepriateľa."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 30
+        },
+        {
+            "name": {
+                "cz": "Soptící hněv",
+                "en": "Translated: Soptící hněv",
+                "sk": "Soptící hnev"
+            },
+            "description": {
+                "cz": "Způsobí výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
+                "en": "Deals výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
+                "sk": "Zpúsobí výbuch lávy v širokém okolí, který poškodí všechny neprátele."
+            },
+            "type": "extra",
+            "chance": 65,
+            "value": 1.5
+        }
+    ]
 }

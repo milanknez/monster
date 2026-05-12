@@ -17,6 +17,8 @@ export const RARITY_SCORE: Record<SpawnRarity, number> = {
 }
 
 import { RESOURCE_CONFIG } from '../../data/resources';
+import { getLoc } from '../../utils';
+import i18n from '../../i18n';
 export { RESOURCE_CONFIG };
 
 
@@ -48,7 +50,8 @@ export function seededFloat(seed: string): number {
 
 export function pickMonster(seed: string, rarity: SpawnRarity): string {
   const pool = monsterDB.filter(m => {
-    const raw = (m.rarity || '').toLowerCase();
+    const rawRarity = getLoc(m.rarity, 'cz');
+    const raw = (rawRarity || '').toLowerCase();
     const r = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     if (rarity === 'epic') return r.includes('epick') || r.includes('epic');
@@ -138,19 +141,23 @@ export function makeResourceTooltipHtml(type: string, amount: number): string {
   return `
     <div style="text-align:center; min-width:80px; padding:2px 0;">
       ${iconHtml}
-      <div style="color:${conf.color}; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.05em; line-height:1.2;">${conf.label}</div>
-      <div style="color:rgba(255,255,255,0.6); font-size:10px; font-weight:700; margin-top:2px;">Množství: <span style="color:#fff;">${amount}</span></div>
+      <div style="color:${conf.color}; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.05em; line-height:1.2;">${getLoc(conf.label, i18n.language)}</div>
+      <div style="color:rgba(255,255,255,0.6); font-size:10px; font-weight:700; margin-top:2px;">${i18n.t('common.amount')}: <span style="color:#fff;">${amount}</span></div>
     </div>
   `
 }
 
-
 export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
   const c = RARITY_COLORS[spawn.rarity]
-  const locked = spawn.level > playerLevel
-  const rarityLabel = spawn.rarity === 'legendary' ? '👑 Legendární' : spawn.rarity === 'epic' ? '🏰 Epická' : spawn.rarity === 'rare' ? '🏛 Vzácná' : '⚔️ Běžná'
+  const locked = spawn.level > playerLevel;
+  
+  const rarityLabel = spawn.rarity === 'legendary' ? `👑 ${i18n.t('rarities.legendary')}` : 
+                      spawn.rarity === 'epic' ? `🏰 ${i18n.t('rarities.epic')}` : 
+                      spawn.rarity === 'rare' ? `🏛 ${i18n.t('rarities.rare')}` : 
+                      `⚔️ ${i18n.t('rarities.common')}`;
+
   const energyCost = calculateHPCost(spawn.level, spawn.rarity)
-  return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ENERGIE</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 Vyžaduje Lv.${spawn.level}</div>` : ''}</div>`
+  return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ${i18n.t('stats.energy').toUpperCase()}</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 ${i18n.t('common.requires')} Lv.${spawn.level}</div>` : ''}</div>`
 }
 
 export function makePlayerIcon(): L.DivIcon {

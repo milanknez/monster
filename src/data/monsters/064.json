@@ -1,28 +1,52 @@
 {
-  "id": "064",
-  "name": "Solární Vyvrhel",
-  "description": "Vyhublý, deformovaný tvor s kůží připomínající povrch slunce. Neustále z něj vyzařuje nesnesitelný žár a kouř, který oslepuje okolí.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 226,
-    "attack": 94,
-    "defense": 33
-  },
-  "abilities": [
-    {
-      "name": "Sluneční záře",
-      "description": "Oslní nepřítele zábleskem.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.5
+    "id": "064",
+    "name": {
+        "cz": "Solární Vyvrhel",
+        "en": "Solar Outcast",
+        "sk": "Solární Vyvrhel"
     },
-    {
-      "name": "Plazmový výboj",
-      "description": "Vystřelí kus plazmy ze svého těla.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
-    }
-  ]
+    "description": {
+        "cz": "Vyhublý, deformovaný tvor s kůží připomínající povrch slunce. Neustále z něj vyzařuje nesnesitelný žár a kouř, který oslepuje okolí.",
+        "en": "A creature that was exiled from the sun and now wanders the world, still glowing with solar energy.",
+        "sk": "Stvorenie, ktoré bolo vyhostené zo slnka a teraz putuje svetom, stále žiariac solárnou energiou."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 226,
+        "attack": 94,
+        "defense": 33
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Sluneční záře",
+                "en": "Solar Beam",
+                "sk": "Solárny lúč"
+            },
+            "description": {
+                "cz": "Oslní nepřítele zábleskem.",
+                "en": "Fires a beam of concentrated sunlight.",
+                "sk": "Vystrelí lúč koncentrovaného slnečného svetla."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.5
+        },
+        {
+            "name": {
+                "cz": "Plazmový výboj",
+                "en": "Bright Aura",
+                "sk": "Jasná aura"
+            },
+            "description": {
+                "cz": "Vystřelí kus plazmy ze svého těla.",
+                "en": "Increases its power with sunlight.",
+                "sk": "Zvyšuje svoju silu pomocou slnečného svetla."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        }
+    ]
 }

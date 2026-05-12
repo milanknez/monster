@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import { LayoutGrid, BookOpen, Map as MapIcon, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils';
 import { useGameSound } from '../../data/sounds';
 
 export const NavBar = ({ active, onTabChange }: { active: string; onTabChange: (id: string) => void }) => {
+  const { t } = useTranslation();
   const { playClick } = useGameSound();
   const navItems = [
-    { id: 'home', label: 'Domů', icon: LayoutGrid },
-    { id: 'vault', label: 'Bestiář', icon: BookOpen },
-    { id: 'inventory', label: 'Inventář', icon: Package },
-    { id: 'world', label: 'Svět', icon: MapIcon },
+    { id: 'home', label: t('tabs.home'), icon: LayoutGrid },
+    { id: 'vault', label: t('tabs.bestiary'), icon: BookOpen },
+    { id: 'inventory', label: t('tabs.inventory'), icon: Package },
+    { id: 'world', label: t('tabs.world'), icon: MapIcon },
   ]
 
   return (

@@ -1,5 +1,6 @@
 import { Zap, Heart, Shield, Sparkles, Clock, CheckCircle2, TrendingUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../utils'
 import type { Boost } from '../../types'
 
@@ -141,6 +142,31 @@ const STORE_ITEMS = [
 ]
 
 export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) => {
+  const { t } = useTranslation();
+
+  const LOCALIZED_STORE_ITEMS = STORE_ITEMS.map(item => {
+    const keyMap: Record<string, string> = {
+      'xp_1day': 'xp_overload',
+      'xp15x': 'xp_enhancer',
+      'hp50': 'regen_adrenalin',
+      'hp100': 'hyper_regen',
+      'hp300': 'aether_core',
+      'premiumultra': 'ultra_core',
+      'inv20': 'backpack_20',
+      'inv24': 'backpack_24'
+    };
+    const key = keyMap[item.id];
+    if (key) {
+      return {
+        ...item,
+        title: t(`store.items.${key}.title`),
+        subtitle: t(`store.items.${key}.subtitle`),
+        description: t(`store.items.${key}.desc`)
+      };
+    }
+    return item;
+  });
+
   const isBoostActive = (type: string, multiplier: number) => {
     if (type === 'inventory_upgrade') return maxSlots >= multiplier;
     return activeBoosts.some(b => b.type === type && b.multiplier === multiplier && b.expiresAt > Date.now())
@@ -159,9 +185,9 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
       {/* Header Sekce */}
       <div className="p-6 bg-primary/5 border-b border-primary/10 space-y-4">
         <div className="flex flex-col">
-          <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">Logistická Podpora</p>
+          <p className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">{t('store.support')}</p>
           <div className="flex items-center gap-3">
-            <h2 className="text-slate-100 text-2xl font-black uppercase tracking-tighter italic">Sektorový Obchod</h2>
+            <h2 className="text-slate-100 text-2xl font-black uppercase tracking-tighter italic">{t('store.title')}</h2>
           </div>
         </div>
         
@@ -169,14 +195,14 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
         <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg w-fit">
           <div className="size-1.5 rounded-full bg-slate-500 animate-pulse" />
           <span className="text-[9px] font-black text-slate-500 uppercase">
-             STATUS IAP: {(window as any).purchaseService?.getStatus() || 'Načítání...'}
+             {t('store.status_iap')}: {(window as any).purchaseService?.getStatus() || t('common.loading')}
           </span>
         </div>
       </div>
 
       {/* Grid s dlaždicemi */}
       <div className="grid grid-cols-2 gap-4 p-4 mt-2">
-        {[...STORE_ITEMS].sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1)).map((item, idx) => {
+        {LOCALIZED_STORE_ITEMS.sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1)).map((item, idx) => {
           const isActive = isBoostActive(item.type, item.multiplier)
           const timePercent = getRemainingTimePercent(item.type, item.multiplier)
           
@@ -228,7 +254,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{item.subtitle}</p>
                 <h3 className={cn("text-[13px] font-black uppercase tracking-tight leading-none transition-colors", item.disabled ? "text-slate-600" : "text-white group-hover:text-primary")}>{item.title}</h3>
                 <p className="text-[9px] text-slate-500 font-medium leading-[1.1] line-clamp-2">
-                  {item.disabled ? 'Modul je dočasně odpojen z důvodu kalibrace systémů.' : item.description}
+                  {item.disabled ? t('store.calibration_msg') : item.description}
                 </p>
 
                 {/* Status / Tlačítko */}
@@ -237,12 +263,12 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                     item.type === 'inventory_upgrade' ? (
                       <div className="w-full py-1 rounded-lg border text-center transition-all bg-emerald-500/10 border-emerald-500/30 text-emerald-400 flex items-center justify-center gap-2">
                         <CheckCircle2 size={10} />
-                        <span className="text-[8px] font-black uppercase tracking-[0.15em]">Zakoupeno</span>
+                        <span className="text-[8px] font-black uppercase tracking-[0.15em]">{t('store.purchased')}</span>
                       </div>
                     ) : (
                       <div className="space-y-1">
                         <div className="flex justify-between items-center text-[7px] font-black uppercase">
-                          <span className="text-primary italic">Aktivní modul</span>
+                          <span className="text-primary italic">{t('store.active_module')}</span>
                           <span className="text-slate-500">24h</span>
                         </div>
                         <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
@@ -263,7 +289,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                         : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
                     )}>
                       <span className="text-[8px] font-black uppercase tracking-[0.15em]">
-                        {item.disabled ? 'Mimo provoz' : displayPrice ? `Koupit za ${displayPrice}` : 'Aktivovat'}
+                        {item.disabled ? t('store.out_of_service') : displayPrice ? t('store.buy_for', { price: displayPrice }) : t('store.activate')}
                       </span>
                     </div>
                   )}
@@ -283,9 +309,9 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
           <Shield size={18} />
         </div>
         <div className="space-y-1">
-          <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Bezpečnostní Protokol</p>
+          <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none">{t('store.safety_protocol')}</p>
           <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-            Všechna vylepšení jsou vázána na lokální terminál. V případě resetu systému budou moduly deaktivovány.
+            {t('store.safety_desc')}
           </p>
         </div>
       </div>

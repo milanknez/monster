@@ -1,17 +1,13 @@
 import { motion } from 'framer-motion';
-import { cn, TYPE_COLORS } from '../../utils';
+import { useTranslation } from 'react-i18next';
+import { cn, getLoc, getMonsterColors, getMonsterRarityColor } from '../../utils';
 import type { Monster } from '../../types';
 
-const RARITY_COLORS: Record<string, string> = {
-  'Běžná': 'text-slate-400',
-  'Vzácná': 'text-blue-400',
-  'Epická': 'text-purple-400',
-  'Legendární': 'text-amber-400'
-}
 
 export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultiplier = 2, isStackFull }: { monster: Monster | null; onClose: () => void; onAdd: (m: Monster) => void; isXPBoosted?: boolean; xpMultiplier?: number; isStackFull?: boolean }) => {
+  const { t } = useTranslation();
   if (!monster) return null
-  const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
+  const colors = getMonsterColors(monster.type)
   const monsterImage = monster.image || `/monsters/${monster.id}.png`
 
   return (
@@ -44,26 +40,26 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultip
 
           <div className="flex flex-col items-center gap-1 mb-2">
             <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest", colors.bg, colors.text)}>
-              NOVÝ EXEMPLÁŘ ZAJIŠTĚN
+              {t('monster.new_secured')}
             </span>
             {isXPBoosted && (
               <span className="bg-blue-500 text-white px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter animate-pulse border border-blue-400/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                ⚡ {xpMultiplier}x XP BOOST AKTIVNÍ
+                ⚡ {t('monster.xp_boost_active', { mult: xpMultiplier })}
               </span>
             )}
           </div>
-          <h2 className="text-4xl font-black text-slate-100 tracking-tighter mb-2">{monster.name}</h2>
-          <p className="text-xs text-slate-400 mb-6 px-4 line-clamp-2">{monster.description}</p>
+          <h2 className="text-4xl font-black text-slate-100 tracking-tighter mb-2">{getLoc(monster.name)}</h2>
+          <p className="text-xs text-slate-400 mb-6 px-4 line-clamp-2">{getLoc(monster.description)}</p>
 
           <div className="flex justify-center gap-4 mb-8">
             <div className="text-center">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Vzácnost</p>
-              <p className={cn("font-black", RARITY_COLORS[monster.rarity] || 'text-white')}>{monster.rarity}</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('monster.rarity')}</p>
+              <p className={cn("font-black", getMonsterRarityColor(monster.rarity))}>{getLoc(monster.rarity)}</p>
             </div>
             <div className="w-px h-8 bg-slate-800" />
             <div className="text-center">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Typ</p>
-              <p className="font-black text-slate-100">{monster.type}</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('monster.type')}</p>
+              <p className="font-black text-slate-100">{getLoc(monster.type)}</p>
             </div>
           </div>
 
@@ -77,7 +73,7 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultip
                 : "bg-slate-100 hover:bg-white text-background-dark"
             )}
           >
-            {isStackFull ? "Kapacita druhu (3/3) plná" : "Přidat do sbírky"}
+            {isStackFull ? t('monster.capacity_full') : t('monster.add_to_collection')}
           </button>
 
           {isStackFull && (
@@ -85,7 +81,7 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultip
               onClick={onClose}
               className="w-full mt-4 py-2 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-slate-300 transition-colors"
             >
-              Propustit do divočiny
+              {t('monster.release_to_wild')}
             </button>
           )}
         </div>

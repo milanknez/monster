@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Battery, Zap, ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn, calculateLevel, getTotalXPForLevel } from '../../utils';
 
 export const StatsCard = ({
@@ -19,6 +20,7 @@ export const StatsCard = ({
    xpMultiplier?: number,
    hpMultiplier?: number
 }) => {
+   const { t } = useTranslation();
    const currentLevel = calculateLevel(playerXP);
 
    const xpAtStartOfLevel = getTotalXPForLevel(currentLevel);
@@ -33,14 +35,17 @@ export const StatsCard = ({
    const remainingSeconds = Math.max(0, Math.ceil((remainingPercent / 100) * SECONDS_FOR_100_PERCENT));
 
    const formatRemainingTime = (totalSeconds: number) => {
-      if (totalSeconds <= 0) return "PLNĚ NABITO";
+      if (totalSeconds <= 0) return t('stats_card.fully_charged');
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
 
-      if (h > 0) return `${h}h ${m}m do konce`;
-      if (m > 0) return `${m}m ${s}s do konce`;
-      return `${s}s do konce`;
+      let timeStr = "";
+      if (h > 0) timeStr = `${h}h ${m}m`;
+      else if (m > 0) timeStr = `${m}m ${s}s`;
+      else timeStr = `${s}s`;
+
+      return t('stats_card.remaining_time', { time: timeStr });
    };
 
    return (
@@ -59,7 +64,7 @@ export const StatsCard = ({
                <div className="flex justify-between items-start mb-6">
                   <div className="flex flex-col">
                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] opacity-70">Zkušenosti</span>
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] opacity-70">{t('stats_card.xp_label')}</span>
                         {isXPBoosted && (
                            <motion.div
                               animate={{ opacity: [1, 0.4, 1], scale: [1, 1.1, 1] }}
@@ -67,21 +72,21 @@ export const StatsCard = ({
                               className="flex items-center gap-1 bg-primary px-1.5 py-0.5 rounded text-[8px] text-slate-950 font-black h-4"
                            >
                               <Zap size={10} fill="currentColor" />
-                              <span>XP BOOST {xpMultiplier}x</span>
+                              <span>{t('stats_card.xp_boost', { mult: xpMultiplier })}</span>
                            </motion.div>
                         )}
                      </div>
                      <h2 className="text-5xl font-black text-slate-100 tracking-tighter leading-none">LVL {currentLevel}</h2>
                   </div>
                   <div className="text-right">
-                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-70">Celkem chyceno</span>
+                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-70">{t('stats_card.total_caught')}</span>
                      <p className="text-2xl font-black text-slate-100 tracking-tighter leading-none mt-1">{caughtCount}</p>
                   </div>
                </div>
 
                <div className="space-y-2">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider items-center">
-                     <span className="text-primary/90">XP k úrovni {currentLevel + 1}</span>
+                     <span className="text-primary/90">{t('stats_card.xp_to_next', { level: currentLevel + 1 })}</span>
                      <span className="text-slate-400">{Math.round(xpInCurrentLevel)} / {Math.round(xpRequiredForNextLevel)}</span>
                   </div>
                   <div className="h-2 w-full bg-slate-950/50 rounded-full overflow-hidden border border-white/5 p-0.5 relative">
@@ -113,7 +118,7 @@ export const StatsCard = ({
                         <Battery size={12} className={cn("text-blue-500 transition-all", (playerHP < 20 || isHPBoosted) && "animate-pulse")} fill="currentColor" />
                      </div>
                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Energie</span>
+                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{t('stats_card.energy')}</span>
                         {isHPBoosted && (
                            <motion.div
                               animate={{ y: [0, -2, 0] }}
@@ -121,7 +126,7 @@ export const StatsCard = ({
                               className="flex items-center gap-1 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 text-[8px] text-emerald-500 font-black"
                            >
                               <ArrowUp size={8} />
-                              <span>REGEN x{hpMultiplier}</span>
+                              <span>{t('stats_card.regen', { mult: hpMultiplier })}</span>
                            </motion.div>
                         )}
                      </div>
@@ -173,11 +178,11 @@ export const StatsCard = ({
                         <div className={cn("size-1 rounded-full animate-pulse", isHPBoosted ? "bg-emerald-500 shadow-[0_0_5px_#10b981]" : "bg-blue-500")} />
                      )}
                      <p className="text-[9px] text-slate-500 font-bold uppercase italic tabular-nums">
-                        {playerHP < 100 ? `NABÍJENÍ: ${formatRemainingTime(remainingSeconds)}` : "STAV: OPTIMÁLNÍ"}
+                        {playerHP < 100 ? `${t('stats_card.charging')}: ${formatRemainingTime(remainingSeconds)}` : t('stats_card.status_optimal')}
                      </p>
                   </div>
                   <p className="text-[9px] text-blue-500 font-black uppercase tracking-tighter">
-                     {playerHP < 20 ? "⚠️ KRITICKÁ ENERGIE" : isHPBoosted ? "⚡ ZRYCHLENÉ NABÍJENÍ" : ""}
+                     {playerHP < 20 ? `⚠️ ${t('stats_card.critical_energy')}` : isHPBoosted ? `⚡ ${t('stats_card.accelerated_charging')}` : ""}
                   </p>
                </div>
             </div>

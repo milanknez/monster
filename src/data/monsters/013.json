@@ -1,28 +1,52 @@
 {
-  "id": "013",
-  "name": "Mechový Žhavibřich",
-  "description": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 216,
-    "attack": 85,
-    "defense": 26
-  },
-  "abilities": [
-    {
-      "name": "Medové pohlazení",
-      "description": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
+    "id": "013",
+    "name": {
+        "cz": "Mechový Žhavibřich",
+        "en": "Rocky Crust",
+        "sk": "Skalná kôrka"
     },
-    {
-      "name": "Bodnutí včelky",
-      "description": "Z tajné kapsičky vypustí rozzlobenou včelu, která rychle zažene nepřátele.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
+        "en": "A creature whose back is covered in a hard rocky crust.",
+        "sk": "Stvorenie, ktorého chrbát je pokrytý tvrdou skalnou kôrkou."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 216,
+        "attack": 85,
+        "defense": 26
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Medové pohlazení",
+                "en": "Rock Bash",
+                "sk": "Skalný úder"
+            },
+            "description": {
+                "cz": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit.",
+                "en": "A heavy bash with its rocky back.",
+                "sk": "Ťažký úder skalnatým chrbtom."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        },
+        {
+            "name": {
+                "cz": "Bodnutí včelky",
+                "en": "Hard Guard",
+                "sk": "Tvrdá obrana"
+            },
+            "description": {
+                "cz": "Z tajné kapsičky vypustí rozzlobenou včelu, která rychle zažene nepřátele.",
+                "en": "Increases defense with its crust.",
+                "sk": "Zvyšuje obranu svojou kôrkou."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

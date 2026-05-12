@@ -1,28 +1,52 @@
 {
-  "id": "068",
-  "name": "Větvořez Parazitický",
-  "description": "Stromovité monstrum s dlouhýma pavoučíma nohama ze dřeva a druhým parazitickým výrůstkem v podobě dravého květu.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 207,
-    "attack": 89,
-    "defense": 32
-  },
-  "abilities": [
-    {
-      "name": "Větvený útok",
-      "description": "Seknutí mnoha větvemi naráz.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "068",
+    "name": {
+        "cz": "Větvořez Parazitický",
+        "en": "Electric Charger",
+        "sk": "Elektrický nabíjač"
     },
-    {
-      "name": "Parazitické kousnutí",
-      "description": "Kousnutí druhou hlavou.",
-      "type": "extra",
-      "chance": 50,
-      "value": 1.7
-    }
-  ]
+    "description": {
+        "cz": "Stromovité monstrum s dlouhýma pavoučíma nohama ze dřeva a druhým parazitickým výrůstkem v podobě dravého květu.",
+        "en": "A creature that stores electricity in its body and can release it in powerful bursts.",
+        "sk": "Stvorenie, ktoré ukladá elektrinu vo svojom tele a dokáže ju uvoľniť v silných dávkach."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 207,
+        "attack": 89,
+        "defense": 32
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Větvený útok",
+                "en": "Power Burst",
+                "sk": "Energetický výbuch"
+            },
+            "description": {
+                "cz": "Seknutí mnoha větvemi naráz.",
+                "en": "A burst of electric energy.",
+                "sk": "Výbuch elektrickej energie."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Parazitické kousnutí",
+                "en": "Charge Up",
+                "sk": "Nabíjanie"
+            },
+            "description": {
+                "cz": "Kousnutí druhou hlavou.",
+                "en": "Increases its electric power.",
+                "sk": "Zvyšuje svoju elektrickú silu."
+            },
+            "type": "extra",
+            "chance": 50,
+            "value": 1.7
+        }
+    ]
 }

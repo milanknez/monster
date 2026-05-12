@@ -1,35 +1,67 @@
 {
-  "id": "058",
-  "name": "Jiskrohlod Zmutovaný",
-  "description": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
-  "type": "Elektrická",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 220,
-    "attack": 85,
-    "defense": 30
-  },
-  "abilities": [
-    {
-      "name": "Elektrický Výboj",
-      "description": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "058",
+    "name": {
+        "cz": "Jiskrohlod Zmutovaný",
+        "en": "Shadow Crawler",
+        "sk": "Tieňový lezec"
     },
-    {
-      "name": "Statické Nabití",
-      "description": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 50,
-      "value": 15
+    "description": {
+        "cz": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
+        "en": "A dark creature that moves through the shadows and strikes without warning.",
+        "sk": "Temné stvorenie, ktoré sa pohybuje v tieňoch a útočí bez varovania."
     },
-    {
-      "name": "Zkrat",
-      "description": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.3
-    }
-  ]
+    "type": "electric",
+    "rarity": "rare",
+    "stats": {
+        "hp": 220,
+        "attack": 85,
+        "defense": 30
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Elektrický Výboj",
+                "en": "Shadow Strike",
+                "sk": "Tieňový úder"
+            },
+            "description": {
+                "cz": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
+                "en": "An attack from the shadows.",
+                "sk": "Útok z tieňov."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Statické Nabití",
+                "en": "Night Stalk",
+                "sk": "Nočné prenasledovanie"
+            },
+            "description": {
+                "cz": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Increases stealth and accuracy.",
+                "sk": "Zvyšuje neviditeľnosť a presnosť."
+            },
+            "type": "curse",
+            "chance": 50,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Zkrat",
+                "en": "Short Circuit",
+                "sk": "Skrat"
+            },
+            "description": {
+                "cz": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
+                "en": "Causes an energy explosion that weakens the enemy's attack by blinding them with a flash.",
+                "sk": "Spôsobí energetický výbuch, ktorý oslabí útok nepriateľa tým, že ho oslepí zábleskom."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.3
+        }
+    ]
 }

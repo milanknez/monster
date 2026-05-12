@@ -1,28 +1,52 @@
 {
-  "id": "003",
-  "name": "Pařezík Větvoslav",
-  "description": "Oživlý kus starého dřeva, na kterém roste pravý mech. Je strašně pomalý, ale milý.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 132,
-    "attack": 48,
-    "defense": 19
-  },
-  "abilities": [
-    {
-      "name": "Kořenové vězení",
-      "description": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "003",
+    "name": {
+        "cz": "Pařezík Větvoslav",
+        "en": "Leafy Crawler",
+        "sk": "Lístkový Plaz"
     },
-    {
-      "name": "Fotosyntéza",
-      "description": "Využívá sluneční světlo k postupné regeneraci zdraví.",
-      "type": "heal",
-      "chance": 70,
-      "value": 20
-    }
-  ]
+    "description": {
+        "cz": "Oživlý kus starého dřeva, na kterém roste pravý mech. Je strašně pomalý, ale milý.",
+        "en": "A green lizard perfectly camouflaged among the leaves. It loves peace and sunbathing on old tree trunks.",
+        "sk": "Zelený jašter dokonale maskovaný medzi listami. Miluje pokoj a opaľovanie na starých kmeňoch stromov."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 132,
+        "attack": 48,
+        "defense": 19
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Kořenové vězení",
+                "en": "Leaf Slice",
+                "sk": "Listový sek"
+            },
+            "description": {
+                "cz": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo.",
+                "en": "Attacks with sharp-edged leaves.",
+                "sk": "Zaútočí listami s ostrými hranami."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Fotosyntéza",
+                "en": "Nature's Restoration",
+                "sk": "Obnova prírody"
+            },
+            "description": {
+                "cz": "Využívá sluneční světlo k postupné regeneraci zdraví.",
+                "en": "Heals its wounds using energy from the forest.",
+                "sk": "Zahojí svoje rany pomocou energie z lesa."
+            },
+            "type": "heal",
+            "chance": 70,
+            "value": 20
+        }
+    ]
 }

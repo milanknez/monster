@@ -1,28 +1,52 @@
 {
-  "id": "084",
-  "name": "Neonový Štír",
-  "type": "Elektrická",
-  "rarity": "Běžná",
-  "description": "Jeho tělo září neonově modrými výboji nahrazujícími klasický jed.",
-  "stats": {
-    "hp": 122,
-    "attack": 46,
-    "defense": 14
-  },
-  "abilities": [
-    {
-      "name": "Bleskový řetězec",
-      "description": "Vyšle spršku smrtících blesků na svůj cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "084",
+    "name": {
+        "cz": "Neonový Štír",
+        "en": "Neon Scorpion",
+        "sk": "Neonový Štír"
     },
-    {
-      "name": "Klektavý šok",
-      "description": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti po dobu 2 kola.",
-      "type": "curse",
-      "chance": 70,
-      "value": 15
-    }
-  ]
+    "type": "electric",
+    "rarity": "common",
+    "description": {
+        "cz": "Jeho tělo září neonově modrými výboji nahrazujícími klasický jed.",
+        "en": "A scorpion that glows with neon colors and has a deadly sting.",
+        "sk": "Škorpión, ktorý žiari neónovými farbmi a má smrteľné žihadlo."
+    },
+    "stats": {
+        "hp": 122,
+        "attack": 46,
+        "defense": 14
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Bleskový řetězec",
+                "en": "Neon String",
+                "sk": "Neónové žihadlo"
+            },
+            "description": {
+                "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
+                "en": "Stings the enemy with a glowing stinger.",
+                "sk": "Bodne nepriateľa žiariacim žihadlom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Klektavý šok",
+                "en": "Glow Armor",
+                "sk": "Žiariace brnenie"
+            },
+            "description": {
+                "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti po dobu 2 kola.",
+                "en": "Increases defense with its glowing shell.",
+                "sk": "Zvyšuje obranu svojím žiariacim pancierom."
+            },
+            "type": "curse",
+            "chance": 70,
+            "value": 15
+        }
+    ]
 }

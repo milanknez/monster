@@ -1,28 +1,52 @@
 {
-  "id": "067",
-  "name": "Listopad Morový",
-  "description": "Tvor pokrytý mrtvými, hnijícími listy, které ztvrdly na ostré čepele. Jeho oči jsou mléčně bílé a beze stop života.",
-  "type": "Přírodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 252,
-    "attack": 91,
-    "defense": 31
-  },
-  "abilities": [
-    {
-      "name": "Listová bouře",
-      "description": "Vystřelí na nepřítele ostré listy.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "067",
+    "name": {
+        "cz": "Listopad Morový",
+        "en": "Forest Protector",
+        "sk": "Lesný ochranca"
     },
-    {
-      "name": "Hnilobný dech",
-      "description": "Oslabí nepříatele pachem smrti.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.4
-    }
-  ]
+    "description": {
+        "cz": "Tvor pokrytý mrtvými, hnijícími listy, které ztvrdly na ostré čepele. Jeho oči jsou mléčně bílé a beze stop života.",
+        "en": "A giant tree-like creature that protects the ancient forest from intruders.",
+        "sk": "Obrovské stromovité stvorenie, ktoré chráni prastarý les pred votrelcami."
+    },
+    "type": "nature",
+    "rarity": "rare",
+    "stats": {
+        "hp": 252,
+        "attack": 91,
+        "defense": 31
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Listová bouře",
+                "en": "Branch Swipe",
+                "sk": "Úder vetvou"
+            },
+            "description": {
+                "cz": "Vystřelí na nepřítele ostré listy.",
+                "en": "Swipes at the enemy with its long branches.",
+                "sk": "Udrie nepriateľa svojimi dlhými vetvami."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Hnilobný dech",
+                "en": "Nature's Call",
+                "sk": "Volanie prírody"
+            },
+            "description": {
+                "cz": "Oslabí nepříatele pachem smrti.",
+                "en": "Summons roots to attack the enemy.",
+                "sk": "Privolá korene, aby zaútočili na nepriateľa."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.4
+        }
+    ]
 }

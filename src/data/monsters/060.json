@@ -1,28 +1,52 @@
 {
-  "id": "060",
-  "name": "Škvarkavec Popelavý",
-  "description": "Zmutovaný tvor připomínající psa, jehož tělo je tvořeno chladnoucí lávou a popelem. Skrz praskliny v jeho kůži prosvítá žhnoucí jádro a jeho dech tvoří hustý černý dým.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 209,
-    "attack": 94,
-    "defense": 31
-  },
-  "abilities": [
-    {
-      "name": "Popelavý kousanec",
-      "description": "Kousnutí, které způsobí popáleniny popelem.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "060",
+    "name": {
+        "cz": "Škvarkavec Popelavý",
+        "en": "Ashen Crackle",
+        "sk": "Škvarkavec Popelavý"
     },
-    {
-      "name": "Kouřová clona",
-      "description": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Zmutovaný tvor připomínající psa, jehož tělo je tvořeno chladnoucí lávou a popelem. Skrz praskliny v jeho kůži prosvítá žhnoucí jádro a jeho dech tvoří hustý černý dým.",
+        "en": "A creature born from fire and ash that constantly crackles with heat.",
+        "sk": "Stvorenie zrodené z ohňa a popola, ktoré neustále praská teplom."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 209,
+        "attack": 94,
+        "defense": 31
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Popelavý kousanec",
+                "en": "Ash Blast",
+                "sk": "Popolový výbuch"
+            },
+            "description": {
+                "cz": "Kousnutí, které způsobí popáleniny popelem.",
+                "en": "Shoots a blast of hot ash.",
+                "sk": "Vystrelí prúd horúceho popola."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Kouřová clona",
+                "en": "Heat Aura",
+                "sk": "Tepelná aura"
+            },
+            "description": {
+                "cz": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)",
+                "en": "Radiates heat to damage nearby enemies.",
+                "sk": "Vyžaruje teplo, ktoré poškodzuje okolitých nepriateľov."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

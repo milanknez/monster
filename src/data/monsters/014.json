@@ -1,28 +1,52 @@
 {
-  "id": "014",
-  "name": "Bahňáček Lísohlav",
-  "description": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
-  "type": "Přírodní",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 420,
-    "attack": 139,
-    "defense": 90
-  },
-  "abilities": [
-    {
-      "name": "Uplakaná sprška",
-      "description": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "014",
+    "name": {
+        "cz": "Bahňáček Lísohlav",
+        "en": "Muddy Snout",
+        "sk": "Bahňáček Lísohlav"
     },
-    {
-      "name": "Tichá bouře",
-      "description": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
+        "en": "A slightly confused swamp animal that has mushrooms growing on its back instead of fur.",
+        "sk": "Trochu zmätené zvieratko z močiarov, ktorému na chrbte namiesto srsti rastú huby."
+    },
+    "type": "nature",
+    "rarity": "epic",
+    "stats": {
+        "hp": 420,
+        "attack": 139,
+        "defense": 90
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Uplakaná sprška",
+                "en": "Mud Throw",
+                "sk": "Hod bahnom"
+            },
+            "description": {
+                "cz": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
+                "en": "Throws mud to blind the enemy.",
+                "sk": "Hodí bahno, aby oslepil nepriateľa."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Tichá bouře",
+                "en": "Spore Cloud",
+                "sk": "Mrak spór"
+            },
+            "description": {
+                "cz": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
+                "en": "Releases spores from the mushrooms on its back.",
+                "sk": "Uvoľní spóry z húb na svojom chrbte."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

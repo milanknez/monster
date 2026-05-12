@@ -1,28 +1,52 @@
 {
-  "id": "097",
-  "name": "Zoubková víla",
-  "description": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
-  "type": "Přírodní",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 950,
-    "attack": 179,
-    "defense": 110
-  },
-  "abilities": [
-    {
-      "name": "Totální extrakce",
-      "description": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "097",
+    "name": {
+        "cz": "Zoubková víla",
+        "en": "Tooth Fairy",
+        "sk": "Zoubková víla"
     },
-    {
-      "name": "Prokletí bezzubých",
-      "description": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
-      "type": "curse",
-      "chance": 80,
-      "value": 50
-    }
-  ]
+    "description": {
+        "cz": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
+        "en": "An ancient, toothless entity that rules the realm of nightmares. Its obsession with collecting teeth knows no bounds, and its rusty pliers can crack even the toughest armor.",
+        "sk": "Prastará, bezzubá entita, ktorá vládne ríši nočných môr. Jej posadnutosť zbieraním zubov nepozná medzí a jej hrdzavé kliešte rozlúsknu aj to najtvrdšie brnenie."
+    },
+    "type": "nature",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 950,
+        "attack": 179,
+        "defense": 110
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Totální extrakce",
+                "en": "Rusty Pliers",
+                "sk": "Hrdzavé kliešte"
+            },
+            "description": {
+                "cz": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
+                "en": "Attacks the enemy with rusty pliers, reducing defense.",
+                "sk": "Zaútočí na nepriateľa hrdzavými kliešťami a zníži mu obranu."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Prokletí bezzubých",
+                "en": "Nightmare Whisper",
+                "sk": "Šepot nočnej mory"
+            },
+            "description": {
+                "cz": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
+                "en": "A whisper that confuses and weakens the enemy.",
+                "sk": "Šepot, ktorý zmätie a oslabí nepriateľa."
+            },
+            "type": "curse",
+            "chance": 80,
+            "value": 50
+        }
+    ]
 }

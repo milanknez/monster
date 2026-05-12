@@ -1,28 +1,52 @@
 {
-  "id": "077",
-  "name": "Flarbat Ohnivák",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "description": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
-  "stats": {
-    "hp": 122,
-    "attack": 40,
-    "defense": 21
-  },
-  "abilities": [
-    {
-      "name": "Spalující žár",
-      "description": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "077",
+    "name": {
+        "cz": "Flarbat Ohnivák",
+        "en": "Ice Spider",
+        "sk": "Ľadový pavúk"
     },
-    {
-      "name": "Žhavý krunýř",
-      "description": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "fire",
+    "rarity": "common",
+    "description": {
+        "cz": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
+        "en": "A spider that lives in frozen caves and traps prey in webs made of ice.",
+        "sk": "Pavúk, ktorý žije v mrazivých jaskyniach a chytá korisť do pavučín z ľadu."
+    },
+    "stats": {
+        "hp": 122,
+        "attack": 40,
+        "defense": 21
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Spalující žár",
+                "en": "Frozen Web",
+                "sk": "Mrazivá pavučina"
+            },
+            "description": {
+                "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
+                "en": "Traps the enemy in a frozen web.",
+                "sk": "Chytí nepriateľa do mrazivej pavučiny."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Žhavý krunýř",
+                "en": "Frost Bite",
+                "sk": "Mrazivý kúsanec"
+            },
+            "description": {
+                "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
+                "en": "A bite that injects freezing venom.",
+                "sk": "Kúsanec, ktorý vstrekne mrazivý jed."
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

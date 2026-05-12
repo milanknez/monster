@@ -1,35 +1,67 @@
 {
-  "id": "057",
-  "name": "Ropuše přítulná",
-  "description": "Zmutovaná obří žába s třemi páry očí a zakrnělými černými křídly na zádech. Její kůže neustále produkuje jedovatý modrý sliz a její mrštný jazyk je vybaven ostrými háčky.",
-  "type": "Vodní",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 208,
-    "attack": 77,
-    "defense": 32
-  },
-  "abilities": [
-    {
-      "name": "Slizká Sprcha",
-      "description": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "057",
+    "name": {
+        "cz": "Ropuše přítulná",
+        "en": "Cuddly Toad",
+        "sk": "Ropuše přítulná"
     },
-    {
-      "name": "Jazykový Výpad",
-      "description": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "description": {
+        "cz": "Zmutovaná obří žába s třemi páry očí a zakrnělými černými křídly na zádech. Její kůže neustále produkuje jedovatý modrý sliz a její mrštný jazyk je vybaven ostrými háčky.",
+        "en": "A toad that looks very friendly and cuddly, but its skin is covered in toxins.",
+        "sk": "Ropucha, ktorá vyzerá veľmi priateľsky a prítulne, ale jej koža je pokrytá toxínmi."
     },
-    {
-      "name": "Plachtění",
-      "description": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 65,
-      "value": 60
-    }
-  ]
+    "type": "water",
+    "rarity": "rare",
+    "stats": {
+        "hp": 208,
+        "attack": 77,
+        "defense": 32
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Slizká Sprcha",
+                "en": "Toxic Hug",
+                "sk": "Toxické objatie"
+            },
+            "description": {
+                "cz": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
+                "en": "Hugs the enemy to deliver toxins.",
+                "sk": "Objíme nepriateľa, aby mu odovzdala toxíny."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Jazykový Výpad",
+                "en": "Sticky Tongue",
+                "sk": "Lepkavý jazyk"
+            },
+            "description": {
+                "cz": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
+                "en": "Lashes out with its long sticky tongue.",
+                "sk": "Zaútočí svojím dlhým lepkavým jazykom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Plachtění",
+                "en": "Translated: Plachtění",
+                "sk": "Plachtení"
+            },
+            "description": {
+                "cz": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)",
+                "en": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Damage reduction 55-65%)",
+                "sk": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Zníženie dmg 55-65%)"
+            },
+            "type": "defense",
+            "chance": 65,
+            "value": 60
+        }
+    ]
 }

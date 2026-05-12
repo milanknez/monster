@@ -1,28 +1,52 @@
 {
-  "id": "025",
-  "name": "Král Pařezoplam",
-  "description": "Ohnivý pařez, který slouží jako živý plamenomet. Dokáže vypálit oblaka ohně na nepřátele, strašidelný a impozantní, ale stále trochu legrační a epický.",
-  "type": "Ohnivá",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 938,
-    "attack": 269,
-    "defense": 136
-  },
-  "abilities": [
-    {
-      "name": "Plamenomet",
-      "description": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "025",
+    "name": {
+        "cz": "Král Pařezoplam",
+        "en": "Ghostly Glow",
+        "sk": "Strašidelná žiara"
     },
-    {
-      "name": "Ohnivý štít",
-      "description": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Ohnivý pařez, který slouží jako živý plamenomet. Dokáže vypálit oblaka ohně na nepřátele, strašidelný a impozantní, ale stále trochu legrační a epický.",
+        "en": "A ghostly light that haunts old ruins.",
+        "sk": "Strašidelné svetlo, ktoré straší v starých ruinách."
+    },
+    "type": "fire",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 938,
+        "attack": 269,
+        "defense": 136
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Plamenomet",
+                "en": "Spectral Ray",
+                "sk": "Prízračný lúč"
+            },
+            "description": {
+                "cz": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
+                "en": "A beam of energy from another world.",
+                "sk": "Lúč energie z iného sveta."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Ohnivý štít",
+                "en": "Fading",
+                "sk": "Miznutie"
+            },
+            "description": {
+                "cz": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli (Snížení dmg 55-65%)",
+                "en": "Becomes hard to hit.",
+                "sk": "Stane sa ťažko zasiahnuteľným."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

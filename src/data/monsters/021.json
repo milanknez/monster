@@ -1,28 +1,52 @@
 {
-  "id": "021",
-  "name": "Kraboshell skála",
-  "description": "Mocná želva s pevnou skořápkou a moudrým výrazem. Pomalejší pohyb, ale těžko ji zraníš. Milá a spolehlivá, dokáže chránit své přátele.",
-  "type": "Vodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 139,
-    "attack": 47,
-    "defense": 18
-  },
-  "abilities": [
-    {
-      "name": "Skořápkový náraz",
-      "description": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
+    "id": "021",
+    "name": {
+        "cz": "Kraboshell skála",
+        "en": "Woodland Spirit",
+        "sk": "Lesný duch"
     },
-    {
-      "name": "Ochranný pancíř",
-      "description": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Mocná želva s pevnou skořápkou a moudrým výrazem. Pomalejší pohyb, ale těžko ji zraníš. Milá a spolehlivá, dokáže chránit své přátele.",
+        "en": "A protective spirit of the woods.",
+        "sk": "Ochranný duch lesov."
+    },
+    "type": "water",
+    "rarity": "common",
+    "stats": {
+        "hp": 139,
+        "attack": 47,
+        "defense": 18
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Skořápkový náraz",
+                "en": "Root Entangle",
+                "sk": "Koreňové zapletenie"
+            },
+            "description": {
+                "cz": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením.",
+                "en": "Slows the enemy with roots.",
+                "sk": "Spomalí nepriateľa koreňmi."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        },
+        {
+            "name": {
+                "cz": "Ochranný pancíř",
+                "en": "Nature's Blessing",
+                "sk": "Požehnanie prírody"
+            },
+            "description": {
+                "cz": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel (Snížení dmg 55-65%)",
+                "en": "Heals wounds.",
+                "sk": "Zahojí rany."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

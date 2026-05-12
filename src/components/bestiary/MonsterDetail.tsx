@@ -6,14 +6,16 @@ import {
   Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import {
   cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack,
-  getMonsterDefense, TYPE_MATCHUP, getTotalXPForLevel, getMonsterPower, TYPE_ICONS
+  getMonsterDefense, TYPE_MATCHUP, getTotalXPForLevel, getMonsterPower, TYPE_ICONS, getLoc,
+  getMonsterColors, getMonsterTypeIcon, getMonsterRarityColor, getRarityTheme, TYPE_MAP, RARITY_MAP
 } from '../../utils';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { monsterDB } from '../../data/monsters';
 import { ResourceIcon } from '../ui/ResourceIcon';
-import type { Monster } from '../../types';
+import type { Monster, Localized } from '../../types';
 
 // --- Sub-components for better organization ---
 
@@ -59,19 +61,20 @@ const StatBar = ({
 };
 
 
-const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number, monsterType: string }) => {
+const AbilityCard = ({ ability, originalAbility, idx, monsterType }: { ability: any, originalAbility?: any, idx: number, monsterType: string | Localized<string> }) => {
+  const { t, i18n } = useTranslation();
   const effectiveType = ability.type || (idx === 0 ? 'attack' : 'extra');
 
   const effect = useMemo(() => {
     switch (effectiveType) {
-      case 'attack': return { label: 'Silný útok', val: `${ability.value || 155}% ATK`, icon: <Sword size={24} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
-      case 'extra': return { label: 'Extra zásah', val: `+${ability.value || 35}% DMG`, icon: <Zap size={24} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
-      case 'defense': return { label: 'Obrana', val: `-${ability.value || 60}% DMG`, icon: <Shield size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
-      case 'heal': return { label: 'Léčení', val: `+${ability.value || 20}% HP`, icon: <Heart size={24} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
-      case 'buff': return { label: 'Bonus', val: `+${ability.value || 20}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
-      case 'curse': return { label: 'Kletba', val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
-      case 'regen': return { label: 'Regenerace', val: `+${ability.value || 10}% HP/Tah`, icon: <RefreshCw size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
-      default: return { label: 'Schopnost', val: 'Speciální', icon: <Info size={24} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
+      case 'attack': return { label: t('monster.abilities_card.attack'), val: `${ability.value || 155}% ATK`, icon: <Sword size={24} />, color: 'text-purple-400', bg: 'bg-purple-500/10', energy: 50 };
+      case 'extra': return { label: t('monster.abilities_card.extra'), val: `+${ability.value || 35}% DMG`, icon: <Zap size={24} />, color: 'text-blue-400', bg: 'bg-blue-500/10', energy: 20 };
+      case 'defense': return { label: t('monster.abilities_card.defense'), val: `-${ability.value || 60}% DMG`, icon: <Shield size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
+      case 'heal': return { label: t('monster.abilities_card.heal'), val: `+${ability.value || 20}% HP`, icon: <Heart size={24} />, color: 'text-red-400', bg: 'bg-red-500/10', energy: 40 };
+      case 'buff': return { label: t('monster.abilities_card.buff'), val: `+${ability.value || 20}% ALL`, icon: <Sparkles size={24} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10', energy: 30 };
+      case 'curse': return { label: t('monster.abilities_card.curse'), val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
+      case 'regen': return { label: t('monster.abilities_card.regen'), val: `+${ability.value || 10}% HP/Tah`, icon: <RefreshCw size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
+      default: return { label: t('monster.abilities_card.special'), val: t('monster.abilities_card.special_val'), icon: <Info size={24} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
     }
   }, [effectiveType, ability.value]);
 
@@ -94,13 +97,17 @@ const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number,
 
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1.5">
-            <h4 className="text-lg font-black uppercase text-white tracking-tight leading-none drop-shadow-md">{ability.name}</h4>
+            <h4 className="text-lg font-black uppercase text-white tracking-tight leading-none drop-shadow-md">
+              {typeof ability.name === 'object' ? getLoc(ability.name, i18n.language) : (getLoc(originalAbility?.name, i18n.language) || ability.name)}
+            </h4>
             <div className="flex items-center gap-1 text-[10px] font-black text-slate-500 uppercase tracking-widest italic opacity-70">
               <Star size={10} className="text-amber-500/50" />
               {ability.chance || 50}%
             </div>
           </div>
-          <p className="text-[12px] leading-relaxed text-slate-400 font-medium mb-3 drop-shadow-sm min-h-[3em]">{ability.description}</p>
+          <p className="text-[12px] leading-relaxed text-slate-400 font-medium mb-3 drop-shadow-sm min-h-[3em]">
+            {typeof ability.description === 'object' ? getLoc(ability.description, i18n.language) : (getLoc(originalAbility?.description, i18n.language) || ability.description)}
+          </p>
 
           <div className="flex items-center justify-between pt-3 border-t border-white/[0.05] mt-auto">
             <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-50", effect.color)}>{effect.label}</span>
@@ -114,12 +121,15 @@ const AbilityCard = ({ ability, idx, monsterType }: { ability: any, idx: number,
   );
 };
 
-const RarityFrame = ({ rarity }: { rarity: string }) => {
-  if (rarity === 'Běžná') return null;
+const RarityFrame = ({ rarity }: { rarity: any }) => {
+  const { i18n } = useTranslation();
+  const rCz = getLoc(rarity, 'cz');
+  const rarityLabel = getLoc(rarity, i18n.language);
+  if (rCz === 'Běžná') return null;
 
-  const isLegendary = rarity === 'Legendární';
-  const isEpic = rarity === 'Epická';
-  const isRare = rarity === 'Vzácná';
+  const isLegendary = rCz === 'Legendární';
+  const isEpic = rCz === 'Epická';
+  const isRare = rCz === 'Vzácná';
 
   const frameColor = isLegendary ? 'border-amber-500' : isEpic ? 'border-purple-500' : 'border-blue-500';
   const shadowColor = isLegendary ? 'shadow-amber-900/60' : isEpic ? 'shadow-purple-900/60' : 'shadow-blue-900/60';
@@ -182,7 +192,7 @@ const RarityFrame = ({ rarity }: { rarity: string }) => {
         >
           {isLegendary && <Star size={12} className="text-amber-400 fill-amber-400 animate-star-twinkle" />}
           <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", iconColor)}>
-            {rarity}
+            {rarityLabel}
           </span>
           {isLegendary && <Star size={12} className="text-amber-400 fill-amber-400 animate-star-twinkle" />}
         </motion.div>
@@ -204,10 +214,12 @@ const RarityFrame = ({ rarity }: { rarity: string }) => {
   );
 };
 
-const LevelBadge = ({ level, rarity }: { level: number, rarity: string }) => {
-  const isLegendary = rarity === 'Legendární';
-  const isEpic = rarity === 'Epická';
-  const isRare = rarity === 'Vzácná';
+const LevelBadge = ({ level, rarity }: { level: number, rarity: any }) => {
+  const { t, i18n } = useTranslation();
+  const rCz = getLoc(rarity, 'cz');
+  const isLegendary = rCz === 'Legendární';
+  const isEpic = rCz === 'Epická';
+  const isRare = rCz === 'Vzácná';
 
   const iconColor = isLegendary ? 'text-amber-400' : isEpic ? 'text-purple-400' : isRare ? 'text-blue-400' : 'text-slate-400';
   const borderColor = isLegendary ? 'border-amber-600' : isEpic ? 'border-purple-600' : isRare ? 'border-blue-600' : 'border-slate-600';
@@ -224,17 +236,19 @@ const LevelBadge = ({ level, rarity }: { level: number, rarity: string }) => {
         borderColor, bgColor
       )}>
         <div className="absolute inset-x-1 inset-y-1 border border-white/5 rounded-lg pointer-events-none" />
-        <span className={cn("text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-0.5 whitespace-nowrap", iconColor)}>LVL</span>
+        <span className={cn("text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-0.5 whitespace-nowrap", iconColor)}>{t('monster.level_short')}</span>
         <p className="text-lg font-black text-white italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none tabular-nums">{level}</p>
       </div>
     </div>
   );
 };
 
-const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: string }) => {
-  const isLegendary = rarity === 'Legendární';
-  const isEpic = rarity === 'Epická';
-  const isRare = rarity === 'Vzácná';
+const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: any }) => {
+  const { t, i18n } = useTranslation();
+  const rCz = getLoc(rarity, 'cz');
+  const isLegendary = rCz === 'Legendární';
+  const isEpic = rCz === 'Epická';
+  const isRare = rCz === 'Vzácná';
 
   const iconColor = isLegendary ? 'text-amber-500' : isEpic ? 'text-purple-500' : isRare ? 'text-blue-500' : 'text-slate-400';
   const borderColor = isLegendary ? 'border-amber-600' : isEpic ? 'border-purple-600' : isRare ? 'border-blue-600' : 'border-slate-600';
@@ -253,7 +267,7 @@ const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: string })
         <div className="absolute inset-x-1 inset-y-1 border border-white/5 rounded-lg pointer-events-none" />
         <div className="flex items-center gap-1 mb-0.5">
           <Target size={10} className={cn("animate-pulse", iconColor)} />
-          <span className={cn("text-[8px] font-black uppercase tracking-[0.2em] leading-none whitespace-nowrap", iconColor)}>Power</span>
+          <span className={cn("text-[8px] font-black uppercase tracking-[0.2em] leading-none whitespace-nowrap", iconColor)}>{t('stats.power')}</span>
         </div>
         <p className="text-lg font-black text-white italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none tabular-nums">{score}</p>
       </div>
@@ -261,12 +275,14 @@ const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: string })
   );
 };
 
-const RarityEffects = ({ rarity }: { rarity: string }) => {
-  if (rarity === 'Běžná') return null;
+const RarityEffects = ({ rarity }: { rarity: any }) => {
+  const { i18n } = useTranslation();
+  const rCz = getLoc(rarity, 'cz');
+  if (rCz === 'Běžná') return null;
 
-  const isLegendary = rarity === 'Legendární';
-  const isEpic = rarity === 'Epická';
-  const isRare = rarity === 'Vzácná';
+  const isLegendary = rCz === 'Legendární';
+  const isEpic = rCz === 'Epická';
+  const isRare = rCz === 'Vzácná';
 
   const particleCount = isLegendary ? 20 : isEpic ? 12 : 6;
   const particles = Array.from({ length: particleCount });
@@ -359,9 +375,11 @@ const RarityEffects = ({ rarity }: { rarity: string }) => {
 };
 
 const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
-  const isLegendary = monster.rarity === 'Legendární';
-  const isEpic = monster.rarity === 'Epická';
-  const isRare = monster.rarity === 'Vzácná';
+  const { i18n } = useTranslation();
+  const rCz = getLoc(monster.rarity, 'cz');
+  const isLegendary = rCz === 'Legendární';
+  const isEpic = rCz === 'Epická';
+  const isRare = rCz === 'Vzácná';
   const monsterImage = monster.image || `/monsters/${monster.id}.png`;
 
   const glowColor = isLegendary ? 'rgba(251, 191, 36, 0.5)' : isEpic ? 'rgba(168, 85, 247, 0.5)' : isRare ? 'rgba(59, 130, 246, 0.5)' : 'transparent';
@@ -494,12 +512,6 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
 
 // --- Constant Definitions ---
 
-const RARITY_COLORS: Record<string, { text: string, decoration: string, glow: string }> = {
-  'Běžná': { text: 'text-slate-400', decoration: 'border-slate-400/20', glow: 'shadow-slate-500/10' },
-  'Vzácná': { text: 'text-blue-400', decoration: 'border-blue-400/30', glow: 'shadow-blue-500/20' },
-  'Epická': { text: 'text-purple-400', decoration: 'border-purple-400/40', glow: 'shadow-purple-500/30' },
-  'Legendární': { text: 'text-amber-400', decoration: 'border-amber-400/50', glow: 'shadow-amber-500/40' }
-};
 
 // --- Main Component ---
 
@@ -516,6 +528,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   canRelease?: boolean;
 }>(
   ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRelease, canRelease = true }, ref) => {
+    const { t, i18n } = useTranslation();
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [focusedItem, setFocusedItem] = useState<any>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
@@ -525,8 +538,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
     if (!monster) return null;
 
-    const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default'];
-    const rarityInfo = RARITY_COLORS[monster.rarity] || RARITY_COLORS['Běžná'];
+    const colors = getMonsterColors(monster.type);
+    const theme = getRarityTheme(monster.rarity);
+    const rarityColor = getMonsterRarityColor(monster.rarity);
 
     const monsterImage = monster.image || `/monsters/${monster.id}.png`;
 
@@ -549,7 +563,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     const powerLevel = useMemo(() => getMonsterPower(monster), [monster]);
 
     const TypeIcon = ({ size = 20, className = "" }) => {
-      const Icon = TYPE_ICONS[monster.type] || Bolt;
+      const Icon = getMonsterTypeIcon(monster.type) || Bolt;
       const iconColor = colors.text;
       return <Icon size={size} className={cn(iconColor, className)} />;
     };
@@ -590,16 +604,18 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-black text-white uppercase tracking-tighter truncate leading-none drop-shadow-lg mb-1">
-                {monster.name}
+                {typeof monster.name === 'object' ? getLoc(monster.name, i18n.language) : (getLoc(originalMonster?.name, i18n.language) || monster.name)}
               </h1>
               <div className="flex items-center gap-2">
-                <span className={cn("text-[10px] font-black uppercase tracking-widest leading-none", rarityInfo.text)}>
-                  {monster.rarity}
+                <span className={cn("text-[10px] font-black uppercase tracking-widest leading-none", rarityColor)}>
+                  {t(`rarities.${RARITY_MAP[typeof monster.rarity === 'string' ? monster.rarity : monster.rarity?.cz]}`)}
                 </span>
                 <div className="size-1 rounded-full bg-white/10" />
                 <div className="flex items-center gap-1">
                   <TypeIcon size={12} />
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{monster.type}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                    {t(`monster_types.${TYPE_MAP[typeof monster.type === 'string' ? monster.type : monster.type?.cz]}`)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -622,7 +638,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               return (
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] opacity-80">XP na další úroveň</span>
+                    <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{t('stats.xp_next')}</span>
                     <span className="text-[9px] font-black text-white/40 tabular-nums">
                       {Math.round(currentXPInLevel)}<span className="mx-1">/</span>{Math.round(neededXPInLevel)} XP
                     </span>
@@ -646,9 +662,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             {/* Visual Backdrops */}
             <div className={cn(
               "absolute inset-0 rounded-3xl blur-3xl opacity-20 transition-opacity group-hover:opacity-30",
-              monster.type === 'Ohnivá' ? "bg-red-500" :
-                monster.type === 'Vodní' ? "bg-blue-500" :
-                  monster.type === 'Přírodní' ? "bg-emerald-500" :
+              getLoc(monster.type, 'cz') === 'Ohnivá' ? "bg-red-500" :
+                getLoc(monster.type, 'cz') === 'Vodní' ? "bg-blue-500" :
+                  getLoc(monster.type, 'cz') === 'Přírodní' ? "bg-emerald-500" :
                     "bg-amber-500"
             )} />
 
@@ -695,7 +711,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   <div className="bg-white/[0.07] border border-white/10 rounded-3xl p-5 shadow-2xl backdrop-blur-md transition-all relative overflow-hidden group hover:bg-white/[0.1] hover:border-white/20">
                     <div className="flex flex-col gap-5">
                       <StatBar
-                        label="Zdraví"
+                        label={t('stats.hp')}
                         value={currentHP}
                         maxValue={maxHP}
                         colorClass="text-red-500"
@@ -703,12 +719,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         subValue={
                           <div className="flex flex-col gap-1.5 mt-1">
                             <div className="text-[8px] font-black text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded-full border border-emerald-500/10 w-fit">
-                              Bonus {maxHP - (originalStats.hp)}
+                              {t('monster.bonus')} {maxHP - (originalStats.hp)}
                             </div>
                             {isDamaged && (
                               <div className="flex items-center gap-2 text-[8px] font-black uppercase text-slate-500/60 pl-1">
                                 <RefreshCw size={8} className="animate-spin text-primary/40" />
-                                <span>Obnova za {(() => {
+                                <span>{t('monster.regeneration')} {(() => {
                                   const diff = maxHP - currentHP;
                                   const healPerMin = maxHP * 0.1;
                                   const mins = diff / healPerMin;
@@ -729,7 +745,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           className="w-full bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 py-3 rounded-2xl flex items-center justify-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
                         >
                           <FlaskConical size={14} />
-                          Použít léčivý lektvar
+                          {t('monster.use_potion')}
                           <ChevronRight size={14} className="opacity-50" />
                         </motion.button>
                       )}
@@ -742,20 +758,20 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             <div className="bg-white/[0.07] border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 backdrop-blur-md shadow-2xl transition-all relative overflow-hidden group hover:bg-white/[0.1] hover:border-white/20">
               <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <Sword size={18} className="text-blue-500 opacity-60 mb-1" />
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Útok</span>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('stats.attack')}</span>
               <p className="text-xl font-black text-white italic tabular-nums leading-none">{getMonsterAttack(monster)}</p>
               <div className="text-[8px] font-black text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded-full border border-emerald-500/10">
-                Bonus {getMonsterAttack(monster) - (originalStats.attack)}
+                {t('monster.bonus')} {getMonsterAttack(monster) - (originalStats.attack)}
               </div>
             </div>
 
             <div className="bg-white/[0.07] border border-white/10 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 backdrop-blur-md shadow-2xl transition-all relative overflow-hidden group hover:bg-white/[0.1] hover:border-white/20">
               <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <Shield size={18} className="text-yellow-500 opacity-60 mb-1" />
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Obrana</span>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('stats.defense')}</span>
               <p className="text-xl font-black text-white italic tabular-nums leading-none">{getMonsterDefense(monster)}</p>
               <div className="text-[8px] font-black text-yellow-500/80 bg-yellow-500/5 px-2 py-0.5 rounded-full border border-yellow-500/10">
-                Bonus {getMonsterDefense(monster) - (originalStats.defense)}
+                {t('monster.bonus')} {getMonsterDefense(monster) - (originalStats.defense)}
               </div>
             </div>
           </div>
@@ -764,20 +780,26 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
           <div className="space-y-4">
             <div className="flex items-center gap-3 px-1">
               <Zap size={14} className="text-primary" />
-              <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] opacity-80">Speciální Schopnosti</h3>
+              <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] opacity-80">{t('monster.abilities')}</h3>
               <div className="flex-1 h-px bg-white/5" />
             </div>
 
             <div className="space-y-4">
               {monster.abilities && monster.abilities.length > 0 ? (
                 monster.abilities.map((ability, idx) => (
-                  <AbilityCard key={idx} ability={ability} idx={idx} monsterType={monster.type} />
+                  <AbilityCard 
+                    key={idx} 
+                    ability={ability} 
+                    originalAbility={originalMonster?.abilities?.[idx]}
+                    idx={idx} 
+                    monsterType={monster.type} 
+                  />
                 ))
               ) : (
                 <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01]">
                   <Info size={24} className="mx-auto text-slate-700 mb-3" />
                   <p className="text-xs italic text-slate-600 font-bold uppercase tracking-widest px-8">
-                    Tato příšerka zatím neobjevila svůj pravý potenciál
+                    {t('monster.empty_potential')}
                   </p>
                 </div>
               )}
@@ -792,16 +814,16 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
             <div className="flex items-center gap-3 mb-4">
               <LayoutGrid size={14} className="text-slate-500" />
-              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Příběh a Biologie</h3>
+              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('monster.story')}</h3>
             </div>
 
             <p className="text-sm text-slate-300 italic leading-relaxed font-medium tracking-tight mb-8 relative z-10">
-              "{monster.description || "Zatím nepopsaný druh z hlubin digitálního ekosystému. Jeho návyky a původ jsou předmětem dalšího zkoumání."}"
+              "{typeof monster.description === 'object' ? getLoc(monster.description, i18n.language) : (getLoc(originalMonster?.description, i18n.language) || monster.description || t('monster.unknown_species'))}"
             </p>
 
             <div className="grid grid-cols-2 gap-3 mt-6">
               {(() => {
-                const match = TYPE_MATCHUP[monster.type];
+                const match = TYPE_MATCHUP[getLoc(monster.type, 'cz')];
                 if (!match) return null;
 
                 const strongAgainstColors = TYPE_COLORS[match.strong] || TYPE_COLORS['Default'];
@@ -810,32 +832,32 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 return (
                   <>
                     <div className="flex flex-col gap-2">
-                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Průraznost</span>
+                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">{t('monster.piercing')}</span>
                       <div className={cn("flex flex-col gap-1 border p-3 rounded-2xl", strongAgainstColors.bg, strongAgainstColors.border)}>
                         <div className="flex items-center gap-2.5">
                           <div className={cn("size-6 rounded-lg flex items-center justify-center", strongAgainstColors.bg)}>
                             <Sword size={12} className={strongAgainstColors.text} />
                           </div>
-                          <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{match.strong}</span>
+                          <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{t(`monster_types.${TYPE_MAP[match.strong]}`)}</span>
                         </div>
                         <div className="flex flex-col mt-1">
-                          <p className="text-[8px] font-black text-white leading-none">1.3x ZRANĚNÍ</p>
-                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">30% Šance na průraz</p>
+                          <p className="text-[8px] font-black text-white leading-none">1.3{t('monster.damage_multiplier')}</p>
+                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">{t('monster.pierce_chance')}</p>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">Zranitelnost</span>
+                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-1">{t('monster.vulnerability')}</span>
                       <div className={cn("flex flex-col gap-1 border p-3 rounded-2xl", weakAgainstColors.bg, weakAgainstColors.border)}>
                         <div className="flex items-center gap-2.5">
                           <div className={cn("size-6 rounded-lg flex items-center justify-center", weakAgainstColors.bg)}>
                             <Shield size={12} className={weakAgainstColors.text} />
                           </div>
-                          <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{match.weak}</span>
+                          <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{t(`monster_types.${TYPE_MAP[match.weak]}`)}</span>
                         </div>
                         <div className="flex flex-col mt-1">
-                          <p className="text-[8px] font-black text-white leading-none">0.7x ZRANĚNÍ</p>
-                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">Snížená efektivita</p>
+                          <p className="text-[8px] font-black text-white leading-none">0.7{t('monster.damage_multiplier')}</p>
+                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">{t('monster.reduced_efficiency')}</p>
                         </div>
                       </div>
                     </div>
@@ -847,7 +869,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 opacity-50">
               <Info size={10} className="text-slate-500" />
               <p className="text-[8px] font-bold text-slate-500 uppercase tracking-tight">
-                Třída: {monster.type} | Efekt: {TYPE_MATCHUP[monster.type]?.effect || "NONE"}
+                {t('monster.class')}: {t(`monster_types.${TYPE_MAP[typeof monster.type === 'string' ? monster.type : monster.type?.cz]}`)} | {t('monster.effect')}: {TYPE_MATCHUP[typeof monster.type === 'string' ? monster.type : monster.type?.cz]?.effect || "NONE"}
               </p>
             </div>
           </div>
@@ -859,7 +881,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
                   <Sparkles size={16} className="text-amber-500" />
                 </div>
-                <h3 className="text-xs font-black text-white uppercase tracking-widest">Drahokamy a Relikvie</h3>
+                <h3 className="text-xs font-black text-white uppercase tracking-widest">{t('monster.detail.gems_relics')}</h3>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -872,7 +894,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-xl text-primary text-[10px] font-black uppercase tracking-widest transition-all"
               >
                 <Dna size={12} />
-                Mutovat
+                {t('monster.detail.mutate')}
               </motion.button>
             </div>
 
@@ -896,12 +918,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       }}
                       className={cn(
                         "relative size-24 rounded-[2rem] border-2 flex items-center justify-center transition-all cursor-pointer group shadow-xl",
-                        currentGem ? (
-                          gemConfig?.rarity === 'Legendární' ? "border-amber-500/50 bg-amber-500/10 shadow-amber-500/20" :
-                            gemConfig?.rarity === 'Epická' ? "border-purple-500/50 bg-purple-500/10 shadow-purple-500/20" :
-                              gemConfig?.rarity === 'Vzácná' ? "border-blue-500/50 bg-blue-500/10 shadow-blue-500/20" :
-                                "bg-slate-800 border-white/20"
-                        ) : "bg-black/40 border-dashed border-white/10 hover:border-white/30 hover:bg-black/60",
+                        currentGem ? (() => {
+                          const rCz = getLoc(gemConfig?.rarity, 'cz');
+                          return (rCz === 'Legendární' ? "border-amber-500/50 bg-amber-500/10 shadow-amber-500/20" :
+                            rCz === 'Epická' ? "border-purple-500/50 bg-purple-500/10 shadow-purple-500/20" :
+                              rCz === 'Vzácná' ? "border-blue-500/50 bg-blue-500/10 shadow-blue-500/20" :
+                                "bg-slate-800 border-white/20");
+                        })() : "bg-black/40 border-dashed border-white/10 hover:border-white/30 hover:bg-black/60",
                         isPicking && "ring-4 ring-primary/40 border-primary/60 scale-105 z-20"
                       )}
                     >
@@ -923,13 +946,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     <div className="text-center min-h-[2.5rem]">
                       {currentGem ? (
                         <>
-                          <p className="text-[8px] font-black text-slate-200 uppercase truncate max-w-[70px] mb-0.5">{gemConfig?.label}</p>
+                          <p className="text-[8px] font-black text-slate-200 uppercase truncate max-w-[70px] mb-0.5">{getLoc(gemConfig?.label)}</p>
                           <p className="text-[9px] font-black text-emerald-400 italic">
-                            {stats?.atk ? `+${stats.atk}${sym} ATK` : stats?.hp ? `+${stats.hp}${sym} HP` : stats?.def ? `+${stats.def}${sym} DEF` : 'BONUS'}
+                            {stats?.atk ? `+${stats.atk}${sym} ${t('stats.atk_short')}` : stats?.hp ? `+${stats.hp}${sym} ${t('stats.hp_short')}` : stats?.def ? `+${stats.def}${sym} ${t('stats.def_short')}` : t('monster.detail.bonus')}
                           </p>
                         </>
                       ) : (
-                        <p className="text-[8px] font-black text-slate-700 uppercase italic tracking-widest mt-1">Slot {idx + 1}</p>
+                        <p className="text-[8px] font-black text-slate-700 uppercase italic tracking-widest mt-1">{t('monster.detail.slot')} {idx + 1}</p>
                       )}
                     </div>
                   </div>
@@ -947,7 +970,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   className="overflow-hidden border-t border-white/10 mt-6 pt-6"
                 >
                   <div className="flex items-center justify-between mb-5">
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Vybavit Slot {activeSlotIdx + 1}</p>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">{t('monster.detail.equip_slot')} {activeSlotIdx + 1}</p>
                     <button onClick={() => { setActiveSlotIdx(null); setFocusedItem(null); }} className="size-8 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-500"><X size={18} /></button>
                   </div>
 
@@ -973,9 +996,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           }}
                           className={cn(
                             "aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all shadow-xl",
-                            cfg.rarity === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
-                              cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
-                                cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
+                            getLoc(cfg.rarity, 'cz') === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
+                              getLoc(cfg.rarity, 'cz') === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
+                                getLoc(cfg.rarity, 'cz') === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
                                   "border-white/5 bg-white/5",
                             isSelected && "ring-4 ring-primary/30 border-primary bg-primary/10 scale-105 z-10"
                           )}
@@ -1007,21 +1030,21 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-base font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
+                                <h4 className="text-base font-black text-white uppercase tracking-tight truncate">{getLoc(cfg.label)}</h4>
                                 <span className={cn("text-[9px] font-black uppercase px-2 py-0.5 rounded-full border",
-                                  cfg.rarity === 'Legendární' ? "text-amber-500 border-amber-500/30 bg-amber-500/10" :
-                                    cfg.rarity === 'Epická' ? "text-purple-500 border-purple-500/30 bg-purple-500/10" :
+                                  getLoc(cfg.rarity, 'cz') === 'Legendární' ? "text-amber-500 border-amber-500/30 bg-amber-500/10" :
+                                    getLoc(cfg.rarity, 'cz') === 'Epická' ? "text-purple-500 border-purple-500/30 bg-purple-500/10" :
                                       "text-slate-400 border-slate-500/30 bg-slate-500/10"
-                                )}>{cfg.rarity}</span>
+                                )}>{getLoc(cfg.rarity)}</span>
                               </div>
                               <div className="flex flex-wrap gap-2 mt-2">
-                                {cfg.stats?.atk && <span className="text-[10px] font-black text-red-400 bg-red-400/5 px-2 py-0.5 border border-red-400/20 rounded-lg">+{cfg.stats?.atk}{sym} ATK</span>}
-                                {cfg.stats?.hp && <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/5 px-2 py-0.5 border border-emerald-400/20 rounded-lg">+{cfg.stats?.hp}{sym} HP</span>}
-                                {cfg.stats?.def && <span className="text-[10px] font-black text-blue-400 bg-blue-400/5 px-2 py-0.5 border border-blue-400/20 rounded-lg">+{cfg.stats?.def}{sym} DEF</span>}
+                                {cfg.stats?.atk && <span className="text-[10px] font-black text-red-400 bg-red-400/5 px-2 py-0.5 border border-red-400/20 rounded-lg">+{cfg.stats?.atk}{sym} {t('stats.atk_short')}</span>}
+                                {cfg.stats?.hp && <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/5 px-2 py-0.5 border border-emerald-400/20 rounded-lg">+{cfg.stats?.hp}{sym} {t('stats.hp_short')}</span>}
+                                {cfg.stats?.def && <span className="text-[10px] font-black text-blue-400 bg-blue-400/5 px-2 py-0.5 border border-blue-400/20 rounded-lg">+{cfg.stats?.def}{sym} {t('stats.def_short')}</span>}
                               </div>
                             </div>
                           </div>
-                          <p className="text-[11px] text-slate-400 font-medium leading-relaxed italic">{cfg.description}</p>
+                          <p className="text-[11px] text-slate-400 font-medium leading-relaxed italic">{getLoc(cfg.description)}</p>
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -1029,13 +1052,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                             className="w-full py-4 bg-primary text-background-dark font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2"
                           >
                             <Plus size={18} strokeWidth={3} />
-                            Nasadit do slotu
+                            {t('monster.detail.equip_btn')}
                           </motion.button>
                         </motion.div>
                       );
                     })() : (
                       <div className="py-8 text-center border-2 border-dashed border-white/5 bg-white/[0.01] rounded-[2rem] opacity-40">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic tracking-tighter">Vyberte předmět z mřížky pro zobrazení detailů</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic tracking-tighter">{t('monster.detail.pick_item_desc')}</p>
                       </div>
                     )}
                   </AnimatePresence>
@@ -1062,10 +1085,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               <Trash2 size={24} className={cn("transition-transform group-hover:scale-110", canRelease ? "text-red-500" : "text-slate-500")} />
               <div className="text-left">
                 <p className={cn("text-base font-black uppercase tracking-widest leading-none mb-1", canRelease ? "text-red-500" : "text-slate-500")}>
-                  {canRelease ? "Propustit na svobodu" : "Poslední Monstrum"}
+                  {canRelease ? t('monster.release.action') : t('monster.release.last_monster')}
                 </p>
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
-                  {canRelease ? "Získáš prostor pro další unikáty" : "Nemůžeš propustit svou jedinou příšeru"}
+                  {canRelease ? t('monster.release.action_desc') : t('monster.release.last_monster_desc')}
                 </p>
               </div>
             </div>
@@ -1082,37 +1105,41 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   <div className="flex items-center gap-4">
                     <div className="p-3.5 bg-emerald-500/20 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10"><Package size={28} /></div>
                     <div>
-                      <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">Polní Lékárna</h2>
-                      <p className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest">Dostupné lektvary</p>
+                      <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">{t('monster.healing.title')}</h2>
+                      <p className="text-[10px] font-black text-emerald-500/60 uppercase tracking-widest">{t('monster.healing.available_potions')}</p>
                     </div>
                   </div>
                   <button onClick={() => setShowHealingModal(false)} className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400 transition-colors shadow-inner"><X size={24} /></button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 max-h-[45vh] overflow-y-auto pr-2 custom-scrollbar">
-                  {inventory?.filter(i => i?.type === 'hp_potion' && i?.count > 0).map(item => (
-                    <motion.button key={item?.type} whileTap={{ scale: 0.97 }} onClick={() => { item?.type && onUsePotion?.(item.type); setShowHealingModal(false); }} className="group relative flex items-center gap-5 p-6 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-2xl hover:border-emerald-500/30 transition-all text-left overflow-hidden">
-                      <div className="absolute inset-x-0 bottom-0 h-1 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="size-20 flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex items-center justify-center shadow-2xl transform group-hover:scale-105 group-hover:rotate-3 transition-transform">
-                        <Plus size={36} className="text-white" strokeWidth={3} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xl font-black text-white uppercase tracking-tight">Lektvar HP</p>
-                          <p className="bg-emerald-500 text-slate-900 text-xs font-black px-3 py-1 rounded-full shadow-lg">{item?.count}x</p>
+                  {inventory?.filter(i => (i?.type === 'hp_potion' || i?.type === 'hp_potion_large') && i?.count > 0).map(item => {
+                    const cfg = RESOURCE_CONFIG[item?.type || ''];
+                    if (!cfg) return null;
+                    return (
+                      <motion.button key={item?.type} whileTap={{ scale: 0.97 }} onClick={() => { item?.type && onUsePotion?.(item.type); setShowHealingModal(false); }} className="group relative flex items-center gap-5 p-6 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-2xl hover:border-emerald-500/30 transition-all text-left overflow-hidden">
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="size-20 flex-shrink-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex items-center justify-center shadow-2xl transform group-hover:scale-105 group-hover:rotate-3 transition-transform">
+                          <ResourceIcon id={item?.type || ''} config={cfg} size="lg" className="invert brightness-200" />
                         </div>
-                        <p className="text-sm font-bold text-slate-400 italic leading-snug">Stabilizuje digitální integritu a okamžitě vyléčí 50 bodů zdraví.</p>
-                      </div>
-                    </motion.button>
-                  ))}
-                  {(!inventory || inventory.filter(i => i?.type === 'hp_potion' && i?.count > 0).length === 0) && (
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-lg font-black text-white uppercase tracking-tight leading-tight">{getLoc(cfg.label, i18n.language)}</p>
+                            <p className="bg-emerald-500 text-slate-900 text-[10px] font-black px-3 py-1 rounded-full shadow-lg">{item?.count}x</p>
+                          </div>
+                          <p className="text-xs font-bold text-slate-400 italic leading-snug line-clamp-2">{getLoc(cfg.description, i18n.language)}</p>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                  {(!inventory || inventory.filter(i => (i?.type === 'hp_potion' || i?.type === 'hp_potion_large') && i?.count > 0).length === 0) && (
                     <div className="py-20 text-center">
                       <div className="size-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-inner"><FlaskConical size={40} className="text-slate-700" /></div>
-                      <p className="text-sm font-black text-slate-600 uppercase tracking-widest italic max-w-[200px] mx-auto">V tvém inventáři se nenachází žádné léčivo</p>
+                      <p className="text-sm font-black text-slate-600 uppercase tracking-widest italic max-w-[200px] mx-auto">{t('monster.healing.no_potions')}</p>
                     </div>
                   )}
                 </div>
-                <button onClick={() => setShowHealingModal(false)} className="w-full mt-10 py-5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-[2rem] transition-all active:scale-95 shadow-xl">Možná později</button>
+                <button onClick={() => setShowHealingModal(false)} className="w-full mt-10 py-5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-[2rem] transition-all active:scale-95 shadow-xl">{t('monster.healing.later_btn')}</button>
               </motion.div>
             </div>
           )}
@@ -1124,11 +1151,11 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmRelease(false)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
               <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="w-full max-w-sm bg-slate-900/90 backdrop-blur-xl border-2 border-red-500/20 rounded-[2rem] p-10 text-center shadow-[0_0_120px_rgba(239,68,68,0.25)] relative z-10">
                 <div className="size-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-inner"><Trash2 size={48} className="text-red-500" /></div>
-                <h2 className="text-3xl font-black text-white uppercase italic mb-3 tracking-tighter">Propustit?</h2>
-                <p className="text-slate-400 text-sm font-bold mb-10 leading-relaxed px-4">Tato akce je nevratná. Opravdu se chceš rozloučit s <span className="text-white font-black underline decoration-red-500/50">{monster.name}</span>?</p>
+                <h2 className="text-3xl font-black text-white uppercase italic mb-3 tracking-tighter">{t('monster.release.confirm_title')}</h2>
+                <p className="text-slate-400 text-sm font-bold mb-10 leading-relaxed px-4">{t('monster.release.confirm_desc')} <span className="text-white font-black underline decoration-red-500/50">{getLoc(monster.name || originalMonster?.name, i18n.language)}</span>?</p>
                 <div className="flex flex-col gap-4">
-                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => onRelease?.()} className="w-full py-5 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-red-600/20 transition-all font-black">Potvrdit propuštění</motion.button>
-                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => setConfirmRelease(false)} className="w-full py-5 bg-[#252a33] hover:bg-[#2d333d] text-slate-100 font-black uppercase tracking-widest rounded-[2rem] transition-all">Ponechat si příšeru</motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => onRelease?.()} className="w-full py-5 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-2xl shadow-red-600/20 transition-all font-black">{t('monster.release.confirm_btn')}</motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => setConfirmRelease(false)} className="w-full py-5 bg-[#252a33] hover:bg-[#2d333d] text-slate-100 font-black uppercase tracking-widest rounded-[2rem] transition-all">{t('monster.release.cancel_btn')}</motion.button>
                 </div>
               </motion.div>
             </div>
@@ -1159,14 +1186,14 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     <div className="size-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 border border-amber-500/20 shadow-lg shadow-amber-500/10">
                       {activeSlotIdx !== null ? <Gem size={32} /> : <Dna size={32} />}
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">
-                        {activeSlotIdx !== null ? `Slot ${activeSlotIdx + 1}` : 'Genom Lab'}
-                      </h2>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">
-                        {activeSlotIdx !== null ? 'Osazení drahokamu' : 'Trvalá genetická modifikace'}
-                      </p>
-                    </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">
+                          {activeSlotIdx !== null ? `${t('monster.detail.slot')} ${activeSlotIdx + 1}` : getLoc(monster.name || originalMonster?.name, i18n.language)}
+                        </h2>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">
+                          {activeSlotIdx !== null ? t('monster.detail.gem_insertion') : t('monster.genom.mod')}
+                        </p>
+                      </div>
                   </div>
                   <button
                     onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }}
@@ -1178,7 +1205,14 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
                 {/* Grid of Items */}
                 <div className="grid grid-cols-4 gap-3 mb-6 overflow-y-auto pr-2 custom-scrollbar shrink-0 max-h-[250px]">
-                  {inventory?.filter(i => (i?.type.startsWith('gem_') || i?.type.startsWith('loot_') || i?.type.startsWith('item_')) && i?.count > 0).map(i => {
+                  {inventory?.filter(i => {
+                    if (!i || i.count <= 0) return false;
+                    const isGem = i.type.startsWith('gem_');
+                    const isMutation = i.type.startsWith('loot_') || i.type.startsWith('item_') || i.type.startsWith('xp_');
+                    
+                    if (activeSlotIdx !== null) return isGem;
+                    return isMutation;
+                  }).map(i => {
                     const cfg = RESOURCE_CONFIG[i.type];
                     const isSelected = focusedItem?.type === i.type;
                     return (
@@ -1188,9 +1222,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                         onClick={() => setFocusedItem(i)}
                         className={cn(
                           "aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all shadow-xl",
-                          cfg.rarity === 'Legendární' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
-                            cfg.rarity === 'Epická' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
-                              cfg.rarity === 'Vzácná' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
+                          cfg.rarity === 'legendary' ? "border-amber-500/20 bg-amber-500/5 shadow-amber-500/5" :
+                            cfg.rarity === 'epic' ? "border-purple-500/20 bg-purple-500/5 shadow-purple-500/5" :
+                              cfg.rarity === 'rare' ? "border-blue-500/20 bg-blue-500/5 shadow-blue-500/5" :
                                 "border-white/5 bg-white/5",
                           isSelected && "ring-4 ring-amber-500/30 border-amber-500 bg-amber-500/10 scale-105 z-10"
                         )}
@@ -1224,28 +1258,33 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-2">
-                                <h4 className="text-2xl font-black text-white uppercase tracking-tight truncate">{cfg.label}</h4>
+                                <h4 className="text-2xl font-black text-white uppercase tracking-tight truncate">{getLoc(cfg.label, i18n.language)}</h4>
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {(cfg.stats?.atk || 0) !== 0 && (
                                   <span className="text-[10px] font-black text-red-400 bg-red-400/5 px-2 py-0.5 border border-red-400/20 rounded-lg">
-                                    {(cfg.stats?.atk || 0) > 0 ? '+' : ''}{cfg.stats?.atk}{sym} ATK
+                                    {(cfg.stats?.atk || 0) > 0 ? '+' : ''}{cfg.stats?.atk}{sym} {t('stats.atk_short')}
                                   </span>
                                 )}
                                 {(cfg.stats?.hp || 0) !== 0 && (
                                   <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/5 px-2 py-0.5 border border-emerald-400/20 rounded-lg">
-                                    {(cfg.stats?.hp || 0) > 0 ? '+' : ''}{cfg.stats?.hp}{sym} HP
+                                    {(cfg.stats?.hp || 0) > 0 ? '+' : ''}{cfg.stats?.hp}{sym} {t('stats.hp_short')}
                                   </span>
                                 )}
                                 {(cfg.stats?.def || 0) !== 0 && (
                                   <span className="text-[10px] font-black text-blue-400 bg-blue-400/5 px-2 py-0.5 border border-blue-400/20 rounded-lg">
-                                    {(cfg.stats?.def || 0) > 0 ? '+' : ''}{cfg.stats?.def}{sym} DEF
+                                    {(cfg.stats?.def || 0) > 0 ? '+' : ''}{cfg.stats?.def}{sym} {t('stats.def_short')}
+                                  </span>
+                                )}
+                                {(cfg.stats?.xp || 0) !== 0 && (
+                                  <span className="text-[10px] font-black text-amber-400 bg-amber-400/5 px-2 py-0.5 border border-amber-400/20 rounded-lg">
+                                    {(cfg.stats?.xp || 0) > 0 ? '+' : ''}{cfg.stats?.xp} XP
                                   </span>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <p className="text-sm text-slate-400 font-medium leading-relaxed italic tracking-tight">{cfg.description}</p>
+                          <p className="text-sm text-slate-400 font-medium leading-relaxed italic tracking-tight">{getLoc(cfg.description, i18n.language)}</p>
 
                           <div className="flex flex-col gap-3 pt-2">
                             {(cfg.category === 'relic' || focusedItem.type.startsWith('loot_')) && (
@@ -1264,7 +1303,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                 className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-black rounded-2xl uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-orange-900/40 flex items-center justify-center gap-2 border-b-4 border-black/20"
                               >
                                 <Sparkles size={18} />
-                                Trvale vylepšit DNA
+                                {t('monster.detail.permanently_upgrade_dna')}
                               </motion.button>
                             )}
 
@@ -1285,7 +1324,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                 className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-[0.1em] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 border border-white/10 text-[11px]"
                               >
                                 <Package size={18} />
-                                Nasadit do slotu {activeSlotIdx + 1}
+                                {t('monster.detail.equip_btn')} {t('monster.detail.slot')} {activeSlotIdx + 1}
                               </motion.button>
                             )}
                           </div>
@@ -1293,7 +1332,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       );
                     })() : (
                       <div className="py-12 text-center border-2 border-dashed border-white/5 bg-white/[0.01] rounded-[2rem] opacity-40">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-12">Vyberte předmět z mřížky pro zobrazení detailů</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-12">{t('monster.detail.pick_item_desc')}</p>
                       </div>
                     )}
                   </AnimatePresence>
@@ -1329,10 +1368,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                     </div>
                     <div>
                       <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">
-                        Genom Příšery
+                        {t('monster.genom.title')}
                       </h2>
                       <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em] italic">
-                        Historie adaptací a mutací
+                        {t('monster.genom.subtitle')}
                       </p>
                     </div>
                   </div>
@@ -1349,7 +1388,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   {!monster.mutations || monster.mutations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 opacity-20 italic">
                       <Activity size={48} className="mb-4" />
-                      <p className="text-sm font-black uppercase tracking-widest text-slate-400">Žádné mutace nenalezeny</p>
+                      <p className="text-sm font-black uppercase tracking-widest text-slate-400">{t('monster.genom.no_mutations')}</p>
                     </div>
                   ) : (
                     <div className="relative pl-8 space-y-6 mt-4">
@@ -1378,7 +1417,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                             <div className="flex-1 bg-white/[0.03] border border-white/10 rounded-2xl p-4 ml-8 backdrop-blur-md shadow-xl transition-all hover:bg-white/[0.06] hover:border-white/20">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
-                                  <h4 className="text-sm font-black text-white uppercase tracking-tight">{cfg?.label || mut.id}</h4>
+                                  <h4 className="text-sm font-black text-white uppercase tracking-tight">{getLoc(cfg?.label, i18n.language) || mut.id}</h4>
                                   <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">
                                     {new Date(mut.timestamp).toLocaleDateString()} • {new Date(mut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </p>
@@ -1389,9 +1428,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                               </div>
 
                               <div className="flex flex-wrap gap-2">
-                                {(cfg?.stats?.atk || 0) > 0 && <span className="text-[8px] font-black text-red-400 bg-red-400/10 px-2 py-1 rounded-lg border border-red-400/20">+{cfg.stats?.atk} ATK</span>}
-                                {(cfg?.stats?.hp || 0) > 0 && <span className="text-[8px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg border border-emerald-400/20">+{cfg.stats?.hp} HP</span>}
-                                {(cfg?.stats?.def || 0) > 0 && <span className="text-[8px] font-black text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg border border-blue-400/20">+{cfg.stats?.def} DEF</span>}
+                                {(cfg?.stats?.atk || 0) > 0 && <span className="text-[8px] font-black text-red-400 bg-red-400/10 px-2 py-1 rounded-lg border border-red-400/20">+{cfg.stats?.atk} {t('stats.atk_short')}</span>}
+                                {(cfg?.stats?.hp || 0) > 0 && <span className="text-[8px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg border border-emerald-400/20">+{cfg.stats?.hp} {t('stats.hp_short')}</span>}
+                                {(cfg?.stats?.def || 0) > 0 && <span className="text-[8px] font-black text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg border border-blue-400/20">+{cfg.stats?.def} {t('stats.def_short')}</span>}
                               </div>
                             </div>
                           </motion.div>
@@ -1405,10 +1444,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20">
-                      <p className="text-[9px] font-black text-primary uppercase tracking-widest">Celkem mutací: {monster.mutations?.length || 0}</p>
+                      <p className="text-[9px] font-black text-primary uppercase tracking-widest">{t('monster.genom.total_mutations')} {monster.mutations?.length || 0}</p>
                     </div>
                   </div>
-                  <p className="text-[9px] font-black text-slate-500 uppercase italic tracking-tighter leading-none opacity-40">Verifikováno Gen-Labem</p>
+                  <p className="text-[9px] font-black text-slate-500 uppercase italic tracking-tighter leading-none opacity-40">{t('monster.genom.verified')}</p>
                 </div>
               </motion.div>
             </div>

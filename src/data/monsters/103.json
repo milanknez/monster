@@ -1,35 +1,67 @@
 {
-  "id": "103",
-  "name": "Mrtvolný Loutkář",
-  "description": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
-  "type": "Elektrická",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1250,
-    "attack": 272,
-    "defense": 420
-  },
-  "abilities": [
-    {
-      "name": "Zvrácená Marioneta",
-      "description": "Odrazí 50 % utrženého poškození zpět na útočníka.",
-      "type": "reflect",
-      "chance": 50,
-      "value": 0.5
+    "id": "103",
+    "name": {
+        "cz": "Mrtvolný Loutkář",
+        "en": "Cadaverous Puppeteer",
+        "sk": "Mrtvolný Loutkář"
     },
-    {
-      "name": "Vlákna Osudu",
-      "description": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.4
+    "description": {
+        "cz": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
+        "en": "A giant, grotesque mass of muscle and tendons with many spider-like arms. From each finger hang thin, pulsating nerve fibers with which he controls puppets sewn from parts of his previous victims.",
+        "sk": "Obria, groteskná masa svalov a šliach s mnohými pavúčími pažami. Z každého prsta mu visia tenké, pulzujúce nervové vlákna, ktorými ovláda lútky zošité z častí svojich predchádzajúcich obetí."
     },
-    {
-      "name": "Armáda Stínů",
-      "description": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
-    }
-  ]
+    "type": "electric",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1250,
+        "attack": 272,
+        "defense": 420
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Zvrácená Marioneta",
+                "en": "Perverted Marionette",
+                "sk": "Zvrácená marioneta"
+            },
+            "description": {
+                "cz": "Odrazí 50 % utrženého poškození zpět na útočníka.",
+                "en": "Reflects 50% of taken damage back to the attacker.",
+                "sk": "Odrazí 50 % utŕženého poškodenia späť na útočníka."
+            },
+            "type": "reflect",
+            "chance": 50,
+            "value": 0.5
+        },
+        {
+            "name": {
+                "cz": "Vlákna Osudu",
+                "en": "Fibers of Fate",
+                "sk": "Vlákna osudu"
+            },
+            "description": {
+                "cz": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
+                "en": "Paralyzes the opponent and temporarily steals part of their attack power.",
+                "sk": "Ochromí súpera a dočasne mu ukradne časť jeho útočnej sily."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.4
+        },
+        {
+            "name": {
+                "cz": "Armáda Stínů",
+                "en": "Army of Shadows",
+                "sk": "Armáda stínů"
+            },
+            "description": {
+                "cz": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
+                "en": "Summons spectral comrades who attack in a massive volley.",
+                "sk": "Vyvolá prízračných spolubojovníkov, ktorí zaútočia v mohutnej salve."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        }
+    ]
 }

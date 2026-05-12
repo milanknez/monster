@@ -1,28 +1,52 @@
 {
-  "id": "012",
-  "name": "Drako Plam",
-  "description": "Zlobivý malý uličník až z podzemí. Má rovnou tři veliké oči a šest hbitých rukou, do kterých chytá žhavé uhlíky ze země.",
-  "type": "Ohnivá",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 126,
-    "attack": 49,
-    "defense": 16
-  },
-  "abilities": [
-    {
-      "name": "Hřejivé obětí",
-      "description": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
-      "type": "curse",
-      "chance": 50,
-      "value": 20
+    "id": "012",
+    "name": {
+        "cz": "Drako Plam",
+        "en": "Azure Tail",
+        "sk": "Azurochvost"
     },
-    {
-      "name": "Jiskřivý poskok",
-      "description": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek.",
-      "type": "extra",
-      "chance": 90,
-      "value": 35
-    }
-  ]
+    "description": {
+        "cz": "Zlobivý malý uličník až z podzemí. Má rovnou tři veliké oči a šest hbitých rukou, do kterých chytá žhavé uhlíky ze země.",
+        "en": "A water creature with a beautiful azure tail that it uses to swim fast.",
+        "sk": "Vodné stvorenie s krásnym azúrovým chvostom, ktorý používa na rýchle plávanie."
+    },
+    "type": "fire",
+    "rarity": "common",
+    "stats": {
+        "hp": 126,
+        "attack": 49,
+        "defense": 16
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Hřejivé obětí",
+                "en": "Tail Whip",
+                "sk": "Úder chvostom"
+            },
+            "description": {
+                "cz": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
+                "en": "Strikes the enemy with its strong tail.",
+                "sk": "Udrie nepriateľa svojím silným chvostom."
+            },
+            "type": "curse",
+            "chance": 50,
+            "value": 20
+        },
+        {
+            "name": {
+                "cz": "Jiskřivý poskok",
+                "en": "Water Jet",
+                "sk": "Prúd vody"
+            },
+            "description": {
+                "cz": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek.",
+                "en": "Shoots a jet of water.",
+                "sk": "Vystrelí prúd vody."
+            },
+            "type": "extra",
+            "chance": 90,
+            "value": 35
+        }
+    ]
 }

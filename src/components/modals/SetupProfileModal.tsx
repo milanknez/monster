@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, User, Mail, ShieldCheck, Star } from 'lucide-react';
+import { Zap, User, Mail, ShieldCheck, Star, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { signInWithGoogle } from '../../lib/firebase';
 import { cn } from '../../utils';
 
@@ -11,6 +12,7 @@ interface SetupProfileModalProps {
 }
 
 export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialReferral }: SetupProfileModalProps) => {
+  const { t, i18n } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [referralCode, setReferralCode] = useState('');
@@ -28,7 +30,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
       const user = await signInWithGoogle();
       if (user) {
         // If user already has a display name, we use it
-        const finalName = name.trim() || user.displayName || 'Průzkumník';
+        const finalName = name.trim() || user.displayName || t('setup.name_placeholder');
         // Pass the UID explicitly to avoid race conditions with App's userUid state
         onComplete(finalName, user.email || undefined, referralCode.trim() || undefined, user.uid);
       }
@@ -37,12 +39,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (name.trim().length >= 3) {
-      // For now, we still allow anonymous if needed, but the plan prioritizes Google
-      handleGoogleLogin();
-    }
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
@@ -55,6 +53,37 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
 
         <div className="p-8 relative z-10">
+          {/* Language Switcher */}
+          <div className="flex justify-center gap-2 mb-6">
+            <button 
+              onClick={() => changeLanguage('cz')} 
+              className={cn(
+                "px-2.5 py-1.5 rounded-xl border text-[10px] font-black transition-all flex items-center gap-1.5",
+                i18n.language.startsWith('cz') ? "bg-primary text-slate-950 border-primary" : "bg-white/5 text-slate-500 border-white/10"
+              )}
+            >
+              <span>🇨🇿</span> CZ
+            </button>
+            <button 
+              onClick={() => changeLanguage('sk')} 
+              className={cn(
+                "px-2.5 py-1.5 rounded-xl border text-[10px] font-black transition-all flex items-center gap-1.5",
+                i18n.language.startsWith('sk') ? "bg-primary text-slate-950 border-primary" : "bg-white/5 text-slate-500 border-white/10"
+              )}
+            >
+              <span>🇸🇰</span> SK
+            </button>
+            <button 
+              onClick={() => changeLanguage('en')} 
+              className={cn(
+                "px-2.5 py-1.5 rounded-xl border text-[10px] font-black transition-all flex items-center gap-1.5",
+                i18n.language.startsWith('en') ? "bg-primary text-slate-950 border-primary" : "bg-white/5 text-slate-500 border-white/10"
+              )}
+            >
+              <span>🇺🇸</span> EN
+            </button>
+          </div>
+
           <div className="size-20 bg-primary/5 rounded-[2rem] flex items-center justify-center mb-8 border border-primary/20 mx-auto shadow-[0_0_30px_rgba(13,185,242,0.1)]">
             <div className="size-14 bg-gradient-to-br from-primary/20 to-blue-600/20 rounded-2xl flex items-center justify-center border border-primary/30 rotate-3">
               <Zap size={32} className="text-primary animate-pulse -rotate-3" />
@@ -62,21 +91,21 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
           </div>
 
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter text-center mb-2 italic">
-            Vítejte, lovče
+            {t('setup.welcome')}
           </h2>
           <p className="text-[10px] text-slate-500 font-bold text-center mb-10 px-4 uppercase tracking-[0.2em] leading-relaxed opacity-80">
-            PŘIHLAŠ SE PŘES GOOGLE PRO <span className="text-emerald-500/80">AUTOMATICKOU CLOUD ZÁLOHU</span> <br/>NEBO POKRAČUJ OFFLINE S EMAILEM
+            {t('setup.subtitle')}
           </p>
 
           <div className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] block text-center">
-                  Identifikace Lovce (Jméno)
+                  {t('setup.name_label')}
                 </label>
                 <input
                   type="text"
-                  placeholder="TVÁ PŘEZDÍVKA"
+                  placeholder={t('setup.name_placeholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={15}
@@ -86,11 +115,11 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
 
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] block text-center">
-                  Kontaktní Kanál (Email)
+                  {t('setup.email_label')}
                 </label>
                 <input
                   type="email"
-                  placeholder="TVŮJ@EMAIL.CZ"
+                  placeholder={t('setup.email_placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-slate-950/80 border border-white/5 rounded-2xl px-4 py-4 text-center text-xs text-slate-300 font-bold placeholder:text-slate-800 focus:outline-none focus:border-primary/40 transition-all shadow-inner tracking-widest"
@@ -99,11 +128,11 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
 
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] block text-center">
-                  Kód Pozvánky (Volitelné)
+                  {t('setup.referral_label')}
                 </label>
                 <input
                   type="text"
-                  placeholder="MÁŠ KÓD?"
+                  placeholder={t('setup.referral_placeholder')}
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
                   className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-4 text-center text-[10px] text-primary font-black placeholder:text-slate-800 focus:outline-none focus:border-primary/20 transition-all shadow-inner tracking-[0.3em]"
@@ -118,7 +147,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
             >
               <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
               <div className="relative flex items-center justify-center py-5 bg-primary text-slate-950 font-black rounded-2xl leading-none transition duration-300 group-hover:scale-[1.02] active:scale-95 shadow-2xl">
-                <span className="uppercase tracking-[0.2em] text-sm italic">Začít hrát</span>
+                <span className="uppercase tracking-[0.2em] text-sm italic">{t('setup.start_button')}</span>
               </div>
             </button>
 
@@ -126,8 +155,8 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
                <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-white/5" />
                   <div className="flex flex-col items-center">
-                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Nebo přes biometriku</span>
-                    <span className="text-[7px] font-bold text-emerald-500/60 uppercase tracking-widest mt-0.5 animate-pulse">Automatická cloud záloha</span>
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">{t('setup.google_sub')}</span>
+                    <span className="text-[7px] font-bold text-emerald-500/60 uppercase tracking-widest mt-0.5 animate-pulse">{t('setup.cloud_sync')}</span>
                   </div>
                   <div className="h-px flex-1 bg-white/5" />
                </div>
@@ -136,7 +165,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
                   onClick={handleGoogleLogin}
                   disabled={isLoggingIn || name.trim().length < 3}
                   className="mx-auto size-14 bg-white hover:bg-slate-100 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 group disabled:opacity-20"
-                  title="Zálohovat přes Google"
+                  title={t('setup.cloud_sync')}
                >
                   <svg className="size-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

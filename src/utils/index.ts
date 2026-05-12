@@ -5,22 +5,114 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function getLoc(val: any, lng: string = 'cz'): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    const l = lng.split('-')[0].toLowerCase();
+    const target = l === 'cs' ? 'cz' : l;
+    return val[lng] || val[target] || val['cz'] || val['en'] || Object.values(val)[0] || '';
+  }
+  return String(val);
+}
+
 import { Flame, Droplets, Leaf, Zap, Moon, Sun, Shield, Sword, Heart, Activity, Info, Sparkles, Target, Star, Skull, RefreshCw, Plus, Package, Clock, FlaskConical, LayoutGrid, ChevronRight, ArrowLeft, Bolt, Box } from 'lucide-react';
 
 export const TYPE_COLORS: Record<string, { text: string, bg: string, border: string }> = {
-  'Ohnivá': { text: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30' },
-  'Vodní': { text: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
-  'Přírodní': { text: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30' },
-  'Elektrická': { text: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' },
+  'fire': { text: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30' },
+  'water': { text: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+  'nature': { text: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30' },
+  'electric': { text: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' },
   'Default': { text: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' }
 }
 
 export const TYPE_ICONS: Record<string, any> = {
-  'Ohnivá': Flame,
-  'Vodní': Droplets,
-  'Přírodní': Leaf,
-  'Elektrická': Zap
+  'fire': Flame,
+  'water': Droplets,
+  'nature': Leaf,
+  'electric': Zap
 }
+
+export const TYPE_MAP: Record<string, string> = {
+  'Ohnivá': 'fire',
+  'Vodní': 'water',
+  'Přírodní': 'nature',
+  'Elektrická': 'electric',
+  'fire': 'fire',
+  'water': 'water',
+  'nature': 'nature',
+  'electric': 'electric'
+}
+
+export const RARITY_MAP: Record<string, string> = {
+  'Běžná': 'common',
+  'Vzácná': 'rare',
+  'Epická': 'epic',
+  'Legendární': 'legendary',
+  'common': 'common',
+  'rare': 'rare',
+  'epic': 'epic',
+  'legendary': 'legendary'
+}
+
+export const RARITY_COLORS: Record<string, string> = {
+  'common': 'text-slate-400',
+  'rare': 'text-blue-400',
+  'epic': 'text-purple-400',
+  'legendary': 'text-amber-400'
+}
+
+export const RARITY_THEME: Record<string, { text: string, border: string, bg: string, glow: string, card: string, decor: string }> = {
+  'common': {
+    text: 'text-slate-400',
+    border: 'border-slate-500/20',
+    bg: 'bg-slate-500',
+    glow: 'bg-slate-500',
+    card: 'border-white/5 bg-slate-900/40',
+    decor: 'border-white/5'
+  },
+  'rare': {
+    text: 'text-blue-400',
+    border: 'border-blue-400',
+    bg: 'bg-blue-500',
+    glow: 'bg-blue-500',
+    card: 'border-blue-500/40 bg-blue-500/5 shadow-blue-500/20',
+    decor: 'border-blue-500/30'
+  },
+  'epic': {
+    text: 'text-purple-400',
+    border: 'border-purple-400',
+    bg: 'bg-purple-500',
+    glow: 'bg-purple-500',
+    card: 'border-purple-500/40 bg-purple-500/5 shadow-purple-500/20',
+    decor: 'border-purple-500/30'
+  },
+  'legendary': {
+    text: 'text-amber-400',
+    border: 'border-amber-400',
+    bg: 'bg-amber-500',
+    glow: 'bg-amber-500',
+    card: 'border-amber-500/40 bg-amber-500/5 shadow-amber-500/20',
+    decor: 'border-amber-500/30'
+  }
+}
+
+export const getMonsterColors = (type: any) => {
+  const t = getLoc(type, 'en').toLowerCase();
+  return TYPE_COLORS[t] || TYPE_COLORS[TYPE_MAP[type]] || TYPE_COLORS.Default;
+};
+export const getMonsterTypeIcon = (type: any) => {
+  const t = getLoc(type, 'en').toLowerCase();
+  return TYPE_ICONS[t] || TYPE_ICONS[TYPE_MAP[type]];
+};
+export const getMonsterRarityColor = (rarity: any) => {
+  const r = getLoc(rarity, 'en').toLowerCase();
+  return RARITY_COLORS[r] || RARITY_COLORS[RARITY_MAP[rarity]] || 'text-white';
+};
+export const getRarityTheme = (rarity: any) => {
+  const r = getLoc(rarity, 'en').toLowerCase();
+  return RARITY_THEME[r] || RARITY_THEME[RARITY_MAP[rarity]] || RARITY_THEME['common'];
+};
 
 export const calculateLevel = (xp: number) => {
   if (xp <= 0) return 1;
@@ -36,8 +128,8 @@ export const getTotalXPForLevel = (lvl: number) => {
   return 125 * n * n + 275 * n;
 };
 
-export const getMonsterMinLevel = (rarity: string) => {
-  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+export const getMonsterMinLevel = (rarity: any) => {
+  const r = getLoc(rarity).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   if (r.indexOf('legend') !== -1) return 11;
   if (r.indexOf('epic') !== -1 || r.indexOf('epick') !== -1) return 7;
   if (r.indexOf('vzacn') !== -1 || r.indexOf('rare') !== -1) return 4;
@@ -118,13 +210,15 @@ export const getMonsterPower = (monster: any): number => {
   return Math.round((hp / 2) + (atk * 8) + (def * 12) + ((monster.level || 1) * 100));
 };
 
+import i18n from '../i18n';
+
 export const formatLocation = (lat?: number, lng?: number) => {
-  if (lat === undefined || lng === undefined) return 'Neznámý Sektor';
+  if (lat === undefined || lng === undefined) return i18n.t('common.unknown_sector');
   // Simple sector logic based on coordinates
   const sectorX = Math.floor(Math.abs(lat * 100) % 26);
   const sectorY = Math.floor(Math.abs(lng * 100) % 26);
   const letter = String.fromCharCode(65 + sectorX);
-  return `SEKTOR ${letter}-${sectorY}`;
+  return `${i18n.t('common.sector')} ${letter}-${sectorY}`;
 };
 
 export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect: string }> = {
@@ -138,13 +232,13 @@ export const ADVANTAGE_MULT = 1.3;
 export const WEAKNESS_MULT = 0.7;
 
 export const getPlayerRank = (caughtCount: number) => {
-  if (caughtCount === 0) return 'Snílek u krbu';
-  if (caughtCount <= 10) return 'Certifikovaný krysobijce';
-  if (caughtCount <= 25) return 'Potulný žoldák';
-  if (caughtCount <= 45) return 'Vědmák z paneláku';
-  if (caughtCount <= 60) return 'Drakobijce na plný úvazek';
-  if (caughtCount < 70) return 'Legendární přemožitel';
-  return 'Strážce celého Bestiáře (100 %)';
+  if (caughtCount === 0) return i18n.t('ranks.r0');
+  if (caughtCount <= 10) return i18n.t('ranks.r1');
+  if (caughtCount <= 25) return i18n.t('ranks.r2');
+  if (caughtCount <= 45) return i18n.t('ranks.r3');
+  if (caughtCount <= 60) return i18n.t('ranks.r4');
+  if (caughtCount < 70) return i18n.t('ranks.r5');
+  return i18n.t('ranks.r6');
 };
 
 export const calculateBoostMultiplier = (activeBoosts: any[], type: 'xp_boost' | 'hp_regen') => {

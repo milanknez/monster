@@ -1,28 +1,52 @@
 {
-  "id": "091",
-  "name": "Pizza Inferno",
-  "description": "Zuhelnatělý trojúhelník pizzy s pepperoni očima, které vás neustále sledují. Místo sýra po ní stéká vařící láva a z okraje trčí kosti.",
-  "type": "Ohnivá",
-  "rarity": "Epická",
-  "stats": {
-    "hp": 370,
-    "attack": 140,
-    "defense": 50
-  },
-  "abilities": [
-    {
-      "name": "Lávový déšť",
-      "description": "Potřísní nepřítele vařícím sýrem a lávou z povrchu.",
-      "type": "attack",
-      "chance": 80,
-      "value": 190
+    "id": "091",
+    "name": {
+        "cz": "Pizza Inferno",
+        "en": "Pizza Inferno",
+        "sk": "Pizza Inferno"
     },
-    {
-      "name": "Lávová aura",
-      "description": "Rozžhaví sýr na svém povrchu, což zvýší sílu ohnivých útoků po zbytek boje.",
-      "type": "buff",
-      "chance": 70,
-      "value": 0.35
-    }
-  ]
+    "description": {
+        "cz": "Zuhelnatělý trojúhelník pizzy s pepperoni očima, které vás neustále sledují. Místo sýra po ní stéká vařící láva a z okraje trčí kosti.",
+        "en": "A pizza monster that is constantly on fire and very spicy.",
+        "sk": "Pizzové monštrum, ktoré neustále horí a je veľmi pálivé."
+    },
+    "type": "fire",
+    "rarity": "epic",
+    "stats": {
+        "hp": 370,
+        "attack": 140,
+        "defense": 50
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Lávový déšť",
+                "en": "Inferno Slice",
+                "sk": "Inferno plátok"
+            },
+            "description": {
+                "cz": "Potřísní nepřítele vařícím sýrem a lávou z povrchu.",
+                "en": "Attacks with a flaming slice.",
+                "sk": "Zaútočí horiacim plátkom."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 190
+        },
+        {
+            "name": {
+                "cz": "Lávová aura",
+                "en": "Spicy Aura",
+                "sk": "Pálivá aura"
+            },
+            "description": {
+                "cz": "Rozžhaví sýr na svém povrchu, což zvýší sílu ohnivých útoků po zbytek boje.",
+                "en": "Burns nearby enemies with its heat.",
+                "sk": "Popáli okolitých nepriateľov svojím teplom."
+            },
+            "type": "buff",
+            "chance": 70,
+            "value": 0.35
+        }
+    ]
 }

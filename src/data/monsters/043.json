@@ -1,28 +1,52 @@
 {
-  "id": "043",
-  "name": "Stonožka Roháček",
-  "description": "Pestrobarevná stonožka s malými zakroucenými rohy na každém článku těla. Je velmi rychlá a miluje závody v trávě.",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "stats": {
-    "hp": 130,
-    "attack": 48,
-    "defense": 15
-  },
-  "abilities": [
-    {
-      "name": "Sprintér",
-      "description": "Zvýší svou rychlost a příští útok doručí dříve. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-      "type": "curse",
-      "chance": 80,
-      "value": 15
+    "id": "043",
+    "name": {
+        "cz": "Stonožka Roháček",
+        "en": "Horned Centipede",
+        "sk": "Stonožka Roháček"
     },
-    {
-      "name": "Rohový náraz",
-      "description": "Udeří svými malými rohy a způsobí střední poškození.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
-    }
-  ]
+    "description": {
+        "cz": "Pestrobarevná stonožka s malými zakroucenými rohy na každém článku těla. Je velmi rychlá a miluje závody v trávě.",
+        "en": "A long centipede with sharp horns on its head that it uses for defense.",
+        "sk": "Dlhá stonožka s ostrými rohmi na hlave, ktoré používa na obranu."
+    },
+    "type": "nature",
+    "rarity": "common",
+    "stats": {
+        "hp": 130,
+        "attack": 48,
+        "defense": 15
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Sprintér",
+                "en": "Horn Gore",
+                "sk": "Nabodnutie rohom"
+            },
+            "description": {
+                "cz": "Zvýší svou rychlost a příští útok doručí dříve. Uvalí kletbu uštědřující 15 % poškození z ATK.",
+                "en": "Pierces the enemy with its horns.",
+                "sk": "Prebodne nepriateľa svojimi rohmi."
+            },
+            "type": "curse",
+            "chance": 80,
+            "value": 15
+        },
+        {
+            "name": {
+                "cz": "Rohový náraz",
+                "en": "Multi-leg Strike",
+                "sk": "Úder mnohými nohami"
+            },
+            "description": {
+                "cz": "Udeří svými malými rohy a způsobí střední poškození.",
+                "en": "Attacks with many legs at once.",
+                "sk": "Zaútočí mnohými nohami naraz."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        }
+    ]
 }

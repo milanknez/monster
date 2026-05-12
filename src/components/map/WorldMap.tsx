@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo, forwardRef, useImperativeHandle, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Navigation, Sword, Shield, Zap, Package, X, Compass, Crosshair, Users, RefreshCw, Battery, Heart, Target } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { monsterDB } from '../../data/monsters'
 import type { Monster, SpawnPoint, SpawnRarity, ResourceType, ResourceSpawn, Cooldowns, NearbyPlayer } from '../../types'
-import { cn } from '../../utils'
+import { cn, getLoc } from '../../utils'
 import { syncPlayerToFirebase, watchNearbyPlayers } from '../../lib/firebase'
 import { useGameSound } from '../../data/sounds'
 
@@ -107,6 +108,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   mapTheme = 'auto'
 }, ref) => {
 
+  const { t, i18n } = useTranslation()
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const playerMarkerRef = useRef<L.Marker | null>(null)
@@ -135,7 +137,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [showMonsters, setShowMonsters] = useState(true)
   const [showResources, setShowResources] = useState(true)
   const [loadingPoi, setLoadingPoi] = useState(false)
-  const [statusMsg, setStatusMsg] = useState(initialPosition ? '' : 'Hledám polohu…')
+  const [statusMsg, setStatusMsg] = useState(initialPosition ? '' : t('map.searching'))
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
@@ -327,7 +329,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
     lastPoiFetchRef.current = { lat, lng }
     setLoadingPoi(true)
-    setStatusMsg('Skenuji POI…')
+    setStatusMsg(t('map.scanning'))
 
     try {
       const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings } = await fetchPoiData(lat, lng, cooldownsRef.current, force)
@@ -378,7 +380,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       setStatusMsg('')
     } catch (e) {
       console.error("POI Fetch Error:", e)
-      setStatusMsg('Chyba skenování')
+      setStatusMsg(t('map.scan_error'))
       setTimeout(() => setStatusMsg(''), 3000)
     } finally {
       setLoadingPoi(false)
@@ -601,7 +603,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         if (overpassTimerRef.current) clearTimeout(overpassTimerRef.current)
         overpassTimerRef.current = setTimeout(() => fetchPOI(lat, lng), 800)
       }, (err) => {
-        setStatusMsg('GPS nedostupná');
+        setStatusMsg(t('map.gps_unavailable'));
         console.warn("Geolocation watch error:", err);
       }, {
         enableHighAccuracy: !isBatterySaver,
@@ -727,8 +729,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     >
       <div className="px-4 py-2 flex items-center justify-between bg-background-dark/50 backdrop-blur-sm z-50">
         <div>
-          <p className="text-slate-400 text-[10px] uppercase font-black tracking-widest">Průzkum Sektoru</p>
-          <p className="text-slate-500 text-[9px] font-bold">{statusMsg || `${spawns.filter(s => !s.caught).length} příšer & ${resources.filter(r => !r.isCollected).length} surovin`}</p>
+          <p className="text-slate-400 text-[10px] uppercase font-black tracking-widest">{t('map.exploring')}</p>
+          <p className="text-slate-500 text-[9px] font-bold">
+            {statusMsg || t('map.status', { monsters: spawns.filter(s => !s.caught).length, resources: resources.filter(r => !r.isCollected).length })}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {/* Filter Bar */}
@@ -736,7 +740,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             <button
               onClick={() => playerPos && fetchPOI(playerPos[0], playerPos[1], true)}
               className={cn("p-1.5 rounded-full transition-all hover:bg-white/10", loadingPoi ? "text-blue-500" : "text-slate-400")}
-              title="Vynutit obnovu mapy"
+              title={t('map.refresh_map')}
             >
               <RefreshCw size={12} className={cn(loadingPoi && "animate-spin")} />
             </button>
@@ -757,7 +761,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
 
           <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
             <Battery size={10} className="text-blue-500" fill="currentColor" />
-            <span className="text-[10px] font-black text-blue-500 uppercase">{Math.round(playerHP)}% Energie</span>
+            <span className="text-[10px] font-black text-blue-500 uppercase">{Math.round(playerHP)}% {t('map.energy')}</span>
           </div>
         </div>
       </div>
@@ -775,8 +779,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
               <Navigation className="animate-pulse" size={20} />
             </div>
             <div className="text-left">
-              <p className="font-black uppercase text-xs leading-none mb-1">Jedeš moc rychle!</p>
-              <p className="text-[9px] font-bold opacity-80 uppercase leading-none">Za jízdy není dovoleno chytat příšery.</p>
+              <p className="font-black uppercase text-xs leading-none mb-1">{t('map.too_fast')}</p>
+              <p className="text-[9px] font-bold opacity-80 uppercase leading-none">{t('map.too_fast_desc')}</p>
             </div>
           </motion.div>
         )}
@@ -794,10 +798,10 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         {/* Legend Overlay */}
         <div className="absolute bottom-[66px] left-4 z-[1001] bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg p-2.5 px-3 flex flex-col gap-1.5 shadow-2xl pointer-events-none">
           {[
-            { label: 'Běžná', color: 'text-slate-400' },
-            { label: 'Vzácná', color: 'text-blue-500' },
-            { label: 'Epická', color: 'text-purple-500' },
-            { label: 'Legendární', color: 'text-amber-500' }
+            { label: t('rarities.common'), color: 'text-slate-400' },
+            { label: t('rarities.rare'), color: 'text-blue-500' },
+            { label: t('rarities.epic'), color: 'text-purple-500' },
+            { label: t('rarities.legendary'), color: 'text-amber-500' }
           ].map(l => (
             <span key={l.label} className={cn("text-[7.5px] font-black uppercase tracking-[0.2em] drop-shadow-sm leading-none", l.color)}>
               {l.label}
@@ -810,8 +814,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         {nearbyResource && !nearbySpawn && !isInteractionBlocked && !isTooFast && (
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
             <button onClick={handleGather} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-500 border-b-4 border-black/20 shadow-2xl transition-all active:scale-95">
-              <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30"><Package size={16} /><span>SEBRAT: {RESOURCE_CONFIG[nearbyResource.type]?.label || 'Surovinu'}</span></div>
-              <div className="text-[10px] opacity-80 mt-1">ZÍSKÁŠ {nearbyResource.amount}ks MATERIÁLU</div>
+              <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30">
+                <Package size={16} />
+                <span>{t('map.gather', { type: getLoc(RESOURCE_CONFIG[nearbyResource.type]?.label, i18n.language) || t('common.sector') })}</span>
+              </div>
+              <div className="text-[10px] opacity-80 mt-1">{t('map.gather_desc', { amount: nearbyResource.amount })}</div>
             </button>
           </motion.div>
         )}
@@ -820,21 +827,22 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
             {nearbySpawn.level > playerLevel ? (
               <div className="w-full py-5 rounded-2xl bg-red-950/90 backdrop-blur-md border-b-4 border-red-500/50 text-red-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
                 <X size={16} className="text-red-500" />
-                <span>UZAMČENO: VYŽADUJE ÚROVEŇ {nearbySpawn.level}</span>
+                <span>{t('map.locked', { level: nearbySpawn.level })}</span>
               </div>
             ) : energyBlocked ? (
               <div className="w-full py-5 rounded-2xl bg-slate-900/90 backdrop-blur-md border-b-4 border-orange-500/50 text-orange-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
-                <Battery size={16} className="text-orange-500" />
-                <span>🔋 ENERGIE PŘÍLIŠ NÍZKÁ</span>
+                <span>{t('map.low_energy')}</span>
               </div>
             ) : (
               <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #b91c1c, #450a0a)' }}>
                 <div className="flex items-center gap-2">
                   <Target size={16} className="animate-pulse" />
-                  <span>{caughtMonsters.length === 0 ? 'CHYTIT' : 'BOJOVAT'}: LEVEL {nearbySpawn.level}</span>
+                  <span>{caughtMonsters.length === 0 ? t('map.catch') : t('map.battle')}: {t('monster.level_short')} {nearbySpawn.level}</span>
                 </div>
                 <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">
-                  {caughtMonsters.length === 0 ? `SPOTŘEBUJE ${calculateHPCost(nearbySpawn.level, nearbySpawn.rarity)}% ENERGIE` : 'VZÍT SI SVÉ NEJSILNĚJŠÍ MONSTRUM'}
+                  {caughtMonsters.length === 0 
+                    ? t('map.catch_energy', { amount: calculateHPCost(nearbySpawn.level, nearbySpawn.rarity) }) 
+                    : t('map.take_strongest')}
                 </div>
               </button>
             )}
@@ -849,11 +857,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
               <div className="flex flex-col items-center">
                 <img src={`https://api.dicebear.com/7.x/${selectedOtherPlayer.avatarStyle || 'avataaars'}/svg?seed=${selectedOtherPlayer.avatarSeed || selectedOtherPlayer.name}`} className="size-20 bg-slate-800 rounded-2xl mb-4 border border-purple-500/30" alt="" />
                 <h3 className="text-xl font-black text-white uppercase italic">{selectedOtherPlayer.name}</h3>
-                <p className="text-purple-400 text-[10px] font-black uppercase mb-6 tracking-widest leading-none">Aeternum Runner (LVL {selectedOtherPlayer.level})</p>
+                <p className="text-purple-400 text-[10px] font-black uppercase mb-6 tracking-widest leading-none">{t('ranks.r1')} (LVL {selectedOtherPlayer.level})</p>
 
                 {selectedPlayerDist !== null && selectedPlayerDist > CATCH_RADIUS_M && (
                   <div className="w-full bg-red-950/40 border border-red-500/20 text-red-400 text-[10px] font-black text-center uppercase p-3 rounded-2xl mb-6 italic tracking-tight leading-relaxed">
-                    🔴 Výměna a souboj je možný jen při osobním setkání.
+                    {t('map.trade_duel_radius')}
                   </div>
                 )}
 
@@ -864,7 +872,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                         onClick={() => { onStartTrade(selectedOtherPlayer.name, selectedOtherPlayer.id); setSelectedOtherPlayer(null) }}
                         className="bg-purple-600 active:scale-95 shadow-lg shadow-purple-900/20 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-tighter transition-all"
                       >
-                        Vyměnit
+                        {t('map.trade')}
                       </button>
                       <button
                         onClick={() => {
@@ -873,7 +881,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                         }}
                         className="bg-red-600 active:scale-95 shadow-lg shadow-red-900/20 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-tighter transition-all"
                       >
-                        Vyzvat
+                        {t('map.duel')}
                       </button>
                     </div>
                   )}
@@ -881,7 +889,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
                     onClick={() => setSelectedOtherPlayer(null)}
                     className="bg-slate-800 text-slate-400 font-bold py-4 rounded-2xl uppercase text-xs hover:bg-slate-700 active:scale-95 transition-all shadow-inner"
                   >
-                    Zavřít
+                    {t('common.close')}
                   </button>
                 </div>
               </div>

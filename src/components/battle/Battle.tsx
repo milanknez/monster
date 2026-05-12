@@ -8,8 +8,9 @@ import {
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle,
   Hourglass, Skull, Moon, Lock, Check, Hash, Target
 } from 'lucide-react';
-import type { Monster, LootTableEntry } from '../../types';
-import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT } from '../../utils';
+import type { Monster, LootTableEntry, Localized } from '../../types';
+import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc } from '../../utils';
+import { useTranslation } from 'react-i18next';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
 import { DefeatModal } from './DefeatModal';
@@ -53,8 +54,8 @@ const HealthBar = ({ current, max, label, colorClass, shadowColor }: { current: 
   </div>
 );
 
-const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: string }) => {
-  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: any }) => {
+  const r = (getLoc(rarity) || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let color = isPlayer ? 'rgba(13,185,242,0.8)' : 'rgba(239,68,68,0.8)';
   let bg = isPlayer ? 'bg-primary/20 border-primary' : 'bg-red-500/20 border-red-500';
 
@@ -87,7 +88,7 @@ const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: stri
   );
 };
 
-const PopupLayer = ({ popups, className }: { popups: DamagePopup[], className?: string }) => (
+const PopupLayer = ({ popups, className, t }: { popups: DamagePopup[], className?: string, t: any }) => (
   <div className={cn("absolute top-0 w-full flex flex-col items-center pointer-events-none z-[400]", className)}>
     <AnimatePresence mode="popLayout">
       {popups.map(p => {
@@ -106,7 +107,7 @@ const PopupLayer = ({ popups, className }: { popups: DamagePopup[], className?: 
           >
             {p.isHeal ? <Heart size={28} className="fill-emerald-400" /> : (p.isEffective ? <ArrowUpRight size={32} className="text-emerald-400 stroke-[5]" /> : (p.isWeak && <ArrowDownLeft size={32} className="text-red-400 stroke-[5]" />))}
             <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
-              {p.isMiss ? 'MINUL' : (p.isHeal ? '+' : '-') + p.value}
+              {p.isMiss ? t('battle.miss') : (p.isHeal ? '+' : '-') + p.value}
             </span>
           </motion.div>
         );
@@ -115,8 +116,8 @@ const PopupLayer = ({ popups, className }: { popups: DamagePopup[], className?: 
   </div>
 );
 
-const TypeIcon = ({ type }: { type: string }) => {
-  const t = type?.toLowerCase() || '';
+const TypeIcon = ({ type }: { type: any }) => {
+  const t = getLoc(type).toLowerCase() || '';
   if (t.includes('ohn') || t.includes('fire')) return <Flame className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]" size={14} />;
   if (t.includes('vod') || t.includes('wat')) return <Droplets className="text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" size={14} />;
   if (t.includes('ele') || t.includes('elektr') || t.includes('zap')) return <Zap className="text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]" size={14} />;
@@ -146,8 +147,8 @@ const EffectBadges = ({ effects }: { effects: StatusEffect[] }) => (
   </div>
 );
 
-const RarityBadge = ({ rarity }: { rarity: string }) => {
-  const r = (rarity || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const RarityBadge = ({ rarity }: { rarity: any }) => {
+  const r = (getLoc(rarity) || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let color = "transparent";
 
   if (r.includes('legend')) { color = "#f59e0b"; }
@@ -163,7 +164,7 @@ const RarityBadge = ({ rarity }: { rarity: string }) => {
   );
 };
 
-const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'player' | 'enemy', subType: string }) => {
+const SkillEffect = ({ type, fromSide, subType }: { type: string | Localized<string>, fromSide: 'player' | 'enemy', subType: string }) => {
   const isHeal = subType === 'heal' || subType === 'regen';
   const isCurse = subType === 'curse';
   const isDefense = subType === 'defense';
@@ -226,7 +227,7 @@ const SkillEffect = ({ type, fromSide, subType }: { type: string, fromSide: 'pla
       );
     }
 
-    const lt = type.toLowerCase();
+    const lt = getLoc(type).toLowerCase();
     if (lt.includes('ohn') || lt.includes('fire')) return <Flame className="text-orange-500 fill-orange-500/60" size={s} />;
     if (lt.includes('vod') || lt.includes('wat')) return <Droplets className="text-blue-500 fill-blue-500/60" size={s} />;
     if (lt.includes('ele') || lt.includes('zap')) return <Zap className="text-yellow-400 fill-yellow-400/60" size={s} />;
@@ -397,6 +398,7 @@ export const Battle = ({
   onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void,
   isNewMonster?: boolean, isTutorial?: boolean
 }) => {
+  const { t, i18n } = useTranslation();
   const [tutorialStep, setTutorialStep] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
   const [enemyAnim, setEnemyAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -414,7 +416,7 @@ export const Battle = ({
   const [showDefeat, setShowDefeat] = useState(false);
   const [isChestOpened, setIsChestOpened] = useState(false);
   const [loot, setLoot] = useState<LootItem[]>([]);
-  const [activeBurst, setActiveBurst] = useState<{ id: number, type: string, fromSide: 'player' | 'enemy', subType: any } | null>(null);
+  const [activeBurst, setActiveBurst] = useState<{ id: number, type: string | Localized<string>, fromSide: 'player' | 'enemy', subType: any } | null>(null);
   const [turn, setTurn] = useState<'player' | 'enemy'>(pvpRole ? (pvpRole === 'challenger' ? 'player' : 'enemy') : 'player');
   const [itemUsedInTurn, setItemUsedInTurn] = useState(false);
   const [turnTime, setTurnTime] = useState(50);
@@ -447,7 +449,7 @@ export const Battle = ({
       setTurnTime(prev => {
         if (prev <= 1) {
           if (prev === 1) {
-            addLog("Čas vypršel!");
+            addLog(t('battle.log.time_up'));
             setTurn(t => t === 'player' ? 'enemy' : 'player');
           }
           return 0;
@@ -578,15 +580,15 @@ export const Battle = ({
 
     const isCrit = Math.random() < (isSkill ? 0.35 : 0.1);
     let typeMult = 1, isEffective = false, isWeak = false;
-    const match = TYPE_MATCHUP[attacker.type];
+    const match = TYPE_MATCHUP[getLoc(attacker.type, 'cz')];
     if (match) {
-      if (match.strong === defender.type) {
+      if (match.strong === getLoc(defender.type, 'cz')) {
         if (Math.random() < 0.3) {
           typeMult = ADVANTAGE_MULT;
           isEffective = true;
         }
       }
-      else if (match.weak === defender.type) {
+      else if (match.weak === getLoc(defender.type, 'cz')) {
         typeMult = WEAKNESS_MULT;
         isWeak = true;
       }
@@ -680,7 +682,7 @@ export const Battle = ({
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
       let dmg = res.dmg;
       if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
-        addLog(`${ability.name} minul!`);
+        addLog(t('battle.log.missed', { name: getLoc(ability.name, i18n.language) }));
         addPopup(0, true, { isMiss: true });
         dmg = 0;
       }
@@ -696,13 +698,13 @@ export const Battle = ({
       else if (ability?.type === 'curse') {
         const s = getFinalStats(playerMonster);
         setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]);
-        dmg = 0; addLog("Uvržena kletba!");
+        dmg = 0; addLog(t('battle.log.curse_cast'));
       }
       else if (isSkill && ability?.type === 'attack') {
         setTimeout(() => playSlash(), 100);
         setTimeout(() => playSlash(), 700);
       }
-      else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog("Aktivována regenerace!"); }
+      else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog(t('battle.log.regen_active')); }
 
       // Tutorial logic: Prevent death, force 1 HP
       if (isTutorial && enemyHP - dmg <= 0) {
@@ -723,9 +725,10 @@ export const Battle = ({
       else playHit();
 
       if (res.isEffective && Math.random() < 0.6) {
-        if (playerMonster.type === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog("Nepřítel byl zapálen!"); }
-        else if (playerMonster.type === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog("Nepřítel byl zpomalen!"); }
-        else if (playerMonster.type === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog("Nepřítel byl ochromen!"); }
+        const typeCz = getLoc(playerMonster.type, 'cz');
+        if (typeCz === 'Ohnivá') { setEnemyEffects(p => [...p, { type: 'burn', duration: 2 }]); addLog(t('battle.log.burned')); }
+        else if (typeCz === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog(t('battle.log.slowed')); }
+        else if (typeCz === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog(t('battle.log.paralyzed')); }
       }
       setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
       if (pvpRole && onSendAttack) {
@@ -750,8 +753,9 @@ export const Battle = ({
           // NEW DYNAMIC LOOT GENERATION
           const generatedLoot: any[] = [];
 
-          const isEpic = (enemyMonster.rarity || '').toLowerCase().includes('epic') || (enemyMonster.rarity || '').toLowerCase().includes('epick');
-          const isRare = (enemyMonster.rarity || '').toLowerCase().includes('rare') || (enemyMonster.rarity || '').toLowerCase().includes('vzácn');
+          const rStr = (getLoc(enemyMonster.rarity) || '').toLowerCase();
+          const isEpic = rStr.includes('epic') || rStr.includes('epick');
+          const isRare = rStr.includes('rare') || rStr.includes('vzacn');
           const isCommon = !isEpic && !isRare;
 
           const getLootFromPool = (rarity: string, category?: string) => {
@@ -862,7 +866,7 @@ export const Battle = ({
                   setCatchAnim(false); 
                   setCatchPhase('idle');
                   onCatchFail?.(); 
-                  setLogs(p => ["Chycení selhalo!", ...p].slice(0, 3));
+                  setLogs(p => [t('toasts.escaped'), ...p].slice(0, 3));
                   setTurn('enemy'); 
               }, 1000);
            }
@@ -876,7 +880,7 @@ export const Battle = ({
       npcAttackTriggeredRef.current = true;
       const timer = setTimeout(() => {
         if (enemyEffects.some(e => e.type === 'paralyze')) {
-          addLog(`${enemyMonster.name} je ochromen a nemůže útočit!`);
+          addLog(t('battle.log.paralyzed'));
           setEnemyEffects(p => p.map(e => e.type === 'paralyze' ? { ...e, duration: e.duration - 1 } : e).filter(e => e.duration > 0));
           setTurn('player');
           return;
@@ -910,7 +914,7 @@ export const Battle = ({
 
           // Special Skill Logic for NPC
           if (ability && Math.random() > Math.max(ability.chance || 100, 50) / 100) {
-            addLog(`${enemyMonster.name}: ${ability.name} minul!`);
+            addLog(t('battle.log.missed', { name: getLoc(enemyMonster.name, i18n.language) }));
             addPopup(0, false, { isMiss: true });
             dmg = 0;
           }
@@ -921,17 +925,17 @@ export const Battle = ({
             playHeal();
             dmg = 0;
           }
-          else if (ability?.type === 'defense') { setEnemyShieldTurns(2); setEnemyShieldPower(1 - (ability.value || 60) / 100); dmg = 0; addLog(`${enemyMonster.name} se brání!`); }
+          else if (ability?.type === 'defense') { setEnemyShieldTurns(2); setEnemyShieldPower(1 - (ability.value || 60) / 100); dmg = 0; addLog(t('battle.log.defending', { name: getLoc(enemyMonster.name, i18n.language) })); }
           else if (ability?.type === 'curse') {
             const s = getFinalStats(enemyMonster);
             setPlayerEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]);
-            dmg = 0; addLog(`${enemyMonster.name} na tebe uvrhl kletbu!`);
+            dmg = 0; addLog(t('battle.log.curse_applied', { name: getLoc(enemyMonster.name, i18n.language) }));
           }
           if (isSkill && ability?.type === 'attack') {
             setTimeout(() => playSlash(), 100);
             setTimeout(() => playSlash(), 700);
           }
-          else if (ability?.type === 'regen') { setEnemyEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog(`${enemyMonster.name} regeneruje!`); }
+          else if (ability?.type === 'regen') { setEnemyEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog(t('battle.log.regen_active')); }
 
           if (dmg > 0) {
             setPlayerHP(p => Math.max(0, p - dmg)); setPlayerAnim('hit'); addPopup(dmg, false, res); triggerShake(res.isCrit);
@@ -965,7 +969,7 @@ export const Battle = ({
     if (incomingAttack && pvpRole && incomingAttack.timestamp !== lastAttackTime.current) {
       lastAttackTime.current = incomingAttack.timestamp;
       if (incomingAttack.isShield) {
-        setEnemyShieldTurns(2); setLogs(p => ["Nepřítel aktivoval štít!", ...p]);
+        setEnemyShieldTurns(2); setLogs(p => [t('battle.log.enemy_shield'), ...p]);
         setTimeout(() => setTurn('player'), 1200); return;
       }
       setTurn('enemy'); setEnemyAnim('attack');
@@ -1020,7 +1024,7 @@ export const Battle = ({
       {/* Header */}
       <div className="relative z-[5000] px-6 pt-3 pb-2 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
         <div className="flex flex-col">
-          <h2 className="text-[8px] font-black text-white uppercase tracking-[0.4em] opacity-40 leading-none mb-1">Aeternum Arena</h2>
+          <h2 className="text-[8px] font-black text-white uppercase tracking-[0.4em] opacity-40 leading-none mb-1">{t("battle.arena_name")}</h2>
           {logs[0] && <motion.p key={logs[0]} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-[9px] font-black text-primary uppercase italic truncate max-w-[150px]">{logs[0]}</motion.p>}
         </div>
 
@@ -1221,7 +1225,7 @@ export const Battle = ({
             <div className="flex justify-between items-center mb-1">
               <div className="flex items-center gap-1.5 overflow-hidden min-w-0 pl-5">
                 <TypeIcon type={enemyMonster.type} />
-                <span className="text-[10px] font-black text-white uppercase truncate">{enemyMonster.name}</span>
+                <span className="text-[10px] font-black text-white uppercase truncate">{getLoc(enemyMonster.name, i18n.language)}</span>
               </div>
               <span className="text-[8px] font-black text-red-500">Lv {enemyMonster.level}</span>
             </div>
@@ -1308,7 +1312,7 @@ export const Battle = ({
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: [0, 0.7, 0] }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 bg-red-600/40 rounded-full blur-2xl z-20 pointer-events-none" />
               )}
             </AnimatePresence>
-            <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" />
+            <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" t={t} />
           </motion.div>
         </div>
 
@@ -1347,12 +1351,12 @@ export const Battle = ({
             </div>
 
             <img src={playerMonster.image || `/monsters/${playerMonster.id}.png`} className="w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2" />
-            <PopupLayer popups={popups.filter(p => p.isPlayerSide)} />
+            <PopupLayer popups={popups.filter(p => p.isPlayerSide)} t={t} />
           </motion.div>
           <div id="tutorial-player-stats" className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
             <RarityBadge rarity={playerMonster.rarity || ''} />
             <div className="flex justify-between items-center whitespace-nowrap overflow-visible">
-              <div className="flex items-center gap-1.5 min-w-0"><TypeIcon type={playerMonster.type} /><span className="text-[12px] font-black text-white uppercase truncate">{playerMonster.name}</span></div>
+              <div className="flex items-center gap-1.5 min-w-0"><TypeIcon type={playerMonster.type} /><span className="text-[12px] font-black text-white uppercase truncate">{getLoc(playerMonster.name, i18n.language)}</span></div>
               <span className="text-[8px] font-black text-primary ml-2 shrink-0">Lv {playerMonster.level}</span>
             </div>
             <HealthBar current={playerHP} max={playerMaxHP} label="HP" colorClass="bg-gradient-to-r from-emerald-500 to-teal-400" shadowColor="rgba(52,211,153,0.4)" />
@@ -1415,14 +1419,14 @@ export const Battle = ({
           >
             <Sword size={20} />
             <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
-              <span className="text-[9px] font-black uppercase tracking-wider">Útok</span>
+              <span className="text-[9px] font-black uppercase tracking-wider">{t('battle.attack')}</span>
               <span className="text-[8px] font-bold opacity-60">~ {estimateDamage(playerMonster, enemyMonster)} DMG</span>
             </div>
           </motion.button>
 
           {/* Skill */}
           <div className="relative col-span-1 z-[7001]">
-            <AnimatePresence>{showSkills && <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] left-0 w-80 bg-slate-900 backdrop-blur-3xl p-4 rounded-2xl border border-purple-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] space-y-2.5"><h4 className="text-[11px] font-black text-purple-400 mb-1.5 uppercase text-center tracking-[0.2em] opacity-80">Nabídka Schopností</h4><div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">{playerMonster.abilities?.map((ab, idx) => {
+            <AnimatePresence>{showSkills && <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] left-0 w-80 bg-slate-900 backdrop-blur-3xl p-4 rounded-2xl border border-purple-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] space-y-2.5"><h4 className="text-[11px] font-black text-purple-400 mb-1.5 uppercase text-center tracking-[0.2em] opacity-80">{t('battle.ability_menu')}</h4><div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">{playerMonster.abilities?.map((ab, idx) => {
               const cost = ab.type === 'attack' ? 50 : 30;
               const estDmg = estimateDamage(playerMonster, enemyMonster, true, idx);
               const isHeal = ab.type === 'heal';
@@ -1447,7 +1451,7 @@ export const Battle = ({
                   <div className="flex-1 min-w-0 pr-3 py-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span style={{ color: config.color, filter: `drop-shadow(0 0 5px ${config.color}66)` }}>{config.icon}</span>
-                      <span className="text-[12px] font-black text-white uppercase tracking-tight truncate flex-1">{ab.name}</span>
+                      <span className="text-[12px] font-black text-white uppercase tracking-tight truncate flex-1">{getLoc(ab.name, i18n.language)}</span>
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <p className="text-[10px] leading-tight text-white/95">
@@ -1455,13 +1459,13 @@ export const Battle = ({
                           {isHeal ? `+${healVal} HP` : isDefense ? 'ŠTÍT 🛡️' : isCurse ? 'KLETBA 💀' : isRegen ? 'REGEN 🌿' : `~${estDmg} DMG`}
                           {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
                         </span>
-                        <span className="text-slate-200 font-bold italic">{ab.description}</span>
+                        <span className="text-slate-200 font-bold italic">{getLoc(ab.description, i18n.language)}</span>
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0 bg-black/20 p-1.5 rounded-lg border border-white/5 min-w-[50px]">
                     <span className="text-[11px] font-black text-purple-300 tabular-nums">{cost}⚡</span>
-                    <span className="text-[7px] font-black text-purple-500/60 uppercase tracking-tighter">Energie</span>
+                    <span className="text-[7px] font-black text-purple-500/60 uppercase tracking-tighter">{t('battle.energy')}</span>
                   </div>
                 </button>
               )
@@ -1484,10 +1488,10 @@ export const Battle = ({
             <AnimatePresence>
               {showItems && (
                 <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] right-0 w-52 bg-slate-900/98 backdrop-blur-3xl border border-white/10 p-4 rounded-2xl shadow-3xl z-[9999] space-y-3">
-                  <h4 className="text-[10px] font-black text-blue-400 mb-1 uppercase text-center tracking-widest opacity-60">Batoh</h4>
+                  <h4 className="text-[10px] font-black text-blue-400 mb-1 uppercase text-center tracking-widest opacity-60">{t('battle.backpack')}</h4>
                   <div className="flex flex-col gap-2.5">
                     {(inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).length || 0) === 0 ? (
-                      <p className="text-[9px] text-slate-500 font-bold uppercase py-4 text-center">Žádné lektvary k dispozici</p>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase py-4 text-center">{t('battle.no_potions')}</p>
                     ) : (
                       inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).map(i => {
                         const cfg = RESOURCE_CONFIG[i.type];
@@ -1499,7 +1503,7 @@ export const Battle = ({
                                 const nextHP = Math.min(playerMaxHP, playerHP + amount);
                                 setPlayerHP(nextHP);
                                 addPopup(amount, false, { isHeal: true });
-                                addLog(`Použit ${cfg.label}: +${amount} HP`);
+                                addLog(t('battle.used_item', { name: getLoc(cfg.label, i18n.language), amount, stat: 'HP' }));
                                 if (pvpRole && onSendAttack) {
                                   onSendAttack({ dmg: 0, heal: amount, currentHP: nextHP, isSkill: true, isCrit: false, isEffective: false, isWeak: false });
                                 }
@@ -1508,7 +1512,7 @@ export const Battle = ({
                                 const amount = cfg.statsType === 'perc' ? Math.round(100 * (cfg.stats.energy / 100)) : cfg.stats.energy;
                                 setPlayerEnergy(p => Math.min(100, p + amount));
                                 addPopup(amount, false, { isHeal: true, color: 'text-cyan-400' });
-                                addLog(`Použit ${cfg.label}: +${amount} Mana`);
+                                addLog(t('battle.used_item', { name: getLoc(cfg.label, i18n.language), amount, stat: 'Mana' }));
                               }
                               playHeal?.();
                             }
@@ -1519,7 +1523,7 @@ export const Battle = ({
                           }} className="flex justify-between items-center p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[10px] font-bold text-white uppercase hover:bg-blue-500/10 transition-colors">
                             <div className="flex items-center gap-2">
                               <span className="text-sm">{cfg?.icon || '📦'}</span>
-                              <span>{cfg?.label || i.type.replace('_', ' ')}</span>
+                              <span>{getLoc(cfg?.label, i18n.language) || i.type.replace('_', ' ')}</span>
                             </div>
                             <span className="text-[9px] text-blue-300 bg-blue-500/20 px-2.5 py-0.5 rounded-lg">{i.count}x</span>
                           </button>
@@ -1541,7 +1545,7 @@ export const Battle = ({
               )}
             >
               {itemUsedInTurn ? <Lock size={18} className="opacity-60" /> : <Package size={20} />}
-              <span className="text-[9px] font-black uppercase mt-1">{itemUsedInTurn ? 'Použito' : 'Inven.'}</span>
+              <span className="text-[9px] font-black uppercase mt-1">{itemUsedInTurn ? t('battle.used') : t('battle.inventory_short')}</span>
             </motion.button>
           </div>
 
@@ -1571,7 +1575,7 @@ export const Battle = ({
                   )}
                 </div>
                 <div className="flex flex-col items-center leading-none mt-1 gap-0.5">
-                  <span className="text-[9px] font-black uppercase tracking-wider">Chytit</span>
+                  <span className="text-[9px] font-black uppercase tracking-wider">{t('battle.catch')}</span>
                   <span className="text-[8px] font-bold opacity-60">{catchChance}%</span>
                 </div>
               </motion.button>
@@ -1603,7 +1607,7 @@ export const Battle = ({
           <TutorialOverlay
             step={tutorialStep}
             onNext={() => setTutorialStep(prev => prev + 1)}
-            enemyName={enemyMonster.name}
+            enemyName={getLoc(enemyMonster.name)}
           />
         )}
       </AnimatePresence>

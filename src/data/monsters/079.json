@@ -1,28 +1,52 @@
 {
-  "id": "079",
-  "name": "Kořenový Golem",
-  "type": "Přírodní",
-  "rarity": "Běžná",
-  "description": "Malý hromotluk upletený z kořínků a lián.",
-  "stats": {
-    "hp": 141,
-    "attack": 38,
-    "defense": 12
-  },
-  "abilities": [
-    {
-      "name": "Divoké šlahouny",
-      "description": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 130
+    "id": "079",
+    "name": {
+        "cz": "Kořenový Golem",
+        "en": "Storm Eagle",
+        "sk": "Búrkový orol"
     },
-    {
-      "name": "Fotosyntéza",
-      "description": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-      "type": "regen",
-      "chance": 65,
-      "value": 15
-    }
-  ]
+    "type": "nature",
+    "rarity": "common",
+    "description": {
+        "cz": "Malý hromotluk upletený z kořínků a lián.",
+        "en": "A giant eagle that controls the winds and can summon storms.",
+        "sk": "Obrovský orol, ktorý ovláda vetry a dokáže privolať búrky."
+    },
+    "stats": {
+        "hp": 141,
+        "attack": 38,
+        "defense": 12
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Divoké šlahouny",
+                "en": "Wind Slice",
+                "sk": "Veterný sek"
+            },
+            "description": {
+                "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
+                "en": "Attacks with a gust of sharp wind.",
+                "sk": "Zaútočí závanom ostrého vetra."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 130
+        },
+        {
+            "name": {
+                "cz": "Fotosyntéza",
+                "en": "Storm Call",
+                "sk": "Volanie búrky"
+            },
+            "description": {
+                "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
+                "en": "Summons a storm to damage the enemy.",
+                "sk": "Privolá búrku, ktorá poškodí nepriateľa."
+            },
+            "type": "regen",
+            "chance": 65,
+            "value": 15
+        }
+    ]
 }

@@ -1,28 +1,52 @@
 {
-  "id": "001",
-  "name": "Plamínek Horkobřich",
-  "description": "Malý oživlý uhlík, který se snadno rozzlobí. Má pořád hlad a polyká žhavé kameny.",
-  "type": "Ohnivá",
-  "rarity": "Vzácná",
-  "stats": {
-    "hp": 220,
-    "attack": 84,
-    "defense": 30
-  },
-  "abilities": [
-    {
-      "name": "Plamenný dech",
-      "description": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
-      "type": "attack",
-      "chance": 80,
-      "value": 155
+    "id": "001",
+    "name": {
+        "cz": "Plamínek Horkobřich",
+        "en": "Flame Belly",
+        "sk": "Plamienok Horúcobruch"
     },
-    {
-      "name": "Lávová aura",
-      "description": "Tvoří ochranný štít, který poškozuje útočníky zblízka (Snížení dmg 55-65%)",
-      "type": "defense",
-      "chance": 70,
-      "value": 60
-    }
-  ]
+    "description": {
+        "cz": "Malý oživlý uhlík, který se snadno rozzlobí. Má pořád hlad a polyká žhavé kameny.",
+        "en": "A small animated ember that gets angry easily. It's always hungry and swallows glowing stones.",
+        "sk": "Malý oživený uhlík, ktorý sa ľahko nahnevá. Je stále hladný a prehĺta žeravé kamene."
+    },
+    "type": "fire",
+    "rarity": "rare",
+    "stats": {
+        "hp": 220,
+        "attack": 84,
+        "defense": 30
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Plamenný dech",
+                "en": "Flame Breath",
+                "sk": "Plamenný dych"
+            },
+            "description": {
+                "cz": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
+                "en": "Hits the enemy with a massive flame and causes burns.",
+                "sk": "Zasiahne nepriateľa masívnym plameňom a spôsobí popáleniny."
+            },
+            "type": "attack",
+            "chance": 80,
+            "value": 155
+        },
+        {
+            "name": {
+                "cz": "Lávová aura",
+                "en": "Lava Aura",
+                "sk": "Lávová aura"
+            },
+            "description": {
+                "cz": "Tvoří ochranný štít, který poškozuje útočníky zblízka (Snížení dmg 55-65%)",
+                "en": "Creates a protective shield that damages close attackers.",
+                "sk": "Tvorí ochranný štít, ktorý poškodzuje útočníkov zblízka."
+            },
+            "type": "defense",
+            "chance": 70,
+            "value": 60
+        }
+    ]
 }

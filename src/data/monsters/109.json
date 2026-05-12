@@ -1,35 +1,67 @@
 {
-  "id": "109",
-  "name": "Démonický Pán Popela",
-  "description": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
-  "type": "Ohnivá",
-  "rarity": "Legendární",
-  "stats": {
-    "hp": 1200,
-    "attack": 434,
-    "defense": 320
-  },
-  "abilities": [
-    {
-      "name": "Pekelné Sežehnutí",
-      "description": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
+    "id": "109",
+    "name": {
+        "cz": "Démonický Pán Popela",
+        "en": "Demonic Lord of Ash",
+        "sk": "Démonický Pán Popela"
     },
-    {
-      "name": "Uhelná Bouře",
-      "description": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
-      "type": "debuff",
-      "chance": 50,
-      "value": 0.3
+    "description": {
+        "cz": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
+        "en": "A gigantic beast composed of hardened obsidian and liquid lava. Its chest forms a volcanic furnace that consumes everything living and turns it into suffocating ash.",
+        "sk": "Gigantická beštia zložená z tvrdeného obsidiánu a tekutej lávy. Jej hruď tvorí sopečná pec, ktorá pohlcuje všetko živé a mení to na dusivý popol."
     },
-    {
-      "name": "Sopečný Výbuch",
-      "description": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
-      "type": "attack",
-      "chance": 70,
-      "value": 230
-    }
-  ]
+    "type": "fire",
+    "rarity": "legendary",
+    "stats": {
+        "hp": 1200,
+        "attack": 434,
+        "defense": 320
+    },
+    "abilities": [
+        {
+            "name": {
+                "cz": "Pekelné Sežehnutí",
+                "en": "Hellish Incineration",
+                "sk": "Pekelné sežehnutí"
+            },
+            "description": {
+                "cz": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
+                "en": "Delivers a strike with hellfire that ignores 50% of the enemy's defense.",
+                "sk": "Zasadí ranu plameňom pekelným, ktorá ignoruje 50 % nepriateľovej obrany."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        },
+        {
+            "name": {
+                "cz": "Uhelná Bouře",
+                "en": "Coal Storm",
+                "sk": "Uhelná bouře"
+            },
+            "description": {
+                "cz": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
+                "en": "Scorches the battlefield and the air, drastically reducing enemy defense.",
+                "sk": "Spáli bojisko aj vzduch, čím drasticky zníži obranu nepriateľa."
+            },
+            "type": "debuff",
+            "chance": 50,
+            "value": 0.3
+        },
+        {
+            "name": {
+                "cz": "Sopečný Výbuch",
+                "en": "Volcanic Eruption",
+                "sk": "Sopečný výbuch"
+            },
+            "description": {
+                "cz": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
+                "en": "The monster accumulates energy in its chest and unleashes a destructive wave of lava.",
+                "sk": "Monštrum nahromadí energiu vo svojej hrudi a vypustí ničivú vlnu lávy."
+            },
+            "type": "attack",
+            "chance": 70,
+            "value": 230
+        }
+    ]
 }

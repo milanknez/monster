@@ -1,6 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { X, Sword, Heart, Flame, Droplets, Leaf, Zap, Skull, Check } from 'lucide-react';
-import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel } from '../../utils';
+import { 
+  Sword, X, Heart, Zap, Flame, Droplets, 
+  Leaf, Skull, Check 
+} from 'lucide-react';
+import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -9,7 +13,7 @@ export const DuelSelectionModal = ({
   onSelect, 
   onClose,
   opponent,
-  title = "Vyber si bojovníka",
+  title,
   description
 }: { 
   caughtMonsters: Monster[], 
@@ -19,6 +23,7 @@ export const DuelSelectionModal = ({
   title?: string,
   description?: string
 }) => {
+  const { t, i18n } = useTranslation();
   // Seřadit podle nejsilnějšího (lvl * útok nebo prostě lvl)
   const sorted = [...caughtMonsters].sort((a, b) => (b.level || 0) - (a.level || 0));
   const isCollected = opponent ? caughtMonsters.some(m => m.id === opponent.id) : false;
@@ -34,12 +39,13 @@ export const DuelSelectionModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[2100] flex flex-col bg-background-dark/95 backdrop-blur-xl">
-      <div className="p-8 border-b border-red-500/20 flex justify-between items-center bg-red-950/20">
+    <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
+      <div className="w-full max-w-[600px] h-full bg-slate-900 flex flex-col relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+        <div className="p-8 border-b border-red-500/20 flex justify-between items-center bg-red-950/20">
         <div className="flex-1">
-          <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{title}</h3>
+          <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{title || t('duel.select_fighter')}</h3>
           <p className="text-[10px] text-red-500 font-bold uppercase tracking-[0.4em] mt-1 flex items-center gap-2">
-            <Sword size={12} /> Příprava na souboj
+            <Sword size={12} /> {t('duel.preparation')}
           </p>
         </div>
         <button onClick={onClose} className="p-3 bg-red-900/40 rounded-2xl text-red-400 border border-red-500/20 hover:scale-110 active:scale-95 transition-all">
@@ -69,16 +75,16 @@ export const DuelSelectionModal = ({
                 />
                 {/* Type icon in the corner of the silhouette - Enhanced visibility */}
                 <div className="absolute bottom-1.5 right-1.5 size-8 bg-slate-900/90 rounded-xl flex items-center justify-center border border-white/20 shadow-2xl z-20 backdrop-blur-sm">
-                  <TypeIcon type={opponent.type} size={16} />
+                  <TypeIcon type={getLoc(opponent.type, 'cz')} size={16} />
                 </div>
               </div>
               
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 rounded-md bg-red-500 text-background-dark text-[10px] font-black uppercase tracking-widest italic">Nepřítel</span>
+                  <span className="px-2 py-0.5 rounded-md bg-red-500 text-background-dark text-[10px] font-black uppercase tracking-widest italic">{t('duel.opponent')}</span>
                 </div>
                 <h4 className="text-xl font-black text-white uppercase italic tracking-tighter mb-1 flex items-center gap-2">
-                  {isCollected ? opponent.name : "Neznámý Soupeř"}
+                  {isCollected ? getLoc(opponent.name, i18n.language) : t('duel.unknown_opponent')}
                   {isCollected && (
                     <div className="flex items-center justify-center size-5 rounded-full bg-emerald-500/20 border border-emerald-500/40">
                       <Check size={12} className="text-emerald-400 stroke-[4]" />
@@ -90,7 +96,7 @@ export const DuelSelectionModal = ({
                     <span className="text-[11px] font-black text-red-500 uppercase tracking-widest leading-none">LVL {opponent.level}</span>
                   </div>
                   {isCollected && (
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] opacity-80">Již chyceno</span>
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] opacity-80">{t('duel.already_caught')}</span>
                   )}
                 </div>
               </div>
@@ -100,7 +106,7 @@ export const DuelSelectionModal = ({
 
         <div className="space-y-3">
           <div className="px-1 flex items-center justify-between mb-4">
-            <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Tvá Aktivní Monstra</h5>
+            <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{t('duel.active_monsters')}</h5>
             <div className="h-px flex-1 bg-white/5 ml-4" />
           </div>
 
@@ -111,7 +117,7 @@ export const DuelSelectionModal = ({
                 const currentHP = monster.currentHP ?? maxHP;
                 const hpPercent = Math.round((currentHP / maxHP) * 100);
                 const isDisabled = hpPercent < 80;
-                const colors = TYPE_COLORS[monster.type] || TYPE_COLORS['Default']
+                const colors = getMonsterColors(monster.type);
                 
                 return (
                   <motion.div
@@ -126,22 +132,19 @@ export const DuelSelectionModal = ({
                         ? "opacity-50 grayscale border-slate-800 bg-slate-900/40 pointer-events-none" 
                         : "cursor-pointer active:scale-95",
                       !isDisabled && (
-                        monster.rarity === 'Vzácná' ? "border-blue-500/40 bg-blue-500/10 shadow-blue-500/10 hover:border-blue-500/60" :
-                        monster.rarity === 'Epická' ? "border-purple-500/40 bg-purple-500/10 shadow-purple-500/10 hover:border-purple-500/60" :
-                        monster.rarity === 'Legendární' ? "border-amber-500/40 bg-amber-500/10 shadow-amber-500/10 hover:border-amber-500/60" :
-                        colors.border + " " + colors.bg + " hover:border-white/20"
+                        getRarityTheme(monster.rarity).card + " hover:border-white/20"
                       )
                     )}
                   >
                     {/* Decorative Frame for Rare/Epic/Legendary */}
-                    {!isDisabled && (monster.rarity === 'Vzácná' || monster.rarity === 'Epická' || monster.rarity === 'Legendární') && (
+                    {!isDisabled && (getLoc(monster.rarity, 'cz') !== 'Běžná') && (
                       <div className="absolute inset-0 pointer-events-none z-30">
                         {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => (
                           <div key={corner} className={cn(
                             "absolute size-4 border-2",
                             corner.includes('top') ? "top-0" : "bottom-0",
                             corner.includes('left') ? "left-0" : "right-0",
-                            monster.rarity === 'Vzácná' ? "border-blue-400" : monster.rarity === 'Epická' ? "border-purple-400" : "border-amber-400",
+                            getRarityTheme(monster.rarity).border,
                             corner === 'top-left' && "border-r-0 border-b-0 rounded-tl-[2rem]",
                             corner === 'top-right' && "border-l-0 border-b-0 rounded-tr-[2rem]",
                             corner === 'bottom-left' && "border-r-0 border-t-0 rounded-bl-[2rem]",
@@ -199,16 +202,16 @@ export const DuelSelectionModal = ({
                     <img 
                       src={monster.image} 
                       className="absolute inset-0 w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-110" 
-                      alt={monster.name}
+                      alt={getLoc(monster.name, i18n.language)}
                     />
 
                     {/* Name and Type */}
                     <div className="absolute bottom-5 left-3 right-3 z-20">
                       <div className="flex items-center gap-1.5">
                         <div className="p-1 rounded bg-black/40 backdrop-blur-sm border border-white/5">
-                          <TypeIcon type={monster.type} size={12} />
+                          <TypeIcon type={getLoc(monster.type, 'cz')} size={12} />
                         </div>
-                        <p className="text-white text-[10px] font-black uppercase tracking-tight truncate drop-shadow-md">{monster.name}</p>
+                        <p className="text-white text-[10px] font-black uppercase tracking-tight truncate drop-shadow-md">{getLoc(monster.name, i18n.language)}</p>
                       </div>
                     </div>
 
@@ -226,9 +229,7 @@ export const DuelSelectionModal = ({
                            }}
                            className={cn(
                             "h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]",
-                            monster.rarity === 'Legendární' ? "bg-amber-500" : 
-                            monster.rarity === 'Epická' ? "bg-purple-500" : 
-                            monster.rarity === 'Vzácná' ? "bg-blue-500" : "bg-primary"
+                            getRarityTheme(monster.rarity).bg
                           )}
                        />
                     </div>
@@ -236,7 +237,7 @@ export const DuelSelectionModal = ({
                     {/* Disabled Overlay */}
                     {isDisabled && (
                       <div className="absolute inset-0 bg-red-950/40 backdrop-blur-[2px] z-40 flex items-center justify-center p-4 text-center">
-                        <p className="text-[9px] font-black text-red-500 uppercase tracking-widest bg-black/80 px-3 py-1.5 rounded-full border border-red-500/30 shadow-2xl">Málo životů</p>
+                        <p className="text-[9px] font-black text-red-500 uppercase tracking-widest bg-black/80 px-3 py-1.5 rounded-full border border-red-500/30 shadow-2xl">{t('duel.low_hp')}</p>
                       </div>
                     )}
                     
@@ -258,7 +259,7 @@ export const DuelSelectionModal = ({
             ) : (
               <div className="col-span-2 py-20 flex flex-col items-center justify-center text-center">
                 <Sword size={64} className="text-slate-800 mb-6 animate-pulse" />
-                <p className="text-slate-500 font-bold uppercase tracking-[0.2em] max-w-[200px]">Nemáš žádné příšerky schopné boje</p>
+                <p className="text-slate-500 font-bold uppercase tracking-[0.2em] max-w-[200px]">{t('duel.no_fighters')}</p>
               </div>
             )}
           </div>
@@ -267,11 +268,12 @@ export const DuelSelectionModal = ({
       
       <div className="p-8 bg-slate-950/80 border-t border-white/5">
         <p className="text-[10px] text-slate-500 text-center font-bold uppercase tracking-[0.2em] leading-relaxed opacity-60">
-          {description || "Zvolte svého šampiona, který se utká s nepřítelem. Pamatujte, že k boji je potřeba alespoň 80% životů!"}
+          {description || t('duel.duel_desc')}
         </p>
       </div>
     </div>
-  )
+  </div>
+)
 }
 
 DuelSelectionModal.displayName = 'DuelSelectionModal'
