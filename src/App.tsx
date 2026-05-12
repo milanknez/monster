@@ -13,6 +13,7 @@ import { StatsCard } from './components/ui/StatsCard'
 import { LatestDetection } from './components/dashboard/LatestDetection'
 import { RecentActivity } from './components/dashboard/RecentActivity'
 import { DailyQuests } from './components/dashboard/DailyQuests'
+import { Leaderboard } from './components/dashboard/Leaderboard'
 import { NewMonsterModal } from './components/modals/NewMonsterModal'
 import { Bestiary } from './components/bestiary/Bestiary'
 import { Inventory } from './components/inventory/Inventory'
@@ -149,7 +150,6 @@ function AppContent() {
     const saved = localStorage.getItem('monster_spawn_radius');
     return saved ? parseInt(saved) : 1000;
   });
-  const [globalRank, setGlobalRank] = useState<number | null>(null);
 
   // Log interception for Android debugging
   useEffect(() => {
@@ -587,60 +587,6 @@ function AppContent() {
     }
   }, [totalXP, currentLevel, userUid, referredBy, playerName]);
 
-  const [leaderboardNearby, setLeaderboardNearby] = useState<{ name: string, mct: number, rank: number, isMe?: boolean }[]>([]);
-  const [leaderboardTop, setLeaderboardTop] = useState<{ name: string, mct: number, rank: number }[]>([]);
-
-  // Global Leaderboard Tracking
-  useEffect(() => {
-    if (!userUid) return;
-    const usersRef = ref(db, 'users');
-    const unsubscribe = onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
-      
-      const players = Object.entries(data)
-        .map(([id, val]: [string, any]) => ({
-          id,
-          name: val.playerName || val.name || val.nam || val.n || 'Neznámý lovec',
-          mct: Array.isArray(val.caughtMonsters) ? val.caughtMonsters.length : 
-               (typeof val.mct === 'number' ? val.mct : 
-               typeof val.monsterCount === 'number' ? val.monsterCount : 
-               typeof val.mc === 'number' ? val.mc : 0)
-        }))
-        .filter(p => (p.name !== 'Neznámý lovec' && p.mct > 0) || p.id === userUid)
-        .sort((a, b) => b.mct - a.mct);
-      
-      // Get Top 3
-      const top3 = players.slice(0, 3).map((p, idx) => ({
-        name: p.name,
-        mct: p.mct,
-        rank: idx + 1
-      }));
-      setLeaderboardTop(top3);
-
-      const myIdx = players.findIndex(p => p.id === userUid);
-      if (myIdx !== -1) {
-        setGlobalRank(myIdx + 1);
-        
-        // Get 3 above and 3 below
-        const start = Math.max(0, myIdx - 3);
-        const end = Math.min(players.length, myIdx + 4);
-        const nearby = players.slice(start, end).map((p, idx) => ({
-          name: p.name,
-          mct: p.mct,
-          rank: start + idx + 1,
-          isMe: p.id === userUid
-        }));
-        setLeaderboardNearby(nearby);
-      } else {
-        const myCount = caughtMonsters.length;
-        const higherPlayers = players.filter(p => p.mct > myCount);
-        setGlobalRank(higherPlayers.length + 1);
-        setLeaderboardNearby([]);
-      }
-    });
-    return () => unsubscribe();
-  }, [userUid, caughtMonsters.length]);
 
   // Initialize notifications (Local & Push)
   useEffect(() => {
@@ -1411,18 +1357,16 @@ function AppContent() {
               <DailyQuests
                 caughtMonsters={caughtMonsters}
                 dailyDistance={dailyDistance}
+                onClaimReward={handleClaimReward}
+                isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                 playerLevel={currentLevel}
                 dailyStats={dailyStats}
-                onClaimReward={(xp) => handleClaimReward(xp, activeBoosts)}
-                isXPBoosted={activeBoosts.some(b => b.type === 'xp_boost' && b.expiresAt > Date.now())}
                 referrals={referrals}
                 onInvite={() => setIsInviteModalOpen(true)}
-                onHatch={handleHatchReferral}
-                onDelete={handleDeleteReferral}
-                globalRank={globalRank}
-                leaderboardNearby={leaderboardNearby}
-                leaderboardTop={leaderboardTop}
+                onHatch={(uid) => claimReferralReward(userUid!, uid)}
+                onDelete={(uid) => deleteReferral(userUid!, uid)}
               />
+              <Leaderboard userUid={userUid} />
             </motion.div>
           )}
 

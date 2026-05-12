@@ -62,7 +62,7 @@ interface SystemEditorProps {
 // Helper pro barevný časový štítek
 const renderTimeBadge = (timestamp: number) => {
   if (!timestamp) return <span className="px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 text-[7px] font-black uppercase">Nikdy</span>;
-  
+
   const diff = Date.now() - timestamp;
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
@@ -101,7 +101,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarFilter, setSidebarFilter] = useState('Vše')
   const [elementFilter, setElementFilter] = useState('Vše')
-  
+
   // Players State
   const [players, setPlayers] = useState<any[]>([])
 
@@ -140,35 +140,47 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   useEffect(() => {
     const presenceRef = ref(db, 'presence');
     const usersRef = ref(db, 'users');
+    const playersRef = ref(db, 'players');
 
     let presenceMap: Record<string, any> = {};
     let usersMap: Record<string, any> = {};
+    let playersNodeMap: Record<string, any> = {};
 
     const mergeAndSet = () => {
-      const allUids = Array.from(new Set([...Object.keys(presenceMap), ...Object.keys(usersMap)]));
+      const allUids = Array.from(new Set([
+        ...Object.keys(presenceMap), 
+        ...Object.keys(usersMap),
+        ...Object.keys(playersNodeMap)
+      ]));
       const combined = allUids.map(id => {
         const pData = presenceMap[id] || {};
         const uData = usersMap[id] || {};
+        const pNodeData = playersNodeMap[id] || {};
         
-        // Priority: Presence node (live) -> Users node (backup) -> Fallbacks
-        const finalLevel = pData.lvl !== undefined ? pData.lvl : (uData.currentLevel || uData.level || 1);
-        const finalName = getLoc(pData.nam || uData.playerName || uData.name || 'Lovec', 'cz');
+        const merged = { ...pNodeData, ...uData, ...pData };
+        
+        // Robust naming fallback from merged data
+        const rawName = merged.nam || merged.playerName || merged.name || merged.n || id;
+        const finalName = getLoc(rawName, 'cz');
+
+        // Robust level and monster count fallbacks from merged data
+        const finalLevel = merged.lvl || merged.level || merged.currentLevel || 1;
+        const finalMonsterCount = merged.mct || (Array.isArray(merged.caughtMonsters) ? merged.caughtMonsters.length : (merged.monsterCount || merged.mc || 0));
 
         return {
           id,
           name: finalName,
           level: finalLevel,
-          monsterCount: pData.mct || uData.caughtMonsters?.length || 0,
-          isOnline: !!pData.onl,
-          lastActive: pData.act || uData.updatedAt || 0,
-          lat: pData.lat || uData.lat || 0,
-          lng: pData.lng || uData.lng || 0,
-          avatarStyle: pData.avs || uData.avatarStyle || 'bottts',
-          avatarSeed: pData.avd || uData.avatarSeed || id,
-          // Zachováváme kompletní data pro detaily
-          inventory: uData.inventory || [],
-          caughtMonsters: uData.caughtMonsters || [],
-          email: uData.email || pData.eml || (uData.playerName?.includes('@') ? uData.playerName : (pData.nam?.includes('@') ? pData.nam : null))
+          monsterCount: finalMonsterCount,
+          isOnline: !!merged.onl,
+          lastActive: merged.act || merged.lastActive || merged.updatedAt || merged.lastSync || 0,
+          lat: merged.lat || 0,
+          lng: merged.lng || 0,
+          avatarStyle: merged.avs || merged.avatarStyle || 'bottts',
+          avatarSeed: merged.avd || merged.avatarSeed || id,
+          inventory: merged.inventory || [],
+          caughtMonsters: merged.caughtMonsters || [],
+          email: merged.email || (merged.playerName?.includes('@') ? merged.playerName : (merged.nam?.includes('@') ? merged.nam : null))
         };
       }).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
 
@@ -178,16 +190,28 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     const unsubPresence = onValue(presenceRef, (snapshot) => {
       presenceMap = snapshot.val() || {};
       mergeAndSet();
+    }, (error) => {
+      console.error("[SystemEditor] Presence Error:", error);
     });
 
     const unsubUsers = onValue(usersRef, (snapshot) => {
       usersMap = snapshot.val() || {};
       mergeAndSet();
+    }, (error) => {
+      console.error("[SystemEditor] Users Error:", error);
+    });
+
+    const unsubPlayersNode = onValue(playersRef, (snapshot) => {
+      playersNodeMap = snapshot.val() || {};
+      mergeAndSet();
+    }, (error) => {
+      console.error("[SystemEditor] Players Error:", error);
     });
 
     return () => {
       unsubPresence();
       unsubUsers();
+      unsubPlayersNode();
     };
   }, []);
 
@@ -437,29 +461,32 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           </div>
         ) : activeTab === 'users' ? (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-white/5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-black text-sm uppercase tracking-widest text-primary">Seznam Hráčů</h2>
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                  <span className="text-[8px] font-black text-emerald-500">{players.filter(p => p.isOnline).length} ONLINE</span>
+              <div className="p-4 border-b border-white/5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-black text-sm uppercase tracking-widest text-primary">Seznam Hráčů</h2>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full">
+                    <span className="text-[8px] font-black text-primary">{players.length} CELKEM</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                    <span className="text-[8px] font-black text-emerald-500">{players.filter(p => p.isOnline).length} ONLINE</span>
+                  </div>
                 </div>
+                <input type="text" placeholder="Hledat hráče..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
               </div>
-              <input type="text" placeholder="Hledat hráče..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
-            </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {players
-                .filter(p => 
-                  p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                .filter(p =>
+                  p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   p.email?.toLowerCase().includes(searchQuery.toLowerCase())
                 )
                 .map(p => (
                   <button key={p.id} onClick={() => setSelectedPlayerId(p.id)} className={cn("w-full p-3 rounded-xl flex items-center gap-3 transition-all text-left group border", selectedPlayerId === p.id ? "bg-primary/20 border-primary/30" : "hover:bg-white/5 border-transparent")}>
                     <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden shrink-0 relative">
-                       <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" />
-                       {p.isOnline && (
-                         <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-                       )}
+                      <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" />
+                      {p.isOnline && (
+                        <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[11px] font-black truncate text-white uppercase group-hover:text-primary transition-colors">{p.name || 'Lovec'}</div>
@@ -467,11 +494,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                         {p.email || (p.name?.includes('@') ? p.name : '')}
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                         <span className="text-[8px] font-bold truncate opacity-50">ID: {p.id}</span>
-                         <div className="flex items-center gap-1.5">
-                            {renderTimeBadge(p.lastActive)}
-                            <span className="text-[10px] font-black shrink-0 px-2 py-0.5 bg-primary/10 text-primary rounded-md border border-primary/20 shadow-sm shadow-primary/5">Lv {p.level}</span>
-                         </div>
+                        <span className="text-[8px] font-bold truncate opacity-50">ID: {p.id}</span>
+                        <div className="flex items-center gap-1.5">
+                          {renderTimeBadge(p.lastActive)}
+                          <span className="text-[10px] font-black shrink-0 px-2 py-0.5 bg-primary/10 text-primary rounded-md border border-primary/20 shadow-sm shadow-primary/5">Lv {p.level}</span>
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -575,8 +602,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
           <AnimatePresence mode="wait">
             {activeTab === 'monsters' && monsterForm && (
-              <MonsterEditorTab 
-                monsterForm={monsterForm} 
+              <MonsterEditorTab
+                monsterForm={monsterForm}
                 setMonsterForm={setMonsterForm}
                 MONSTER_TYPES={MONSTER_TYPES}
                 MONSTER_RARITIES={MONSTER_RARITIES}
@@ -598,7 +625,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             )}
 
             {activeTab === 'users' && (
-              <UserManagementTab 
+              <UserManagementTab
                 players={players}
                 selectedPlayerId={selectedPlayerId}
                 setSelectedPlayerId={setSelectedPlayerId}
@@ -606,7 +633,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             )}
 
             {activeTab === 'languages' && (
-              <TranslationEditorTab 
+              <TranslationEditorTab
                 resources={translationResources}
                 onSave={(newRes) => {
                   setTranslationResources(newRes);
@@ -634,10 +661,10 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       <AnimatePresence>
         {isJsonModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              exit={{ opacity: 0, scale: 0.9 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
               className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-3xl overflow-hidden flex flex-col max-h-[80vh]"
             >
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -645,11 +672,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                 <button onClick={() => setIsJsonModalOpen(false)} className="text-slate-500 hover:text-white"><X size={24} /></button>
               </div>
               <div className="flex-1 p-6 bg-black/40">
-                <textarea 
-                  value={jsonInput} 
-                  onChange={(e) => setJsonInput(e.target.value)} 
-                  className="w-full h-full min-h-[400px] bg-transparent text-emerald-400 font-mono text-xs outline-none resize-none p-4 custom-scrollbar" 
-                  spellCheck={false} 
+                <textarea
+                  value={jsonInput}
+                  onChange={(e) => setJsonInput(e.target.value)}
+                  className="w-full h-full min-h-[400px] bg-transparent text-emerald-400 font-mono text-xs outline-none resize-none p-4 custom-scrollbar"
+                  spellCheck={false}
                 />
               </div>
               <div className="p-6 border-t border-white/5 bg-slate-900/50 flex gap-3 justify-end">
