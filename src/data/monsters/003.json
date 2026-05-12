@@ -2,13 +2,13 @@
     "id": "003",
     "name": {
         "cz": "Pařezík Větvoslav",
-        "en": "Leafy Crawler",
-        "sk": "Lístkový Plaz"
+        "en": "Stump Větvoslav",
+        "sk": "Parníček Vetvoslav"
     },
     "description": {
         "cz": "Oživlý kus starého dřeva, na kterém roste pravý mech. Je strašně pomalý, ale milý.",
-        "en": "A green lizard perfectly camouflaged among the leaves. It loves peace and sunbathing on old tree trunks.",
-        "sk": "Zelený jašter dokonale maskovaný medzi listami. Miluje pokoj a opaľovanie na starých kmeňoch stromov."
+        "en": "A living piece of old wood with real moss growing on it. He is terribly slow, but nice.",
+        "sk": "Oživený kus starého dreva, na ktorom rastie pravý mach. Je strašne pomalý, ale milý."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kořenové vězení",
-                "en": "Leaf Slice",
-                "sk": "Listový sek"
+                "en": "Root Jail",
+                "sk": "Koreňové väzenie"
             },
             "description": {
                 "cz": "Vyvolá trnité kořeny, které znehybní nepřítele na jedno kolo.",
-                "en": "Attacks with sharp-edged leaves.",
-                "sk": "Zaútočí listami s ostrými hranami."
+                "en": "Summons thorny roots that immobilize an enemy for one round.",
+                "sk": "Vyvolá tŕnisté korene, ktoré znehybnia nepriateľa na jedno kolo."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Fotosyntéza",
-                "en": "Nature's Restoration",
-                "sk": "Obnova prírody"
+                "en": "Photosynthesis",
+                "sk": "Fotosyntéza"
             },
             "description": {
                 "cz": "Využívá sluneční světlo k postupné regeneraci zdraví.",
-                "en": "Heals its wounds using energy from the forest.",
-                "sk": "Zahojí svoje rany pomocou energie z lesa."
+                "en": "Uses sunlight to gradually regenerate health.",
+                "sk": "Využíva slnečné svetlo na postupnú regeneráciu zdravia."
             },
             "type": "heal",
             "chance": 70,

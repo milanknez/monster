@@ -2,12 +2,12 @@
     "id": "109",
     "name": {
         "cz": "Démonický Pán Popela",
-        "en": "Demonic Lord of Ash",
-        "sk": "Démonický Pán Popela"
+        "en": "Demon Ash Lord",
+        "sk": "Démonický Pán Popola"
     },
     "description": {
         "cz": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
-        "en": "A gigantic beast composed of hardened obsidian and liquid lava. Its chest forms a volcanic furnace that consumes everything living and turns it into suffocating ash.",
+        "en": "A gigantic beast composed of hardened obsidian and liquid lava. Her chest is a volcanic furnace that consumes all living things and turns them into suffocating ash.",
         "sk": "Gigantická beštia zložená z tvrdeného obsidiánu a tekutej lávy. Jej hruď tvorí sopečná pec, ktorá pohlcuje všetko živé a mení to na dusivý popol."
     },
     "type": "fire",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Pekelné Sežehnutí",
-                "en": "Hellish Incineration",
-                "sk": "Pekelné sežehnutí"
+                "en": "Infernal Scorching",
+                "sk": "Pekelné spálenie"
             },
             "description": {
                 "cz": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
-                "en": "Delivers a strike with hellfire that ignores 50% of the enemy's defense.",
-                "sk": "Zasadí ranu plameňom pekelným, ktorá ignoruje 50 % nepriateľovej obrany."
+                "en": "Deals a hellfire blow that ignores 50% of the enemy's defense.",
+                "sk": "Zasadí ranu plameňom pekelným, ktorá ignoruje 50% nepriateľovej obrany."
             },
             "type": "attack",
             "chance": 70,
@@ -37,12 +37,12 @@
             "name": {
                 "cz": "Uhelná Bouře",
                 "en": "Coal Storm",
-                "sk": "Uhelná bouře"
+                "sk": "Uhoľná Búrka"
             },
             "description": {
                 "cz": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
-                "en": "Scorches the battlefield and the air, drastically reducing enemy defense.",
-                "sk": "Spáli bojisko aj vzduch, čím drasticky zníži obranu nepriateľa."
+                "en": "Scorches both the battlefield and the air, drastically reducing the enemy's defenses.",
+                "sk": "Zožehne bojisko aj vzduch, čím drasticky zníži obranu nepriateľa."
             },
             "type": "debuff",
             "chance": 50,
@@ -52,11 +52,11 @@
             "name": {
                 "cz": "Sopečný Výbuch",
                 "en": "Volcanic Eruption",
-                "sk": "Sopečný výbuch"
+                "sk": "Sopečný Výbuch"
             },
             "description": {
                 "cz": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
-                "en": "The monster accumulates energy in its chest and unleashes a destructive wave of lava.",
+                "en": "The monster builds up energy in its chest and unleashes a devastating wave of lava.",
                 "sk": "Monštrum nahromadí energiu vo svojej hrudi a vypustí ničivú vlnu lávy."
             },
             "type": "attack",

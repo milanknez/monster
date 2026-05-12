@@ -2,13 +2,13 @@
     "id": "042",
     "name": {
         "cz": "Osminožka Zubatá",
-        "en": "Toothly Octopus",
-        "sk": "Osminožka Zubatá"
+        "en": "Toothed Octopus",
+        "sk": "Osemnožka Zubatá"
     },
     "description": {
         "cz": "Malý huňatý pavouček s velkýma modrýma očima a jedním vyčnívajícím zoubkem. Rád plete sítě z cukrové vaty.",
-        "en": "A sea octopus that unusually has sharp teeth on its tentacles.",
-        "sk": "Morská chobotnica, ktorá má nezvyčajne ostré zuby na svojich chápadlách."
+        "en": "A small bushy spider with big blue eyes and one protruding tooth. He likes to knit cotton candy webs.",
+        "sk": "Malý huňatý pavúčik s veľkými modrými očami a jedným vyčnievajúcim zúbkom. Rád pletie siete z cukrovej vaty."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Cukrová síť",
-                "en": "Toothy Grip",
-                "sk": "Zubatý úchop"
+                "en": "Sugar network",
+                "sk": "Cukrová sieť"
             },
             "description": {
                 "cz": "Vystřelí lepkavou síť, která zpomalí nepřítele na jedno kolo.",
-                "en": "Bites the enemy while holding them.",
-                "sk": "Hryzie nepriateľa, zatiaľ čo ho drží."
+                "en": "Shoots a sticky web that slows the enemy for one turn.",
+                "sk": "Vystrelí lepkavú sieť, ktorá spomalí nepriateľa na jedno kolo."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Huňatý skok",
-                "en": "Water Jet",
-                "sk": "Prúd vody"
+                "en": "A bushy jump",
+                "sk": "Huňatý skok"
             },
             "description": {
                 "cz": "Skočí na nepřítele a překvapí ho svou vahou.",
-                "en": "Shoots a high-pressure jet of water.",
-                "sk": "Vystrelí prúd vody pod vysokým tlakom."
+                "en": "Jumps onto an enemy and surprises them with its weight.",
+                "sk": "Skočí na nepriateľa a prekvapí ho svojou váhou."
             },
             "type": "attack",
             "chance": 80,

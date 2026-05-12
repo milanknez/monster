@@ -2,13 +2,13 @@
     "id": "060",
     "name": {
         "cz": "Škvarkavec Popelavý",
-        "en": "Ashen Crackle",
-        "sk": "Škvarkavec Popelavý"
+        "en": "Ashy Woodpecker",
+        "sk": "Škvarkavec Popolavý"
     },
     "description": {
         "cz": "Zmutovaný tvor připomínající psa, jehož tělo je tvořeno chladnoucí lávou a popelem. Skrz praskliny v jeho kůži prosvítá žhnoucí jádro a jeho dech tvoří hustý černý dým.",
-        "en": "A creature born from fire and ash that constantly crackles with heat.",
-        "sk": "Stvorenie zrodené z ohňa a popola, ktoré neustále praská teplom."
+        "en": "A mutated dog-like creature whose body is made of cooling lava and ash. A glowing core shines through the cracks in his skin, and his breath forms thick black smoke.",
+        "sk": "Zmutovaný tvor pripomínajúci psa, ktorého telo je tvorené chladnúcou lávou a popolom. Cez praskliny v jeho koži presvitá žeravé jadro a jeho dych tvorí hustý čierny dym."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Popelavý kousanec",
-                "en": "Ash Blast",
-                "sk": "Popolový výbuch"
+                "en": "Ashy biter",
+                "sk": "Popolavý kusanec"
             },
             "description": {
                 "cz": "Kousnutí, které způsobí popáleniny popelem.",
-                "en": "Shoots a blast of hot ash.",
-                "sk": "Vystrelí prúd horúceho popola."
+                "en": "A bite that causes ash burns.",
+                "sk": "Uhryznutie, ktoré spôsobí popáleniny popolom."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Kouřová clona",
-                "en": "Heat Aura",
-                "sk": "Tepelná aura"
+                "en": "Smoke screen",
+                "sk": "Dymová clona"
             },
             "description": {
                 "cz": "Vypustí dým, který ho skryje (Snížení dmg 55-65%)",
-                "en": "Radiates heat to damage nearby enemies.",
-                "sk": "Vyžaruje teplo, ktoré poškodzuje okolitých nepriateľov."
+                "en": "Releases smoke that hides it (Dmg reduction 55-65%)",
+                "sk": "Vypustí dym, ktorý ho skryje (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

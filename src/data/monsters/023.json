@@ -2,13 +2,13 @@
     "id": "023",
     "name": {
         "cz": "Slizohad",
-        "en": "Mud Golem",
-        "sk": "Bahnitý golem"
+        "en": "Slime snake",
+        "sk": "Slizohad"
     },
     "description": {
         "cz": "Vodní příšera pokrytá jedovatou slizovinou. Pohybuje se plovoucím klouzavým způsobem a může zasáhnout nepřátele jedem. Strašidelná a nebezpečná, ale stále trochu legrační.",
-        "en": "A golem made of thick mud.",
-        "sk": "Golem vyrobený z hustého bahna."
+        "en": "A water monster covered in poisonous slime. It moves in a floating gliding manner and can hit enemies with poison. Creepy and dangerous, but still kind of funny.",
+        "sk": "Vodná príšera pokrytá jedovatou slizovinou. Pohybuje sa plávajúcim kĺzavým spôsobom a môže zasiahnuť nepriateľov jedom. Strašidelná a nebezpečná, ale stále trochu smiešna."
     },
     "type": "water",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Jedovatý dotek",
-                "en": "Mud Slam",
-                "sk": "Bahnitý úder"
+                "en": "A poisonous touch",
+                "sk": "Jedovatý dotyk"
             },
             "description": {
                 "cz": "Zasáhne jednoho nepřítele jedovatou slizovinou a způsobí poškození po dobu dvou kol.",
-                "en": "A heavy strike with mud.",
-                "sk": "Ťažký úder bahnom."
+                "en": "Hits one enemy with a poisonous slime, dealing damage for two rounds.",
+                "sk": "Zasiahne jedného nepriateľa jedovatou slizovinou a spôsobí poškodenie po dobu dvoch kôl."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Klouzavý útěk",
-                "en": "Slow Bind",
-                "sk": "Pomalé zovretie"
+                "en": "Gliding escape",
+                "sk": "Kĺzavý útek"
             },
             "description": {
                 "cz": "Rychle se přesune pryč a sníží šanci nepřátel zasáhnout ji na jedno kolo (Snížení dmg 55-65%)",
-                "en": "Slows down the enemy.",
-                "sk": "Spomalí nepriateľa."
+                "en": "She quickly moves away and reduces the chance of enemies to hit her for one round (Dmg reduction 55-65%)",
+                "sk": "Rýchlo sa presunie preč a zníži šancu nepriateľov zasiahnuť ju na jedno kolo (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

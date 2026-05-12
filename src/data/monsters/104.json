@@ -2,13 +2,13 @@
     "id": "104",
     "name": {
         "cz": "Hnijící Přízrak",
-        "en": "Rotting Wraith",
-        "sk": "Hnijící Přízrak"
+        "en": "Rotting Ghost",
+        "sk": "Hnijúce Prízrak"
     },
     "description": {
         "cz": "Beztvará masa hnijícího masa a řas z prastarých bažin, která se neustále přeskupuje a vylučuje leptavé toxické výpary.",
-        "en": "A shapeless mass of rotting flesh and algae from ancient swamps, which constantly rearranges itself and secretes corrosive toxic fumes.",
-        "sk": "Beztvará masa hnijúceho mäsa a rias z prastarých bažín, ktorá sa neustále preskupuje a vylučuje leptavé toxické výpary."
+        "en": "A shapeless mass of rotting flesh and algae from ancient swamps that constantly rearranges itself and emits caustic toxic fumes.",
+        "sk": "Beztvará mäsa hnijúceho mäsa a rias z prastarých močiarov, ktorá sa neustále preskupuje a vylučuje žieravé toxické výpary."
     },
     "type": "nature",
     "rarity": "legendary",
@@ -22,12 +22,12 @@
             "name": {
                 "cz": "Morová Mlha",
                 "en": "Plague Mist",
-                "sk": "Morová mlha"
+                "sk": "Morová Hmla"
             },
             "description": {
                 "cz": "Zamoří bojiště, čímž trvale snižuje obranu soupeře každým kolem.",
-                "en": "Infests the battlefield, permanently reducing enemy defense each turn.",
-                "sk": "Zamorí bojisko, čím trvale znižuje obranu súpera každým kolom."
+                "en": "Floods the battlefield, permanently reducing the opponent's defense each round.",
+                "sk": "Zamorí bojisko, čím trvalo znižuje obranu súpera každým kolom."
             },
             "type": "debuff",
             "chance": 50,
@@ -37,12 +37,12 @@
             "name": {
                 "cz": "Slizké Chapadlo",
                 "en": "Slimy Tentacle",
-                "sk": "Slizké chapadlo"
+                "sk": "Slizké Chápadlo"
             },
             "description": {
                 "cz": "Prudký úder, který zanechá leptavou látku rozežírající zbroj.",
-                "en": "A fierce strike that leaves a corrosive substance eating away at armor.",
-                "sk": "Prudký úder, ktorý zanechá leptavú látku rozožierajúcu zbroj."
+                "en": "A powerful strike that leaves a corrosive substance eating away at armor.",
+                "sk": "Prudký úder, ktorý zanechá leptavú látku rozožierajúce zbroj."
             },
             "type": "attack",
             "chance": 70,
@@ -52,12 +52,12 @@
             "name": {
                 "cz": "Vlna Hniloby",
                 "en": "Wave of Rot",
-                "sk": "Vlna hniloby"
+                "sk": "Vlna Hniloby"
             },
             "description": {
                 "cz": "Plošně poškodí nepřítele a část sil použije k vlastnímu zacelení.",
-                "en": "Area-of-effect damage to the enemy and uses some strength for its own healing.",
-                "sk": "Plošne poškodí nepriateľa a časť síl použije k vlastnému zaceleniu."
+                "en": "It damages the enemy in an area and uses some of the power to heal itself.",
+                "sk": "Plošne poškodí nepriateľa a časť síl použije na vlastné zacelenie."
             },
             "type": "heal",
             "chance": 65,

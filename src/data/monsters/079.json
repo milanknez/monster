@@ -2,15 +2,15 @@
     "id": "079",
     "name": {
         "cz": "Kořenový Golem",
-        "en": "Storm Eagle",
-        "sk": "Búrkový orol"
+        "en": "Root Golem",
+        "sk": "Koreňový Golem"
     },
     "type": "nature",
     "rarity": "common",
     "description": {
         "cz": "Malý hromotluk upletený z kořínků a lián.",
-        "en": "A giant eagle that controls the winds and can summon storms.",
-        "sk": "Obrovský orol, ktorý ovláda vetry a dokáže privolať búrky."
+        "en": "A small hulk woven from roots and vines.",
+        "sk": "Malý hromotĺk upletený z korienkov a liana."
     },
     "stats": {
         "hp": 141,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Divoké šlahouny",
-                "en": "Wind Slice",
-                "sk": "Veterný sek"
+                "en": "Wild slugs",
+                "sk": "Divoké šľahúne"
             },
             "description": {
                 "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-                "en": "Attacks with a gust of sharp wind.",
-                "sk": "Zaútočí závanom ostrého vetra."
+                "en": "The ground beneath the enemy comes alive and whips him hard by the roots.",
+                "sk": "Krajina pod nepriateľom ožije a tvrdo ho šľahne korene."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Fotosyntéza",
-                "en": "Storm Call",
-                "sk": "Volanie búrky"
+                "en": "Photosynthesis",
+                "sk": "Fotosyntéza"
             },
             "description": {
                 "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-                "en": "Summons a storm to damage the enemy.",
-                "sk": "Privolá búrku, ktorá poškodí nepriateľa."
+                "en": "It times its cellular renewal, which makes it regenerate slightly for a certain period of time.",
+                "sk": "Načasuje si bunkovú obnovu, vďaka ktorej sa mierne regeneruje určitý čas."
             },
             "type": "regen",
             "chance": 65,

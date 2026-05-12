@@ -2,13 +2,13 @@
     "id": "007",
     "name": {
         "cz": "Bubliko Vlnař",
-        "en": "Thorny Bush",
-        "sk": "Trnitý Ker"
+        "en": "Bubliko Vlnař",
+        "sk": "Bubliko Vlnár"
     },
     "description": {
         "cz": "Vypadá jako kulatá vodní bublina a hrozně ráda skáče do kaluží.",
-        "en": "An animated bush full of sharp thorns. It moves slowly but is dangerous to touch.",
-        "sk": "Oživený ker plný ostrých tŕňov. Pohybuje sa pomaly, ale je nebezpečný na dotyk."
+        "en": "It looks like a round water bubble and loves to jump into puddles.",
+        "sk": "Vyzerá ako guľatá vodná bublina a hrozne rada skáče do kaluží."
     },
     "type": "water",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Gigantická tsunamy",
-                "en": "Thorn Whip",
-                "sk": "Tŕňový bič"
+                "en": "Gigantic tsunamis",
+                "sk": "Gigantická cunamy"
             },
             "description": {
                 "cz": "Vyvolá obrovskou vlnu, která smete vše v cestě.",
-                "en": "Lashes out with thorny branches.",
-                "sk": "Zaútočí tŕnitými vetvami."
+                "en": "Creates a huge wave that sweeps away everything in its path.",
+                "sk": "Vyvolá obrovskú vlnu, ktorá zmetie všetko v ceste."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Mořský hněv",
-                "en": "Spiky Shield",
-                "sk": "Ostnatý štít"
+                "en": "Sea rage",
+                "sk": "Morský hnev"
             },
             "description": {
                 "cz": "Zvýší sílu útoků v závislosti na zbývajícím zdraví.",
-                "en": "Protects itself with a wall of thorns.",
-                "sk": "Chráni sa stenou z tŕňov."
+                "en": "Increases attack power depending on remaining health.",
+                "sk": "Zvýši silu útokov v závislosti od zostávajúceho zdravia."
             },
             "type": "heal",
             "chance": 70,

@@ -3,12 +3,12 @@
     "name": {
         "cz": "Solární Vyvrhel",
         "en": "Solar Outcast",
-        "sk": "Solární Vyvrhel"
+        "sk": "Solárne Vyvrhol"
     },
     "description": {
         "cz": "Vyhublý, deformovaný tvor s kůží připomínající povrch slunce. Neustále z něj vyzařuje nesnesitelný žár a kouř, který oslepuje okolí.",
-        "en": "A creature that was exiled from the sun and now wanders the world, still glowing with solar energy.",
-        "sk": "Stvorenie, ktoré bolo vyhostené zo slnka a teraz putuje svetom, stále žiariac solárnou energiou."
+        "en": "An emaciated, deformed creature with skin resembling the surface of the sun. It constantly emits unbearable heat and smoke that blinds the surroundings.",
+        "sk": "Vychudnutý, deformovaný tvor s kožou pripomínajúcou povrch slnka. Neustále z neho vyžaruje neznesiteľný žiar a dym, ktorý oslepuje okolie."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Sluneční záře",
-                "en": "Solar Beam",
-                "sk": "Solárny lúč"
+                "en": "Sunshine",
+                "sk": "Slnečná žiara"
             },
             "description": {
                 "cz": "Oslní nepřítele zábleskem.",
-                "en": "Fires a beam of concentrated sunlight.",
-                "sk": "Vystrelí lúč koncentrovaného slnečného svetla."
+                "en": "Dazzles the enemy with a flash.",
+                "sk": "Oslní nepriateľa zábleskom."
             },
             "type": "debuff",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Plazmový výboj",
-                "en": "Bright Aura",
-                "sk": "Jasná aura"
+                "en": "Plasma discharge",
+                "sk": "Plazmový výboj"
             },
             "description": {
                 "cz": "Vystřelí kus plazmy ze svého těla.",
-                "en": "Increases its power with sunlight.",
-                "sk": "Zvyšuje svoju silu pomocou slnečného svetla."
+                "en": "He shoots a piece of plasma from his body.",
+                "sk": "Vystrelí kus plazmy zo svojho tela."
             },
             "type": "attack",
             "chance": 80,

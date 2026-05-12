@@ -2,13 +2,13 @@
     "id": "110",
     "name": {
         "cz": "Oko Prázdnoty",
-        "en": "Void Eye",
+        "en": "Eye of the Void",
         "sk": "Oko Prázdnoty"
     },
     "description": {
         "cz": "Pulzující masa masa a žil s jediným gigantickým okem uprostřed. Její pohled proniká realitou a menší oči na výběžcích sledují každý váš pohyb v každé možné časové linii.",
-        "en": "A pulsating mass of flesh and veins with a single gigantic eye in the middle. Its gaze penetrates reality and smaller eyes on the projections track your every move in every possible timeline.",
-        "sk": "Pulzujúca masa mäsa a žíl s jediným gigantickým okom uprostred. Jej pohľad preniká realitou a menšie oči na výbežkoch sledujú každý váš pohyb v každej možnej časovej línii."
+        "en": "A pulsating mass of flesh and blood with a single gigantic eye in the middle. Her gaze pierces reality, and smaller eyes on the protrusions track your every move in every possible timeline.",
+        "sk": "Pulzujúce mäsa mäsa a žíl s jediným gigantickým okom uprostred. Jej pohľad preniká realitou a menšie oči na výbežkoch sledujú každý váš pohyb v každej možnej časovej línii."
     },
     "type": "electric",
     "rarity": "legendary",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Předpověď Konce",
-                "en": "End Prediction",
-                "sk": "Předpověď konce"
+                "en": "Prediction of the End",
+                "sk": "Predpoveď Konce"
             },
             "description": {
                 "cz": "Nikdy nemine a má ohromnou šanci na kritický zásah.",
-                "en": "Never misses and has a great chance of a critical hit.",
+                "en": "He never misses and has a huge critical hit chance.",
                 "sk": "Nikdy neminie a má ohromnú šancu na kritický zásah."
             },
             "type": "attack",
@@ -37,11 +37,11 @@
             "name": {
                 "cz": "Dezintegrace",
                 "en": "Disintegration",
-                "sk": "Dezintegrace"
+                "sk": "Dezintegrácia"
             },
             "description": {
                 "cz": "Vypustí vědecky nevysvětlitelný paprsek, který rozebere nepřítele na atomy.",
-                "en": "Unleashes a scientifically inexplicable beam that disassembles the enemy into atoms.",
+                "en": "Fires a scientifically inexplicable beam that breaks the enemy into atoms.",
                 "sk": "Vypustí vedecky nevysvetliteľný lúč, ktorý rozoberie nepriateľa na atómy."
             },
             "type": "attack",
@@ -51,12 +51,12 @@
         {
             "name": {
                 "cz": "Vhled do Budoucna",
-                "en": "Future Insight",
-                "sk": "Vhled do budoucna"
+                "en": "Insight into the Future",
+                "sk": "Vhľad do Budúcna"
             },
             "description": {
                 "cz": "Na krátkou chvíli zastaví čas a dočasně zvýší své útočné statistiky.",
-                "en": "For a short moment stops time and temporarily increases its attack stats.",
+                "en": "Stops time for a short while and temporarily increases your attack stats.",
                 "sk": "Na krátku chvíľu zastaví čas a dočasne zvýši svoje útočné štatistiky."
             },
             "type": "buff",

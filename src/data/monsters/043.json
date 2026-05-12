@@ -2,13 +2,13 @@
     "id": "043",
     "name": {
         "cz": "Stonožka Roháček",
-        "en": "Horned Centipede",
-        "sk": "Stonožka Roháček"
+        "en": "Roháček centipede",
+        "sk": "Stonožka Roháčik"
     },
     "description": {
         "cz": "Pestrobarevná stonožka s malými zakroucenými rohy na každém článku těla. Je velmi rychlá a miluje závody v trávě.",
-        "en": "A long centipede with sharp horns on its head that it uses for defense.",
-        "sk": "Dlhá stonožka s ostrými rohmi na hlave, ktoré používa na obranu."
+        "en": "A brightly colored centipede with small twisted horns on each limb. She is very fast and loves racing in the grass.",
+        "sk": "Pestrofarebná stonožka s malými zakrútenými rohmi na každom článku tela. Je veľmi rýchla a miluje závody v tráve."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Sprintér",
-                "en": "Horn Gore",
-                "sk": "Nabodnutie rohom"
+                "en": "Sprinter",
+                "sk": "Šprintér"
             },
             "description": {
                 "cz": "Zvýší svou rychlost a příští útok doručí dříve. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Pierces the enemy with its horns.",
-                "sk": "Prebodne nepriateľa svojimi rohmi."
+                "en": "It will increase its speed and deliver the next attack sooner. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Zvýši svoju rýchlosť a budúci útok doručí skôr. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Rohový náraz",
-                "en": "Multi-leg Strike",
-                "sk": "Úder mnohými nohami"
+                "en": "Corner bump",
+                "sk": "Rohový náraz"
             },
             "description": {
                 "cz": "Udeří svými malými rohy a způsobí střední poškození.",
-                "en": "Attacks with many legs at once.",
-                "sk": "Zaútočí mnohými nohami naraz."
+                "en": "It will strike with its small horns for medium damage.",
+                "sk": "Udrie svojimi malými rohmi a spôsobí stredné poškodenie."
             },
             "type": "attack",
             "chance": 80,

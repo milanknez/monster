@@ -2,13 +2,13 @@
     "id": "066",
     "name": {
         "cz": "Houbovous Zamořený",
-        "en": "Tidal Guardian",
-        "sk": "Prílivový strážca"
+        "en": "SpongeBob Infested",
+        "sk": "Hubovous Zamorený"
     },
     "description": {
         "cz": "Bytost tvořená houbami a plísní se svítícími sporami. Pod širokým kloboukem skrývá obří tlamu plnou hubovitých zubů.",
-        "en": "A sea creature that protects the coral reefs. It can control the flow of water.",
-        "sk": "Morské stvorenie, ktoré chráni koralové útesy. Dokáže ovládať tok vody."
+        "en": "A creature made of fungi and mold with glowing spores. Under a wide hat hides a giant mouth full of mushroom-like teeth.",
+        "sk": "Bytosť tvorená hubami a plesňou so svietiacimi sporami. Pod širokým klobúkom skrýva obrovskú papuľu plnú hubovitých zubov."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Mrak spor",
-                "en": "Water Shield",
-                "sk": "Vodný štít"
+                "en": "Cloud dispute",
+                "sk": "Mrak spor"
             },
             "description": {
                 "cz": "Uvolní jedovaté spory.",
-                "en": "A shield made of swirling water.",
-                "sk": "Štít vyrobený z víriacej vody."
+                "en": "Releases poisonous spores.",
+                "sk": "Uvoľní jedovaté spory."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Houbová regenerace",
-                "en": "Current Pull",
-                "sk": "Ťah prúdu"
+                "en": "Fungal regeneration",
+                "sk": "Hubová regenerácia"
             },
             "description": {
                 "cz": "Vyléčí se pomocí plísně.",
-                "en": "Pulls the enemy closer with a water current.",
-                "sk": "Pritiahne nepriateľa bližšie pomocou vodného prúdu."
+                "en": "It is cured using a fungus.",
+                "sk": "Vylieči sa pomocou plesne."
             },
             "type": "heal",
             "chance": 65,

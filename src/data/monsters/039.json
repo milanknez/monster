@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Tříhlavá hydra, která žije v kráterech aktivních sopek. Místo krve jí v žilách proudí tekutá láva a každá její hlava ovládá jiný aspekt ohně.",
-        "en": "A multi-headed beast that lives in lava and breathes fire from all its heads.",
-        "sk": "Viacuhlavá beštia, ktorá žije v láve a chrlí oheň zo všetkých svojich hláv."
+        "en": "A three-headed hydra that lives in the craters of active volcanoes. Liquid lava flows through her veins instead of blood, and each of her heads controls a different aspect of fire.",
+        "sk": "Trojhlavá hydra, ktorá žije v kráteroch aktívnych sopiek. Namiesto krvi jej v žilách prúdi tekutá láva a každá jej hlava ovláda iný aspekt ohňa."
     },
     "type": "fire",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Trojnásobný dech",
-                "en": "Triple Breath",
-                "sk": "Trojitý dych"
+                "en": "The triple breath",
+                "sk": "Trojnásobný dych"
             },
             "description": {
                 "cz": "Všechny tři hlavy společně vychrlí masivní proud ohně, který spálí vše v cestě.",
-                "en": "Attacks with fire from three heads.",
-                "sk": "Zaútočí ohňom z troch hláv."
+                "en": "All three heads together spew a massive stream of fire that burns everything in its path.",
+                "sk": "Všetky tri hlavy spoločne vychrlia masívny prúd ohňa, ktorý spáli všetko v ceste."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Lávová regenerace",
-                "en": "Lava Spit",
-                "sk": "Pľutie lávy"
+                "en": "Lava regeneration",
+                "sk": "Lávová regenerácia"
             },
             "description": {
                 "cz": "Využije teplo k zacelení svých ran a posílení útoku.",
-                "en": "Spits hot lava at the enemy.",
-                "sk": "Pľuje horúcu lávu na nepriateľa."
+                "en": "He uses the heat to heal his wounds and boost his attack.",
+                "sk": "Využije teplo na zacelenie svojich rán a posilnenie útoku."
             },
             "type": "heal",
             "chance": 70,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Soptící hněv",
-                "en": "Translated: Soptící hněv",
-                "sk": "Soptící hnev"
+                "en": "Seething anger",
+                "sk": "Soptiaci hnev"
             },
             "description": {
                 "cz": "Způsobí výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
-                "en": "Deals výbuch lávy v širokém okolí, který poškodí všechny nepřátele.",
-                "sk": "Zpúsobí výbuch lávy v širokém okolí, který poškodí všechny neprátele."
+                "en": "Causes an explosion of lava in a wide area that damages all enemies.",
+                "sk": "Spôsobí výbuch lávy v širokom okolí, ktorý poškodí všetkých nepriateľov."
             },
             "type": "extra",
             "chance": 65,

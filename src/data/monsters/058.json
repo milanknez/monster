@@ -2,13 +2,13 @@
     "id": "058",
     "name": {
         "cz": "Jiskrohlod Zmutovaný",
-        "en": "Shadow Crawler",
-        "sk": "Tieňový lezec"
+        "en": "Sparklegger Mutated",
+        "sk": "Iskrohlod Zmutovaný"
     },
     "description": {
         "cz": "Malý hlodavec s anténami místo uší, jehož tělem neustále probíjí silná elektrická energie. Jeho srst je neustále naježená statickou elektřinou a jeho tlama srší modré blesky.",
-        "en": "A dark creature that moves through the shadows and strikes without warning.",
-        "sk": "Temné stvorenie, ktoré sa pohybuje v tieňoch a útočí bez varovania."
+        "en": "A small rodent with antennae instead of ears, whose body is constantly charged with strong electrical energy. His fur is constantly bristling with static electricity and his muzzle shoots blue lightning.",
+        "sk": "Malý hlodavec s anténami namiesto uší, ktorého telom neustále prebíja silná elektrická energia. Jeho srsť je neustále naježená statickou elektrinou a jeho papuľa srší modré blesky."
     },
     "type": "electric",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Elektrický Výboj",
-                "en": "Shadow Strike",
-                "sk": "Tieňový úder"
+                "en": "Electric Discharge",
+                "sk": "Elektrický Výboj"
             },
             "description": {
                 "cz": "Vypustí ze svého těla řetězový blesk, který nepřítele zasáhne a ochromí.",
-                "en": "An attack from the shadows.",
-                "sk": "Útok z tieňov."
+                "en": "He releases a chain bolt of lightning from his body that hits and paralyzes the enemy.",
+                "sk": "Vypustí zo svojho tela reťazový blesk, ktorý nepriateľa zasiahne a ochromí."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Statické Nabití",
-                "en": "Night Stalk",
-                "sk": "Nočné prenasledovanie"
+                "en": "Static Charge",
+                "sk": "Statické Nabitie"
             },
             "description": {
                 "cz": "Nabije své tělo obrovskou energií, která zvýší jeho příští útok. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Increases stealth and accuracy.",
-                "sk": "Zvyšuje neviditeľnosť a presnosť."
+                "en": "He charges his body with a huge amount of energy that increases his next attack. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Nabije svoje telo obrovskou energiou, ktorá zvýši jeho budúci útok. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 50,
@@ -51,12 +51,12 @@
         {
             "name": {
                 "cz": "Zkrat",
-                "en": "Short Circuit",
+                "en": "A short cut",
                 "sk": "Skrat"
             },
             "description": {
                 "cz": "Způsobí energetický výbuch, který oslabí útok nepřítele tím, že ho oslepí zábleskem.",
-                "en": "Causes an energy explosion that weakens the enemy's attack by blinding them with a flash.",
+                "en": "Causes an energy blast that weakens the enemy's attack by blinding them with a flash.",
                 "sk": "Spôsobí energetický výbuch, ktorý oslabí útok nepriateľa tým, že ho oslepí zábleskom."
             },
             "type": "debuff",

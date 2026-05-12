@@ -2,13 +2,13 @@
     "id": "059",
     "name": {
         "cz": "Bleskovec Víceoký",
-        "en": "Multi-eyed Lightning Bolt",
-        "sk": "Bleskovec Víceoký"
+        "en": "Lightning Bolt Multi-Eyed",
+        "sk": "Bleskovec Viacoký"
     },
     "description": {
         "cz": "Levitující koule čisté energie s desítkami malých očí po celém obvodu. Uprostřed má jednu vertikální tlamu a dokáže se v mžiku teleportovat na krátké vzdálenosti díky bleskovému impulsu.",
-        "en": "A creature that looks like a ball of lightning with multiple eyes watching in all directions.",
-        "sk": "Stvorenie, ktoré vyzerá ako guľa bleskov s viacerými očami sledujúcimi všetky smery."
+        "en": "A levitating ball of pure energy with dozens of tiny eyes all around. It has a single vertical mouth in the middle and can instantly teleport short distances with a lightning impulse.",
+        "sk": "Levitujúca guľa čistej energie s desiatkami malých očí po celom obvode. Uprostred má jednu vertikálnu papuľu a dokáže sa v okamihu teleportovať na krátke vzdialenosti vďaka bleskovému impulzu."
     },
     "type": "water",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Blesková Tlama",
-                "en": "Lightning Pulse",
-                "sk": "Bleskový pulz"
+                "en": "Lightning Muzzle",
+                "sk": "Blesková Tlama"
             },
             "description": {
                 "cz": "Kousnutí s prvkem vysokého napětí, které proniká i brněním.",
-                "en": "Releases a pulse of electric energy.",
-                "sk": "Uvoľní pulz elektrickej energie."
+                "en": "Bite with a high voltage element that penetrates armor.",
+                "sk": "Uhryznutie s prvkom vysokého napätia, ktoré preniká aj brnením."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Oko Blesku",
-                "en": "All-seeing Eye",
-                "sk": "Vševediace oko"
+                "en": "Eye of Lightning",
+                "sk": "Oko Blesku"
             },
             "description": {
                 "cz": "Všechna jeho oka vysílají paprsky, které nepřítele zaměří a sníží jeho šanci na úhyb.",
-                "en": "Increases chance to hit the enemy.",
-                "sk": "Zvyšuje šancu na zasiahnutie nepriateľa."
+                "en": "All of his eyes emit beams that target the enemy and reduce their chance of evasion.",
+                "sk": "Všetky jeho oká vysielajú lúče, ktoré nepriateľa zamerajú a znížia jeho šancu na úhyb."
             },
             "type": "heal",
             "chance": 65,

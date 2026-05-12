@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Hydrox je nestabilní vodní mutant připomínající živou chemickou směs. Jeho tělo neustále víří, bublá a mění tvar, jako by se každou vteřinu rozpadal a znovu skládal. Z průsvitné kapaliny vystupují ostré zuby a dlouhá drápovitá ramena, která dokážou šlehat jako bič. Působí hravě a zvědavě, ale jeho dotek pálí a leptá. Nikdy nevíš, jestli si chce hrát… nebo tě rozpustit.",
-        "en": "Hydrox is an unstable water mutant resembling a living chemical mixture. Its body constantly swirls, bubbles and changes shape, as if it were falling apart and reassembling every second. Sharp teeth and long clawed arms that can lash like a whip emerge from the translucent liquid. It seems playful and curious, but its touch burns and corrodes. You never know if it wants to play... or dissolve you.",
-        "sk": "Hydrox je nestabilný vodný mutant pripomínajúci živú chemickú zmes. Jeho telo neustále víri, buble a mení tvar, akoby sa každú sekundu rozpadal a znovu skladal. Z priesvitnej kvapaliny vystupujú ostré zuby a dlhé drápovité ramená, ktoré dokážu šľahať ako bič. Pôsobí hravo a zvedavo, ale jeho dotyk páli a leptá. Nikdy nevieš, či sa chce hrať… alebo ťa rozpustiť."
+        "en": "Hydrox is an unstable water mutant resembling a living chemical mixture. His body is constantly swirling, bubbling and changing shape, as if it is falling apart and reassembling itself every second. Sharp teeth and long claw-like arms emerge from the translucent liquid, which can whip like a whip. He seems playful and curious, but his touch burns and stings. You never know if he wants to play… or melt you.",
+        "sk": "Hydrox je nestabilný vodný mutant pripomínajúci živú chemickú zmes. Jeho telo neustále víri, buble a mení tvar, ako by sa každú sekundu rozpadal a znovu skladal. Z priesvitnej kvapaliny vystupujú ostré zuby a dlhé pazúrové ramená, ktoré dokážu šľahať ako bič. Pôsobí hravo a zvedavo, ale jeho dotyk páli a leptá. Nikdy nevieš, či sa chce hrať... alebo ťa rozpustiť."
     },
     "type": "water",
     "rarity": "rare",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Kyselinový výboj",
-                "en": "Acid Discharge",
+                "en": "Acid discharge",
                 "sk": "Kyselinový výboj"
             },
             "description": {
                 "cz": "Vystříkne proud žíravé kapaliny, který způsobí vysoké poškození a může oslabit obranu nepřítele.",
-                "en": "Sprays a stream of corrosive liquid that causes high damage and can weaken enemy defense.",
+                "en": "Sprays a stream of caustic liquid that deals high damage and can weaken enemy defenses.",
                 "sk": "Vystrekne prúd žieravej kvapaliny, ktorý spôsobí vysoké poškodenie a môže oslabiť obranu nepriateľa."
             },
             "type": "attack",
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Tekuté tělo",
-                "en": "Liquid Body",
-                "sk": "Tekuté tělo"
+                "en": "Liquid body",
+                "sk": "Tekuté telo"
             },
             "description": {
                 "cz": "Rozteče se a část útoků projde skrz něj, čímž sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
-                "en": "Liquefies and part of attacks pass through it, reducing damage taken for one round.",
-                "sk": "Roztečie sa a časť útokov prejde cez neho, čím zníži prijaté poškodenie na jedno kolo."
+                "en": "It will spread and some of the attacks will pass through it, reducing the damage taken for one round (Dmg reduction 55-65%)",
+                "sk": "Roztečie sa a časť útokov prejde cez neho, čím zníži prijaté poškodenie na jedno kolo (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 85,

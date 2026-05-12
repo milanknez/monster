@@ -2,12 +2,12 @@
     "id": "105",
     "name": {
         "cz": "Beztvará Hrůza",
-        "en": "Shapeless Horror",
-        "sk": "Beztvará Hrůza"
+        "en": "Formless Horror",
+        "sk": "Beztvará Hrôza"
     },
     "description": {
         "cz": "Obří chobotnicovitá entita s nekonečně se kroutícími chapadly.",
-        "en": "A giant octopus-like entity with infinitely twisting tentacles.",
+        "en": "A giant octopus-like entity with endlessly twisting tentacles.",
         "sk": "Obria chobotnicovitá entita s nekonečne sa krútiacimi chápadlami."
     },
     "type": "electric",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Mutace Chaosu",
-                "en": "Chaos Mutation",
-                "sk": "Mutace chaosu"
+                "en": "A mutation of Chaos",
+                "sk": "Mutácia Chaosu"
             },
             "description": {
                 "cz": "Náhodně změní své staty, aby se přizpůsobila nepříteli.",
-                "en": "Randomly changes its stats to adapt to the enemy.",
-                "sk": "Náhodne zmení svoje štatistiky, aby sa prispôsobila nepriateľovi."
+                "en": "She will randomly change her stats to match the enemy.",
+                "sk": "Náhodne zmení svoje staty, aby sa prispôsobila nepriateľovi."
             },
             "type": "buff",
             "chance": 50,
@@ -36,12 +36,12 @@
         {
             "name": {
                 "cz": "Roztržení Reality",
-                "en": "Reality Tear",
-                "sk": "Roztržení reality"
+                "en": "Tearing Reality",
+                "sk": "Roztrhnutie Reality"
             },
             "description": {
                 "cz": "Vykouzlí trhlinu, která dočasně poškodí nepřítelovu obranu i útok.",
-                "en": "Conjures a rift that temporarily damages enemy defense and attack.",
+                "en": "Conjures a rift that temporarily damages the enemy's defense and attack.",
                 "sk": "Vykúzli trhlinu, ktorá dočasne poškodí nepriateľovu obranu aj útok."
             },
             "type": "debuff",
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Přízračné Kousnutí",
-                "en": "Spectral Bite",
-                "sk": "Přízračné kousnutí"
+                "en": "Phantom Bite",
+                "sk": "Prízračné uhryznutie"
             },
             "description": {
                 "cz": "Zasadí ránu čelistmi z jiné dimenze, která ignoruje veškeré brnění.",
-                "en": "Delivers a strike with jaws from another dimension that ignores all armor.",
-                "sk": "Zasadí ranu čeľusťami z inej dimenzie, ktorá ignoruje všetko brnenie."
+                "en": "It deals a blow with jaws from another dimension that ignores all armor.",
+                "sk": "Zasadí ranu čeľusťami z inej dimenzie, ktorá ignoruje všetky brnenia."
             },
             "type": "attack",
             "chance": 70,

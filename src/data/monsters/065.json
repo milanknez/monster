@@ -2,13 +2,13 @@
     "id": "065",
     "name": {
         "cz": "Kořenohlod Trnitý",
-        "en": "Frozen Sentinel",
-        "sk": "Mrazivý strážca"
+        "en": "Spiny rootworm",
+        "sk": "Korenohlod Tŕnitý"
     },
     "description": {
         "cz": "Zmutovaný hybrid rostliny a zvířete s mnoha dřevěnými končetinami a ostrými zuby ve tvaru trnů. Jeho kořeny se dokáží bleskově zavrtat do země.",
-        "en": "An ice golem that guards the entrance to the frozen caves. It is cold and unyielding.",
-        "sk": "Ľadový golem, ktorý stráži vstup do mrazivých jaskýň. Je chladný a neústupný."
+        "en": "A mutated plant-animal hybrid with many wooden limbs and sharp thorn-shaped teeth. Its roots can burrow into the ground in a flash.",
+        "sk": "Zmutovaný hybrid rastliny a zvieraťa s mnohými drevenými končatinami a ostrými zubami v tvare tŕňov. Jeho korene sa dokážu bleskovo zavŕtať do zeme."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Trnový úder",
-                "en": "Ice Punch",
-                "sk": "Ľadový úder"
+                "en": "Thorn strike",
+                "sk": "Tŕňový úder"
             },
             "description": {
                 "cz": "Sekne nepřítele trny.",
-                "en": "A punch that can freeze the enemy.",
-                "sk": "Úder, ktorý môže zmraziť nepriateľa."
+                "en": "Slashes enemies with thorns.",
+                "sk": "Sekne nepriateľa tŕne."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Kořenový štít",
-                "en": "Frost Wall",
-                "sk": "Mrazivá stena"
+                "en": "Root shield",
+                "sk": "Koreňový štít"
             },
             "description": {
                 "cz": "Vytvoří kolem sebe hradbu z kořenů (Snížení dmg 55-65%)",
-                "en": "Creates a wall of ice to protect itself.",
-                "sk": "Vytvorí stenu z ľadu na svoju ochranu."
+                "en": "Creates a wall of roots around itself (Dmg reduction 55-65%)",
+                "sk": "Vytvorí okolo seba hradbu z koreňov (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

@@ -2,15 +2,15 @@
     "id": "080",
     "name": {
         "cz": "Březový Pavouk",
-        "en": "Magma Golem",
-        "sk": "Magmatický golem"
+        "en": "Birch Spider",
+        "sk": "Brezový Pavúk"
     },
     "type": "nature",
     "rarity": "common",
     "description": {
         "cz": "Pavouk maskující se barvou březové kůry, nesmírně tichý lov.",
-        "en": "A golem made of molten magma and solid rock. It is incredibly hot.",
-        "sk": "Golem vyrobený z roztavenej magmy a pevnej skaly. Je neuveriteľne horúci."
+        "en": "A spider camouflaging itself with the color of birch bark, extremely silent hunting.",
+        "sk": "Pavúk maskujúci sa farbou brezovej kôry, nesmierne tichý lov."
     },
     "stats": {
         "hp": 133,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Divoké šlahouny",
-                "en": "Magma Slam",
-                "sk": "Magmatický úder"
+                "en": "Wild slugs",
+                "sk": "Divoké šľahúne"
             },
             "description": {
                 "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-                "en": "Slams the ground with its heavy magma fists.",
-                "sk": "Udrie do zeme svojimi ťažkými magmatickými päsťami."
+                "en": "The ground beneath the enemy comes alive and whips him hard by the roots.",
+                "sk": "Krajina pod nepriateľom ožije a tvrdo ho šľahne korene."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Fotosyntéza",
-                "en": "Heat Burst",
-                "sk": "Tepelný výbuch"
+                "en": "Photosynthesis",
+                "sk": "Fotosyntéza"
             },
             "description": {
                 "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-                "en": "Releases a burst of extreme heat.",
-                "sk": "Uvoľní dávku extrémneho tepla."
+                "en": "It times its cellular renewal, which makes it regenerate slightly for a certain period of time.",
+                "sk": "Načasuje si bunkovú obnovu, vďaka ktorej sa mierne regeneruje určitý čas."
             },
             "type": "regen",
             "chance": 65,

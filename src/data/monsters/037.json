@@ -2,13 +2,13 @@
     "id": "037",
     "name": {
         "cz": "Voltinka Čibu",
-        "en": "Voltaic Chibu",
+        "en": "Voltinka Čibu",
         "sk": "Voltinka Čibu"
     },
     "description": {
         "cz": "Malá odvážná čivava stojící na kopci, chytá blesky z nebe. Srst jí vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
-        "en": "A small electric creature that is very energetic and always on the move.",
-        "sk": "Malé elektrické stvorenie, ktoré je veľmi energické a neustále v pohybe."
+        "en": "A brave little chihuahua standing on a hill, catching lightning from the sky. Her fur flutters from the electricity, leaving sparkling trails behind her.",
+        "sk": "Malá odvážna čivava stojaca na kopci, chytá blesky z neba. Srsť jej veje od elektrickej energie a zanecháva za sebou iskriace stopy."
     },
     "type": "electric",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Nebeský výboj",
-                "en": "Volt Tackle",
-                "sk": "Volťácky výpad"
+                "en": "Heavenly discharge",
+                "sk": "Nebeský výboj"
             },
             "description": {
                 "cz": "Chytí blesk z nebe a zasáhne jednoho nepřítele silným elektrickým poškozením.",
-                "en": "Charges at the enemy with electric power.",
-                "sk": "Vrazí do nepriateľa s elektrickou silou."
+                "en": "Catches lightning from the sky and hits one enemy with heavy electrical damage.",
+                "sk": "Chytí blesk z neba a zasiahne jedného nepriateľa silným elektrickým poškodením."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Elektrická obnova",
-                "en": "Speed Boost",
-                "sk": "Zrýchlenie"
+                "en": "Electrical restoration",
+                "sk": "Elektrická obnova"
             },
             "description": {
                 "cz": "Použije energii blesků k doražení nepřítele.",
-                "en": "Increases speed for a short time.",
-                "sk": "Na krátky čas zvýši rýchlosť."
+                "en": "Uses lightning energy to hit the enemy.",
+                "sk": "Použije energiu bleskov na dodanie nepriateľa."
             },
             "type": "extra",
             "chance": 85,

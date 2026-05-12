@@ -2,13 +2,13 @@
     "id": "054",
     "name": {
         "cz": "Slinotvor Malformovaný",
-        "en": "Malformed Drooler",
+        "en": "Malformed salivary gland",
         "sk": "Slinotvor Malformovaný"
     },
     "description": {
         "cz": "Tento tvor je hromadou svalů a slizu, která se neustále přetváří. Má několik neukotvených očí plovoucích v rosolovitém těle a z každé jeho praskliny vytéká lepkavá, fluoreskující tekutina. Jeho dech páchne po staré hnilobě a jeho kůže je pokryta pulzujícími vřídky, které při prasknutí uvolňují toxický mrak.",
-        "en": "A mutated creature that constantly drools a corrosive substance.",
-        "sk": "Zmutované stvorenie, ktoré neustále slintá žieravú látku."
+        "en": "This creature is a mass of muscle and slime that constantly morphs. It has several undocked eyes floating in its jelly-like body, and a sticky, fluorescent liquid oozes from each of its cracks. His breath reeks of old rot and his skin is covered in pulsating boils that release a toxic cloud when they burst.",
+        "sk": "Tento tvor je hromadou svalov a slizu, ktorá sa neustále pretvára. Má niekoľko neukotvených očí plávajúcich v rôsolovitom tele az každej jeho praskliny vyteká lepkavá, fluoreskujúca tekutina. Jeho dych páchne po starej hnilobe a jeho koža je pokrytá pulzujúcimi vriedkami, ktoré pri prasknutí uvoľňujú toxický mrak."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Toxicita Slizu",
-                "en": "Corrosive Spit",
-                "sk": "Žieravé pľutie"
+                "en": "Slime toxicity",
+                "sk": "Toxicita Slizu"
             },
             "description": {
                 "cz": "Oprská nepřítele svým lepkavým slizem, který ho postupně rozežírá a oslabuje.",
-                "en": "Spits corrosive saliva at the enemy.",
-                "sk": "Pľuje žieravé sliny na nepriateľa."
+                "en": "It splashes the enemy with its sticky slime, which gradually eats away and weakens it.",
+                "sk": "Oprská nepriateľa svojim lepkavým slizom, ktorý ho postupne rozožiera a oslabuje."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Slizká Regenerace",
-                "en": "Slimy Trail",
-                "sk": "Slizká stopa"
+                "en": "Slime Regeneration",
+                "sk": "Slizká Regenerácia"
             },
             "description": {
                 "cz": "Část jeho těla se rozpustí a znovu zformuje, čímž si vyléčí utržené rány.",
-                "en": "Leaves a trail of corrosive slime.",
-                "sk": "Zanechá stopu žieravého slizu."
+                "en": "Part of his body dissolves and re-forms, healing his torn wounds.",
+                "sk": "Časť jeho tela sa rozpustí a znovu sformuje, čím si vylieči odtrhnuté rany."
             },
             "type": "heal",
             "chance": 65,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Ochromující Pach",
-                "en": "Translated: Ochromující Pach",
-                "sk": "Ochromující Pach "
+                "en": "Paralyzing Odor",
+                "sk": "Ochromujúce Pach"
             },
             "description": {
                 "cz": "Uvolní oblak hnilobného plynu, který nepřítele na chvíli zcela ochromí.",
-                "en": "Uvolní oblak hnilobného plynu, který nepřítele for chvíli zcela ochromí.",
-                "sk": "Uvolní oblak hnilobného plynu, který neprítele na chvíli zcela ochromí."
+                "en": "Releases a cloud of putrid gas that completely paralyzes the enemy for a moment.",
+                "sk": "Uvoľní oblak hnilobného plynu, ktorý nepriateľa na chvíľu úplne ochromí."
             },
             "type": "debuff",
             "chance": 50,

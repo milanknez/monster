@@ -2,13 +2,13 @@
     "id": "022",
     "name": {
         "cz": "Žouža Drapák",
-        "en": "Storm Hawk",
-        "sk": "Búrkový jastrab"
+        "en": "Zouža Drapák",
+        "sk": "Žuža Drapák"
     },
     "description": {
         "cz": "Mutantní žížala s dlouhými paznechty s drápy na konci, které dokážou chňapnout po nepřátelích. Strašidelná i legrační zároveň, ideální na překvapení nepřátel ve hře.",
-        "en": "A bird that rides the storm clouds.",
-        "sk": "Vták, ktorý jazdí na búrkových mrakoch."
+        "en": "A mutant earthworm with long hooves with claws at the end that can grab onto enemies. Scary and funny at the same time, perfect for surprising enemies in the game.",
+        "sk": "Mutantná dážďovka s dlhými paznechtami s pazúrmi na konci, ktoré dokážu chňapnúť po nepriateľoch. Strašidelná aj smiešna zároveň, ideálna na prekvapenie nepriateľov v hre."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Chapadlový útok",
-                "en": "Lightning Strike",
-                "sk": "Úder blesku"
+                "en": "Tentacle attack",
+                "sk": "Chápadlový útok"
             },
             "description": {
                 "cz": "Útočí chapadly na jednoho nepřítele a způsobí silné poškození.",
-                "en": "A quick strike like lightning.",
-                "sk": "Rýchly úder ako blesk."
+                "en": "Attacks one enemy with tentacles, dealing heavy damage.",
+                "sk": "Útočí chápadlami na jedného nepriateľa a spôsobí silné poškodenie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Plazivá obrana",
-                "en": "Wind Slash",
-                "sk": "Veterný sek"
+                "en": "Creeping defense",
+                "sk": "Plazivá obrana"
             },
             "description": {
                 "cz": "Schová se částečně v zemi, na jedno kolo snižuje přijaté poškození (Snížení dmg 55-65%)",
-                "en": "Slashes with the power of wind.",
-                "sk": "Sekne silou vetra."
+                "en": "Hides partially in the ground, reduces damage taken for one round (Dmg reduction 55-65%)",
+                "sk": "Schová sa čiastočne v krajine, na jedno kolo znižuje prijaté poškodenie (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

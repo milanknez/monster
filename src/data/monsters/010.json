@@ -2,13 +2,13 @@
     "id": "010",
     "name": {
         "cz": "Mňoukožár Divoký",
-        "en": "Glow Worm",
-        "sk": "Svetielkujúci Červ"
+        "en": "Mneukožar Wild",
+        "sk": "Mňoukožár Divoký"
     },
     "description": {
         "cz": "Malé kotě neznámého původu s obrovskýma svítícíma oranžovýma očima. Toulá se začarovaným lesem a miluje lovení jiskřiček v táboráku.",
-        "en": "A small worm that lives in caves and glows in various colors to lure prey.",
-        "sk": "Malý červ, ktorý žije v jaskyniach a žiari rôznymi farbami, aby nalákal korisť."
+        "en": "A small kitten of unknown origin with huge glowing orange eyes. He wanders through the enchanted forest and loves catching sparks in the campfire.",
+        "sk": "Malé mačiatko neznámeho pôvodu s obrovskými svietiacimi oranžovými očami. Túla sa začarovaným lesom a miluje lovenie iskričiek v táboráku."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Zářivý prskanec",
-                "en": "Bright Flash",
-                "sk": "Jasný záblesk"
+                "en": "A bright sparkler",
+                "sk": "Žiarivý prskanec"
             },
             "description": {
                 "cz": "Vystřelí malou kouli jisker, která protivníka na chvilinku oslepí.",
-                "en": "A blinding flash of light.",
-                "sk": "Oslepujúci záblesk svetla."
+                "en": "Shoots a small ball of sparks that momentarily blinds the opponent.",
+                "sk": "Vystrelí malú guľu iskier, ktorá protivníka na chvíľku oslepí."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Nabití baterek",
-                "en": "Sticky Trail",
-                "sk": "Lepkavá stopa"
+                "en": "Battery charging",
+                "sk": "Nabitie bateriek"
             },
             "description": {
                 "cz": "Když na ni pofoukne vítr, tak si dobije ztracenou energii a začne bzučet. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Leaves a sticky substance that slows down the enemy.",
-                "sk": "Zanechá lepkavú látku, ktorá spomalí nepriateľa."
+                "en": "When the wind blows on it, it recharges its lost energy and starts buzzing. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Keď na ňu pofúkne vietor, tak si dobije stratenú energiu a začne bzučať. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,

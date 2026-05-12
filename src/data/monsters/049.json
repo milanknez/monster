@@ -2,13 +2,13 @@
     "id": "049",
     "name": {
         "cz": "Vážka Strašilka",
-        "en": "Spooky Dragonfly",
+        "en": "Dragonfly Scarecrow",
         "sk": "Vážka Strašilka"
     },
     "description": {
         "cz": "Obrovská vážka s kovově lesklým tělem a čtyřmi křídly, která při letu vydávají skřípavý zvuk. Má velké čelisti a čtyři páry očí, které vidí vše v okolí.",
-        "en": "A giant dragonfly with a metallic shiny body and four wings that make a creaking sound when flying. It has large jaws and four pairs of eyes that see everything around it.",
-        "sk": "Obrovská vážka s kovovo lesklým telom a štyrmi krídlami, ktoré pri lete vydávajú skřípavý zvuk. Má veľké čeľuste a štyri páry očí, ktoré vidia všetko v okolí."
+        "en": "A huge dragonfly with a shiny metallic body and four wings that make a screeching sound when in flight. It has large jaws and four pairs of eyes that see everything around it.",
+        "sk": "Obrovská vážka s kovovo lesklým telom a štyrmi krídlami, ktoré pri lete vydávajú škrípavý zvuk. Má veľké čeľuste a štyri páry očí, ktoré vidia všetko v okolí."
     },
     "type": "water",
     "rarity": "common",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Skřípavý nálet",
-                "en": "Creaky Air Raid",
+                "en": "A screeching raid",
                 "sk": "Škrípavý nálet"
             },
             "description": {
                 "cz": "Rychle proletí kolem nepřítele a sekne ho svými křídly.",
-                "en": "Quickly flies past the enemy and slashes them with its wings.",
+                "en": "He quickly flies past the enemy and slashes him with his wings.",
                 "sk": "Rýchlo preletí okolo nepriateľa a sekne ho svojimi krídlami."
             },
             "type": "attack",
@@ -36,12 +36,12 @@
         {
             "name": {
                 "cz": "Čelistní stisk",
-                "en": "Jaw Grip",
-                "sk": "Čeľustný stisk"
+                "en": "Jaw squeeze",
+                "sk": "Čeľustné stlačenie"
             },
             "description": {
                 "cz": "Zakousne se do nepřítele svými silnými čelistmi.",
-                "en": "Bites into the enemy with its powerful jaws.",
+                "en": "It bites into the enemy with its powerful jaws.",
                 "sk": "Zahryzne sa do nepriateľa svojimi silnými čeľusťami."
             },
             "type": "attack",

@@ -2,13 +2,13 @@
     "id": "027",
     "name": {
         "cz": "Láskožrout Měkký",
-        "en": "Soft Heart-Eater",
-        "sk": "Láskožrout Měkký"
+        "en": "Love Eater Soft",
+        "sk": "Lákožrút Mäkký"
     },
     "description": {
         "cz": "Měkká, roztomilá příšerka, která dokáže pohltit nepřátele svým objímacím tělem. Strašidelná jen trošku, ale hlavně legrační a mazlivá.",
-        "en": "A small, fluffy parasite that looks like a plush toy but secretly feeds on the affection and emotions of its owners.",
-        "sk": "Malý, chlpatý parazit, ktorý vyzerá ako plyšová hračka, ale tajne sa kŕmi náklonnosťou a emóciami svojich majiteľov."
+        "en": "A soft, cute monster that can engulf enemies with its huggable body. Scary just a little, but mostly funny and cuddly.",
+        "sk": "Mäkká, roztomilá príšerka, ktorá dokáže pohltiť nepriateľov svojim objímacím telom. Strašidelná len trošku, ale hlavne smiešna a maznavá."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Mazlivý sev",
-                "en": "Cute Stare",
-                "sk": "Roztomilý pohľad"
+                "en": "Cuddly sev",
+                "sk": "Maznavý sev"
             },
             "description": {
                 "cz": "Objímá nepřítele, způsobuje poškození a snižuje jeho rychlost na jedno kolo. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Stares cute to lower enemy's focus.",
-                "sk": "Roztomilo pozerá, aby znížil sústredenie nepriateľa."
+                "en": "Embraces the enemy, dealing damage and reducing their speed for one round. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Objíma nepriateľa, spôsobuje poškodenie a znižuje jeho rýchlosť na jedno kolo. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Plyšový štít",
-                "en": "Emotional Drain",
-                "sk": "Emocionálne vyčerpanie"
+                "en": "Plush shield",
+                "sk": "Plyšový štít"
             },
             "description": {
                 "cz": "Na jedno kolo zvýší obranu a částečně odráží poškození zpět (Snížení dmg 55-65%)",
-                "en": "Drains the enemy's energy by playing with their emotions.",
-                "sk": "Vysáva energiu nepriateľa hrou s jeho emóciami."
+                "en": "Increases defense and partially reflects damage back for one turn (Dmg reduction 55-65%)",
+                "sk": "Na jedno kolo zvýši obranu a čiastočne odráža poškodenie späť (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

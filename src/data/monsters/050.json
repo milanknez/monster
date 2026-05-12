@@ -2,13 +2,13 @@
     "id": "050",
     "name": {
         "cz": "Baboškrabka Zlověstná",
-        "en": "Cloud Whale",
-        "sk": "Obláková Veľryba"
+        "en": "Lady Crab Ominous",
+        "sk": "Baboškrabka Zlovestná"
     },
     "description": {
         "cz": "Prastará a děsivá bytost obývající nejhlubší hvozdy. Tato legendární Baba Jaga má rozcuchané, špinavé šedé vlasy, na nose velkou bradavici a z hrbaté postavy jí trčí kostěné ostny. Vládne mocnou lopatou ukovanou z meteoru a očarovanou kořeny světa. Její smích věští zkázu každému, kdo naruší klid přírody.",
-        "en": "A majestic whale that swims through the clouds instead of water.",
-        "sk": "Majestátna veľryba, ktorá namiesto vody pláva v oblakoch."
+        "en": "An ancient and terrifying creature inhabiting the deepest forests. This legendary Baba Yaga has disheveled, dirty gray hair, a large wart on her nose, and bony spines sticking out of her hunchbacked frame. He wields a mighty shovel forged from a meteor and enchanted by the roots of the world. Her laughter portends doom to anyone who disturbs the peace of nature.",
+        "sk": "Prastará a desivá bytosť obývajúca najhlbšie hvozdy. Táto legendárna Baba Jaga má strapaté, špinavé šedé vlasy, na nose veľkú bradavicu az hrbatej postavy jej trčia kostené ostne. Vládne mocnú lopatou ukovanú z meteoru a očarovanú korene sveta. Jej smiech veštia skazu každému, kto naruší pokoj prírody."
     },
     "type": "nature",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Úder Epickou Lopatou",
-                "en": "Cloud Crash",
-                "sk": "Oblákový náraz"
+                "en": "Epic Shovel Strike",
+                "sk": "Úder Epickou Lopatou"
             },
             "description": {
                 "cz": "Zasadí zdrcující úder svou lopatou, který může nepřítele omráčit.",
-                "en": "Crashes into the enemy with its massive body.",
-                "sk": "Narazí do nepriateľa svojím mohutným telom."
+                "en": "He delivers a crushing blow with his shovel that can stun the enemy.",
+                "sk": "Zasadí zdrvujúci úder svojou lopatou, ktorý môže nepriateľa omráčiť."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Kletba Hlubokého Lesa",
-                "en": "Sky Song",
-                "sk": "Pieseň nebies"
+                "en": "Curse of the Deep Forest",
+                "sk": "Kliatba Hlbokého Lesa"
             },
             "description": {
                 "cz": "Vyvolá trní a temné kořeny, které nepřítele paralyzují a oslabí.",
-                "en": "A song that calms and heals allies.",
-                "sk": "Pieseň, ktorá upokojuje a lieči spojencov."
+                "en": "Summons thorns and dark roots that paralyze and weaken the enemy.",
+                "sk": "Vyvolá tŕnie a temné korene, ktoré nepriateľa paralyzujú a oslabia."
             },
             "type": "debuff",
             "chance": 50,
@@ -51,12 +51,12 @@
         {
             "name": {
                 "cz": "Hnilobný Závan",
-                "en": "Rotten Breath",
-                "sk": "Hnilobný závan"
+                "en": "Rotten Whiff",
+                "sk": "Hnilobný Závan"
             },
             "description": {
                 "cz": "Z lopaty se uvolní oblak hniloby, který postupně vysává život z nepřítele.",
-                "en": "A cloud of rot is released from the shovel, gradually draining life from the enemy.",
+                "en": "A cloud of rot is released from the shovel, gradually draining the life from the enemy.",
                 "sk": "Z lopaty sa uvoľní oblak hniloby, ktorý postupne vysáva život z nepriateľa."
             },
             "type": "attack",

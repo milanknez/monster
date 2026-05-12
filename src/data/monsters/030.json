@@ -2,13 +2,13 @@
     "id": "030",
     "name": {
         "cz": "Slizák Krup",
-        "en": "Cruppet Slime",
+        "en": "Slime Croup",
         "sk": "Slizák Krup"
     },
     "description": {
         "cz": "Podivný mutantní tvor složený z hustého zeleného slizu. Neustále mění tvar a pohlcuje vše, co se k němu přiblíží.",
-        "en": "A strange slime creature that is always sticky and leaves a trail of goo.",
-        "sk": "Zvláštne slizké stvorenie, ktoré je vždy lepkavé a zanecháva za sebou stopu slizu."
+        "en": "A strange mutant creature composed of thick green slime. It constantly changes shape and absorbs anything that comes near it.",
+        "sk": "Podivný mutantný tvor zložený z hustého zeleného slizu. Neustále mení tvar a pohlcuje všetko, čo sa k nemu priblíži."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Slizové obalení",
-                "en": "Slime Blast",
-                "sk": "Slizový výbuch"
+                "en": "Slime coating",
+                "sk": "Slizové obalenie"
             },
             "description": {
                 "cz": "Krup se obalí slizem a na jedno kolo výrazně zvýší obranu (Snížení dmg 55-65%)",
-                "en": "Shoots a glob of slime.",
-                "sk": "Vystrelí guľu slizu."
+                "en": "Croup becomes covered in slime and significantly increases defense for one turn (Dmg reduction 55-65%)",
+                "sk": "Krup sa obalí slizom a na jedno kolo výrazne zvýši obranu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Pohlcení",
-                "en": "Sticky Grip",
-                "sk": "Lepkavý úchop"
+                "en": "Absorption",
+                "sk": "Pohltenie"
             },
             "description": {
                 "cz": "Zasáhne nepřítele slizem a postupně mu ubírá životy po dobu 2 kol.",
-                "en": "Holds the enemy in place with sticky slime.",
-                "sk": "Udrží nepriateľa na mieste lepkavým slizom."
+                "en": "Hits the enemy with slime, gradually draining their health for 2 turns.",
+                "sk": "Zasiahne nepriateľa slizom a postupne mu uberá životy po dobu 2 kôl."
             },
             "type": "extra",
             "chance": 90,

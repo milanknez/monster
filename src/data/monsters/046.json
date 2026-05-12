@@ -2,13 +2,13 @@
     "id": "046",
     "name": {
         "cz": "Kudlanka Vírníková",
-        "en": "Vortex Mantis",
+        "en": "Kudlanka Vírníková",
         "sk": "Kudlanka Vírníková"
     },
     "description": {
         "cz": "Průsvitná vodní kudlanka s ostrými pilovitými předními končetinami. Dokáže pod vodou vytvořit malý vír, do kterého chytá kořist.",
-        "en": "A mantis that can move its arms so fast it creates small air vortexes.",
-        "sk": "Modlivka, ktorá dokáže hýbať ramenami tak rýchlo, že vytvára malé vzdušné víry."
+        "en": "Translucent water mantis with sharp saw-like forelimbs. It can create a small vortex underwater, in which it catches prey.",
+        "sk": "Priesvitná vodná kudlanka s ostrými pílovitými prednými končatinami. Dokáže pod vodou vytvoriť malý vír, do ktorého chytá korisť."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Pilovitý řez",
-                "en": "Vortex Slash",
-                "sk": "Vírivý sek"
+                "en": "Saw cut",
+                "sk": "Pílovitý rez"
             },
             "description": {
                 "cz": "Rychle zaútočí svými předními končetinami a rozsekne nepřítele.",
-                "en": "Attacks with a spinning vortex.",
-                "sk": "Zaútočí točivým vírom."
+                "en": "It quickly attacks with its front legs and slashes the enemy.",
+                "sk": "Rýchlo zaútočí svojimi prednými končatinami a rozsekne nepriateľa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Malý vír",
-                "en": "Quick Reflexes",
-                "sk": "Rýchle reflexy"
+                "en": "A little vortex",
+                "sk": "Malý vír"
             },
             "description": {
                 "cz": "Vytvoří mini vír, který zmýlí nepřítele a na jedno kolo mu sníží obranu.",
-                "en": "Increases dodge chance.",
-                "sk": "Zvyšuje šancu na vyhnutie sa útoku."
+                "en": "Creates a mini vortex that confuses the enemy and lowers their defense for one round.",
+                "sk": "Vytvorí mini vír, ktorý pomýli nepriateľa a na jedno kolo mu zníži obranu."
             },
             "type": "debuff",
             "chance": 70,

@@ -2,13 +2,13 @@
     "id": "013",
     "name": {
         "cz": "Mechový Žhavibřich",
-        "en": "Rocky Crust",
-        "sk": "Skalná kôrka"
+        "en": "Moss Firefly",
+        "sk": "Machový Žhavibrich"
     },
     "description": {
         "cz": "Usměvavá zelenooká blátivá kulička, které sálá z břicha teplo jako z malých kamen. Na hlavě jí raší tlusté zelené trny a listy.",
-        "en": "A creature whose back is covered in a hard rocky crust.",
-        "sk": "Stvorenie, ktorého chrbát je pokrytý tvrdou skalnou kôrkou."
+        "en": "A smiling green-eyed ball of mud that radiates heat from its belly like a small stove. Thick green thorns and leaves sprout from her head.",
+        "sk": "Usmievavá zelenooká blativá gulička, ktoré sála z brucha teplo ako z malých kachlí. Na hlave jej pučia hrubé zelené tŕne a listy."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Medové pohlazení",
-                "en": "Rock Bash",
-                "sk": "Skalný úder"
+                "en": "Honey caress",
+                "sk": "Medové pohladenie"
             },
             "description": {
                 "cz": "Rozsype pyl, který voní tak sladce, že se všem ostatním přestane chtít útočit.",
-                "en": "A heavy bash with its rocky back.",
-                "sk": "Ťažký úder skalnatým chrbtom."
+                "en": "It scatters pollen that smells so sweet it makes everyone else stop wanting to attack.",
+                "sk": "Rozsype peľ, ktorý vonia tak sladko, že sa všetkým ostatným prestane chcieť útočiť."
             },
             "type": "heal",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Bodnutí včelky",
-                "en": "Hard Guard",
-                "sk": "Tvrdá obrana"
+                "en": "Bee sting",
+                "sk": "Bodnutie včielky"
             },
             "description": {
                 "cz": "Z tajné kapsičky vypustí rozzlobenou včelu, která rychle zažene nepřátele.",
-                "en": "Increases defense with its crust.",
-                "sk": "Zvyšuje obranu svojou kôrkou."
+                "en": "He releases an angry bee from a secret pocket that quickly chases away enemies.",
+                "sk": "Z tajného vrecka vypustí nahnevanú včelu, ktorá rýchlo zaženie nepriateľov."
             },
             "type": "extra",
             "chance": 90,

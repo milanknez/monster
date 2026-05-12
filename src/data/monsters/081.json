@@ -3,14 +3,14 @@
     "name": {
         "cz": "Statický Obláček",
         "en": "Static Cloud",
-        "sk": "Statický Obláček"
+        "sk": "Statický obláčik"
     },
     "type": "electric",
     "rarity": "common",
     "description": {
         "cz": "Vzteklý malý bouřkový mráček nabitý statickou elektřinou.",
-        "en": "A small cloud that is constantly charged with static electricity.",
-        "sk": "Malý obláčik, ktorý je neustále nabitý statickou elektrinou."
+        "en": "An angry little storm cloud charged with static electricity.",
+        "sk": "Nahnevaný malý búrkový mráčik nabitý statickou elektrinou."
     },
     "stats": {
         "hp": 146,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový řetězec",
-                "en": "Static Shock",
-                "sk": "Statický šok"
+                "en": "Lightning chain",
+                "sk": "Bleskový reťazec"
             },
             "description": {
                 "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
-                "en": "A quick shock of electricity.",
-                "sk": "Rýchly šok elektrinou."
+                "en": "Sends a shower of deadly lightning at its target.",
+                "sk": "Vyšle spŕšku smrtiacich bleskov na svoj cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Klektavý šok",
-                "en": "Rainy Mist",
-                "sk": "Daždivá hmla"
+                "en": "A clattering shock",
+                "sk": "Kľatavý šok"
             },
             "description": {
                 "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-                "en": "Creates a mist that reduces visibility.",
-                "sk": "Vytvorí hmlu, ktorá znižuje viditeľnosť."
+                "en": "Inflicts a paralyzing blow that sends a tick of electrical pain into the target.",
+                "sk": "Uštedrie paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti."
             },
             "type": "curse",
             "chance": 70,

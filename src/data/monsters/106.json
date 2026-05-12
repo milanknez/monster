@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Prastarý minotaur zrozený v hlubinách propasti. Jeho tělo je prorostlé temnými krystaly a z jeho rohů i tlamy šlehají plameny jedovatě zeleného ohně. Každý jeho krok spaluje zemi a jeho přítomnost deformuje realitu.",
-        "en": "An ancient minotaur born in the depths of the abyss. Its body is overgrown with dark crystals and flames of poisonous green fire flare from its horns and mouth. Each step burns the ground and its presence deforms reality.",
-        "sk": "Prastarý minotaur zrodený v hlbinách priepasti. Jeho telo je prerastené temnými kryštálmi a z jeho rohov i tlamy šľahajú plamene jedovato zeleného ohňa. Každý jeho krok spaľuje zem a jeho prítomnosť deformuje realitu."
+        "en": "An ancient minotaur born in the depths of the abyss. Its body is covered in dark crystals, and flames of poisonous green fire shoot from its horns and mouth. His every step scorches the earth and his presence warps reality.",
+        "sk": "Prastarý minotaur zrodený v hlbinách priepasti. Jeho telo je prerastené temnými kryštálmi az jeho rohov i papule šľahajú plamene jedovato zeleného ohňa. Každý jeho krok spaľuje krajinu a jeho prítomnosť deformuje realitu."
     },
     "type": "fire",
     "rarity": "legendary",
@@ -22,11 +22,11 @@
             "name": {
                 "cz": "Zelené Peklo",
                 "en": "Green Hell",
-                "sk": "Zelené peklo"
+                "sk": "Zelené Peklo"
             },
             "description": {
                 "cz": "Vyšlehne vlnu zeleného ohně, která spaluje nepřítele a zanechává jedovatý efekt v čase.",
-                "en": "Unleashes a wave of green fire that burns the enemy and leaves a poisonous effect over time.",
+                "en": "Shoots out a wave of green fire that burns the enemy and leaves a poisonous effect over time.",
                 "sk": "Vyšľahne vlnu zeleného ohňa, ktorá spaľuje nepriateľa a zanecháva jedovatý efekt v čase."
             },
             "type": "curse",
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Krystalický Náraz",
-                "en": "Crystal Collision",
-                "sk": "Krystalický náraz"
+                "en": "Crystal Impact",
+                "sk": "Kryštalický Náraz"
             },
             "description": {
                 "cz": "Rozběhne se vpřed a udeří nepřítele rohy posílenými krystaly, čímž způsobí masivní poškození.",
-                "en": "Runs forward and strikes the enemy with horns reinforced by crystals, causing massive damage.",
-                "sk": "Rozbehne sa vpred a udrie nepriateľa rohmi posilnenými kryštálmi, čím spôsobí masívne poškodenie."
+                "en": "He dashes forward and hits the enemy with crystal-enhanced horns, dealing massive damage.",
+                "sk": "Rozbehne sa vpred a udrie nepriateľa rohy posilnenými kryštálmi, čím spôsobí masívne poškodenie."
             },
             "type": "attack",
             "chance": 70,
@@ -52,12 +52,12 @@
             "name": {
                 "cz": "Aura Zeleného Plamene",
                 "en": "Green Flame Aura",
-                "sk": "Aura zeleného plamene"
+                "sk": "Aura Zeleného Plameňa"
             },
             "description": {
                 "cz": "Temný oheň kolem minotaura oslabuje nepřátele a postupně chrání tvé životy (Snížení dmg 55-65%)",
-                "en": "Dark fire around the minotaur weakens enemies and gradually protects your lives.",
-                "sk": "Temný oheň okolo minotaura oslabuje nepriateľov a postupne chráni tvoje životy."
+                "en": "The dark fire around the minotaur weakens enemies and gradually protects your health (Dmg reduction 55-65%)",
+                "sk": "Temný oheň okolo minotaura oslabuje nepriateľov a postupne chráni tvoje životy (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 80,

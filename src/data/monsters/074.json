@@ -3,14 +3,14 @@
     "name": {
         "cz": "Lávový Brouk",
         "en": "Lava Beetle",
-        "sk": "Lávový Brouk"
+        "sk": "Lávový Chrobák"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
         "cz": "Brouk s velmi tvrdým krunýřem z chladnoucí magmy.",
-        "en": "A beetle that lives in lava and has a shell that can withstand extreme heat.",
-        "sk": "Chrobák, ktorý žije v láve a má pancier, ktorý odolá extrémnemu teplu."
+        "en": "A beetle with a very hard shell made from cooling magma.",
+        "sk": "Chrobák s veľmi tvrdým pancierom z chladnúcej magmy."
     },
     "stats": {
         "hp": 148,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Spalující žár",
-                "en": "Lava Spit",
-                "sk": "Pľutie lávy"
+                "en": "Burning heat",
+                "sk": "Spaľujúca žiara"
             },
             "description": {
                 "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-                "en": "Spits hot lava from its mouth.",
-                "sk": "Pľuje horúcu lávu zo svojich úst."
+                "en": "Fires a fireball that severely burns the target.",
+                "sk": "Vystrelí ohnivú guľu, ktorá silne popáli cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žhavý krunýř",
-                "en": "Heat Guard",
-                "sk": "Tepelná ochrana"
+                "en": "Hot shell",
+                "sk": "Horúci pancier"
             },
             "description": {
                 "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-                "en": "Protects itself with heat.",
-                "sk": "Chráni sa teplom."
+                "en": "Wraps himself in a fire aura, temporarily boosting his damage shield (Dmg reduction 55-65%)",
+                "sk": "Obalí sa aurou ohňa, čím si dočasne posilní štít proti zraneniu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

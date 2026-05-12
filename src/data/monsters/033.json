@@ -2,13 +2,13 @@
     "id": "033",
     "name": {
         "cz": "Dotty Rose",
-        "en": "Dotty Rose",
+        "en": "Dottie Rose",
         "sk": "Dotty Rose"
     },
     "description": {
         "cz": "Přirozený pes se skvrnitou srstí, rychlý a bystrý. Dobře reaguje na povely a je skvělý lovec i společník. Má silný čich a rychlé reflexy, což mu umožňuje vyhledávat a pronásledovat kořist či cizince.",
-        "en": "A beautiful but dangerous plant monster that looks like a giant rose with dots.",
-        "sk": "Krásne, ale nebezpečné rastlinné monštrum, ktoré vyzerá ako obrovská ruža s bodkami."
+        "en": "A natural spotted dog, quick and smart. He responds well to commands and is a great hunter and companion. It has a strong sense of smell and quick reflexes, which allows it to seek out and chase prey or strangers.",
+        "sk": "Prirodzený pes so škvrnitou srsťou, rýchly a bystrý. Dobre reaguje na povely a je skvelý lovec aj spoločník. Má silný čuch a rýchle reflexy, čo mu umožňuje vyhľadávať a prenasledovať korisť či cudzincov."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Rychlý útok",
-                "en": "Petal Dance",
-                "sk": "Tanec okvetných lístkov"
+                "en": "Quick attack",
+                "sk": "Rýchly útok"
             },
             "description": {
                 "cz": "Útok vysokou rychlostí na jednoho nepřítele.",
-                "en": "Attacks with a swirl of petals.",
-                "sk": "Zaútočí vírom okvetných lístkov."
+                "en": "Attack one enemy at high speed.",
+                "sk": "Útok vysokou rýchlosťou na jedného nepriateľa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Čichové vyhledávání",
-                "en": "Sweet Scent",
-                "sk": "Sladká vôňa"
+                "en": "Olfactory search",
+                "sk": "Čuchové vyhľadávanie"
             },
             "description": {
                 "cz": "Odhalí nepřátele a zvyšuje šanci zásahu příštího útoku.",
-                "en": "A smell that lures and confuses the enemy.",
-                "sk": "Vôňa, ktorá láka a mätie nepriateľa."
+                "en": "Reveals enemies and increases the chance of the next attack hitting.",
+                "sk": "Odhalí nepriateľov a zvyšuje šancu zásahu budúceho útoku."
             },
             "type": "extra",
             "chance": 85,

@@ -2,13 +2,13 @@
     "id": "067",
     "name": {
         "cz": "Listopad Morový",
-        "en": "Forest Protector",
-        "sk": "Lesný ochranca"
+        "en": "November Plague",
+        "sk": "November Morový"
     },
     "description": {
         "cz": "Tvor pokrytý mrtvými, hnijícími listy, které ztvrdly na ostré čepele. Jeho oči jsou mléčně bílé a beze stop života.",
-        "en": "A giant tree-like creature that protects the ancient forest from intruders.",
-        "sk": "Obrovské stromovité stvorenie, ktoré chráni prastarý les pred votrelcami."
+        "en": "A creature covered in dead, rotting leaves that hardened into sharp blades. His eyes are milky white and lifeless.",
+        "sk": "Tvor pokrytý mŕtvymi, hnijúcimi listami, ktoré stvrdli na ostré čepele. Jeho oči sú mliečne biele a bez stôp života."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Listová bouře",
-                "en": "Branch Swipe",
-                "sk": "Úder vetvou"
+                "en": "Leaf storm",
+                "sk": "Listová búrka"
             },
             "description": {
                 "cz": "Vystřelí na nepřítele ostré listy.",
-                "en": "Swipes at the enemy with its long branches.",
-                "sk": "Udrie nepriateľa svojimi dlhými vetvami."
+                "en": "Shoots sharp blades at the enemy.",
+                "sk": "Vystrelí na nepriateľa ostré listy."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Hnilobný dech",
-                "en": "Nature's Call",
-                "sk": "Volanie prírody"
+                "en": "Putrid breath",
+                "sk": "Hnilobný dych"
             },
             "description": {
                 "cz": "Oslabí nepříatele pachem smrti.",
-                "en": "Summons roots to attack the enemy.",
-                "sk": "Privolá korene, aby zaútočili na nepriateľa."
+                "en": "Weakens enemies with the stench of death.",
+                "sk": "Oslabí nepriateľov pachom smrti."
             },
             "type": "debuff",
             "chance": 50,

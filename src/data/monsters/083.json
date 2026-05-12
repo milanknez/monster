@@ -3,7 +3,7 @@
     "name": {
         "cz": "Bleskový Kolibřík",
         "en": "Lightning Hummingbird",
-        "sk": "Bleskový Kolibřík"
+        "sk": "Bleskový Kolibrík"
     },
     "type": "electric",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový řetězec",
-                "en": "Lightning Chain",
-                "sk": "Bleskový řetězec"
+                "en": "Lightning chain",
+                "sk": "Bleskový reťazec"
             },
             "description": {
                 "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
-                "en": "Sends a spray of deadly lightning at its target.",
-                "sk": "Vyšle spršku smrtiacich bleskov na svoj cieľ."
+                "en": "Sends a shower of deadly lightning at its target.",
+                "sk": "Vyšle spŕšku smrtiacich bleskov na svoj cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Klektavý šok",
-                "en": "Clattering Shock",
-                "sk": "Klektavý šok"
+                "en": "A clattering shock",
+                "sk": "Kľatavý šok"
             },
             "description": {
                 "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-                "en": "Inflicts a paralytic wound that plants a ticking clock of electric pain in the target.",
-                "sk": "Uštedrí paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti."
+                "en": "Inflicts a paralyzing blow that sends a tick of electrical pain into the target.",
+                "sk": "Uštedrie paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti."
             },
             "type": "curse",
             "chance": 70,

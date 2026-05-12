@@ -3,12 +3,12 @@
     "name": {
         "cz": "Mandragora Křičivá",
         "en": "Screaming Mandrake",
-        "sk": "Mandragora Křičivá"
+        "sk": "Mandragora Kričivá"
     },
     "description": {
         "cz": "Magická rostlina, jejíž kořen připomíná nevzhledné lidské mládě. Zatímco v klidu jen tiše podřimuje v květináči, po vytažení ze země spustí ohlušující vřískot, který dokáže omráčit i dospělého kouzelníka. Její listy jsou však ceněnou ingrediencí pro přípravu léčivých lektvarů.",
-        "en": "A legendary root that lets out a deadly scream when pulled from the ground.",
-        "sk": "Legendárny koreň, ktorý pri vytiahnutí zo zeme vydáva smrteľný výkrik."
+        "en": "A magical plant whose root resembles an ugly human cub. While he is quietly dozing in a flower pot, when he is pulled out of the ground he lets out a deafening scream that can stun even an adult magician. However, its leaves are a valued ingredient for the preparation of medicinal potions.",
+        "sk": "Magická rastlina, ktorej koreň pripomína nevzhľadné ľudské mláďa. Zatiaľ čo v pokoji len ticho drieme v kvetináči, po vytiahnutí zo zeme spustí ohlušujúci vreskot, ktorý dokáže omráčiť aj dospelého kúzelníka. Jej listy sú však cenenou ingredienciou na prípravu liečivých elixírov."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Ohlušující Jekot",
-                "en": "Deadly Scream",
-                "sk": "Smrteľný výkrik"
+                "en": "A deafening Scream",
+                "sk": "Ohlušujúci Jekot"
             },
             "description": {
                 "cz": "Vypustí pronikavý výkřik, který nepřítele ochromí a sníží jeho přesnost.",
-                "en": "A loud scream that damages the enemy's hearing.",
-                "sk": "Hlasný výkrik, ktorý poškodí sluch nepriateľa."
+                "en": "Lets out a shrill cry that paralyzes the enemy and reduces their accuracy.",
+                "sk": "Vypustí prenikavý výkrik, ktorý nepriateľa ochromí a zníži jeho presnosť."
             },
             "type": "debuff",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Šlehnutí Listem",
-                "en": "Root Bind",
-                "sk": "Koreňové puto"
+                "en": "Beating with a Leaf",
+                "sk": "Šľahnutie Listom"
             },
             "description": {
                 "cz": "Rychle šlehne svými tuhými listy a způsobí řezné rány.",
-                "en": "Uses its roots to hold the enemy.",
-                "sk": "Použije svoje korene na zadržanie nepriateľa."
+                "en": "It whips quickly with its stiff leaves and causes cuts.",
+                "sk": "Rýchlo šľahne svojimi tuhými listami a spôsobí rezné rany."
             },
             "type": "attack",
             "chance": 80,
@@ -52,12 +52,12 @@
             "name": {
                 "cz": "Hojivá Míza",
                 "en": "Healing Sap",
-                "sk": "Hojivá miazga"
+                "sk": "Hojivá Miza"
             },
             "description": {
                 "cz": "Uvolní regenerační esenci z kořenů, která jí postupně doplňuje zdraví.",
-                "en": "Heals wounds.",
-                "sk": "Vylieči zranenia."
+                "en": "It will release a regenerative essence from the roots, which gradually replenishes its health.",
+                "sk": "Uvoľní regeneračnú esenciu z koreňov, ktorá jej postupne dopĺňa zdravie."
             },
             "type": "heal",
             "chance": 65,

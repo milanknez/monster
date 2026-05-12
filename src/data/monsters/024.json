@@ -2,13 +2,13 @@
     "id": "024",
     "name": {
         "cz": "Kotvoplak",
-        "en": "Desert Worm",
-        "sk": "Púštny červ"
+        "en": "Kotvoplak",
+        "sk": "Kotvoplák"
     },
     "description": {
         "cz": "Mocná vodní příšera, která drží obrovskou kotvu nebo kladivo. Plave pod vodou a dokáže zasáhnout nepřátele s velkou silou. Strašidelná. Pojídá své druhy.",
-        "en": "A worm that lives in the hot desert sands.",
-        "sk": "Červ, ktorý žije v horúcich púštnych pieskoch."
+        "en": "A powerful water monster that wields a giant anchor or hammer. It swims underwater and can hit enemies with great force. Scary. It eats its own kind.",
+        "sk": "Mocná vodná príšera, ktorá drží obrovskú kotvu alebo kladivo. Pláva pod vodou a dokáže zasiahnuť nepriateľov s veľkou silou. Strašidelná. Pojedá svoje druhy."
     },
     "type": "water",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kotvový úder",
-                "en": "Sand Burrow",
-                "sk": "Piesočné zahrabanie"
+                "en": "Anchor strike",
+                "sk": "Kotvový úder"
             },
             "description": {
                 "cz": "Udeří kotvou nebo kladivem a zasáhne jednoho nepřítele vysokým poškozením.",
-                "en": "Attacks from underground.",
-                "sk": "Útočí z podzemia."
+                "en": "Strikes with an anchor or hammer, dealing high damage to one enemy.",
+                "sk": "Udrie kotvou alebo kladivom a zasiahne jedného nepriateľa vysokým poškodením."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Podvodní rána",
-                "en": "Grit Spit",
-                "sk": "Pľutie piesku"
+                "en": "Underwater wound",
+                "sk": "Podvodné rana"
             },
             "description": {
                 "cz": "Silný úder pod vodou, který sráží nepřátele a má šanci je omráčit na jedno kolo.",
-                "en": "Blinds the enemy with sand.",
-                "sk": "Oslepí nepriateľa pieskom."
+                "en": "A powerful underwater strike that knocks enemies down and has a chance to stun them for one turn.",
+                "sk": "Silný úder pod vodou, ktorý zráža nepriateľov a má šancu ich omráčiť na jedno kolo."
             },
             "type": "extra",
             "chance": 90,

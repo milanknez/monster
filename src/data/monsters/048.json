@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Malá růžová medúza s dlouhými chapadly, která připomínají svítící vlasy. Její dotek způsobuje brnění a dočasné ochromení.",
-        "en": "A jellyfish with long hair-like tentacles that can deliver a painful sting.",
-        "sk": "Medúza s dlhými vlasovými chápadlami, ktoré môžu spôsobiť bolestivé uštipnutie."
+        "en": "A small pink jellyfish with long tentacles that resemble glowing hair. Her touch causes tingling and temporary paralysis.",
+        "sk": "Malá ružová medúza s dlhými chápadlami, ktoré pripomínajú svietiace vlasy. Jej dotyk spôsobuje brnenie a dočasné ochromenie."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Elektrický dotek",
-                "en": "Sting Ray",
-                "sk": "Pŕhlivý lúč"
+                "en": "Electric touch",
+                "sk": "Elektrický dotyk"
             },
             "description": {
                 "cz": "Zasáhne nepřítele svými chapadly a způsobí mu slabý elektrický šok.",
-                "en": "A painful sting with tentacles.",
-                "sk": "Bolestivé uštipnutie chápadlami."
+                "en": "Hits the enemy with its tentacles, causing a weak electric shock.",
+                "sk": "Zasiahne nepriateľa svojimi chápadlami a spôsobí mu slabý elektrický šok."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Ochromující záře",
-                "en": "Glow Pulse",
-                "sk": "Žiariaci pulz"
+                "en": "A crippling glow",
+                "sk": "Ochromujúca žiara"
             },
             "description": {
                 "cz": "Vystřelí záblesk světla, který má šanci nepřítele na jedno kolo ochromit.",
-                "en": "Releases a pulse of light to stun the enemy.",
-                "sk": "Uvoľní svetelný pulz, ktorý omráči nepriateľa."
+                "en": "Fires a flash of light that has a chance to paralyze an enemy for one round.",
+                "sk": "Vystrelí záblesk svetla, ktorý má šancu nepriateľa na jedno kolo ochromiť."
             },
             "type": "extra",
             "chance": 60,

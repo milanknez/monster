@@ -2,13 +2,13 @@
     "id": "011",
     "name": {
         "cz": "Fire Dragon",
-        "en": "Fire Dragonlet",
-        "sk": "Ohnivý Dráčik"
+        "en": "Fire Dragon",
+        "sk": "Fire Dragon"
     },
     "description": {
         "cz": "Usměvavý modrý drak s oranžovým krunýřkem, který si hoví na čerstvých sopkách. Občas chrlí malinké plamínky na zahřátí.",
-        "en": "A small fire dragon, surprisingly quick and hot for its size.",
-        "sk": "Malý ohnivý drak, prekvapivo rýchly a horúci na svoju veľkosť."
+        "en": "A smiling blue dragon with an orange shell that feasts on fresh volcanoes. Sometimes it spits out tiny flames for warmth.",
+        "sk": "Usmievavý modrý drak s oranžovým pancierom, ktorý si hovie na čerstvých sopkách. Občas chrlia malinké plamienky na zahriatie."
     },
     "type": "fire",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bublinový úkryt",
-                "en": "Ember Spit",
-                "sk": "Pľutie uhlíkov"
+                "en": "Bubble shelter",
+                "sk": "Bublinový úkryt"
             },
             "description": {
                 "cz": "Schová se do obří bubliny, která pohltí jeden cizí útok (Snížení dmg 55-65%)",
-                "en": "Spits small burning embers.",
-                "sk": "Pľuje malé horiace uhlíky."
+                "en": "Hides in a giant bubble that absorbs one alien attack (Dmg reduction 55-65%)",
+                "sk": "Schová sa do obrovskej bubliny, ktorá pohltí jeden cudzí útok (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Hod oblázkem",
-                "en": "Smoke Screen",
-                "sk": "Dymová clona"
+                "en": "Pebble throw",
+                "sk": "Hod kamienkom"
             },
             "description": {
                 "cz": "Lekne se a hodí po nepříteli svůj oblázek. Bude ho pak muset chvilku hledat.",
-                "en": "Creates a cloud of smoke to hide.",
-                "sk": "Vytvorí oblak dymu, aby sa skryl."
+                "en": "He flinches and throws his pebble at the enemy. He will then have to look for him for a while.",
+                "sk": "Zľakne sa a hodí po nepriateľovi svoj kamienok. Bude ho potom musieť chvíľku hľadať."
             },
             "type": "extra",
             "chance": 90,

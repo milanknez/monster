@@ -2,13 +2,13 @@
     "id": "053",
     "name": {
         "cz": "Chramtal Zubatý",
-        "en": "Toothy Chomper",
+        "en": "Toothy croaked",
         "sk": "Chramtal Zubatý"
     },
     "description": {
         "cz": "Malý, kulatý tvor tvořený převážně hustou černou srstí a neuvěřitelně velkou tlamou. Jeho čelisti ukrývají řady neproporcionálně velkých a ostrých zubů, kterými dokáže rozdrtit i ten nejtvrdší kámen. Přestože působí na první pohled roztomile, jeho nenasytnost nezná mezí a dokáže v mžiku pozřít věci dvakrát větší než je on sám.",
-        "en": "A creature that is basically just a giant mouth with legs. It eats anything.",
-        "sk": "Stvorenie, ktoré je v podstate len obrovská tlama s nohami. Zje čokoľvek."
+        "en": "A small, round creature made up of mostly thick black fur and an incredibly large mouth. Its jaws hide rows of disproportionately large and sharp teeth, with which it can crush even the hardest stone. Although he appears cute at first glance, his gluttony knows no bounds and can devour things twice his size in an instant.",
+        "sk": "Malý, okrúhly tvor tvorený prevažne hustou čiernou srsťou a neuveriteľne veľkou papuľou. Jeho čeľuste ukrývajú rady neproporcionálne veľkých a ostrých zubov, ktorými dokáže rozdrviť aj ten najtvrdší kameň. Hoci pôsobí na prvý pohľad roztomilo, jeho nenásytnosť nepozná medzí a dokáže v okamihu zjesť veci dvakrát väčšie ako je on sám."
     },
     "type": "electric",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Drtivý Stisk",
-                "en": "Big Bite",
-                "sk": "Veľký kúsanec"
+                "en": "Crushing Pressure",
+                "sk": "Drvivý Stisk"
             },
             "description": {
                 "cz": "Zasadí zdrcující kousnutí svými obřími zuby, které může poškodit výzbroj nepřítele.",
-                "en": "A massive bite that can crush bone.",
-                "sk": "Masívny kúsanec, ktorý dokáže rozdrviť kosti."
+                "en": "It delivers a crushing bite with its giant teeth that can damage the enemy's armor.",
+                "sk": "Zasadí zdrvujúce uhryznutie svojimi obrími zubami, ktoré môže poškodiť výzbroj nepriateľa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Svinutí do Kuličky",
-                "en": "Swallow Whole",
-                "sk": "Prehltnutie vcelku"
+                "en": "Roll into a ball",
+                "sk": "Zvinutie do Guličky"
             },
             "description": {
                 "cz": "Sbalí se do své husté srsti a zuby vystrčí ven, čímž vytvoří nedobytnou a nebezpečnou obranu (Snížení dmg 55-65%)",
-                "en": "Attempts to swallow the enemy.",
-                "sk": "Pokúsi sa prehltnúť nepriateľa."
+                "en": "It will wrap itself in its thick fur and stick its teeth out, creating an impregnable and dangerous defense (Dmg reduction 55-65%)",
+                "sk": "Zbalí sa do svojej hustej srsti a zuby vystrčia von, čím vytvoria nedobytnú a nebezpečnú obranu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

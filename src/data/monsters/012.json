@@ -2,13 +2,13 @@
     "id": "012",
     "name": {
         "cz": "Drako Plam",
-        "en": "Azure Tail",
-        "sk": "Azurochvost"
+        "en": "Plam Dragon",
+        "sk": "Drako Plam"
     },
     "description": {
         "cz": "Zlobivý malý uličník až z podzemí. Má rovnou tři veliké oči a šest hbitých rukou, do kterých chytá žhavé uhlíky ze země.",
-        "en": "A water creature with a beautiful azure tail that it uses to swim fast.",
-        "sk": "Vodné stvorenie s krásnym azúrovým chvostom, ktorý používa na rýchle plávanie."
+        "en": "Naughty little streetwalker all the way from the underground. He has three big eyes and six nimble hands, in which he grabs hot coals from the ground.",
+        "sk": "Neposlušný malý uličník až z podzemia. Má rovno tri veľké oči a šesť obratných rúk, do ktorých chytá žeravé uhlíky zo zeme."
     },
     "type": "fire",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Hřejivé obětí",
-                "en": "Tail Whip",
-                "sk": "Úder chvostom"
+                "en": "Warm sacrifices",
+                "sk": "Hrejivé obetí"
             },
             "description": {
                 "cz": "Zapálí protivníka, jemuž ubírá po dobu 2 kol 20% dmg dodatečně.",
-                "en": "Strikes the enemy with its strong tail.",
-                "sk": "Udrie nepriateľa svojím silným chvostom."
+                "en": "Ignite the opponent, taking an additional 20% dmg for 2 rounds.",
+                "sk": "Zapáli protivníka, ktorému uberá po dobu 2 kôl 20% dmg dodatočne."
             },
             "type": "curse",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Jiskřivý poskok",
-                "en": "Water Jet",
-                "sk": "Prúd vody"
+                "en": "A sparkly hop",
+                "sk": "Iskrivý poskok"
             },
             "description": {
                 "cz": "Vyskočí vysoko do vzduchu a dopadne dolů jako roj malých ohnivých světýlek.",
-                "en": "Shoots a jet of water.",
-                "sk": "Vystrelí prúd vody."
+                "en": "It leaps high into the air and comes crashing down like a swarm of tiny fire lights.",
+                "sk": "Vyskočí vysoko do vzduchu a dopadne dole ako roj malých ohnivých svetielok."
             },
             "type": "extra",
             "chance": 90,

@@ -2,13 +2,13 @@
     "id": "034",
     "name": {
         "cz": "Flamík Popelka",
-        "en": "Cinder Flame",
-        "sk": "Flamík Popelka"
+        "en": "Flamik Cinderella",
+        "sk": "Flamík Popoluška"
     },
     "description": {
         "cz": "Malá, roztomilá ohnivá liška s žhnoucíma očima a drápky, které zanechávají stopy jisker a popela při každém pohybu.",
-        "en": "A small fire spirit that leaves a trail of cinders wherever it goes.",
-        "sk": "Malý ohnivý duch, ktorý zanecháva stopu popola všade, kam príde."
+        "en": "A small, cute fire fox with glowing eyes and claws that leave a trail of sparks and ash with every move.",
+        "sk": "Malá, roztomilá ohnivá líška so žerajúcimi očami a pazúrikmi, ktoré zanechávajú stopy iskier a popola pri každom pohybe."
     },
     "type": "fire",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Jiskřivý švih",
-                "en": "Cinder Shot",
-                "sk": "Popolový výstrel"
+                "en": "Sparkling swing",
+                "sk": "Iskrivý švih"
             },
             "description": {
                 "cz": "Rychlý úder rozpáleným drápem, způsobí silné poškození jednomu nepříteli.",
-                "en": "Fires hot cinders.",
-                "sk": "Vystrelí horúci popol."
+                "en": "A quick strike with a red-hot claw, dealing heavy damage to one enemy.",
+                "sk": "Rýchly úder rozpáleným pazúrom spôsobí silné poškodenie jednému nepriateľovi."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Popelavý vír",
-                "en": "Heat Up",
-                "sk": "Rozpálenie"
+                "en": "Ashen vortex",
+                "sk": "Popolavý vír"
             },
             "description": {
                 "cz": "Vyvolá vír popela a jisker. Od všech nepřítele a sníží útok  v příštím kole o 80% (Snížení dmg 55-65%)",
-                "en": "Increases its temperature to boost attacks.",
-                "sk": "Zvýši svoju teplotu, aby posilnil útoky."
+                "en": "Summons a whirlwind of ash and sparks. From all enemy and will reduce attack next round by 80% (Dmg reduction 55-65%)",
+                "sk": "Vyvolá vír popola a iskier. Od všetkých nepriateľa a zníži útok v budúcom kole o 80% (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 85,

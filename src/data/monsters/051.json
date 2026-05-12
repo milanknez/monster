@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Zanedbaná postava v potrhaných vrstvách oblečení, kterou vždy doprovází legie divokých, hladových koček. Žije ve stínech velkoměsta a její kočky nejsou jen mazlíčci, ale prodloužená ruka její pomstychtivé vůle.",
-        "en": "A majestic ice eagle that rules the peaks of the frozen mountains.",
-        "sk": "Majestátny ľadový orol, ktorý vládne vrcholom zamrznutých hôr."
+        "en": "A neglected figure in tattered layers of clothing, always accompanied by a legion of wild, hungry cats. She lives in the shadows of the big city, and her cats are not just pets, but an extension of her vengeful will.",
+        "sk": "Zanedbaná postava v potrhaných vrstvách oblečenia, ktorú vždy sprevádza légia divokých, hladných mačiek. Žije v tieňoch veľkomesta a jej mačky nie sú len maznáčikovia, ale predĺžená ruka jej pomstychtivej vôle."
     },
     "type": "fire",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kočičí Armáda",
-                "en": "Frozen Peck",
-                "sk": "Mrazivé zobnutie"
+                "en": "Cat Army",
+                "sk": "Mačacia Armáda"
             },
             "description": {
                 "cz": "Vypustí hejno hladových koček, které nepřítele poškrábou a pokoušou.",
-                "en": "Pecks the enemy with a cold beak.",
-                "sk": "Zobne nepriateľa studeným zobákom."
+                "en": "Releases a pack of hungry cats that scratch and bite the enemy.",
+                "sk": "Vypustí kŕdeľ hladných mačiek, ktoré nepriateľa poškriabu a pokúšajú."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Pronikavé Mňoukání",
-                "en": "Ice Storm",
-                "sk": "Ľadová búrka"
+                "en": "A shrill Meow",
+                "sk": "Prenikavé Mňaukanie"
             },
             "description": {
                 "cz": "Děsivý jekot koček ochromí nepřítele hrůzou.",
-                "en": "Summons a storm of ice and snow.",
-                "sk": "Privolá búrku ľadu a snehu."
+                "en": "The terrifying squeal of cats paralyzes the enemy with terror.",
+                "sk": "Desivý jakot mačiek ochromí nepriateľa hrôzou."
             },
             "type": "debuff",
             "chance": 50,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Infikované Drápy",
-                "en": "Translated: Infikované Drápy",
-                "sk": "Infikované Drápy "
+                "en": "Infected Claws",
+                "sk": "Infikované Pazúry"
             },
             "description": {
                 "cz": "Útok, který kromě zranění způsobí i otravu špínou z ulic.",
-                "en": "attack, který kromě zranění Deals i otravu špínou z ulic.",
-                "sk": "Útok, který krome zranení zpúsobí i otravu špínou z ulic."
+                "en": "An attack that causes street filth poisoning in addition to injury.",
+                "sk": "Útok, ktorý okrem zranenia spôsobí aj otravu špinou z ulíc."
             },
             "type": "attack",
             "chance": 70,

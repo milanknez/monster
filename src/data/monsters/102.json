@@ -2,13 +2,13 @@
     "id": "102",
     "name": {
         "cz": "Krvavý Šeptal",
-        "en": "Bloody Whisperer",
+        "en": "Blood Whisperer",
         "sk": "Krvavý Šeptal"
     },
     "description": {
         "cz": "Vysoká, vyhublá postava v potrhaném rudém rouchu. Nemá ústa, přesto jeho hlas slyšíte přímo ve své hlavě, jak vám našeptává nevýslovné hrůzy a váš nevyhnutelný konec.",
-        "en": "A tall, gaunt figure in a tattered red robe. It has no mouth, yet you hear its voice directly in your head, whispering unspeakable horrors and your inevitable end.",
-        "sk": "Vysoká, vyhublá postava v potrhanom rudom rúchu. Nemá ústa, napriek tomu jeho hlas počujete priamo vo svojej hlave, ako vám našeptáva nevýslovné hrôzy a váš nevyhnutný koniec."
+        "en": "A tall, thin figure in tattered red robes. He has no mouth, yet you can hear his voice right inside your head, whispering unspeakable horrors and your inevitable end.",
+        "sk": "Vysoká, vychudnutá postava v potrhanom červenom rúchu. Nemá ústa, napriek tomu jeho hlas počujete priamo vo svojej hlave, ako vám našepkáva nevýslovné hrôzy a váš nevyhnutný koniec."
     },
     "type": "electric",
     "rarity": "legendary",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Hlas Šílenství",
-                "en": "Voice of Madness",
-                "sk": "Hlas šílenství"
+                "en": "The Voice of Madness",
+                "sk": "Hlas Šialenstvo"
             },
             "description": {
                 "cz": "Způsobí nepříteli psychický kolaps a ochromí ho na několik kol.",
-                "en": "Causes a mental collapse in the enemy and paralyzes them for several rounds.",
+                "en": "Inflicts a psychic collapse on the enemy and paralyzes them for several rounds.",
                 "sk": "Spôsobí nepriateľovi psychický kolaps a ochromí ho na niekoľko kôl."
             },
             "type": "debuff",
@@ -36,12 +36,12 @@
         {
             "name": {
                 "cz": "Krvavý Rituál",
-                "en": "Bloody Ritual",
-                "sk": "Krvavý rituál"
+                "en": "Blood Ritual",
+                "sk": "Krvavý Rituál"
             },
             "description": {
                 "cz": "Otevře rány nepřítele a vysaje z něj veškerou zbývající energii.",
-                "en": "Opens the enemy's wounds and drains all remaining energy.",
+                "en": "It opens the enemy's wounds and drains all remaining energy from them.",
                 "sk": "Otvorí rany nepriateľa a vysaje z neho všetku zostávajúcu energiu."
             },
             "type": "attack",
@@ -51,12 +51,12 @@
         {
             "name": {
                 "cz": "Pach Smrti",
-                "en": "Scent of Death",
-                "sk": "Pach smrti"
+                "en": "The smell of death",
+                "sk": "Pach Smrti"
             },
             "description": {
                 "cz": "Šíří kolem sebe auru strachu, která zvyšuje jeho vlastní útočnou sílu.",
-                "en": "Spreads an aura of fear that increases its own attack power.",
+                "en": "He spreads an aura of fear around him that increases his own attack power.",
                 "sk": "Šíri okolo seba auru strachu, ktorá zvyšuje jeho vlastnú útočnú silu."
             },
             "type": "buff",

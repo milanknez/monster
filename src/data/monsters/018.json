@@ -2,13 +2,13 @@
     "id": "018",
     "name": {
         "cz": "Pan Energyhaďák",
-        "en": "Mr. Energy Snake",
-        "sk": "Pán Energyhad"
+        "en": "Mr. Energy hose",
+        "sk": "Pán Energyhaďák"
     },
     "description": {
         "cz": "Hadí elektrická příšerka s ostny, ze kterých tryskají blesky. Rychlá a neposedná, dokáže zastrašit nepřátele i rozsvítit celý boj.",
-        "en": "A snake glowing with blue energy that likes to drink leftover energy from old batteries.",
-        "sk": "Modrou energiou svietiaci had, ktorý rád upíja zvyšky energie zo starých batérií."
+        "en": "A serpentine electric monster with spikes that shoot lightning. Fast and restless, she can intimidate enemies and light up the whole fight.",
+        "sk": "Hadia elektrická príšerka s ostňami, z ktorých tryskajú blesky. Rýchla a neposedná, dokáže zastrašiť nepriateľov i rozsvietiť celý boj."
     },
     "type": "electric",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Ohnivý blesk",
-                "en": "Static Bite",
-                "sk": "Statický kúsanec"
+                "en": "Fire lightning",
+                "sk": "Ohnivý blesk"
             },
             "description": {
                 "cz": "Vystřelí elektrický výboj ze svých ostnů na všechny nepřátele v okolí.",
-                "en": "A bite that leaves a static charge.",
-                "sk": "Kúsanec, ktorý zanechá statický náboj."
+                "en": "Fires an electric shock from its spikes at all nearby enemies.",
+                "sk": "Vystrelí elektrický výboj zo svojich ostňov na všetkých nepriateľov v okolí."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Elektrický štít",
-                "en": "Spark Dash",
-                "sk": "Iskrový výpad"
+                "en": "Electric shield",
+                "sk": "Elektrický štít"
             },
             "description": {
                 "cz": "Na jedno kolo zvyšuje obranu a odráží část poškození zpět útočníkovi (Snížení dmg 55-65%)",
-                "en": "A fast dash with sparks.",
-                "sk": "Rýchly výpad s iskrami."
+                "en": "Increases defense for one turn and reflects some damage back to the attacker (Dmg reduction 55-65%)",
+                "sk": "Na jedno kolo zvyšuje obranu a odráža časť poškodenia späť útočníkovi (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

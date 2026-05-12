@@ -2,13 +2,13 @@
     "id": "004",
     "name": {
         "cz": "Bleskomýš Jiskrná",
-        "en": "Sparky Mouse",
-        "sk": "Iskrivý Myšiak"
+        "en": "Lightning Flash Sparkle",
+        "sk": "Bleskomýš Iskrná"
     },
     "description": {
         "cz": "Takový malý žlutý obláček srsti, který neustále praská statickou elektřinou. Rád běhá v kruhu.",
-        "en": "A small rodent with fur that is constantly crackling with static electricity. It can jump very high.",
-        "sk": "Malý hlodavec s kožuchom, ktorý neustále praská statickou elektrinou. Dokáže skákať veľmi vysoko."
+        "en": "Such a little yellow puff of fur that keeps popping with static electricity. He likes to run in circles.",
+        "sk": "Taký malý žltý obláčik srsti, ktorý neustále praská statickou elektrinou. Rád behá v kruhu."
     },
     "type": "electric",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový výboj",
-                "en": "Quick Shock",
-                "sk": "Rýchly šok"
+                "en": "Lightning discharge",
+                "sk": "Bleskový výboj"
             },
             "description": {
                 "cz": "Uvolní nahromaděnou energii v podobě ničivého blesku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "A sudden electric discharge.",
-                "sk": "Náhly elektrický výboj."
+                "en": "Releases stored energy in the form of a devastating lightning bolt. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Uvoľní nahromadenú energiu v podobe ničivého blesku. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Statické nabití",
-                "en": "Static Charge",
-                "sk": "Statický náboj"
+                "en": "Static charge",
+                "sk": "Statické nabitie"
             },
             "description": {
                 "cz": "Zvýší rychlost útoku a šanci na ochromení nepřítele.",
-                "en": "Charges its body with energy for the next attack.",
-                "sk": "Nabije svoje telo energiou pre ďalší útok."
+                "en": "Increases attack speed and chance to stun the enemy.",
+                "sk": "Zvýši rýchlosť útoku a šancu na ochromenie nepriateľa."
             },
             "type": "extra",
             "chance": 90,

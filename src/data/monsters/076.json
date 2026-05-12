@@ -2,15 +2,15 @@
     "id": "076",
     "name": {
         "cz": "Popelavý Soptík",
-        "en": "Shadow Wolf",
-        "sk": "Tieňový vlk"
+        "en": "Ashy Soptík",
+        "sk": "Popolavý Soptík"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
         "cz": "Oheň milující mlok žijící v popelu poblíž sopek.",
-        "en": "A wolf that moves through the shadows and can disappear instantly.",
-        "sk": "Vlk, ktorý sa pohybuje v tieňoch a dokáže okamžite zmiznúť."
+        "en": "A fire-loving salamander living in the ashes near volcanoes.",
+        "sk": "Oheň milujúci mlok žijúci v popole blízko sopiek."
     },
     "stats": {
         "hp": 153,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Spalující žár",
-                "en": "Shadow Leap",
-                "sk": "Tieňový skok"
+                "en": "Burning heat",
+                "sk": "Spaľujúca žiara"
             },
             "description": {
                 "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-                "en": "Jumps out of the shadows to attack.",
-                "sk": "Vyskočí z tieňov, aby zaútočil."
+                "en": "Fires a fireball that severely burns the target.",
+                "sk": "Vystrelí ohnivú guľu, ktorá silne popáli cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žhavý krunýř",
-                "en": "Howl of the Night",
-                "sk": "Vytie noci"
+                "en": "Hot shell",
+                "sk": "Horúci pancier"
             },
             "description": {
                 "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-                "en": "A howl that strikes fear into the enemy.",
-                "sk": "Vytie, ktoré vyvoláva strach u nepriateľa."
+                "en": "Wraps himself in a fire aura, temporarily boosting his damage shield (Dmg reduction 55-65%)",
+                "sk": "Obalí sa aurou ohňa, čím si dočasne posilní štít proti zraneniu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

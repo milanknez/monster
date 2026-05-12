@@ -2,13 +2,13 @@
     "id": "005",
     "name": {
         "cz": "Lávojed Bumkác",
-        "en": "Magma Turtle",
-        "sk": "Magmatická Korytnačka"
+        "en": "Lava eater Bumkác",
+        "sk": "Lávojed Bumkác"
     },
     "description": {
         "cz": "Velký a tlustý kámen z horké sopky, který se valí z kopce a hrozně u toho funí.",
-        "en": "A slow turtle with a shell made of hardened lava. When it gets angry, its shell starts to glow red hot.",
-        "sk": "Pomalá korytnačka s pancierom z tvrdnutej lávy. Keď sa nahnevá, jej pancier začne žiariť dočervena."
+        "en": "A big and thick rock from a hot volcano rolling down the hill and making a terrible noise.",
+        "sk": "Veľký a tučný kameň z horúcej sopky, ktorý sa valí z kopca a hrozne pri tom funí."
     },
     "type": "fire",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Erupce",
-                "en": "Magma Bash",
-                "sk": "Magmatický úder"
+                "en": "Eruption",
+                "sk": "Erupcia"
             },
             "description": {
                 "cz": "Způsobí výbuch magmatu, který zasáhne všechny nepřátele.",
-                "en": "A heavy blow with its glowing shell.",
-                "sk": "Ťažký úder rozžeraveným pancierom."
+                "en": "Causes a magma explosion that hits all enemies.",
+                "sk": "Spôsobí výbuch magmy, ktorý zasiahne všetkých nepriateľov."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Ztuhlá láva",
-                "en": "Heat Wall",
-                "sk": "Tepelná stena"
+                "en": "Solidified lava",
+                "sk": "Stuhnutá láva"
             },
             "description": {
                 "cz": "Vytvoří vrstvu ztuhlého kamene, která drasticky zvýší obranu (Snížení dmg 55-65%)",
-                "en": "Increases defense by radiating extreme heat.",
-                "sk": "Zvyšuje obranu vyžarovaním extrémneho tepla."
+                "en": "Creates a layer of solidified stone that drastically increases defense (Dmg reduction 55-65%)",
+                "sk": "Vytvorí vrstvu stuhnutého kameňa, ktorá drasticky zvýši obranu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 85,

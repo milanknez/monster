@@ -2,13 +2,13 @@
     "id": "017",
     "name": {
         "cz": "Prdovous rex",
-        "en": "Blue Hopper",
-        "sk": "Modrý skokan"
+        "en": "Bearded rex",
+        "sk": "Prdovous rex"
     },
     "description": {
         "cz": "Obrovský lesní tvor z větví a mechu, který při chůzi zanechává za sebou obláčky prdového dýmu. Strašidelný, ale legrační, dokáže nepřátele rozesmát i paralyzovat smíchem.",
-        "en": "A small blue creature that loves to jump around.",
-        "sk": "Malé modré stvorenie, ktoré rado poskakuje."
+        "en": "A giant forest creature made of branches and moss that leaves behind clouds of fart smoke as it walks. Scary but funny, he can make enemies laugh and paralyze with laughter.",
+        "sk": "Obrovský lesný tvor z konárov a machu, ktorý pri chôdzi zanecháva za sebou obláčiky prdového dymu. Strašidelný, ale smiešny, dokáže nepriateľov rozosmiať aj paralyzovať smiechom."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Smradlavý výbuch",
-                "en": "High Jump",
-                "sk": "Vysoký skok"
+                "en": "Stinking explosion",
+                "sk": "Smradľavý výbuch"
             },
             "description": {
                 "cz": "Vyvolá dusivá oblaka zápachu. Nepříteli ubírá 20% základního útoku 2 kola, ",
-                "en": "A very high jump attack.",
-                "sk": "Útok veľmi vysokým skokom."
+                "en": "It creates suffocating clouds of stench. Takes away 20% of the enemy's basic attack for 2 rounds,",
+                "sk": "Vyvolá dusivé oblaky zápachu. Nepriateľovi uberá 20% základného útoku 2 kolesá,"
             },
             "type": "curse",
             "chance": 85,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Kořenový náraz",
-                "en": "Kick",
-                "sk": "Kopnutie"
+                "en": "Root impact",
+                "sk": "Koreňový náraz"
             },
             "description": {
                 "cz": "Z kořenů vyrazí rychlý útok na jednoho nepřítele.",
-                "en": "A strong kick.",
-                "sk": "Silné kopnutie."
+                "en": "A quick attack on one enemy will shoot out from the roots.",
+                "sk": "Z koreňov vyrazí rýchly útok na jedného nepriateľa."
             },
             "type": "extra",
             "chance": 90,

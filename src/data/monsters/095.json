@@ -2,13 +2,13 @@
     "id": "095",
     "name": {
         "cz": "Banana Bum",
-        "en": "Banana Bum",
+        "en": "Banana Boom",
         "sk": "Banana Bum"
     },
     "description": {
         "cz": "Přezrálý banán s velkým podlitým okem uprostřed. Jeho okraje jsou ostré jako břitva a jeho slupky připomínají dravčí pařáty.",
-        "en": "A banana-shaped creature that is always ready for a prank.",
-        "sk": "Stvorenie v tvare banánu, ktoré je vždy pripravené na nejaký žartík."
+        "en": "An overripe banana with a large sunken eye in the middle. Its edges are razor sharp and its scales resemble the talons of a predator.",
+        "sk": "Prezretý banán s veľkým podliatym okom uprostred. Jeho okraje sú ostré ako britva a jeho šupky pripomínajú dravčie pazúry."
     },
     "type": "nature",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Seknutí slupkou",
-                "en": "Banana Slip",
-                "sk": "Banánové pošmyknutie"
+                "en": "Chopping with a peel",
+                "sk": "Seknutie šupkou"
             },
             "description": {
                 "cz": "Rychle zaútočí ostrými okraji slupek, které způsobují krvácení.",
-                "en": "Makes the enemy slip.",
-                "sk": "Spôsobí, že sa nepriateľ pošmykne."
+                "en": "They attack quickly with sharp edges of peels that cause bleeding.",
+                "sk": "Rýchlo zaútočia ostrými okrajmi šupiek, ktoré spôsobujú krvácanie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Nabroušení slupek",
-                "en": "Peel Toss",
-                "sk": "Hod šupkou"
+                "en": "Grinding peels",
+                "sk": "Nabrúsenie šupiek"
             },
             "description": {
                 "cz": "Zpevní své okraje na úroveň diamantu, čímž extrémně zvýší poškození příštích útoků.",
-                "en": "Throws its peel at the enemy.",
-                "sk": "Hodí svoju šupku na nepriateľa."
+                "en": "It hardens its edges to the level of a diamond, extremely increasing the damage of the next attacks.",
+                "sk": "Spevní svoje okraje na úroveň diamantu, čím extrémne zvýši poškodenie budúcich útokov."
             },
             "type": "buff",
             "chance": 65,

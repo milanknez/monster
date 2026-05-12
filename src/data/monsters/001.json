@@ -2,13 +2,13 @@
     "id": "001",
     "name": {
         "cz": "Plamínek Horkobřich",
-        "en": "Flame Belly",
-        "sk": "Plamienok Horúcobruch"
+        "en": "Plamínek Horkobrich",
+        "sk": "Plamienok Horkobrich"
     },
     "description": {
         "cz": "Malý oživlý uhlík, který se snadno rozzlobí. Má pořád hlad a polyká žhavé kameny.",
-        "en": "A small animated ember that gets angry easily. It's always hungry and swallows glowing stones.",
-        "sk": "Malý oživený uhlík, ktorý sa ľahko nahnevá. Je stále hladný a prehĺta žeravé kamene."
+        "en": "A little live coal that gets angry easily. He is always hungry and swallows hot rocks.",
+        "sk": "Malý oživený uhlík, ktorý sa ľahko nahnevá. Má stále hlad a prehĺta horúce kamene."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Plamenný dech",
-                "en": "Flame Breath",
+                "en": "Flame breath",
                 "sk": "Plamenný dych"
             },
             "description": {
                 "cz": "Zasáhne nepřítele masivním plamenem a způsobí popáleniny.",
-                "en": "Hits the enemy with a massive flame and causes burns.",
+                "en": "Hits the enemy with a massive flame, causing burns.",
                 "sk": "Zasiahne nepriateľa masívnym plameňom a spôsobí popáleniny."
             },
             "type": "attack",
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Lávová aura",
-                "en": "Lava Aura",
+                "en": "Lava aura",
                 "sk": "Lávová aura"
             },
             "description": {
                 "cz": "Tvoří ochranný štít, který poškozuje útočníky zblízka (Snížení dmg 55-65%)",
-                "en": "Creates a protective shield that damages close attackers.",
-                "sk": "Tvorí ochranný štít, ktorý poškodzuje útočníkov zblízka."
+                "en": "Forms a protective shield that damages melee attackers (Dmg reduction 55-65%)",
+                "sk": "Tvorí ochranný štít, ktorý poškodzuje útočníkov zblízka (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

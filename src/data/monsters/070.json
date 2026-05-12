@@ -2,13 +2,13 @@
     "id": "070",
     "name": {
         "cz": "Malformátor Všepohlcující",
-        "en": "All-consuming Malformator",
-        "sk": "Malformátor Všepohlcující"
+        "en": "Malformer All Devouring",
+        "sk": "Malformátor Všepohlcujúce"
     },
     "description": {
         "cz": "Ztělesnění absolutní mutace a zkázy. Obří, neustále se přelévající masa svalů, kostí a stovky vřískajících úst, která se požírají navzájem. Má desítky lidožravých chapadel a místo krve mu v žilách proudí černá koroze, která leptá samotnou realitu.",
-        "en": "A mutated creature that constantly changes its shape and attempts to consume everything in its path.",
-        "sk": "Zmutované stvorenie, ktoré neustále mení svoj tvar a pokúša sa pohltiť všetko, čo mu stojí v ceste."
+        "en": "The epitome of absolute mutation and destruction. A giant, ever-overflowing mass of muscle, bone, and hundreds of screaming mouths devouring each other. He has dozens of man-eating tentacles, and instead of blood, black corrosion flows through his veins, which corrodes reality itself.",
+        "sk": "Stelesnenie absolútnej mutácie a skazy. Obrie, neustále sa prelievajúce mäsa svalov, kostí a stovky vrieskajúcich úst, ktoré sa požierajú navzájom. Má desiatky ľudožravých chápadiel a miesto krvi mu v žilách prúdi čierna korózia, ktorá leptá samotnú realitu."
     },
     "type": "water",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Pohlcení Existence",
-                "en": "Consume",
-                "sk": "Pohltiť"
+                "en": "Absorption of Existence",
+                "sk": "Pohltenie Existencia"
             },
             "description": {
                 "cz": "Vysaje životní sílu ze všeho živého v okolí a přemění ji ve vlastní růst.",
-                "en": "Attempts to consume a part of the enemy to heal itself.",
-                "sk": "Pokúsi sa pohltiť časť nepriateľa, aby sa vyliečil."
+                "en": "It drains the life force from all living things around it and transforms it into its own growth.",
+                "sk": "Vysaje životnú silu zo všetkého živého v okolí a premení ju na vlastný rast."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Vřískot Tisíce Úst",
-                "en": "Shape Shift",
-                "sk": "Zmena tvaru"
+                "en": "Scream of a Thousand Mouths",
+                "sk": "Vreskot Tisíce Úst"
             },
             "description": {
                 "cz": "Způsobí psychologický útok, který nepřítele ochromí hrůzou a sníží jeho obranu.",
-                "en": "Changes its shape to increase defense.",
-                "sk": "Zmení svoj tvar, aby zvýšil obranu."
+                "en": "Inflicts a psychological attack that paralyzes the enemy with terror and lowers their defenses.",
+                "sk": "Spôsobí psychologický útok, ktorý nepriateľa ochromí hrôzou a zníži jeho obranu."
             },
             "type": "debuff",
             "chance": 50,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Korozivní Sliz",
-                "en": "Translated: Korozivní Sliz",
-                "sk": "Korozivní Sliz "
+                "en": "Corrosive Slime",
+                "sk": "Korozívny Sliz"
             },
             "description": {
                 "cz": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Snížení dmg 55-65%)",
-                "en": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Damage reduction 55-65%)",
-                "sk": "Při každém zásahu vystříkne černá koroze, která postupně požírá výzbroj útočníka (Zníženie dmg 55-65%)"
+                "en": "With each hit, black corrosion sprays out, which gradually eats away at the attacker's armor (Dmg reduction 55-65%)",
+                "sk": "Pri každom zásahu vystrekne čierna korózia, ktorá postupne požiera výzbroj útočníka (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

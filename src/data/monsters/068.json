@@ -2,13 +2,13 @@
     "id": "068",
     "name": {
         "cz": "Větvořez Parazitický",
-        "en": "Electric Charger",
-        "sk": "Elektrický nabíjač"
+        "en": "Branch cutter Parasitic",
+        "sk": "Vetvorez Parazitický"
     },
     "description": {
         "cz": "Stromovité monstrum s dlouhýma pavoučíma nohama ze dřeva a druhým parazitickým výrůstkem v podobě dravého květu.",
-        "en": "A creature that stores electricity in its body and can release it in powerful bursts.",
-        "sk": "Stvorenie, ktoré ukladá elektrinu vo svojom tele a dokáže ju uvoľniť v silných dávkach."
+        "en": "A tree-like monster with long spidery legs made of wood and a second parasitic growth in the form of a predatory flower.",
+        "sk": "Stromovité monštrum s dlhými pavúčími nohami z dreva a druhým parazitickým výrastkom v podobe dravého kvetu."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Větvený útok",
-                "en": "Power Burst",
-                "sk": "Energetický výbuch"
+                "en": "A branching attack",
+                "sk": "Vetvený útok"
             },
             "description": {
                 "cz": "Seknutí mnoha větvemi naráz.",
-                "en": "A burst of electric energy.",
-                "sk": "Výbuch elektrickej energie."
+                "en": "Cutting with many branches at once.",
+                "sk": "Seknutie mnohými konármi naraz."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Parazitické kousnutí",
-                "en": "Charge Up",
-                "sk": "Nabíjanie"
+                "en": "Parasitic bite",
+                "sk": "Parazitické uhryznutie"
             },
             "description": {
                 "cz": "Kousnutí druhou hlavou.",
-                "en": "Increases its electric power.",
-                "sk": "Zvyšuje svoju elektrickú silu."
+                "en": "Bite with the other head.",
+                "sk": "Uhryznutie druhou hlavou."
             },
             "type": "extra",
             "chance": 50,

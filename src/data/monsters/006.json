@@ -2,13 +2,13 @@
     "id": "006",
     "name": {
         "cz": "Listoočko Šustivé",
-        "en": "Frosty Owl",
-        "sk": "Mrazivá Sova"
+        "en": "Rusty leaf",
+        "sk": "Listoočko Šustivé"
     },
     "description": {
         "cz": "Malá zelená kulička, která se maskuje za javorový list. Kýchá malinké lístečky.",
-        "en": "A nocturnal bird with feathers as cold as ice. Its eyes glow blue in the dark.",
-        "sk": "Nočný vták s perím studeným ako ľad. Jeho oči v tme žiaria namodro."
+        "en": "A small green ball that disguises itself as a maple leaf. He sneezes tiny leaves.",
+        "sk": "Malá zelená gulička, ktorá sa maskuje za javorový list. Kýcha malinké lístočky."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Listová břitva",
-                "en": "Ice Shards",
-                "sk": "Ľadové úlomky"
+                "en": "Leaf razor",
+                "sk": "Listová britva"
             },
             "description": {
                 "cz": "Vysílá ostré listy, které proříznou i brnění.",
-                "en": "Fires sharp shards of ice at the enemy.",
-                "sk": "Vystrelí na nepriateľa ostré úlomky ľadu."
+                "en": "Sends out sharp blades that cut through even armor.",
+                "sk": "Vysiela ostré listy, ktoré prerežú aj brnenie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Tanec ve větru",
-                "en": "Blizzard Wings",
-                "sk": "Krídla blizardu"
+                "en": "Dancing in the wind",
+                "sk": "Tanec vo vetre"
             },
             "description": {
                 "cz": "Zvýší mrštnost a šanci na vyhnutí se útoku. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Creates a cold wind that slows down the enemy.",
-                "sk": "Vytvorí studený vietor, ktorý spomalí nepriateľa."
+                "en": "Increases agility and chance to dodge an attack. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Zvýši mrštnosť a šancu na vyhnutie sa útoku. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,

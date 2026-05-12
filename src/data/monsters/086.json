@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Zuhelnatělý kus toustu, který se probral k životu s neuhasitelným hladem. Jeho široká tlama je plná ostrých spálených drobků.",
-        "en": "A strange creature that looks like a slice of toast and is charged with electricity.",
-        "sk": "Zvláštne stvorenie, ktoré vyzerá ako plátok toastu a je nabité elektrinou."
+        "en": "A charred piece of toast that has come to life with an unquenchable hunger. Its wide mouth is full of sharp burnt crumbs.",
+        "sk": "Zuhoľnatený kus toustu, ktorý sa prebral k životu s neuhasiteľným hladom. Jeho široká papuľa je plná ostrých spálených omrviniek."
     },
     "type": "electric",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Vysokonapěťový stisk",
-                "en": "Shocking Slice",
-                "sk": "Šokujúci plátok"
+                "en": "High voltage squeeze",
+                "sk": "Vysokonapäťový stisk"
             },
             "description": {
                 "cz": "Zakousne se do nepřítele a pustí do něj silný elektrický proud.",
-                "en": "Attacks with electric power.",
-                "sk": "Zaútočí elektrickou silou."
+                "en": "It bites into the enemy and releases a powerful electric current into them.",
+                "sk": "Zahryzne sa do nepriateľa a pustí do neho silný elektrický prúd."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Křupavé nabití",
-                "en": "Pop Up",
-                "sk": "Vyskočenie"
+                "en": "Crunchy filling",
+                "sk": "Chrumkavé nabitie"
             },
             "description": {
                 "cz": "Pohltí statickou elektřinu z okolí a dočasně drasticky zvýší svou útočnou sílu.",
-                "en": "Jumps up to avoid damage.",
-                "sk": "Vyskočí, aby sa vyhol poškodeniu."
+                "en": "It absorbs static electricity from the surroundings and temporarily drastically increases its attack power.",
+                "sk": "Pohltí statickú elektrinu z okolia a dočasne drasticky zvýši svoju útočnú silu."
             },
             "type": "buff",
             "chance": 70,

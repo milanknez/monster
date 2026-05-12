@@ -2,13 +2,13 @@
     "id": "009",
     "name": {
         "cz": "Zoubko Hlodavec",
-        "en": "Cloudy Sheep",
-        "sk": "Obláčková Ovca"
+        "en": "Toothless Rodent",
+        "sk": "Zúbko Hlodavec"
     },
     "description": {
         "cz": "Tenhle chlupatý rarášek umí během vteřiny rozkousat celou hůl. Nejradši spí ve vyhlodaných dírách v kmenu.",
-        "en": "A sheep with wool so fluffy and light that it can float slightly above the ground.",
-        "sk": "Ovca s vlnou takou nadýchanou a ľahkou, že sa dokáže vznášať kúsok nad zemou."
+        "en": "This furry cutie can chew through an entire stick in seconds. It prefers to sleep in hollowed-out holes in the trunk.",
+        "sk": "Tento chlpatý rarášok vie počas sekundy rozhrýzť celú palicu. Najradšej spia vo vyhlodaných dierach v kmeni."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Hlodavý útok",
-                "en": "Soft Bounce",
-                "sk": "Mäkký odraz"
+                "en": "A gnawing attack",
+                "sk": "Hlodavý útok"
             },
             "description": {
                 "cz": "Rychlý útok ostrými zuby, který může snížit obranu protivníka (Snížení dmg 55-65%)",
-                "en": "Attacks by bouncing off the enemy.",
-                "sk": "Zaútočí odrazom od nepriateľa."
+                "en": "A quick attack with sharp teeth that can reduce the opponent's defense (Dmg reduction 55-65%)",
+                "sk": "Rýchly útok ostrými zubami, ktorý môže znížiť obranu protivníka (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Mechová regenerace",
-                "en": "Woolly Guard",
-                "sk": "Vlnená stráž"
+                "en": "Moss regeneration",
+                "sk": "Machová regenerácia"
             },
             "description": {
                 "cz": "Pokud stojí na přírodní půdě, postupně si obnovuje zdraví.",
-                "en": "Uses its wool to soften incoming damage.",
-                "sk": "Použije svoju vlnu na stlmenie prichádzajúceho poškodenia."
+                "en": "If he stands on natural ground, he gradually recovers his health.",
+                "sk": "Pokiaľ stojí na prírodnej pôde, postupne si obnovuje zdravie."
             },
             "type": "heal",
             "chance": 70,

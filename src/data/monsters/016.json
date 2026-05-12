@@ -2,13 +2,13 @@
     "id": "016",
     "name": {
         "cz": "Šupindoslav vodní",
-        "en": "Night Creeper",
-        "sk": "Nočný lezec"
+        "en": "Šupindoslav water",
+        "sk": "Šupindoslav vodný"
     },
     "description": {
         "cz": "Mutantní kapr s obrovskou ploutví, který se rád plazí mezi korály. Má podivně lesklé šupiny a děsí ostatní ryby, ale není zlý.",
-        "en": "A creature that stalks in the night, silent and deadly.",
-        "sk": "Stvorenie, ktoré sa zakráda v noci, tiché a smrtonosné."
+        "en": "A mutant carp with a huge fin that likes to crawl between corals. It has strangely shiny scales and scares the other fish, but it is not evil.",
+        "sk": "Mutantný kapor s obrovskou plutvou, ktorý sa rád plazí medzi koralmi. Má podivne lesklé šupiny a desí ostatné ryby, ale nie je zlý."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Vodní náraz",
-                "en": "Night Strike",
-                "sk": "Nočný úder"
+                "en": "Water impact",
+                "sk": "Vodný náraz"
             },
             "description": {
                 "cz": "Šupindoslav udeří velkou ploutví a zasáhne všechny nepřátele v blízkosti.",
-                "en": "An attack from the darkness.",
-                "sk": "Útok z temnoty."
+                "en": "Šupindoslav slams a large fin, hitting all nearby enemies.",
+                "sk": "Šupindoslav udrie veľkou plutvou a zasiahne všetkých nepriateľov v blízkosti."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Lesklé šupiny",
-                "en": "Shadow Blend",
-                "sk": "Splynutie s tieňom"
+                "en": "Shiny scales",
+                "sk": "Lesklé šupiny"
             },
             "description": {
                 "cz": "Odráží část poškození zpět na útočníka.",
-                "en": "Disappears into the shadows.",
-                "sk": "Zmizne v tieňoch."
+                "en": "Reflects some of the damage back to the attacker.",
+                "sk": "Odráža časť poškodenia späť na útočníka."
             },
             "type": "extra",
             "chance": 90,

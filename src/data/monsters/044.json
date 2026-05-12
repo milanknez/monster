@@ -2,13 +2,13 @@
     "id": "044",
     "name": {
         "cz": "Beruška Bradavička",
-        "en": "Warty Ladybug",
-        "sk": "Beruška Bradavička"
+        "en": "Ladybug Hogwarts",
+        "sk": "Lienka Bradavička"
     },
     "description": {
         "cz": "Červená beruška, jejíž tečky jsou ve skutečnosti malé svítící bradavičky. Je to noční tvor, který svítí na cestu ostatním.",
-        "en": "A strange ladybug with warts on its shell that can release poison.",
-        "sk": "Zvláštna lienka s bradavicami na pancieri, ktoré môžu uvoľňovať jed."
+        "en": "A red ladybug whose dots are actually little glowing nipples. It is a creature of the night that lights the way for others.",
+        "sk": "Červená lienka, ktorej bodky sú v skutočnosti malé svietiace bradavičky. Je to nočný tvor, ktorý svieti na cestu ostatným."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bradavičkové světlo",
-                "en": "Poison Spot",
-                "sk": "Jedovatá bodka"
+                "en": "Nipple light",
+                "sk": "Bradavičkové svetlo"
             },
             "description": {
                 "cz": "Vystřelí silný záblesk, který oslní nepřítele.",
-                "en": "Releases poison from its spots.",
-                "sk": "Uvoľní jed zo svojich bodiek."
+                "en": "Fires a powerful flash that dazzles the enemy.",
+                "sk": "Vystrelí silný záblesk, ktorý oslní nepriateľa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Tvrdá krovka",
-                "en": "Hard Fly-by",
-                "sk": "Tvrdý nálet"
+                "en": "Hard shell",
+                "sk": "Tvrdá krovka"
             },
             "description": {
                 "cz": "Zpevní svou ochranu a sníží příchozí poškození o 30% (Snížení dmg 55-65%)",
-                "en": "A fast flying attack.",
-                "sk": "Rýchly letecký útok."
+                "en": "Strengthens his protection and reduces incoming damage by 30% (Dmg reduction 55-65%)",
+                "sk": "Spevní svoju ochranu a zníži prichádzajúce poškodenie o 30% (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 75,

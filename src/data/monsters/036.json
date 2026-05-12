@@ -2,13 +2,13 @@
     "id": "036",
     "name": {
         "cz": "Plasmarík Ed",
-        "en": "Plasmaric Ed",
-        "sk": "Plasmarík Ed"
+        "en": "Plasmarík Ed",
+        "sk": "Plazmarík Ed"
     },
     "description": {
         "cz": "Malý energický králík držící zářící plazmovou kouli, která praská blesky. Je rychlý, srst mu jemně vlaje od elektrické energie a zanechává za sebou jiskřící stopy.",
-        "en": "A creature made of unstable plasma. It flickers and changes color constantly.",
-        "sk": "Stvorenie vyrobené z nestabilnej plazmy. Neustále bliká a mení farbu."
+        "en": "A small energetic rabbit holding a glowing plasma ball that bursts with lightning. It is fast, its fur fluttering gently from the electricity and leaving sparkling trails in its wake.",
+        "sk": "Malý energický králik držiaci žiariacu plazmovú guľu, ktorá praská blesky. Je rýchly, srsť mu jemne veje od elektrickej energie a zanecháva za sebou iskriace stopy."
     },
     "type": "electric",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Plazmový výboj",
-                "en": "Plasma Pulse",
-                "sk": "Plazmový pulz"
+                "en": "Plasma discharge",
+                "sk": "Plazmový výboj"
             },
             "description": {
                 "cz": "Uvolní soustředěnou plazmovou energii na jednoho nepřítele a způsobí silné poškození.",
-                "en": "Sends out a wave of plasma energy.",
-                "sk": "Vysiela vlnu plazmovej energie."
+                "en": "Releases concentrated plasma energy at one enemy, dealing heavy damage.",
+                "sk": "Uvoľní sústredenú plazmovú energiu na jedného nepriateľa a spôsobí silné poškodenie."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Elektro léčba",
-                "en": "Light Flash",
-                "sk": "Svetelný záblesk"
+                "en": "Electro treatment",
+                "sk": "Elektro liečba"
             },
             "description": {
                 "cz": "Vytvoří jiskřící bublinu, která obnoví 25% zdraví.",
-                "en": "Blinds the enemy with a bright flash.",
-                "sk": "Oslepí nepriateľa jasným zábleskom."
+                "en": "Creates a sparkling bubble that restores 25% health.",
+                "sk": "Vytvorí iskriacu bublinu, ktorá obnoví 25% zdravia."
             },
             "type": "heal",
             "chance": 100,

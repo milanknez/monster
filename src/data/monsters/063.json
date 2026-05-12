@@ -2,13 +2,13 @@
     "id": "063",
     "name": {
         "cz": "Plamenošváb Obří",
-        "en": "Giant Flame-roach",
-        "sk": "Plamenošváb Obří"
+        "en": "Giant Flame Cockroach",
+        "sk": "Plameňošváb Obrie"
     },
     "description": {
         "cz": "Zmutovaný hmyz s průhlednými křídly z čistého ohně a masivními kusadly, která jsou rozžhavená doruda.",
-        "en": "A massive cockroach that is always on fire. It is very hard to kill.",
-        "sk": "Obrovský šváb, ktorý neustále horí. Je veľmi ťažké ho zabiť."
+        "en": "A mutated insect with transparent wings made of pure fire and massive mandibles that are red-hot red.",
+        "sk": "Zmutovaný hmyz s priehľadnými krídlami z čistého ohňa a masívnymi kusadlami, ktoré sú rozžeravené dočervena."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kusadlový stisk",
-                "en": "Flame Dash",
-                "sk": "Ohnivý výpad"
+                "en": "Mandible squeeze",
+                "sk": "Kusadľový stisk"
             },
             "description": {
                 "cz": "Sevře nepřítele a popálí ho.",
-                "en": "Charges at the enemy while on fire.",
-                "sk": "Vrazí do nepriateľa, zatiaľ čo horí."
+                "en": "Grips the enemy and burns them.",
+                "sk": "Zovrie nepriateľa a popáli ho."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Ohnivý nálet",
-                "en": "Hard Shell",
-                "sk": "Tvrdý pancier"
+                "en": "Fire raid",
+                "sk": "Ohnivý nálet"
             },
             "description": {
                 "cz": "Rychlý útok ze vzduchu.",
-                "en": "Protects itself with a heat-resistant shell.",
-                "sk": "Chráni sa teplovzdorným pancierom."
+                "en": "Quick attack from the air.",
+                "sk": "Rýchly útok zo vzduchu."
             },
             "type": "extra",
             "chance": 50,

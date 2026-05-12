@@ -2,13 +2,13 @@
     "id": "103",
     "name": {
         "cz": "Mrtvolný Loutkář",
-        "en": "Cadaverous Puppeteer",
-        "sk": "Mrtvolný Loutkář"
+        "en": "Mortuary Puppeteer",
+        "sk": "Mŕtvolný Bábkár"
     },
     "description": {
         "cz": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
-        "en": "A giant, grotesque mass of muscle and tendons with many spider-like arms. From each finger hang thin, pulsating nerve fibers with which he controls puppets sewn from parts of his previous victims.",
-        "sk": "Obria, groteskná masa svalov a šliach s mnohými pavúčími pažami. Z každého prsta mu visia tenké, pulzujúce nervové vlákna, ktorými ovláda lútky zošité z častí svojich predchádzajúcich obetí."
+        "en": "A giant, grotesque mass of muscle and sinew with many spidery arms. Thin, pulsing nerve fibers dangle from each of his fingers, which he uses to control puppets stitched together from the parts of his previous victims.",
+        "sk": "Obrie, groteskné mäsa svalov a šliach s mnohými pavúčími pažami. Z každého prsta mu visia tenké, pulzujúce nervové vlákna, ktorými ovláda bábky zošité z častí svojich predchádzajúcich obetí."
     },
     "type": "electric",
     "rarity": "legendary",
@@ -22,12 +22,12 @@
             "name": {
                 "cz": "Zvrácená Marioneta",
                 "en": "Perverted Marionette",
-                "sk": "Zvrácená marioneta"
+                "sk": "Zvrátená Marioneta"
             },
             "description": {
                 "cz": "Odrazí 50 % utrženého poškození zpět na útočníka.",
-                "en": "Reflects 50% of taken damage back to the attacker.",
-                "sk": "Odrazí 50 % utŕženého poškodenia späť na útočníka."
+                "en": "Reflects 50% of the damage taken back to the attacker.",
+                "sk": "Odrazí 50% utrhnutého poškodenia späť na útočníka."
             },
             "type": "reflect",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Vlákna Osudu",
-                "en": "Fibers of Fate",
-                "sk": "Vlákna osudu"
+                "en": "Threads of Fate",
+                "sk": "Vlákna Osudu"
             },
             "description": {
                 "cz": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
-                "en": "Paralyzes the opponent and temporarily steals part of their attack power.",
-                "sk": "Ochromí súpera a dočasne mu ukradne časť jeho útočnej sily."
+                "en": "Stuns the opponent and temporarily steals some of their attack power.",
+                "sk": "Ochmrtí súpera a dočasne mu ukradne časť jeho útočnej sily."
             },
             "type": "debuff",
             "chance": 50,
@@ -52,11 +52,11 @@
             "name": {
                 "cz": "Armáda Stínů",
                 "en": "Army of Shadows",
-                "sk": "Armáda stínů"
+                "sk": "Armáda Tieňov"
             },
             "description": {
                 "cz": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
-                "en": "Summons spectral comrades who attack in a massive volley.",
+                "en": "Summons ghostly comrades who attack in a massive volley.",
                 "sk": "Vyvolá prízračných spolubojovníkov, ktorí zaútočia v mohutnej salve."
             },
             "type": "attack",

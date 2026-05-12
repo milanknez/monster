@@ -2,13 +2,13 @@
     "id": "055",
     "name": {
         "cz": "Drápohlod Parasitický",
-        "en": "Parasitic Claw-gnawer",
+        "en": "Claw Rodent Parasitic",
         "sk": "Drápohlod Parasitický"
     },
     "description": {
         "cz": "Zmutovaný malý hlodavec, kterému z boku vyrostl druhý, zakrnělý a agresivní jedinec. Původní hostitel má vyhaslé oči, zatímco jeho parazitický přívěsek vládne obřími zuby a ostrými drápy. Jejich pohyby jsou trhavé a nepředvídatelné, jak oba mozky bojují o kontrolu nad společným tělem.",
-        "en": "A parasite that latches onto its host and feeds on its energy.",
-        "sk": "Parazit, ktorý sa prichytí na svojho hostiteľa a kŕmi sa jeho energiou."
+        "en": "A mutated small rodent that grew a second, stunted and aggressive individual from its side. The original host has dead eyes, while its parasitic appendage rules with giant teeth and sharp claws. Their movements are jerky and unpredictable as both brains fight for control of their shared body.",
+        "sk": "Zmutovaný malý hlodavec, ktorému z boku vyrástol druhý, zakrpatený a agresívny jedinec. Pôvodný hostiteľ má vyhasnuté oči, zatiaľ čo jeho parazitický prívesok vládne obrími zubami a ostrými pazúrmi. Ich pohyby sú trhavé a nepredvídateľné, ako oba mozgy bojujú o kontrolu nad spoločným telom."
     },
     "type": "electric",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Dvojitý Hryz",
-                "en": "Energy Drain",
-                "sk": "Vysávanie energie"
+                "en": "Double Bite",
+                "sk": "Dvojitý Hryz"
             },
             "description": {
                 "cz": "Obě tlamy se zaryjí do cíle ve stejný okamžik a způsobí krvácivé zranění.",
-                "en": "Drains energy from the enemy.",
-                "sk": "Vysáva energiu z nepriateľa."
+                "en": "Both muzzles dig into the target at the same time, dealing a bleeding wound.",
+                "sk": "Obe papule sa zaryjú do cieľa v rovnaký okamih a spôsobia krvácavé zranenie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Trhavý Výpad",
-                "en": "Claw Scratch",
-                "sk": "Škrabnutie pazúrom"
+                "en": "Jerky Lunge",
+                "sk": "Trhavý Výpad"
             },
             "description": {
                 "cz": "Díky nekontrolovaným spasmům se bleskově vrhne vpřed a překvapí i připraveného obránce.",
-                "en": "A quick scratch with sharp claws.",
-                "sk": "Rýchle poškriabanie ostrými pazúrmi."
+                "en": "Thanks to uncontrolled spasms, he rushes forward in a flash and surprises even a prepared defender.",
+                "sk": "Vďaka nekontrolovaným spazmom sa bleskovo vrhne vpred a prekvapí aj pripraveného obrancu."
             },
             "type": "extra",
             "chance": 50,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Parazitický Vřískot",
-                "en": "Translated: Parazitický Vřískot",
-                "sk": "Parazitický Vrískot"
+                "en": "Parasitic Scream",
+                "sk": "Parazitický Vreskot"
             },
             "description": {
                 "cz": "Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
-                "en": "Translated: Méně vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustředění nepřítele.",
-                "sk": "Méne vyvinutá hlava spustí vysokofrekvenční jekot, který naruší soustredení neprítele."
+                "en": "A less developed head will launch a high-frequency screech that disrupts the enemy's concentration.",
+                "sk": "Menej vyvinutá hlava spustí vysokofrekvenčný kotúč, ktorý naruší sústredenie nepriateľa."
             },
             "type": "debuff",
             "chance": 50,

@@ -2,13 +2,13 @@
     "id": "094",
     "name": {
         "cz": "Mutagenní Mrkev",
-        "en": "Mutagenic Carrot",
-        "sk": "Mutagenní Mrkev"
+        "en": "Mutagenic Carrots",
+        "sk": "Mutagénne Mrkva"
     },
     "description": {
         "cz": "Zkroucený kořen, který se vertikálně rozestoupil, aby vytvořil tlamu plnou nepravidelných tesáků. Její listy se změnily v mrštné pařáty.",
-        "en": "A carrot that has mutated and grown multiple legs and eyes.",
-        "sk": "Mrkva, ktorá zmutovala a narástlo jej viacero nôh a očí."
+        "en": "A twisted root that split vertically to form a mouth full of irregular fangs. Her leaves turned into nimble claws.",
+        "sk": "Skrútený koreň, ktorý sa vertikálne rozostúpil, aby vytvoril papuľu plnú nepravidelných tesákov. Jej listy sa zmenili na mrštné pazúry."
     },
     "type": "nature",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kořenové sevření",
-                "en": "Root Jab",
-                "sk": "Koreňový vpich"
+                "en": "Root grip",
+                "sk": "Koreňové zovretie"
             },
             "description": {
                 "cz": "Omotá nepřítele svými kořeny a začne z něj vysávat živiny.",
-                "en": "Jabs the enemy with its roots.",
-                "sk": "Bodá nepriateľa svojimi koreňmi."
+                "en": "It wraps its roots around the enemy and begins to suck nutrients from it.",
+                "sk": "Omotá nepriateľa svojimi koreňmi a začne z neho vysávať živiny."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Půdní infuze",
-                "en": "Eye Flash",
-                "sk": "Záblesk očí"
+                "en": "Soil infusion",
+                "sk": "Pôdne infúzie"
             },
             "description": {
                 "cz": "Zaboří kořeny do země a okamžitě načerpá minerály pro bleskové vyléčení ran.",
-                "en": "Blinds the enemy with multiple eyes.",
-                "sk": "Oslepí nepriateľa viacerými očami."
+                "en": "It sinks its roots into the ground and immediately pumps up minerals for lightning wound healing.",
+                "sk": "Zaborí korene do zeme a okamžite načerpá minerály na bleskové vyliečenie rán."
             },
             "type": "heal",
             "chance": 70,

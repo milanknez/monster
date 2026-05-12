@@ -2,13 +2,13 @@
     "id": "085",
     "name": {
         "cz": "Energetický Brokolit",
-        "en": "Spectral Knight",
-        "sk": "Prízračný rytier"
+        "en": "Energetic Broccoli",
+        "sk": "Energetický Brokolit"
     },
     "description": {
         "cz": "Temná zmutovaná brokolice se zubatými okraji a mnoha žlutýma očima, které sledují každý váš pohyb. Její stonky jiskří smrtící elektřinou.",
-        "en": "A ghostly knight that haunts ancient ruins. It is very strong and tough.",
-        "sk": "Prízračný rytier, ktorý straší v starobylých ruinách. Je veľmi silný a odolný."
+        "en": "Dark mutated broccoli with jagged edges and many yellow eyes that watch your every move. Its stems spark with deadly electricity.",
+        "sk": "Temná zmutovaná brokolica so zubatými okrajmi a mnohými žltými očami, ktoré sledujú každý váš pohyb. Jej stonky iskrí smrtiacou elektrinou."
     },
     "type": "electric",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Jehličnatý výboj",
-                "en": "Spectral Blade",
-                "sk": "Prízračná čepeľ"
+                "en": "Coniferous discharge",
+                "sk": "Ihličnatý výboj"
             },
             "description": {
                 "cz": "Vystřelí salvu ostrých elektrických trnů, které probodnou nepřítele.",
-                "en": "Attacks with a ghostly sword.",
-                "sk": "Zaútočí prízračným mečom."
+                "en": "Fires a volley of sharp electric spikes that pierce the enemy.",
+                "sk": "Vystrelí salvu ostrých elektrických tŕňov, ktoré prebodnú nepriateľa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Bleskové ochromení",
-                "en": "Ghostly Guard",
-                "sk": "Prízračná stráž"
+                "en": "Lightning Paralysis",
+                "sk": "Bleskové ochromenie"
             },
             "description": {
                 "cz": "Vysílá vlny statické elektřiny, které oslabují svaly a snižují sílu útoku nepřítele.",
-                "en": "Increases defense by becoming partially ethereal.",
-                "sk": "Zvyšuje obranu tým, že sa stane čiastočne éterickým."
+                "en": "Sends out waves of static electricity that weakens muscles and reduces the enemy's attack power.",
+                "sk": "Vysiela vlny statickej elektriny, ktoré oslabujú svaly a znižujú silu útoku nepriateľa."
             },
             "type": "curse",
             "chance": 65,

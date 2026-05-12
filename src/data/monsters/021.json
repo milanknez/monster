@@ -2,13 +2,13 @@
     "id": "021",
     "name": {
         "cz": "Kraboshell skála",
-        "en": "Woodland Spirit",
-        "sk": "Lesný duch"
+        "en": "Crabshell rock",
+        "sk": "Kraboshell skala"
     },
     "description": {
         "cz": "Mocná želva s pevnou skořápkou a moudrým výrazem. Pomalejší pohyb, ale těžko ji zraníš. Milá a spolehlivá, dokáže chránit své přátele.",
-        "en": "A protective spirit of the woods.",
-        "sk": "Ochranný duch lesov."
+        "en": "A powerful turtle with a hard shell and a wise expression. Slower movement, but you can hardly hurt her. Kind and reliable, she can protect her friends.",
+        "sk": "Mocná korytnačka s pevnou škrupinou a múdrym výrazom. Pomalší pohyb, ale ťažko ju zraníš. Milá a spoľahlivá, dokáže chrániť svojich priateľov."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Skořápkový náraz",
-                "en": "Root Entangle",
-                "sk": "Koreňové zapletenie"
+                "en": "Shell impact",
+                "sk": "Škrupinový náraz"
             },
             "description": {
                 "cz": "Zprudka se odrazí a zasáhne jednoho nepřítele vysokým poškozením.",
-                "en": "Slows the enemy with roots.",
-                "sk": "Spomalí nepriateľa koreňmi."
+                "en": "Bounces back and hits one enemy for high damage.",
+                "sk": "Sprudka sa odrazí a zasiahne jedného nepriateľa vysokým poškodením."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Ochranný pancíř",
-                "en": "Nature's Blessing",
-                "sk": "Požehnanie prírody"
+                "en": "Protective armor",
+                "sk": "Ochranný pancier"
             },
             "description": {
                 "cz": "Na jedno kolo výrazně zvýší svou obranu a sníží poškození od nepřátel (Snížení dmg 55-65%)",
-                "en": "Heals wounds.",
-                "sk": "Zahojí rany."
+                "en": "For one turn, it will greatly increase its defense and reduce damage from enemies (Dmg reduction 55-65%)",
+                "sk": "Na jedno kolo výrazne zvýši svoju obranu a zníži poškodenie od nepriateľov (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

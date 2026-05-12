@@ -2,13 +2,13 @@
     "id": "057",
     "name": {
         "cz": "Ropuše přítulná",
-        "en": "Cuddly Toad",
-        "sk": "Ropuše přítulná"
+        "en": "A cuddly toad",
+        "sk": "Ropuša prítulná"
     },
     "description": {
         "cz": "Zmutovaná obří žába s třemi páry očí a zakrnělými černými křídly na zádech. Její kůže neustále produkuje jedovatý modrý sliz a její mrštný jazyk je vybaven ostrými háčky.",
-        "en": "A toad that looks very friendly and cuddly, but its skin is covered in toxins.",
-        "sk": "Ropucha, ktorá vyzerá veľmi priateľsky a prítulne, ale jej koža je pokrytá toxínmi."
+        "en": "A mutated giant frog with three pairs of eyes and stunted black wings on its back. Her skin constantly produces a poisonous blue slime and her nimble tongue is equipped with sharp hooks.",
+        "sk": "Zmutovaná obria žaba s tromi pármi očí a zakrpatenými čiernymi krídlami na chrbte. Jej koža neustále produkuje jedovatý modrý hlien a jej mrštný jazyk je vybavený ostrými háčikmi."
     },
     "type": "water",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Slizká Sprcha",
-                "en": "Toxic Hug",
-                "sk": "Toxické objatie"
+                "en": "Slimy Shower",
+                "sk": "Slizká Sprcha"
             },
             "description": {
                 "cz": "Vystříkne na nepřítele spršku jedovatého slizu, který způsobuje průběžné poškození.",
-                "en": "Hugs the enemy to deliver toxins.",
-                "sk": "Objíme nepriateľa, aby mu odovzdala toxíny."
+                "en": "Sprays a spray of poisonous slime at the enemy that deals continuous damage.",
+                "sk": "Vystrekne na nepriateľa spŕšku jedovatého slizu, ktorý spôsobuje priebežné poškodenie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Jazykový Výpad",
-                "en": "Sticky Tongue",
-                "sk": "Lepkavý jazyk"
+                "en": "Language Breakout",
+                "sk": "Jazykový Výpad"
             },
             "description": {
                 "cz": "Bleskově vymrští jazyk a přitáhne nepřítele přímo ke svým ostrým čelistem.",
-                "en": "Lashes out with its long sticky tongue.",
-                "sk": "Zaútočí svojím dlhým lepkavým jazykom."
+                "en": "Flashes out its tongue and pulls the enemy straight to its sharp jaws.",
+                "sk": "Bleskovo vymrští jazyk a pritiahne nepriateľa priamo k svojim ostrým čeľustiam."
             },
             "type": "attack",
             "chance": 80,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Plachtění",
-                "en": "Translated: Plachtění",
-                "sk": "Plachtení"
+                "en": "Sailing",
+                "sk": "Plachtenie"
             },
             "description": {
                 "cz": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Snížení dmg 55-65%)",
-                "en": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Damage reduction 55-65%)",
-                "sk": "Skočí vysoko do vzduchu a pomocí svých křídel se vyhne následujícímu útoku (Zníženie dmg 55-65%)"
+                "en": "Jumps high into the air and uses its wings to dodge the next attack (Dmg reduction 55-65%)",
+                "sk": "Skočí vysoko do vzduchu a pomocou svojich krídiel sa vyhne nasledujúcemu útoku (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

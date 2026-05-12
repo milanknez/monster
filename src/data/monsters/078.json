@@ -2,15 +2,15 @@
     "id": "078",
     "name": {
         "cz": "Listový Kudlanka",
-        "en": "Leafy Mantis",
+        "en": "Leaf Mantis",
         "sk": "Listový Kudlanka"
     },
     "type": "nature",
     "rarity": "common",
     "description": {
         "cz": "Zelený predátor, který vypadá jako obyčejná větvička s malými lístečky, dokud bleskově nezaútočí.",
-        "en": "A mantis that is perfectly camouflaged among the leaves of the forest.",
-        "sk": "Modlivka, ktorá je dokonale maskovaná medzi listami v lese."
+        "en": "A green predator that looks like an ordinary twig with small leaves until it makes a lightning attack.",
+        "sk": "Zelený predátor, ktorý vyzerá ako obyčajná vetvička s malými lístočkami, kým bleskovo nezaútočí."
     },
     "stats": {
         "hp": 135,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Divoké šlahouny",
-                "en": "Leaf Blade",
-                "sk": "Listová čepeľ"
+                "en": "Wild slugs",
+                "sk": "Divoké šľahúne"
             },
             "description": {
                 "cz": "Země pod nepřítelem ožije a tvrdě ho šlehne kořeny.",
-                "en": "Attacks with its sharp leaf-like arms.",
-                "sk": "Zaútočí svojimi ostrými ramenami podobnými listom."
+                "en": "The ground beneath the enemy comes alive and whips him hard by the roots.",
+                "sk": "Krajina pod nepriateľom ožije a tvrdo ho šľahne korene."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Fotosyntéza",
-                "en": "Nature's Hiding",
-                "sk": "Skrytie v prírode"
+                "en": "Photosynthesis",
+                "sk": "Fotosyntéza"
             },
             "description": {
                 "cz": "Načasuje si buněčnou obnovu, díky které se mírně regeneruje po určitý čas.",
-                "en": "Hides in the foliage to avoid being hit.",
-                "sk": "Skryje sa v lístí, aby sa vyhol zásahu."
+                "en": "It times its cellular renewal, which makes it regenerate slightly for a certain period of time.",
+                "sk": "Načasuje si bunkovú obnovu, vďaka ktorej sa mierne regeneruje určitý čas."
             },
             "type": "regen",
             "chance": 65,

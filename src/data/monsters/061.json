@@ -2,13 +2,13 @@
     "id": "061",
     "name": {
         "cz": "Ohňohuba Sliznatá",
-        "en": "Slimy Fire-mouth",
-        "sk": "Ohňohuba Sliznatá"
+        "en": "Slimy Fire Mushroom",
+        "sk": "Ohňohuba Zliznatá"
     },
     "description": {
         "cz": "Rosolovitá masa tekuté lávy s mnoha nepravidelně rozmístěnými oky. Z její obří tlamy neustále odkapává tekutý oheň, který zapaluje vše v okolí.",
-        "en": "A strange creature with a mouth that breathes fire and a body covered in slime.",
-        "sk": "Zvláštne stvorenie s tlamou, ktorá chrlí oheň, a telom pokrytým slizom."
+        "en": "A jelly-like mass of liquid lava with many irregularly spaced meshes. Liquid fire constantly drips from her giant mouth, igniting everything in the vicinity.",
+        "sk": "Rosolovitá mäsa tekutej lávy s mnohými nepravidelne rozmiestnenými okami. Z jej obrie papule neustále odkvapkáva tekutý oheň, ktorý zapaľuje všetko v okolí."
     },
     "type": "fire",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Lávový plivanec",
-                "en": "Fire Slime",
-                "sk": "Ohnivý sliz"
+                "en": "Lava spit",
+                "sk": "Lávový pľuvanec"
             },
             "description": {
                 "cz": "Plivne kus tekutého ohně.",
-                "en": "Throws flaming slime at the enemy.",
-                "sk": "Hádže horiaci sliz na nepriateľa."
+                "en": "He spits out a piece of liquid fire.",
+                "sk": "Pľuvne kus tekutého ohňa."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žhnoucí tělo",
-                "en": "Sticky Burn",
-                "sk": "Lepkavý popálenina"
+                "en": "Glowing body",
+                "sk": "Žhnúce telo"
             },
             "description": {
                 "cz": "Každý, kdo se ho dotkne, se popálí (Snížení dmg 55-65%)",
-                "en": "Burns the enemy with sticky fire.",
-                "sk": "Popáli nepriateľa lepkavým ohňom."
+                "en": "Anyone who touches it gets burned (Dmg reduction 55-65%)",
+                "sk": "Každý, kto sa ho dotkne, sa popáli (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

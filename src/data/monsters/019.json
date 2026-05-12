@@ -2,13 +2,13 @@
     "id": "019",
     "name": {
         "cz": "Bleskokvět dvojhlavý",
-        "en": "Double-headed Sparkflower",
+        "en": "Double headed lightning flower",
         "sk": "Bleskokvet dvojhlavý"
     },
     "description": {
         "cz": "Elektrická masožravá květina s dvěma hlavami, které chňapou po všem kolem. Když se rozčílí, mezi květy prskají jiskry a vydávají malé elektrické výboje.",
-        "en": "An electric carnivorous flower with two heads that snap at everything around. When angry, sparks fly between the flowers and emit small electric discharges.",
-        "sk": "Elektrická mäsožravá kvetina s dvoma hlavami, ktoré chňapú po všetkom okolo. Keď sa rozčúli, medzi kvetmi prskajú iskry a vydávajú malé elektrické výboje."
+        "en": "An electric carnivorous flower with two heads that grab everything around. When they get upset, sparks fly between the flowers and emit small electrical discharges.",
+        "sk": "Elektrická mäsožravá kvetina s dvoma hlavami, ktoré chňapú po všetkom okolo. Keď sa rozčúlia, medzi kvetmi prskajú iskry a vydávajú malé elektrické výboje."
     },
     "type": "electric",
     "rarity": "common",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Jiskrový chňapák",
-                "en": "Spark Snapper",
+                "en": "Spark Grabber",
                 "sk": "Iskrový chňapák"
             },
             "description": {
                 "cz": "Obě hlavy prudce zaútočí a způsobí elektrické poškození jednomu nepříteli.",
-                "en": "Both heads strike fiercely and cause electric damage to one enemy.",
+                "en": "Both heads lash out and deal electrical damage to one enemy.",
                 "sk": "Obe hlavy prudko zaútočia a spôsobia elektrické poškodenie jednému nepriateľovi."
             },
             "type": "extra",
@@ -36,12 +36,12 @@
         {
             "name": {
                 "cz": "Elektrické výboje",
-                "en": "Electric Discharges",
+                "en": "Electric shocks",
                 "sk": "Elektrické výboje"
             },
             "description": {
                 "cz": "Vydává náhodné malé blesky, které zasáhnou všechny nepřátele v dosahu.",
-                "en": "Emits random small lightning bolts that hit all enemies in range.",
+                "en": "Fires random small bolts of lightning that hit all enemies in range.",
                 "sk": "Vydáva náhodné malé blesky, ktoré zasiahnu všetkých nepriateľov v dosahu."
             },
             "type": "extra",

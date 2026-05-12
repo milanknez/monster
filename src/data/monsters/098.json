@@ -3,12 +3,12 @@
     "name": {
         "cz": "Lego Opravář",
         "en": "Lego Repairman",
-        "sk": "Lego Opravář"
+        "sk": "Lego Opravár"
     },
     "description": {
         "cz": "Oživlá stavebnicová figurka se žlutou kůží, které místo jedné ruky vyrostl obří hydraulický klíč. Její tělo je poskládané z náhodných barevných kostek a z prasklin unikají nebezpečné elektrické výboje.",
-        "en": "An animated building figure with yellow skin, who has grown a giant hydraulic wrench instead of one hand. Its body is assembled from random colorful blocks and dangerous electrical sparks leak from the cracks.",
-        "sk": "Oživená stavebnicová figúrka so žltou kožou, ktorej namiesto jednej ruky vyrástol obrí hydraulický kľúč. Jej telo je poskladané z náhodných farebných kociek a z prasklín unikajú nebezpečné elektrické výboje."
+        "en": "An animated building block figure with yellow skin that has grown a giant hydraulic wrench instead of one hand. Her body is made up of random colored cubes and dangerous electrical discharges escape from the cracks.",
+        "sk": "Oživená stavebnicová figúrka so žltou kožou, ktoré namiesto jednej ruky vyrástol obrí hydraulický kľúč. Jej telo je poskladané z náhodných farebných kociek a z prasklín unikajú nebezpečné elektrické výboje."
     },
     "type": "electric",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Utažení matky",
-                "en": "Hydraulic Wrench",
-                "sk": "Hydraulický kľúč"
+                "en": "Tightening the mother",
+                "sk": "Utiahnutie matky"
             },
             "description": {
                 "cz": "Prudký úder obřím klíčem, který nepřítele doslova rozdrtí.",
-                "en": "A heavy strike with a giant wrench.",
-                "sk": "Ťažký úder obrovským kľúčom."
+                "en": "A powerful blow with a giant wrench that literally crushes the enemy.",
+                "sk": "Prudký úder obrím kľúčom, ktorý nepriateľa doslova rozdrví."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Odpálený kondenzátor",
-                "en": "Block Barrier",
-                "sk": "Kocková bariéra"
+                "en": "Blown capacitor",
+                "sk": "Odpálený kondenzátor"
             },
             "description": {
                 "cz": "Vystřelí salvu jisker, které dočasně zvýší jeho útočnou sílu i rychlost.",
-                "en": "Creates a barrier from building blocks.",
-                "sk": "Vytvorí bariéru zo stavebných kociek."
+                "en": "Shoots a volley of sparks that temporarily increase his attack power and speed.",
+                "sk": "Vystrelí salvu iskier, ktoré dočasne zvýšia jeho útočnú silu aj rýchlosť."
             },
             "type": "buff",
             "chance": 70,

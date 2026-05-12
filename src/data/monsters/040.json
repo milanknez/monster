@@ -3,12 +3,12 @@
     "name": {
         "cz": "Safírový Kraken",
         "en": "Sapphire Kraken",
-        "sk": "Safírový Kraken"
+        "sk": "Zafírový Kraken"
     },
     "description": {
         "cz": "Obrovský hlavonožec s kůží připomínající hluboký safír. Jeho chapadla jsou pokryta luminiscenčními přísavkami, které dokážou vytvořit elektrické výboje pod vodou.",
-        "en": "A giant sea monster with sapphire-colored skin and massive tentacles.",
-        "sk": "Obrovské morské monštrum so zafírovo sfarbenou kožou a mohutnými chápadlami."
+        "en": "A giant cephalopod with skin resembling a deep sapphire. Its tentacles are covered in luminescent suction cups that can create electrical discharges underwater.",
+        "sk": "Obrovský hlavonožec s kožou pripomínajúci hlboký zafír. Jeho chápadlá sú pokryté luminiscenčnými prísavkami, ktoré dokážu vytvoriť elektrické výboje pod vodou."
     },
     "type": "water",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Hlubinné sevření",
-                "en": "Crushing Tentacles",
-                "sk": "Drvivé chápadlá"
+                "en": "Deep grip",
+                "sk": "Hlbinné zovretie"
             },
             "description": {
                 "cz": "Obrovská chapadla nepřítele uvězní v silném sevření, které ho postupně drtí.",
-                "en": "Crushes the enemy with strong tentacles.",
-                "sk": "Rozdrví nepriateľa silnými chápadlami."
+                "en": "Enormous tentacles trap the enemy in a strong grip that gradually crushes them.",
+                "sk": "Obrovské chápadlá nepriateľa uväznia v silnom zovretí, ktoré ho postupne drví."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Safírová záře",
-                "en": "Ink Cloud",
-                "sk": "Atramentový mrak"
+                "en": "Sapphire glow",
+                "sk": "Zafírová žiara"
             },
             "description": {
                 "cz": "Vystřelí oslnivý paprsek energie ze svých luminiscenčních přísavek, který oslepí nepřítele.",
-                "en": "Releases ink to confuse the enemy.",
-                "sk": "Vypustí atrament, aby zmätil nepriateľa."
+                "en": "He fires a dazzling beam of energy from his luminescent suction cups that blinds the enemy.",
+                "sk": "Vystrelí oslnivý lúč energie zo svojich luminiscenčných prísaviek, ktorý oslepí nepriateľa."
             },
             "type": "attack",
             "chance": 70,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Elektrické vlnobití",
-                "en": "Translated: Elektrické vlnobití",
-                "sk": "Elektrické vlnobití "
+                "en": "Electric surge",
+                "sk": "Elektrické vlnobitie"
             },
             "description": {
                 "cz": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní nepřátele.",
-                "en": "Vypustí do vody silný elektrický discharge, který ochromí všechny okolní nepřátele.",
-                "sk": "Vypustí do vody silný elektrický výboj, který ochromí všechny okolní neprátele."
+                "en": "Releases a powerful electric shock into the water that paralyzes all nearby enemies.",
+                "sk": "Vypustí do vody silný elektrický výboj, ktorý ochromí všetkých okolitých nepriateľov."
             },
             "type": "extra",
             "chance": 65,

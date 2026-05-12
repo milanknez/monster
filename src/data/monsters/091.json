@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Zuhelnatělý trojúhelník pizzy s pepperoni očima, které vás neustále sledují. Místo sýra po ní stéká vařící láva a z okraje trčí kosti.",
-        "en": "A pizza monster that is constantly on fire and very spicy.",
-        "sk": "Pizzové monštrum, ktoré neustále horí a je veľmi pálivé."
+        "en": "A charred triangle of pizza with pepperoni eyes watching you constantly. Instead of cheese, boiling lava runs down it and bones stick out from the edge.",
+        "sk": "Zuhoľnatený trojuholník pizze s pepperoni očami, ktoré vás neustále sledujú. Namiesto syra po nej steká vriaca láva a z okraja trčia kosti."
     },
     "type": "fire",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Lávový déšť",
-                "en": "Inferno Slice",
-                "sk": "Inferno plátok"
+                "en": "Lava rain",
+                "sk": "Lávový dážď"
             },
             "description": {
                 "cz": "Potřísní nepřítele vařícím sýrem a lávou z povrchu.",
-                "en": "Attacks with a flaming slice.",
-                "sk": "Zaútočí horiacim plátkom."
+                "en": "Sprays the enemy with boiling cheese and lava from the surface.",
+                "sk": "Zasiahnu nepriateľa vriacim syrom a lávou z povrchu."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Lávová aura",
-                "en": "Spicy Aura",
-                "sk": "Pálivá aura"
+                "en": "Lava aura",
+                "sk": "Lávová aura"
             },
             "description": {
                 "cz": "Rozžhaví sýr na svém povrchu, což zvýší sílu ohnivých útoků po zbytek boje.",
-                "en": "Burns nearby enemies with its heat.",
-                "sk": "Popáli okolitých nepriateľov svojím teplom."
+                "en": "It will heat up the cheese on its surface, increasing the power of fire attacks for the rest of the fight.",
+                "sk": "Rozžeraví syr na svojom povrchu, čo zvýši silu ohnivých útokov po zvyšok boja."
             },
             "type": "buff",
             "chance": 70,

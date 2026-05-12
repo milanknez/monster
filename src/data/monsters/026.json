@@ -2,13 +2,13 @@
     "id": "026",
     "name": {
         "cz": "Fekálník Blátivý",
-        "en": "Muddy Scoundrel",
+        "en": "Muddy stool",
         "sk": "Fekálnik Blátivý"
     },
     "description": {
         "cz": "Blátivá, hnusná, ale legrační příšera. Pohybuje se pomalu, zanechává za sebou špinavé stopy a dokáže překvapit nepřátele svým bahnitým útokem.",
-        "en": "A stinky creature made of mud and unknown waste that likes to live in dirty gutters.",
-        "sk": "Smradľavé stvorenie z blata a neznámeho odpadu, ktoré si rado hovie v špinavých odkvapoch."
+        "en": "Muddy, disgusting, but funny monster. It moves slowly, leaves dirty tracks behind, and can surprise enemies with its muddy attack.",
+        "sk": "Blátivá, hnusná, ale smiešna príšera. Pohybuje sa pomaly, zanecháva za sebou špinavé stopy a dokáže prekvapiť nepriateľov svojim bahnitým útokom."
     },
     "type": "nature",
     "rarity": "rare",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bahnitý šleh",
-                "en": "Sludge Toss",
-                "sk": "Hod kalom"
+                "en": "Muddy Whip",
+                "sk": "Bahnitý šľah"
             },
             "description": {
                 "cz": "Zasáhne nepřítele bahnitou masou a má šanci snížit jeho rychlost. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Throws a ball of foul-smelling sludge.",
-                "sk": "Hodí guľu odporne zapáchajúceho kalu."
+                "en": "Hits the enemy with a muddy mass and has a chance to reduce their speed. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Zasiahne nepriateľa bahnitou masou a má šancu znížiť jeho rýchlosť. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Blátivá obrana",
-                "en": "Stink Aura",
-                "sk": "Smradľavá aura"
+                "en": "Muddy defense",
+                "sk": "Blátivá obrana"
             },
             "description": {
                 "cz": "Na jedno kolo se zablátí a sníží přijaté poškození (Snížení dmg 55-65%)",
-                "en": "Releases a foul odor that weakens the enemy.",
-                "sk": "Vypustí odporný zápach, ktorý oslabí nepriateľa."
+                "en": "Muddy for one turn and reduce damage taken (Dmg reduction 55-65%)",
+                "sk": "Na jedno kolo sa zablatí a zníži prijaté poškodenie (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

@@ -3,12 +3,12 @@
     "name": {
         "cz": "Vulkanický Párek",
         "en": "Volcanic Sausage",
-        "sk": "Vulkanický Párek"
+        "sk": "Vulkanický Párok"
     },
     "description": {
         "cz": "Rozšklebený, rudě žhnoucí párek se stovkami nožiček jako stonožka. Po celé délce má řadu ostrých uhelných zubů a kape z něj lávový kečup.",
-        "en": "A sausage creature that lives in volcanic areas and is always hot.",
-        "sk": "Párkové stvorenie, ktoré žije vo vulkanických oblastiach a je vždy horúce."
+        "en": "A grinning, red-hot sausage with hundreds of centipede-like legs. It has a series of sharp coal teeth along its length and is dripping with lava ketchup.",
+        "sk": "Rozškľabený, červeno žeravý párik so stovkami nožičiek ako stonožka. Po celej dĺžke má množstvo ostrých uhoľných zubov a kvapká z neho lávový kečup."
     },
     "type": "fire",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Uzený šleh",
-                "en": "Sizzling Strike",
-                "sk": "Prskavý úder"
+                "en": "Smoked whipped cream",
+                "sk": "Údený šľah"
             },
             "description": {
                 "cz": "Šlehne ocasem a zanechá na nepříteli těžké popáleniny.",
-                "en": "A hot sizzle attack.",
-                "sk": "Horúci prskavý útok."
+                "en": "It whips its tail and leaves heavy burns on the enemy.",
+                "sk": "Šľahne chvostom a zanechá na nepriateľovi ťažké popáleniny."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žíravá uzenost",
-                "en": "Hot Grease",
-                "sk": "Horúca masť"
+                "en": "Caustic smokiness",
+                "sk": "Žieravá údenosť"
             },
             "description": {
                 "cz": "Vypustí plyn, který rozežírá brnění i zbraně nepřítele a trvale snižuje jeho obranu.",
-                "en": "Spits hot grease at the enemy.",
-                "sk": "Pľuje horúcu masť na nepriateľa."
+                "en": "Releases a gas that eats away at the enemy's armor and weapons, permanently lowering their defenses.",
+                "sk": "Vypustí plyn, ktorý rozožiera brnenie aj zbrane nepriateľa a trvalo znižuje jeho obranu."
             },
             "type": "curse",
             "chance": 80,

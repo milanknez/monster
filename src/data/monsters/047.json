@@ -2,13 +2,13 @@
     "id": "047",
     "name": {
         "cz": "Žabička Trnoploutvá",
-        "en": "Thorn-fin Frog",
-        "sk": "Žabička Trnoploutvá"
+        "en": "Thorny Frog",
+        "sk": "Žabička Trnoplutvá"
     },
     "description": {
         "cz": "Malá tyrkysová žába s blánami zakončenými ostrými drápky. Má na zádech řadu svítících trnů a ráda skáče na nic netušící kolemjdoucí.",
-        "en": "A small frog with sharp thorns on its fins that it uses to defend itself in water.",
-        "sk": "Malá žabka s ostrými tŕňmi na plutvách, ktoré používa na sebaobranu vo vode."
+        "en": "A small turquoise frog with membranes tipped with sharp claws. She has a series of glowing spines on her back and likes to jump on unsuspecting passers-by.",
+        "sk": "Malá tyrkysová žaba s blanami zakončenými ostrými pazúrikmi. Má na chrbte rad svietiacich tŕňov a rada skáče na nič netušiaci okoloidúci."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Drápový skok",
-                "en": "Thorn Kick",
-                "sk": "Tŕňový kop"
+                "en": "Claw Jump",
+                "sk": "Pazúrový skok"
             },
             "description": {
                 "cz": "Skočí na nepřítele a silně ho poškrábe svými ostrými drápky.",
-                "en": "A powerful kick with thorny legs.",
-                "sk": "Silný kop tŕnitými nohami."
+                "en": "It jumps at the enemy and scratches it hard with its sharp claws.",
+                "sk": "Skočí na nepriateľa a silne ho poškriabe svojimi ostrými pazúrikmi."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Trnový odraz",
-                "en": "Water Leap",
-                "sk": "Vodný skok"
+                "en": "Thorn reflection",
+                "sk": "Tŕňový odraz"
             },
             "description": {
                 "cz": "Zpevní se a trny na zádech odrazí část poškození zpět (Snížení dmg 55-65%)",
-                "en": "A high leap to surprise the enemy.",
-                "sk": "Vysoký skok, ktorým prekvapí nepriateľa."
+                "en": "Becomes stronger and the spines on its back reflect some of the damage back (Dmg reduction 55-65%)",
+                "sk": "Spevní sa a tŕne na chrbte odrazia časť poškodenia späť (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 75,

@@ -2,13 +2,13 @@
     "id": "031",
     "name": {
         "cz": "Švábomyš Ron",
-        "en": "Roachmouse Ron",
+        "en": "Ron the cockroach",
         "sk": "Švábomyš Ron"
     },
     "description": {
         "cz": "Odpudivý vodní mutant připomínající křížence švába a myši. Má dlouhý lysý ocas, chitinový krunýř a tenké nožky, kterými se plazí po dně. Rád se skrývá ve špíně a kalu, kde tiše číhá na kořist.",
-        "en": "A strange hybrid between a cockroach and a mouse. It is very hard to catch.",
-        "sk": "Zvláštny hybrid medzi švábom a myšou. Je veľmi ťažké ho chytiť."
+        "en": "A repulsive aquatic mutant resembling a cross between a cockroach and a mouse. It has a long bald tail, a chitinous carapace, and thin legs that it uses to crawl along the bottom. It likes to hide in dirt and sludge, where it silently stalks its prey.",
+        "sk": "Odpudivý vodný mutant pripomínajúci kríženca švába a myši. Má dlhý lysý chvost, chitínový pancier a tenké nôžky, ktorými sa plazí po dne. Rád sa skrýva v špine a kale, kde ticho číha na korisť."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kalný výpad",
-                "en": "Quick Scuttle",
-                "sk": "Rýchly únik"
+                "en": "Muddy lunge",
+                "sk": "Kalný výpad"
             },
             "description": {
                 "cz": "Švábomyš se vynoří z kalu a rychle kousne nepřítele, čímž má šanci ho oslabit.",
-                "en": "Moves very fast to avoid damage.",
-                "sk": "Pohybuje sa veľmi rýchlo, aby sa vyhol poškodeniu."
+                "en": "The cockroach emerges from the sludge and quickly bites the enemy, giving it a chance to weaken it.",
+                "sk": "Švábomyš sa vynorí z kalu a rýchlo uhryzne nepriateľa, čím má šancu ho oslabiť."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Chitinový odraz",
-                "en": "Dirty Bite",
-                "sk": "Špinavý kúsanec"
+                "en": "Chitin reflection",
+                "sk": "Chitínový odraz"
             },
             "description": {
                 "cz": "Tvrdý krunýř odrazí část poškození zpět na útočníka.",
-                "en": "A bite that can cause infection.",
-                "sk": "Kúsanec, ktorý môže spôsobiť infekciu."
+                "en": "The hard carapace reflects some of the damage back at the attacker.",
+                "sk": "Tvrdý pancier odrazí časť poškodenia späť na útočníka."
             },
             "type": "extra",
             "chance": 90,

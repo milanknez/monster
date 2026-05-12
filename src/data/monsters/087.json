@@ -2,13 +2,13 @@
     "id": "087",
     "name": {
         "cz": "Plazmový Meloun",
-        "en": "Plasma Melon",
-        "sk": "Plazmový Meloun"
+        "en": "Plasma Watermelon",
+        "sk": "Plazmový Melón"
     },
     "description": {
         "cz": "Rozšklebený meloun, v jehož nitru pulzuje fialové plazma. Místo sladké dužiny má tlamu plnou černých semen ostrých jako břitva.",
-        "en": "A melon that is filled with plasma instead of juice. It can be explosive.",
-        "sk": "Melón, ktorý je namiesto šťavy naplnený plazmou. Môže byť výbušný."
+        "en": "A grinning watermelon with purple plasma pulsating inside. Instead of sweet pulp, it has a mouth full of razor-sharp black seeds.",
+        "sk": "Rozškľabený melón, v ktorého vnútri pulzuje fialová plazma. Namiesto sladkej dužiny má papuľu plnú čiernych semien ostrých ako britva."
     },
     "type": "electric",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Plazmová exploze",
-                "en": "Plasma Blast",
-                "sk": "Plazmový výbuch"
+                "en": "Plasma explosion",
+                "sk": "Plazmová explózia"
             },
             "description": {
                 "cz": "Vystříkne proud žhavého plazmatu, který paralyzuje a popálí cíl.",
-                "en": "Explodes with plasma energy.",
-                "sk": "Vybuchne s plazmovou energiou."
+                "en": "Shoots a stream of hot plasma that paralyzes and burns the target.",
+                "sk": "Vystrekne prúd horúcej plazmy, ktorý paralyzuje a popáli cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Plazmová obnova",
-                "en": "Sweet Glow",
-                "sk": "Sladká žiara"
+                "en": "Plasma recovery",
+                "sk": "Plazmová obnova"
             },
             "description": {
                 "cz": "Využije vnitřní energii k zacelení trhlin v kůře a postupné regeneraci zdraví.",
-                "en": "Heals itself with energy.",
-                "sk": "Uzdravuje sa energiou."
+                "en": "It will use internal energy to heal cracks in the bark and gradually regenerate health.",
+                "sk": "Využije vnútornú energiu na zacelenie trhlín v kôre a postupnú regeneráciu zdravia."
             },
             "type": "regen",
             "chance": 65,

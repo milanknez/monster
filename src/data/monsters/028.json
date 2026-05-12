@@ -2,13 +2,13 @@
     "id": "028",
     "name": {
         "cz": "Mazlík Hegeš",
-        "en": "Nasty Pet",
+        "en": "Pet Hegeš",
         "sk": "Mazlík Hegeš"
     },
     "description": {
         "cz": "Malá, nenápadná myší příšerka s velkýma očima a rychlými tlapkami. Vypadá roztomile, ale dokáže překvapit rychlými útoky a zmatením nepřátel.",
-        "en": "A creature that looks like a friendly pet but is actually quite nasty and loves to bite.",
-        "sk": "Stvorenie, ktoré vyzerá ako priateľský maznáčik, ale v skutočnosti je dosť nepríjemné a rado hryzie."
+        "en": "A small, inconspicuous mouse monster with big eyes and quick paws. He looks cute, but he can surprise with quick attacks and confuse enemies.",
+        "sk": "Malá, nenápadná myšaca príšerka s veľkými očami a rýchlymi labkami. Vyzerá roztomilo, ale dokáže prekvapiť rýchlymi útokmi a zmätením nepriateľov."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Rychlé kousnutí",
-                "en": "Nasty Bite",
-                "sk": "Nepríjemný kúsanec"
+                "en": "A quick bite",
+                "sk": "Rýchle uhryznutie"
             },
             "description": {
                 "cz": "Mazlík Hegeš rychle zaútočí a způsobí velké poškození.",
-                "en": "A bite that leaves a mark.",
-                "sk": "Kúsanec, ktorý zanechá stopu."
+                "en": "Pet Hegesh quickly attacks and deals a lot of damage.",
+                "sk": "Mazlík Hegeš rýchlo zaútočí a spôsobí veľké poškodenie."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Zmatený úprk",
-                "en": "Playful Trip",
-                "sk": "Hravé potknutie"
+                "en": "A confused dash",
+                "sk": "Zmätený útek"
             },
             "description": {
                 "cz": "Hegeš se rychle rozběhne a na jedno kolo sníží šanci nepřítele zasáhnout (Snížení dmg 55-65%)",
-                "en": "Trips the enemy while playing.",
-                "sk": "Potkne nepriateľa počas hry."
+                "en": "Hegeš quickly runs up and reduces the enemy's chance to hit for one round (Dmg reduction 55-65%)",
+                "sk": "Hegeš sa rýchlo rozbehne a na jedno kolo zníži šancu nepriateľa zasiahnuť (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

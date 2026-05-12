@@ -2,13 +2,13 @@
     "id": "014",
     "name": {
         "cz": "Bahňáček Lísohlav",
-        "en": "Muddy Snout",
-        "sk": "Bahňáček Lísohlav"
+        "en": "Mudslide Foxhead",
+        "sk": "Bahňáčik Lísohlav"
     },
     "description": {
         "cz": "Mírně ušmudlaný cihlově červený tvoreček s širokým úsměvem. Z čela mu vyrůstá celá malá oáza kapradin a zelených rostlinek.",
-        "en": "A slightly confused swamp animal that has mushrooms growing on its back instead of fur.",
-        "sk": "Trochu zmätené zvieratko z močiarov, ktorému na chrbte namiesto srsti rastú huby."
+        "en": "A slightly dirty brick-red creature with a wide smile. A small oasis of ferns and green plants grows out of his forehead.",
+        "sk": "Mierne ušmudlaný tehlovo červený tvorček so širokým úsmevom. Z čela mu vyrastá celá malá oáza papradí a zelených rastliniek."
     },
     "type": "nature",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Uplakaná sprška",
-                "en": "Mud Throw",
-                "sk": "Hod bahnom"
+                "en": "Crying shower",
+                "sk": "Uplakaná spŕška"
             },
             "description": {
                 "cz": "Seshora vypustí ledovou spršku, která zmrazí každého, koho trefí.",
-                "en": "Throws mud to blind the enemy.",
-                "sk": "Hodí bahno, aby oslepil nepriateľa."
+                "en": "Drops a shower of ice from above that freezes anyone it hits.",
+                "sk": "Zhora vypustí ľadovú spŕšku, ktorá zmrazí každého, koho trafí."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Tichá bouře",
-                "en": "Spore Cloud",
-                "sk": "Mrak spór"
+                "en": "A silent storm",
+                "sk": "Tichá búrka"
             },
             "description": {
                 "cz": "Najednou zčerná a strašlivě zahřmí, čímž vyděsí všechny v okolí.",
-                "en": "Releases spores from the mushrooms on its back.",
-                "sk": "Uvoľní spóry z húb na svojom chrbte."
+                "en": "It suddenly turns black and makes a terrible thunder, scaring everyone in the vicinity.",
+                "sk": "Zrazu sčernie a strašne zahrmí, čím vydesí všetkých v okolí."
             },
             "type": "extra",
             "chance": 90,

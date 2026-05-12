@@ -3,12 +3,12 @@
     "name": {
         "cz": "Zoubková víla",
         "en": "Tooth Fairy",
-        "sk": "Zoubková víla"
+        "sk": "Zúbková víla"
     },
     "description": {
         "cz": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
-        "en": "An ancient, toothless entity that rules the realm of nightmares. Its obsession with collecting teeth knows no bounds, and its rusty pliers can crack even the toughest armor.",
-        "sk": "Prastará, bezzubá entita, ktorá vládne ríši nočných môr. Jej posadnutosť zbieraním zubov nepozná medzí a jej hrdzavé kliešte rozlúsknu aj to najtvrdšie brnenie."
+        "en": "An ancient, toothless entity that rules the realm of nightmares. Her obsession with collecting teeth knows no bounds, and her rusty pincers will crack even the toughest armor.",
+        "sk": "Prastará, bezzubá entita, ktorá vládne ríši nočných mor. Jej posadnutosť zbieraním zubov nepozná medzí a jej hrdzavé kliešte rozlúsknu aj to najtvrdšie brnenie."
     },
     "type": "nature",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Totální extrakce",
-                "en": "Rusty Pliers",
-                "sk": "Hrdzavé kliešte"
+                "en": "Total extraction",
+                "sk": "Totálna extrakcia"
             },
             "description": {
                 "cz": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
-                "en": "Attacks the enemy with rusty pliers, reducing defense.",
-                "sk": "Zaútočí na nepriateľa hrdzavými kliešťami a zníži mu obranu."
+                "en": "A brutal and unavoidable attack that rips out a piece of the enemy's life force.",
+                "sk": "Brutálny a nevyhnutný útok, ktorý vytrhne nepriateľovi kus jeho životnej sily."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Prokletí bezzubých",
-                "en": "Nightmare Whisper",
-                "sk": "Šepot nočnej mory"
+                "en": "Curse of the Toothless",
+                "sk": "Prekliatie bezzubých"
             },
             "description": {
                 "cz": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
-                "en": "A whisper that confuses and weakens the enemy.",
-                "sk": "Šepot, ktorý zmätie a oslabí nepriateľa."
+                "en": "A terrifying aura that weakens all resistance and dramatically lowers the enemy's attack and defense.",
+                "sk": "Desivá aura, ktorá oslabuje všetok odpor a dramaticky znižuje útok aj obranu nepriateľa."
             },
             "type": "curse",
             "chance": 80,

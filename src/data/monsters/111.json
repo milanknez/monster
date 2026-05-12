@@ -3,12 +3,12 @@
     "name": {
         "cz": "Želvo Shark",
         "en": "Turtle Shark",
-        "sk": "Želvo Shark"
+        "sk": "Korytnačka Shark"
     },
     "description": {
         "cz": "Želvo Shark je vodní čaroděj chaosu – tvrdý krunýř jako tank, zuby ostré jako škrabky na sýr a ocas, který rád mává, když nikdo nekouká. Skáče z vody jako šílenec, překvapuje nepřátele a občas se při tom zamotá do vlastního krunýře. Vypadá hrozivě… dokud nezakopne o svou vlastní ploutev.",
-        "en": "Turtle Shark is a water wizard of chaos - hard shell like a tank, teeth sharp as cheese graters and a tail that likes to wave when nobody is looking. It jumps out of the water like a maniac, surprising enemies and sometimes getting tangled in its own shell. It looks fearsome... until it trips over its own fin.",
-        "sk": "Želvo Shark je vodný čarodej chaosu – tvrdý krunýř ako tank, zuby ostré ako škrabky na syr a ocas, ktorý rád máva, keď sa nikto nepozerá. Skáče z vody ako šialenec, prekvapuje nepriateľov a občas sa pritom zamotá do vlastného krunýřa. Vyzerá hrozivo… kým nezakopne o svoju vlastnú plutvu."
+        "en": "Shark the turtle is an aquatic wizard of chaos - a shell as hard as a tank, teeth as sharp as cheese graters, and a tail that likes to wag when no one's looking. He jumps out of the water like a madman, surprising enemies and sometimes getting tangled in his own shell. He looks menacing… until he trips over his own fin.",
+        "sk": "Korytnačka Shark je vodný čarodejník chaosu – tvrdý pancier ako tank, zuby ostré ako škrabky na syr a chvost, ktorý rád máva, keď nikto nepozerá. Skáča z vody ako šialenec, prekvapuje nepriateľov a občas sa pri tom zamotá do vlastného panciera. Vyzerá hrozivo... kým nezakopne o svoju vlastnú plutvu."
     },
     "type": "water",
     "rarity": "rare",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Drtivý skus",
-                "en": "Crushing Bite",
-                "sk": "Drtivý skus"
+                "en": "A crushing bite",
+                "sk": "Drvivý skus"
             },
             "description": {
                 "cz": "Zaútočí silnými čelistmi a způsobí vysoké poškození jednomu nepříteli.",
-                "en": "Attacks with powerful jaws and causes high damage to one enemy.",
+                "en": "Attacks with powerful jaws, dealing high damage to one enemy.",
                 "sk": "Zaútočí silnými čeľusťami a spôsobí vysoké poškodenie jednému nepriateľovi."
             },
             "type": "attack",
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Krunýřový štít",
-                "en": "Shell Shield",
-                "sk": "Krunýřový štít"
+                "en": "Carapace shield",
+                "sk": "Pancierový štít"
             },
             "description": {
                 "cz": "Zatáhne se do krunýře a výrazně sníží přijaté poškození na jedno kolo (Snížení dmg 55-65%)",
-                "en": "Retracts into its shell and significantly reduces damage taken for one round.",
-                "sk": "Zatiahne sa do krunýřa a výrazne zníži prijaté poškodenie na jedno kolo."
+                "en": "Retracts into armor and greatly reduces damage taken for one round (55-65% dmg reduction)",
+                "sk": "Zatiahne sa do panciera a výrazne zníži prijaté poškodenie na jedno koleso (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 80,

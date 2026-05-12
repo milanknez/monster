@@ -3,12 +3,12 @@
     "name": {
         "cz": "Květákový Král",
         "en": "Cauliflower King",
-        "sk": "Květákový Král"
+        "sk": "Karfiolový Kráľ"
     },
     "description": {
         "cz": "Bledý mutantní květák, jehož povrch připomíná lidský mozek. Skrývá v sobě desítky malých zubatých tlam a jeho listy jsou ostré jako pily.",
-        "en": "The king of all vegetables, a giant cauliflower with a crown.",
-        "sk": "Kráľ všetkej zeleniny, obrovský karfiol s korunou."
+        "en": "A pale mutant cauliflower whose surface resembles a human brain. It hides dozens of small jagged mouths and its leaves are as sharp as saws.",
+        "sk": "Bledý mutantný karfiol, ktorého povrch pripomína ľudský mozog. Skrýva v sebe desiatky malých zubatých papiel a jeho listy sú ostré ako píly."
     },
     "type": "nature",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Parazitární spóry",
-                "en": "Royal Smash",
-                "sk": "Kráľovský úder"
+                "en": "Parasitic spores",
+                "sk": "Parazitárne spóry"
             },
             "description": {
                 "cz": "Vypustí oblak spór, které se usadí na nepříteli a oslabují ho.",
-                "en": "A powerful smash attack.",
-                "sk": "Silný úderový útok."
+                "en": "Releases a cloud of spores that settles on the enemy and weakens them.",
+                "sk": "Vypustí oblak spór, ktoré sa usadia na nepriateľovi a oslabujú ho."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Mozková mlha",
-                "en": "Vegetable Shield",
-                "sk": "Zeleninový štít"
+                "en": "Brain fog",
+                "sk": "Mozgová hmla"
             },
             "description": {
                 "cz": "Vysílá mentální vlny, které zmatou nepřítele a donutí ho k chybám v útoku.",
-                "en": "Protects itself with other vegetables.",
-                "sk": "Chráni sa ostatnou zeleninou."
+                "en": "Sends out mental waves that confuse the enemy and force them to make attack mistakes.",
+                "sk": "Vysiela mentálne vlny, ktoré zmätú nepriateľa a donútia ho k chybám v útoku."
             },
             "type": "curse",
             "chance": 75,

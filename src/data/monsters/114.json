@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Roztomilý hnědý pejsek s narozeninovou čepičkou a dvěma zahnutými zoubky. Je známá svým okouzlujícím zpěvem, který dokáže uklidnit i ty nejdivočejší potvory. Navzdory svému slavnostnímu vzhledu je to mrštný společník, který se v lese cítí jako doma.",
-        "en": "A cute brown dog with a birthday hat and two curved teeth. She is known for her charming singing that can calm even the wildest monsters. Despite her festive appearance, she is a nimble companion who feels right at home in the forest.",
-        "sk": "Roztomilý hnedý psík s narodeninovou čiapočkou a dvoma zahnutými zúbkami. Je známa svojím očarujúcim spevom, ktorý dokáže upokojiť aj tie najdivokejšie potvory. Napriek svojmu slávnostnému vzhľadu je to mrštný spoločník, ktorý sa v lese cíti ako doma."
+        "en": "A cute brown dog with a birthday hat and two crooked teeth. She is known for her mesmerizing singing that can calm even the wildest monsters. Despite its solemn appearance, it is an agile companion that feels at home in the forest.",
+        "sk": "Roztomilý hnedý psík s narodeninovou čiapočkou a dvoma zahnutými zúbkami. Je známa svojim očarujúcim spevom, ktorý dokáže upokojiť aj tie najdivokejšie potvory. Napriek svojmu slávnostnému vzhľadu je to mrštný spoločník, ktorý sa v lese cíti ako doma."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,12 +21,12 @@
         {
             "name": {
                 "cz": "Narozeninová píseň",
-                "en": "Birthday Song",
-                "sk": "Narozeninová píseň"
+                "en": "Birthday song",
+                "sk": "Narodeninová pieseň"
             },
             "description": {
                 "cz": "Zpívá melodickou píseň, která léčí část HP.",
-                "en": "Sings a melodic song that heals some HP.",
+                "en": "Sings a melodious song that heals a portion of HP.",
                 "sk": "Spieva melodickú pieseň, ktorá lieči časť HP."
             },
             "type": "heal",
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Zubatý výpad",
-                "en": "Toothy Lunge",
+                "en": "A jagged lunge",
                 "sk": "Zubatý výpad"
             },
             "description": {
                 "cz": "Rychlý útok svými zahnutými zoubky nahoru.",
-                "en": "A quick attack with its curved teeth pointing upwards.",
-                "sk": "Rýchly útok svojimi zahnutými zúbkami nahor."
+                "en": "A quick attack with its curved fangs upwards.",
+                "sk": "Rýchly útok svojimi zahnutými zúbkami hore."
             },
             "type": "attack",
             "chance": 85,

@@ -2,15 +2,15 @@
     "id": "082",
     "name": {
         "cz": "Výbojový Krysař",
-        "en": "Crystalline Fox",
-        "sk": "Kryštálová líška"
+        "en": "Striking Pied Piper",
+        "sk": "Výbojový Krysař"
     },
     "type": "electric",
     "rarity": "common",
     "description": {
         "cz": "Chlupatý hlodavec s neustále naježenou srstí probíjející blesky.",
-        "en": "A beautiful fox with fur made of shining crystals. It can reflect light.",
-        "sk": "Krásna líška s kožuchom z lesklých kryštálov. Dokáže odrážať svetlo."
+        "en": "A furry rodent with perpetually bristling fur that shoots lightning.",
+        "sk": "Chlpatý hlodavec s neustále naježenou srsťou prebíjajúcou blesky."
     },
     "stats": {
         "hp": 149,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový řetězec",
-                "en": "Crystal Dash",
-                "sk": "Kryštálový výpad"
+                "en": "Lightning chain",
+                "sk": "Bleskový reťazec"
             },
             "description": {
                 "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
-                "en": "A fast dash attack with crystal power.",
-                "sk": "Rýchly výpad s kryštálovou silou."
+                "en": "Sends a shower of deadly lightning at its target.",
+                "sk": "Vyšle spŕšku smrtiacich bleskov na svoj cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Klektavý šok",
-                "en": "Light Reflection",
-                "sk": "Odraz svetla"
+                "en": "A clattering shock",
+                "sk": "Kľatavý šok"
             },
             "description": {
                 "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti.",
-                "en": "Reflects light to blind the enemy.",
-                "sk": "Odrazí svetlo, aby oslepil nepriateľa."
+                "en": "Inflicts a paralyzing blow that sends a tick of electrical pain into the target.",
+                "sk": "Uštedrie paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti."
             },
             "type": "curse",
             "chance": 70,

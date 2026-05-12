@@ -2,13 +2,13 @@
     "id": "025",
     "name": {
         "cz": "Král Pařezoplam",
-        "en": "Ghostly Glow",
-        "sk": "Strašidelná žiara"
+        "en": "King Parezoplam",
+        "sk": "Kráľ Peňoplam"
     },
     "description": {
         "cz": "Ohnivý pařez, který slouží jako živý plamenomet. Dokáže vypálit oblaka ohně na nepřátele, strašidelný a impozantní, ale stále trochu legrační a epický.",
-        "en": "A ghostly light that haunts old ruins.",
-        "sk": "Strašidelné svetlo, ktoré straší v starých ruinách."
+        "en": "A fiery stump that doubles as a living flamethrower. He can shoot clouds of fire at enemies, creepy and formidable but still a bit funny and epic.",
+        "sk": "Ohnivý peň, ktorý slúži ako živý plameňomet. Dokáže vypáliť oblaky ohňa na nepriateľov, strašidelný a impozantný, ale stále trochu smiešny a epický."
     },
     "type": "fire",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Plamenomet",
-                "en": "Spectral Ray",
-                "sk": "Prízračný lúč"
+                "en": "Flamethrower",
+                "sk": "Plameňomet"
             },
             "description": {
                 "cz": "Vypálí ohnivou střelu nebo proud ohně na všechny nepřátele v dosahu.",
-                "en": "A beam of energy from another world.",
-                "sk": "Lúč energie z iného sveta."
+                "en": "Fires a fireball or stream of fire at all enemies in range.",
+                "sk": "Vypáli ohnivú strelu alebo prúd ohňa na všetkých nepriateľov v dosahu."
             },
             "type": "attack",
             "chance": 70,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Ohnivý štít",
-                "en": "Fading",
-                "sk": "Miznutie"
+                "en": "Fire shield",
+                "sk": "Ohnivý štít"
             },
             "description": {
                 "cz": "Na jedno kolo zvýší obranu a odráží část poškození zpět nepříteli (Snížení dmg 55-65%)",
-                "en": "Becomes hard to hit.",
-                "sk": "Stane sa ťažko zasiahnuteľným."
+                "en": "Increases defense for one turn and reflects some damage back to the enemy (Dmg reduction 55-65%)",
+                "sk": "Na jedno kolo zvýši obranu a odráža časť poškodenia späť nepriateľovi (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

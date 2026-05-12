@@ -7,8 +7,8 @@
     },
     "description": {
         "cz": "Malý modrý krab, který místo bublin vyfukuje ostré krystaly. Má jedno klepeto mnohem větší než druhé a neustále jím cvaká.",
-        "en": "A small crab that lives on the beach and loves to play in sea bubbles.",
-        "sk": "Malý krab, ktorý žije na pláži a rád sa hrá v morských bublinách."
+        "en": "A small blue crab that blows sharp crystals instead of bubbles. He has one paw much bigger than the other and he clicks it all the time.",
+        "sk": "Malý modrý krab, ktorý namiesto bublín vyfukuje ostré kryštály. Má jedno klepeto oveľa väčšie ako druhé a neustále ním cvaká."
     },
     "type": "water",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Krystalový výfuk",
-                "en": "Pincer Snap",
-                "sk": "Cvaknutie klepetom"
+                "en": "Crystal exhaust",
+                "sk": "Kryštálový výfuk"
             },
             "description": {
                 "cz": "Vychrlí mrak ostrých krystalků, které poškrábou nepřítele.",
-                "en": "Snaps its pincers at the enemy.",
-                "sk": "Cvakne klepetami po nepriateľovi."
+                "en": "It spits out a cloud of sharp crystals that scratch the enemy.",
+                "sk": "Vychrlí mrak ostrých kryštálov, ktoré poškriabu nepriateľa."
             },
             "type": "extra",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Cvak ruku",
-                "en": "Bubble Screen",
-                "sk": "Bublinová clona"
+                "en": "Snap your hand",
+                "sk": "Cvak ruku"
             },
             "description": {
                 "cz": "Uskřípne nepřítele svým velkým klepetem a způsobí střední poškození.",
-                "en": "Creates a wall of bubbles to hide.",
-                "sk": "Vytvorí stenu z bublín, aby sa skryl."
+                "en": "Nibbles the enemy with its large claw, dealing medium damage.",
+                "sk": "Priškripne nepriateľa svojim veľkým klepetom a spôsobí stredné poškodenie."
             },
             "type": "attack",
             "chance": 80,

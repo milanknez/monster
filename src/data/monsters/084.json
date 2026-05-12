@@ -2,15 +2,15 @@
     "id": "084",
     "name": {
         "cz": "Neonový Štír",
-        "en": "Neon Scorpion",
-        "sk": "Neonový Štír"
+        "en": "Neon Scorpio",
+        "sk": "Neónový Škorpión"
     },
     "type": "electric",
     "rarity": "common",
     "description": {
         "cz": "Jeho tělo září neonově modrými výboji nahrazujícími klasický jed.",
-        "en": "A scorpion that glows with neon colors and has a deadly sting.",
-        "sk": "Škorpión, ktorý žiari neónovými farbmi a má smrteľné žihadlo."
+        "en": "His body glows with neon blue discharges replacing the classic poison.",
+        "sk": "Jeho telo žiari neónovo modrými výbojmi nahrádzajúcimi klasický jed."
     },
     "stats": {
         "hp": 122,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Bleskový řetězec",
-                "en": "Neon String",
-                "sk": "Neónové žihadlo"
+                "en": "Lightning chain",
+                "sk": "Bleskový reťazec"
             },
             "description": {
                 "cz": "Vyšle spršku smrtících blesků na svůj cíl.",
-                "en": "Stings the enemy with a glowing stinger.",
-                "sk": "Bodne nepriateľa žiariacim žihadlom."
+                "en": "Sends a shower of deadly lightning at its target.",
+                "sk": "Vyšle spŕšku smrtiacich bleskov na svoj cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Klektavý šok",
-                "en": "Glow Armor",
-                "sk": "Žiariace brnenie"
+                "en": "A clattering shock",
+                "sk": "Kľatavý šok"
             },
             "description": {
                 "cz": "Uštědří paralytickou ránu, která v cíli usadí tikot elektrické bolesti po dobu 2 kola.",
-                "en": "Increases defense with its glowing shell.",
-                "sk": "Zvyšuje obranu svojím žiariacim pancierom."
+                "en": "Inflicts a Paralyzing Wound that settles the target with a tic of electric pain for 2 rounds.",
+                "sk": "Uštedrí paralytickú ranu, ktorá v cieli usadí tikot elektrickej bolesti počas 2 kolies."
             },
             "type": "curse",
             "chance": 70,

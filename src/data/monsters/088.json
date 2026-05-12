@@ -2,13 +2,13 @@
     "id": "088",
     "name": {
         "cz": "Chapadlová Rolka",
-        "en": "Frost Wyvern",
-        "sk": "Mrazivý vyvern"
+        "en": "Tentacle Roll",
+        "sk": "Chápadlová Rolka"
     },
     "description": {
         "cz": "Kousek sushi, který odmítl být sněden. Z rýže vyrašila slizká chapadla s ostny a syrový losos na vrchu začal sledovat okolí lidským okem.",
-        "en": "A dragon-like creature that rules the frozen wastes. Its breath can freeze time itself.",
-        "sk": "Drakovité stvorenie, ktoré vládne mrazivým pustatinám. Jeho dych dokáže zmraziť samotný čas."
+        "en": "A piece of sushi that refused to be eaten. Slimy tentacles with spikes sprouted from the rice, and the raw salmon on top began to observe the surroundings with a human eye.",
+        "sk": "Kúsok sushi, ktorý odmietol byť zjedený. Z ryže vyrašili slizké chápadlá s ostňami a surový losos na vrchu začal sledovať okolie ľudským okom."
     },
     "type": "water",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Injekce wasabi",
-                "en": "Frost Breath",
-                "sk": "Mrazivý dych"
+                "en": "Wasabi injection",
+                "sk": "Injekcia wasabi"
             },
             "description": {
                 "cz": "Bodne nepřítele chapadlem napuštěným pálivým jedem.",
-                "en": "A breath of extreme cold.",
-                "sk": "Dych extrémneho chladu."
+                "en": "Stabs the enemy with a tentacle infused with burning poison.",
+                "sk": "Bodne nepriateľa chápadlom napusteným pálivým jedom."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Slizká past",
-                "en": "Wing Gust",
-                "sk": "Závan krídel"
+                "en": "A slimy trap",
+                "sk": "Slizká pasca"
             },
             "description": {
                 "cz": "Zahalí bojiště do lepkavého slizu, který snižuje obranu i rychlost nepřítele.",
-                "en": "A strong wind that slows enemies.",
-                "sk": "Silný vietor, ktorý spomalí nepriateľov."
+                "en": "Covers the battlefield in a sticky slime that lowers enemy defense and speed.",
+                "sk": "Zahalí bojisko do lepkavého slizu, ktorý znižuje obranu aj rýchlosť nepriateľa."
             },
             "type": "curse",
             "chance": 75,

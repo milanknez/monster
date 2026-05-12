@@ -2,15 +2,15 @@
     "id": "077",
     "name": {
         "cz": "Flarbat Ohnivák",
-        "en": "Ice Spider",
-        "sk": "Ľadový pavúk"
+        "en": "Flarbat Fireman",
+        "sk": "Flarbat Ohnivák"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
         "cz": "Místo křídel má proudy jisker a plamenů. Létá v jeskyních.",
-        "en": "A spider that lives in frozen caves and traps prey in webs made of ice.",
-        "sk": "Pavúk, ktorý žije v mrazivých jaskyniach a chytá korisť do pavučín z ľadu."
+        "en": "Instead of wings, it has streams of sparks and flames. It flies in caves.",
+        "sk": "Miesto krídiel má prúdy iskier a plameňov. Lieta v jaskyniach."
     },
     "stats": {
         "hp": 122,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Spalující žár",
-                "en": "Frozen Web",
-                "sk": "Mrazivá pavučina"
+                "en": "Burning heat",
+                "sk": "Spaľujúca žiara"
             },
             "description": {
                 "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-                "en": "Traps the enemy in a frozen web.",
-                "sk": "Chytí nepriateľa do mrazivej pavučiny."
+                "en": "Fires a fireball that severely burns the target.",
+                "sk": "Vystrelí ohnivú guľu, ktorá silne popáli cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žhavý krunýř",
-                "en": "Frost Bite",
-                "sk": "Mrazivý kúsanec"
+                "en": "Hot shell",
+                "sk": "Horúci pancier"
             },
             "description": {
                 "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-                "en": "A bite that injects freezing venom.",
-                "sk": "Kúsanec, ktorý vstrekne mrazivý jed."
+                "en": "Wraps himself in a fire aura, temporarily boosting his damage shield (Dmg reduction 55-65%)",
+                "sk": "Obalí sa aurou ohňa, čím si dočasne posilní štít proti zraneniu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

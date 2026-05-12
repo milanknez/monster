@@ -2,13 +2,13 @@
     "id": "032",
     "name": {
         "cz": "Spidi bot",
-        "en": "Speedy Bot",
-        "sk": "Spidi bot"
+        "en": "Spidi bot",
+        "sk": "Spidi topánok"
     },
     "description": {
         "cz": "Mutantní kombinace chobotnice a pavouka. Má osm dlouhých chapadel zakončených ostrými háky, kterými se přichytává ke stěnám i nepřátelům. Pohybuje se tiše pod vodou i po souši. Loví ze zálohy, omotává kořist a postupně ji drtí. Velmi inteligentní a extrémně nebezpečný predátor.",
-        "en": "A small robot built for high speed. It can zip around the battlefield.",
-        "sk": "Malý robot postavený pre vysokú rýchlosť. Dokáže sa rýchlo pohybovať po bojisku."
+        "en": "A mutant combination of an octopus and a spider. It has eight long tentacles tipped with sharp hooks, which it uses to cling to walls and enemies. It moves silently under water and on land. It hunts from an ambush, wraps the prey and gradually crushes it. A very intelligent and extremely dangerous predator.",
+        "sk": "Mutantná kombinácia chobotnice a pavúka. Má osem dlhých chápadiel zakončených ostrými hákmi, ktorými sa prichytáva k stenám aj nepriateľom. Pohybuje sa ticho pod vodou aj po súši. Loví zo zálohy, omotáva korisť a postupne ju drví. Veľmi inteligentný a extrémne nebezpečný predátor."
     },
     "type": "water",
     "rarity": "epic",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Chapadlová past",
-                "en": "Turbo Dash",
-                "sk": "Turbo výpad"
+                "en": "Tentacle trap",
+                "sk": "Chápadlová pasca"
             },
             "description": {
                 "cz": "Omotá nepřítele chapadly, způsobí vysoké poškození a má šanci ho znehybnit na jedno kolo.",
-                "en": "A very fast dash attack.",
-                "sk": "Veľmi rýchly útočný výpad."
+                "en": "Wraps the enemy in tentacles, deals high damage and has a chance to immobilize them for one round.",
+                "sk": "Omotá nepriateľa chápadlami, spôsobí vysoké poškodenie a má šancu ho znehybniť na jedno kolo."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Jedovatý výstřik",
-                "en": "Signal Jam",
-                "sk": "Rušenie signálu"
+                "en": "Poisonous spray",
+                "sk": "Jedovatý výstrek"
             },
             "description": {
                 "cz": "Vystříkne toxickou tekutinu z chapadel kolem sebe. Snižuje útoky nepřítele o 60% (Snížení dmg 55-65%)",
-                "en": "Disrupts the enemy's sensors.",
-                "sk": "Naruší senzory nepriateľa."
+                "en": "It sprays a toxic liquid from its tentacles around it. Reduces enemy attacks by 60% (Dmg reduction 55-65%)",
+                "sk": "Vystrekne toxickú tekutinu z chápadiel okolo seba. Znižuje útoky nepriateľa o 60% (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 80,

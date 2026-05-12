@@ -2,13 +2,13 @@
     "id": "029",
     "name": {
         "cz": "Drápek žhavík",
-        "en": "Glow Claw",
-        "sk": "Drápek žhavík"
+        "en": "Incandescent Claw",
+        "sk": "Pazúrik žhavík"
     },
     "description": {
         "cz": "Zmutovaná šelma s rozpálenými drápy a žhnoucíma očima. Každý jeho pohyb zanechává stopy popela.",
-        "en": "A creature with glowing claws that can cut through almost anything.",
-        "sk": "Stvorenie so žiariacimi pazúrmi, ktoré dokážu prerezať takmer čokoľvek."
+        "en": "A mutated beast with red-hot claws and glowing eyes. His every move leaves a trail of ash.",
+        "sk": "Zmutovaná šelma s rozpálenými pazúrmi a žeravými očami. Každý jeho pohyb zanecháva stopy popola."
     },
     "type": "fire",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Žhavý sek",
-                "en": "Glow Slash",
-                "sk": "Žiariaci sek"
+                "en": "Hot sec",
+                "sk": "Horúci sek"
             },
             "description": {
                 "cz": "Dráp udeří rozpáleným drápem a způsobí vysoké poškození.",
-                "en": "A powerful slash with glowing claws.",
-                "sk": "Silný sek žiariacimi pazúrmi."
+                "en": "Claw strikes with a red-hot claw for high damage.",
+                "sk": "Pazúr udrie rozpáleným pazúrom a spôsobí vysoké poškodenie."
             },
             "type": "extra",
             "chance": 90,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Popelavý výbuch",
-                "en": "Inner Fire",
-                "sk": "Vnútorný oheň"
+                "en": "Ash explosion",
+                "sk": "Popolavý výbuch"
             },
             "description": {
                 "cz": "Vyvolá explozi popela, která zasáhne všechny nepřátele a sníží jejich obranu (Snížení dmg 55-65%)",
-                "en": "Increases attack power for a short time.",
-                "sk": "Na krátky čas zvyšuje silu útoku."
+                "en": "Creates an explosion of ash that hits all enemies and lowers their defense (Dmg reduction 55-65%)",
+                "sk": "Vyvolá explóziu popola, ktorá zasiahne všetkých nepriateľov a zníži ich obranu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 70,

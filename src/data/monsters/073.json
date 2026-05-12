@@ -2,15 +2,15 @@
     "id": "073",
     "name": {
         "cz": "Ohnivý Skřítek",
-        "en": "Fire Imp",
-        "sk": "Ohnivý Skřítek"
+        "en": "Fire Goblin",
+        "sk": "Ohnivý Škriatok"
     },
     "type": "fire",
     "rarity": "common",
     "description": {
         "cz": "Malý zlomyslný skřítek tvořený rozpálenými uhlíky.",
-        "en": "A small mischievous spirit of fire that likes to start small blazes.",
-        "sk": "Malý zlomyseľný duch ohňa, ktorý rád zakladá malé požiare."
+        "en": "A small mischievous sprite made of hot coals.",
+        "sk": "Malý zlomyseľný škriatok tvorený rozpálenými uhlíkmi."
     },
     "stats": {
         "hp": 123,
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Spalující žár",
-                "en": "Fireball",
-                "sk": "Ohnivá guľa"
+                "en": "Burning heat",
+                "sk": "Spaľujúca žiara"
             },
             "description": {
                 "cz": "Vystřelí ohnivou kouli, která silně popálí cíl.",
-                "en": "Throws a small fireball at the enemy.",
-                "sk": "Hodí malú ohnivú guľu na nepriateľa."
+                "en": "Fires a fireball that severely burns the target.",
+                "sk": "Vystrelí ohnivú guľu, ktorá silne popáli cieľ."
             },
             "type": "attack",
             "chance": 80,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Žhavý krunýř",
-                "en": "Ember Spark",
-                "sk": "Uhlíková iskra"
+                "en": "Hot shell",
+                "sk": "Horúci pancier"
             },
             "description": {
                 "cz": "Obalí se aurou ohně, čímž si dočasně posílí štít proti zranění (Snížení dmg 55-65%)",
-                "en": "A quick spark that can burn.",
-                "sk": "Rýchla iskra, ktorá môže popáliť."
+                "en": "Wraps himself in a fire aura, temporarily boosting his damage shield (Dmg reduction 55-65%)",
+                "sk": "Obalí sa aurou ohňa, čím si dočasne posilní štít proti zraneniu (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

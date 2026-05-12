@@ -2,13 +2,13 @@
     "id": "071",
     "name": {
         "cz": "Archivář Zkaženosti",
-        "en": "Lava Golem",
-        "sk": "Lávový golem"
+        "en": "Archivist of Corruption",
+        "sk": "Archivár Skazenosti"
     },
     "description": {
         "cz": "Bývalý strážce vědění, jehož tělo zmutovalo v hybrid hmyzu a člověka prorostlý prastarými svitky. Má šest hmyzích očí, čtyři páry rukou zakončených kostěnými hroty a jeho kůže je popsána runami, které dýchají temnou magií a elektrickými výboji.",
-        "en": "A massive golem made of molten rock. Its presence heats up the air around it.",
-        "sk": "Mohutný golem vyrobený z roztavenej skaly. Jeho prítomnosť zohrieva vzduch v jeho okolí."
+        "en": "A former guardian of knowledge whose body mutated into an insect-human hybrid overgrown with ancient scrolls. He has six insect eyes, four pairs of bony spiked hands, and his skin is outlined with runes that breathe dark magic and electrical discharges.",
+        "sk": "Bývalý strážca poznania, ktorého telo zmutovalo v hybrid hmyzu a človeka prerastený prastarými zvitkami. Má šesť hmyzích očí, štyri páry rúk zakončených kostenými hrotmi a jeho koža je popísaná runami, ktoré dýchajú temnou mágiou a elektrickými výbojmi."
     },
     "type": "electric",
     "rarity": "legendary",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Kletba Nevědění",
-                "en": "Magma Punch",
-                "sk": "Magmatický úder"
+                "en": "Curse of Ignorance",
+                "sk": "Kliatba Nevedenie"
             },
             "description": {
                 "cz": "Vymaže nepříteli všechny pozitivní efekty a nahradí je psychickým poškozením.",
-                "en": "A punch with a fist of hot magma.",
-                "sk": "Úder päsťou z horúcej magmy."
+                "en": "Removes all positive effects from the enemy and replaces them with psychic damage.",
+                "sk": "Vymaže nepriateľovi všetky pozitívne efekty a nahradí ich psychickým poškodením."
             },
             "type": "debuff",
             "chance": 50,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Runový Výboj",
-                "en": "Fire Wall",
-                "sk": "Ohnivá stena"
+                "en": "Runic Discharge",
+                "sk": "Runový Výboj"
             },
             "description": {
                 "cz": "Z run na jeho těle vyletí řetězový blesk, který spaluje tkáň i duši.",
-                "en": "Creates a wall of fire to block attacks.",
-                "sk": "Vytvorí ohnivú stenu na blokovanie útokov."
+                "en": "Chain lightning shoots out from the runes on his body, burning tissue and soul.",
+                "sk": "Z rún na jeho tele vyletí reťazový blesk, ktorý spaľuje tkanivo aj dušu."
             },
             "type": "attack",
             "chance": 70,
@@ -51,13 +51,13 @@
         {
             "name": {
                 "cz": "Energetické Pokřivení",
-                "en": "Translated: Energetické Pokřivení",
-                "sk": "Energetické Pokrivení"
+                "en": "Energy Warp",
+                "sk": "Energetické Pokrivenie"
             },
             "description": {
                 "cz": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Snížení dmg 55-65%)",
-                "en": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Damage reduction 55-65%)",
-                "sk": "Pokřiví prostor kolem sebe, čímž se stává téměř nepolapitelným (Zníženie dmg 55-65%)"
+                "en": "Warps the space around him, making him nearly elusive (Dmg reduction 55-65%)",
+                "sk": "Pokriví priestor okolo seba, čím sa stáva takmer nepolapiteľným (Zníženie dmg 55-65%)"
             },
             "type": "defense",
             "chance": 65,

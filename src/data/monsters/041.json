@@ -2,13 +2,13 @@
     "id": "041",
     "name": {
         "cz": "Mešníček Chlupatý",
-        "en": "Hairy Moss-man",
-        "sk": "Mešníček Chlupatý"
+        "en": "Little Furry",
+        "sk": "Mešníček Chlpatý"
     },
     "description": {
         "cz": "Malý, kulatý tvoreček pokrytý měkkým zeleným mechem. Místo uší má dva dubové lístky a neustále hledá čerstvou ranní rosu.",
-        "en": "A forest creature covered in thick moss that protects it from attacks.",
-        "sk": "Lesné stvorenie pokryté hustým machom, ktorý ho chráni pred útokmi."
+        "en": "A small, round creature covered in soft green moss. He has two oak leaves instead of ears and is constantly looking for fresh morning dew.",
+        "sk": "Malý, okrúhly tvorček pokrytý mäkkým zeleným machom. Miesto uší má dva dubové lístky a neustále hľadá čerstvú rannú rosu."
     },
     "type": "nature",
     "rarity": "common",
@@ -21,13 +21,13 @@
         {
             "name": {
                 "cz": "Rosný dotek",
-                "en": "Mossy Slap",
-                "sk": "Machový úder"
+                "en": "A dewy touch",
+                "sk": "Rosný dotyk"
             },
             "description": {
                 "cz": "Vystříkne kapku magické rosy, která osvěží spojence nebo lehce oslabí nepřítele.",
-                "en": "A heavy slap with a mossy hand.",
-                "sk": "Ťažký úder machovou rukou."
+                "en": "Sprays a drop of magical dew that refreshes an ally or slightly weakens an enemy.",
+                "sk": "Vystrekne kvapku magickej rosy, ktorá osvieži spojencov alebo ľahko oslabí nepriateľa."
             },
             "type": "heal",
             "chance": 65,
@@ -36,13 +36,13 @@
         {
             "name": {
                 "cz": "Mechové maskování",
-                "en": "Forest Camouflage",
-                "sk": "Lesné maskovanie"
+                "en": "Moss camouflage",
+                "sk": "Machové maskovanie"
             },
             "description": {
                 "cz": "Splyne s okolím a sníží šanci nepřítele na zásah. Uvalí kletbu uštědřující 15 % poškození z ATK.",
-                "en": "Hides in the forest to dodge attacks.",
-                "sk": "Skryje sa v lese, aby sa vyhol útokom."
+                "en": "Blends in with the surroundings and reduces the enemy's chance of being hit. Casts a curse that deals 15% damage from ATK.",
+                "sk": "Splynie s okolím a zníži šancu nepriateľa na zásah. Uvalí kliatbu uštedrujúcu 15% poškodenie z ATK."
             },
             "type": "curse",
             "chance": 75,
