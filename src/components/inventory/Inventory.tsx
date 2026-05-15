@@ -53,7 +53,7 @@ export const Inventory = ({
   };
 
   const isConsumable = (type: string) => {
-    return ['xp_booster', 'hp_potion', 'hp_potion_large', 'energy_drink'].includes(type);
+    return ['xp_booster', 'energy_drink'].includes(type);
   }
 
   return (

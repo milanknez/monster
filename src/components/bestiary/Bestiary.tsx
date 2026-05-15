@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, QrCode, Heart } from 'lucide-react';
-import { cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack, getMonsterDefense, getTotalXPForLevel, getMonsterPower, TYPE_ICONS, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, RARITY_THEME } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterMaxHP, getMonsterAttack, getMonsterDefense, getTotalXPForLevel, getMonsterPower, TYPE_ICONS, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, RARITY_THEME, RARITY_MAP } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
@@ -218,7 +218,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   />
                   <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none mb-1">
                     <p className="text-white text-sm font-black uppercase tracking-tight line-clamp-1">{getLoc(m.name, i18n.language)}</p>
-                    <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", theme.text)}>{getLoc(m.rarity, i18n.language)}</p>
+                    <p className={cn("text-[8px] font-black uppercase tracking-widest mt-0.5", theme.text)}>{t(`rarities.${RARITY_MAP[getLoc(m.rarity)] || getLoc(m.rarity, 'en').toLowerCase()}`)}</p>
                   </div>
 
                   {/* XP Level Bar at the very bottom */}

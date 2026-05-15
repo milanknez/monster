@@ -123,9 +123,9 @@ const AbilityCard = ({ ability, originalAbility, idx, monsterType }: { ability: 
 };
 
 const RarityFrame = ({ rarity }: { rarity: any }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const r = getLoc(rarity, 'en').toLowerCase();
-  const rarityLabel = getLoc(rarity, i18n.language);
+  const rarityLabel = t(`rarities.${RARITY_MAP[getLoc(rarity)] || r}`);
   if (r === 'common') return null;
 
   const isLegendary = r === 'legendary';
@@ -609,7 +609,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               </h1>
               <div className="flex items-center gap-2">
                 <span className={cn("text-[10px] font-black uppercase tracking-widest leading-none", rarityColor)}>
-                  {t(`rarities.${RARITY_MAP[typeof monster.rarity === 'string' ? monster.rarity : monster.rarity?.cz]}`)}
+                  {t(`rarities.${RARITY_MAP[getLoc(monster.rarity)] || getLoc(monster.rarity, 'en').toLowerCase()}`)}
                 </span>
                 <div className="size-1 rounded-full bg-white/10" />
                 <div className="flex items-center gap-1">
@@ -1432,6 +1432,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                                 {(cfg?.stats?.atk || 0) > 0 && <span className="text-[8px] font-black text-red-400 bg-red-400/10 px-2 py-1 rounded-lg border border-red-400/20">+{cfg.stats?.atk} {t('stats.atk_short')}</span>}
                                 {(cfg?.stats?.hp || 0) > 0 && <span className="text-[8px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg border border-emerald-400/20">+{cfg.stats?.hp} {t('stats.hp_short')}</span>}
                                 {(cfg?.stats?.def || 0) > 0 && <span className="text-[8px] font-black text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg border border-blue-400/20">+{cfg.stats?.def} {t('stats.def_short')}</span>}
+                                {(cfg?.stats?.xp || 0) > 0 && <span className="text-[8px] font-black text-amber-400 bg-amber-400/10 px-2 py-1 rounded-lg border border-amber-400/20">+{cfg.stats?.xp} XP</span>}
                               </div>
                             </div>
                           </motion.div>

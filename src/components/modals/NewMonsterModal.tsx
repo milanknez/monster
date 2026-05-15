@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { cn, getLoc, getMonsterColors, getMonsterRarityColor } from '../../utils';
+import { cn, getLoc, getMonsterColors, getMonsterRarityColor, RARITY_MAP, TYPE_MAP } from '../../utils';
 import type { Monster } from '../../types';
 
 
@@ -54,12 +54,16 @@ export const NewMonsterModal = ({ monster, onClose, onAdd, isXPBoosted, xpMultip
           <div className="flex justify-center gap-4 mb-8">
             <div className="text-center">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('monster.rarity')}</p>
-              <p className={cn("font-black", getMonsterRarityColor(monster.rarity))}>{getLoc(monster.rarity)}</p>
+              <p className={cn("font-black", getMonsterRarityColor(monster.rarity))}>
+                {t(`rarities.${RARITY_MAP[getLoc(monster.rarity)] || getLoc(monster.rarity, 'en').toLowerCase()}`)}
+              </p>
             </div>
             <div className="w-px h-8 bg-slate-800" />
             <div className="text-center">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('monster.type')}</p>
-              <p className="font-black text-slate-100">{getLoc(monster.type)}</p>
+              <p className="font-black text-slate-100">
+                {t(`monster_types.${TYPE_MAP[getLoc(monster.type)] || getLoc(monster.type, 'en').toLowerCase()}`)}
+              </p>
             </div>
           </div>
 

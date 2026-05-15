@@ -4,7 +4,7 @@ import {
   Sword, X, Heart, Zap, Flame, Droplets, 
   Leaf, Skull, Check 
 } from 'lucide-react';
-import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon } from '../../utils';
+import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, TYPE_MAP } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -29,11 +29,12 @@ export const DuelSelectionModal = ({
   const isCollected = opponent ? caughtMonsters.some(m => m.id === opponent.id) : false;
 
   const TypeIcon = ({ type, size = 16, className = "" }: { type: string, size?: number, className?: string }) => {
-    switch (type) {
-      case 'Ohnivá': return <Flame size={size} className={cn("text-red-500", className)} />;
-      case 'Vodní': return <Droplets size={size} className={cn("text-blue-400", className)} />;
-      case 'Přírodní': return <Leaf size={size} className={cn("text-green-400", className)} />;
-      case 'Elektrická': return <Zap size={size} className={cn("text-yellow-400", className)} />;
+    const t = TYPE_MAP[type] || type.toLowerCase();
+    switch (t) {
+      case 'fire': return <Flame size={size} className={cn("text-red-500", className)} />;
+      case 'water': return <Droplets size={size} className={cn("text-blue-400", className)} />;
+      case 'nature': return <Leaf size={size} className={cn("text-green-400", className)} />;
+      case 'electric': return <Zap size={size} className={cn("text-yellow-400", className)} />;
       default: return null;
     }
   };
