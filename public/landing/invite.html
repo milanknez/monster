@@ -366,7 +366,7 @@
                 <div class="step-number">2</div>
                 <div class="step-content">
                     <h4 id="t-step2-title">Staňte se testerem</h4>
-                    <p id="t-step2-desc">Klikněte na tlačítko <strong style="color: white;" id="t-become-tester">"Become tester"</strong> na stránce testování a potvrďte přijetí.</p>
+                    <p id="t-step2-desc">Klikněte na tlačítko <strong style="color: white;">"Become tester"</strong> na stránce testování a potvrďte přijetí.</p>
                     <a href="https://play.google.com/apps/testing/com.monster.collector" target="_blank" class="btn btn-sm" id="t-step2-btn"
                         style="background: rgba(13,185,242,0.15); color: var(--primary); border: 1px solid var(--primary); box-shadow: none;">Stát se testerem ↗</a>
                 </div>
@@ -481,24 +481,27 @@
                 become_tester: '"Become tester"',
                 step2_btn: "Stať sa testerom ↗",
                 step3_title: "Stiahnite aplikáciu",
-                step3_desc: "Po prijatí statusu testera nainštalujte hru z Google Play.",
+                step3_desc: "Po prijatí statusu testera si nainštalujte hru z Google Play.",
                 step3_btn: "Stiahnuť z Google Play",
                 step4_title: "Testovanie hry",
                 step4_desc: "Počas 14 dní hru aktívne testujte a vyskúšajte všetky jej funkcie.",
                 footer_code: "Kód {code} bude aplikovaný automaticky",
-                error_msg: "Pozvánka nenájdená, ale môžeš hrať aj tak!",
+                error_msg: "Pozvánka nebola nájdená, ale môžeš hrať aj tak!",
                 expert_hunter: "Skúsený lovec",
                 mysterious_hunter: "Tajomný lovec"
             }
         };
+
+        // Alias cs to cz
+        translations.cs = translations.cz;
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
-        const lang = urlParams.get('lang') || 'cz';
-        const t = translations[lang] || translations.cz;
+        const lang = urlParams.get('lang') || 'cs';
+        const t = translations[lang] || translations.cs;
 
         // Apply translations
         document.title = t.title;
