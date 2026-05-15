@@ -136,9 +136,9 @@ export const Laboratory = ({
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className={cn(
                       "size-11 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg overflow-hidden",
-                      rarity === 'Legendární' ? "border-amber-500 bg-amber-500/10 shadow-amber-500/5" :
-                      rarity === 'Epická' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
-                      rarity === 'Vzácná' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
+                      rarity === 'legendary' ? "border-amber-500 bg-amber-500/10 shadow-amber-500/5" :
+                      rarity === 'epic' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
+                      rarity === 'rare' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
                       "bg-slate-800 border-white/10"
                     )}>
                       <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" className="w-full h-full" />

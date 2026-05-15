@@ -137,7 +137,7 @@ export const DuelSelectionModal = ({
                     )}
                   >
                     {/* Decorative Frame for Rare/Epic/Legendary */}
-                    {!isDisabled && (getLoc(monster.rarity, 'cz') !== 'Běžná') && (
+                    {!isDisabled && (getLoc(monster.rarity, 'en').toLowerCase() !== 'common') && (
                       <div className="absolute inset-0 pointer-events-none z-30">
                         {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => (
                           <div key={corner} className={cn(

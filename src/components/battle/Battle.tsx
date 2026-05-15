@@ -807,36 +807,36 @@ export const Battle = ({
           // Loot Logic:
           if (isCommon) {
             // 80% Resource (material)
-            if (Math.random() < 0.8) addLootItem('Běžná', 'material');
+            if (Math.random() < 0.8) addLootItem('common', 'material');
             // 10% Gem or Relic (or just small chance for anything extra)
             if (Math.random() < 0.1) {
               const rand = Math.random();
-              if (rand < 0.5) addLootItem('Běžná', 'gem');
-              else addLootItem('Běžná', 'relic');
+              if (rand < 0.5) addLootItem('common', 'gem');
+              else addLootItem('common', 'relic');
             }
             // Bonus material chance
-            if (Math.random() < 0.15) addLootItem('Běžná', 'material');
+            if (Math.random() < 0.15) addLootItem('common', 'material');
           }
           else if (isRare) {
-            addLootItem('Běžná', 'material');
-            addLootItem('Vzácná', 'material');
+            addLootItem('common', 'material');
+            addLootItem('rare', 'material');
             if (Math.random() < 0.3) {
               const rand = Math.random();
-              if (rand < 0.4) addLootItem('Běžná', 'relic');
-              else if (rand < 0.8) addLootItem('Vzácná', 'gem');
-              else addLootItem('Vzácná', 'relic');
+              if (rand < 0.4) addLootItem('common', 'relic');
+              else if (rand < 0.8) addLootItem('rare', 'gem');
+              else addLootItem('rare', 'relic');
             }
           }
           else if (isEpic) {
-            addLootItem('Vzácná', 'material');
-            addLootItem('Vzácná', 'material');
-            addLootItem('Epická', 'material');
+            addLootItem('rare', 'material');
+            addLootItem('rare', 'material');
+            addLootItem('epic', 'material');
             if (Math.random() < 0.5) {
               const rand = Math.random();
-              if (rand < 0.5) addLootItem('Vzácná', 'relic');
-              else addLootItem('Epická', 'relic');
+              if (rand < 0.5) addLootItem('rare', 'relic');
+              else addLootItem('epic', 'relic');
             }
-            if (Math.random() < 0.02) addLootItem('Legendární');
+            if (Math.random() < 0.02) addLootItem('legendary');
           }
 
           setLoot(generatedLoot);

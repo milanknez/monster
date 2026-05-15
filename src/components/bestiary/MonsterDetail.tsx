@@ -124,13 +124,13 @@ const AbilityCard = ({ ability, originalAbility, idx, monsterType }: { ability: 
 
 const RarityFrame = ({ rarity }: { rarity: any }) => {
   const { i18n } = useTranslation();
-  const rCz = getLoc(rarity, 'cz');
+  const r = getLoc(rarity, 'en').toLowerCase();
   const rarityLabel = getLoc(rarity, i18n.language);
-  if (rCz === 'Běžná') return null;
+  if (r === 'common') return null;
 
-  const isLegendary = rCz === 'Legendární';
-  const isEpic = rCz === 'Epická';
-  const isRare = rCz === 'Vzácná';
+  const isLegendary = r === 'legendary';
+  const isEpic = r === 'epic';
+  const isRare = r === 'rare';
 
   const frameColor = isLegendary ? 'border-amber-500' : isEpic ? 'border-purple-500' : 'border-blue-500';
   const shadowColor = isLegendary ? 'shadow-amber-900/60' : isEpic ? 'shadow-purple-900/60' : 'shadow-blue-900/60';
@@ -153,7 +153,7 @@ const RarityFrame = ({ rarity }: { rarity: any }) => {
 
       {/* Inner Glowing Lining */}
       <div className={cn(
-        "absolute inset-[14px] border rounded-[2.8rem] opacity-30",
+        "absolute inset-[14px] border rounded-2xl opacity-30",
         isLegendary ? "border-amber-300" : isEpic ? "border-purple-300" : "border-blue-300"
       )} />
 
@@ -217,10 +217,10 @@ const RarityFrame = ({ rarity }: { rarity: any }) => {
 
 const LevelBadge = ({ level, rarity }: { level: number, rarity: any }) => {
   const { t, i18n } = useTranslation();
-  const rCz = getLoc(rarity, 'cz');
-  const isLegendary = rCz === 'Legendární';
-  const isEpic = rCz === 'Epická';
-  const isRare = rCz === 'Vzácná';
+  const r = getLoc(rarity, 'en').toLowerCase();
+  const isLegendary = r === 'legendary';
+  const isEpic = r === 'epic';
+  const isRare = r === 'rare';
 
   const iconColor = isLegendary ? 'text-amber-400' : isEpic ? 'text-purple-400' : isRare ? 'text-blue-400' : 'text-slate-400';
   const borderColor = isLegendary ? 'border-amber-600' : isEpic ? 'border-purple-600' : isRare ? 'border-blue-600' : 'border-slate-600';
@@ -246,10 +246,10 @@ const LevelBadge = ({ level, rarity }: { level: number, rarity: any }) => {
 
 const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: any }) => {
   const { t, i18n } = useTranslation();
-  const rCz = getLoc(rarity, 'cz');
-  const isLegendary = rCz === 'Legendární';
-  const isEpic = rCz === 'Epická';
-  const isRare = rCz === 'Vzácná';
+  const r = getLoc(rarity, 'en').toLowerCase();
+  const isLegendary = r === 'legendary';
+  const isEpic = r === 'epic';
+  const isRare = r === 'rare';
 
   const iconColor = isLegendary ? 'text-amber-500' : isEpic ? 'text-purple-500' : isRare ? 'text-blue-500' : 'text-slate-400';
   const borderColor = isLegendary ? 'border-amber-600' : isEpic ? 'border-purple-600' : isRare ? 'border-blue-600' : 'border-slate-600';
@@ -278,12 +278,12 @@ const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: any }) =>
 
 const RarityEffects = ({ rarity }: { rarity: any }) => {
   const { i18n } = useTranslation();
-  const rCz = getLoc(rarity, 'cz');
-  if (rCz === 'Běžná') return null;
+  const r = getLoc(rarity, 'en').toLowerCase();
+  if (r === 'common') return null;
 
-  const isLegendary = rCz === 'Legendární';
-  const isEpic = rCz === 'Epická';
-  const isRare = rCz === 'Vzácná';
+  const isLegendary = r === 'legendary';
+  const isEpic = r === 'epic';
+  const isRare = r === 'rare';
 
   const particleCount = isLegendary ? 20 : isEpic ? 12 : 6;
   const particles = Array.from({ length: particleCount });
@@ -377,10 +377,10 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
 
 const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
   const { i18n } = useTranslation();
-  const rCz = getLoc(monster.rarity, 'cz');
-  const isLegendary = rCz === 'Legendární';
-  const isEpic = rCz === 'Epická';
-  const isRare = rCz === 'Vzácná';
+  const r = getLoc(monster.rarity, 'en').toLowerCase();
+  const isLegendary = r === 'legendary';
+  const isEpic = r === 'epic';
+  const isRare = r === 'rare';
   const monsterImage = monster.image || `/monsters/${monster.id}.png`;
 
   const glowColor = isLegendary ? 'rgba(251, 191, 36, 0.5)' : isEpic ? 'rgba(168, 85, 247, 0.5)' : isRare ? 'rgba(59, 130, 246, 0.5)' : 'transparent';

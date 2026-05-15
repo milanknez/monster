@@ -116,7 +116,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               )}
             >
               {/* Decorative Frame for Rare/Epic/Legendary */}
-              {isCaught && getLoc(m.rarity, 'cz') !== 'Běžná' && (
+              {isCaught && getLoc(m.rarity, 'en').toLowerCase() !== 'common' && (
                 <>
                   <div className={cn(
                     "absolute inset-0 pointer-events-none border-2 rounded-2xl z-30 opacity-60",
