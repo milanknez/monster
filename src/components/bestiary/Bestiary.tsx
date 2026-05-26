@@ -20,11 +20,11 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
   const rarities = ['all', ...systemValues.monsterRarities.map((r: any) => getLoc(r, 'cz'))]
 
   const caughtFiltered = caughtMonsters
-    .filter(m => filter === 'all' || getLoc(m.rarity, 'cz') === filter)
+    .filter(m => filter === 'all' || RARITY_MAP[m.rarity] === RARITY_MAP[filter])
     .sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
 
   const uncaughtInDB = monsterDB
-    .filter(m => filter === 'all' || getLoc(m.rarity, 'cz') === filter)
+    .filter(m => filter === 'all' || RARITY_MAP[m.rarity] === RARITY_MAP[filter])
     .filter(m => !caughtMonsters.some(cm => cm.id === m.id))
     .slice(0, 6); // Limit unknown monsters to 6 items
 
@@ -70,7 +70,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
       <div className="sticky top-16 z-30 bg-background-dark/95 backdrop-blur-md border-b border-white/5">
         <div className="flex px-4 gap-6 overflow-x-auto no-scrollbar scroll-smooth py-4">
           {rarities.map(r => {
-            const theme = RARITY_THEME[r] || RARITY_THEME['all'];
+            const theme = RARITY_THEME[RARITY_MAP[r]];
             const label = r === 'all' ? t('bestiary.filter_all') : getLoc(systemValues.monsterRarities.find((mr: any) => (typeof mr === 'object' ? mr.cz : mr) === r), i18n.language);
             const firstLetterClass = theme ? theme.text : "text-primary";
             
