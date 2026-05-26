@@ -923,6 +923,9 @@ function AppContent() {
   // --- ACTIONS ---
   const handleWorldCatch = useCallback((m: Monster, spawnId?: string) => {
     if (caughtMonsters.length === 0) {
+      if (spawnId) {
+        (window as any).markMonsterAsCaught?.(spawnId);
+      }
       saveMonster(m, (xp) => {
         addXP(xp);
         setNewMonster(m);
