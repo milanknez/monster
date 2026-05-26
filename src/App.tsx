@@ -58,6 +58,7 @@ import {
   registerReferral,
   logout,
   signInWithGoogle,
+  signInAnonymously,
   syncPlayerToFirebase,
   sendTradeSignal,
   PLAYER_UID,
@@ -551,8 +552,14 @@ function AppContent() {
           }
         }
       } else {
-        setUser(null);
-        setUserUid(PLAYER_UID);
+        console.log('[Referral/Auth] Žádný přihlášený uživatel. Pokus o anonymní přihlášení...');
+        try {
+          await signInAnonymously(auth);
+        } catch (err) {
+          console.error('[Referral/Auth] Chyba při anonymním přihlášení:', err);
+          setUser(null);
+          setUserUid(PLAYER_UID);
+        }
       }
     });
     return () => unsubscribe();
@@ -1591,9 +1598,9 @@ function AppContent() {
               localStorage.setItem('monster_collector_avatar_style', style)
               localStorage.setItem('monster_collector_avatar_seed', seed)
             }}
-            googleEmail={user?.email}
+            googleEmail={user?.isAnonymous ? null : user?.email}
             playerEmail={playerEmail}
-            isGoogleLinked={!!user}
+            isGoogleLinked={!!user && !user.isAnonymous}
             onUpdateEmail={(email) => {
               setPlayerEmail(email)
               localStorage.setItem('monster_collector_player_email', email)

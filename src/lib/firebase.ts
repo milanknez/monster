@@ -7,6 +7,7 @@ import {
     GoogleAuthProvider,
     onAuthStateChanged,
     signOut, // Added signOut here
+    signInAnonymously,
     User
 } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
@@ -29,7 +30,7 @@ export const db = getDatabase(app);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { onAuthStateChanged, ref, get, update, set, onValue };
+export { onAuthStateChanged, ref, get, update, set, onValue, signInAnonymously };
 
 export const signInWithGoogle = async () => {
     try {
