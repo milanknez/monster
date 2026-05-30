@@ -25,20 +25,14 @@ const devConfig = {
     measurementId: "G-J1F1290THF"
 };
 
-// Konfigurace pro produkci (Sem vlož údaje z produkční Firebase Console)
+// Konfigurace pro produkci (Pro variantu A stačí změnit pouze databaseURL)
 const prodConfig = {
-    apiKey: "SEM_VLOZ_PRODUKCNI_API_KEY",
-    authDomain: "SEM_VLOZ_PRODUKCNI_AUTH_DOMAIN",
-    databaseURL: "SEM_VLOZ_PRODUKCNI_DATABASE_URL",
-    projectId: "SEM_VLOZ_PRODUKCNI_PROJECT_ID",
-    storageBucket: "SEM_VLOZ_PRODUKCNI_STORAGE_BUCKET",
-    messagingSenderId: "SEM_VLOZ_PRODUKCNI_MESSAGING_SENDER_ID",
-    appId: "SEM_VLOZ_PRODUKCNI_APP_ID",
-    measurementId: "SEM_VLOZ_PRODUKCNI_MEASUREMENT_ID"
+    ...devConfig,
+    databaseURL: "SEM_VLOZ_PRODUKCNI_DATABASE_URL" // Sem vlož URL nové produkční databáze ze stejného projektu
 };
 
-// Pokud jsou v produkčním sestavení vyplněné produkční klíče, použijí se. Jinak se použijí vývojové.
-const firebaseConfig = (import.meta.env.PROD && prodConfig.apiKey !== "SEM_VLOZ_PRODUKCNI_API_KEY") 
+// Pokud jsme v produkčním buildu a URL databáze je změněno z výchozího zástupného textu, použijeme prodConfig.
+const firebaseConfig = (import.meta.env.PROD && prodConfig.databaseURL !== "SEM_VLOZ_PRODUKCNI_DATABASE_URL") 
     ? prodConfig 
     : devConfig;
 
