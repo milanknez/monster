@@ -25,15 +25,40 @@ const devConfig = {
     measurementId: "G-J1F1290THF"
 };
 
-// Konfigurace pro produkci (Pro variantu A stačí změnit pouze databaseURL)
+// Konfigurace pro produkci (Zde vyplň údaje podle zvolené varianty)
 const prodConfig = {
-    ...devConfig,
-    databaseURL: "SEM_VLOZ_PRODUKCNI_DATABASE_URL" // Sem vlož URL nové produkční databáze ze stejného projektu
+    apiKey: "SEM_VLOZ_PRODUKCNI_API_KEY",
+    authDomain: "SEM_VLOZ_PRODUKCNI_AUTH_DOMAIN",
+    databaseURL: "SEM_VLOZ_PRODUKCNI_DATABASE_URL", // Sem vlož URL produkční databáze
+    projectId: "SEM_VLOZ_PRODUKCNI_PROJECT_ID",
+    storageBucket: "SEM_VLOZ_PRODUKCNI_STORAGE_BUCKET",
+    messagingSenderId: "SEM_VLOZ_PRODUKCNI_MESSAGING_SENDER_ID",
+    appId: "SEM_VLOZ_PRODUKCNI_APP_ID",
+    measurementId: "SEM_VLOZ_PRODUKCNI_MEASUREMENT_ID"
 };
 
-// Pokud jsme v produkčním buildu a URL databáze je změněno z výchozího zástupného textu, použijeme prodConfig.
+// Chytré spojení konfigurací:
+// Pokud je změněno pouze databaseURL (Varianta A), ostatní klíče se zdědí z devConfig.
+// Pokud jsou změněny všechny klíče (Varianta B), použije se kompletní prodConfig.
+const getProdConfig = () => {
+    const config: any = { ...devConfig };
+    
+    // Použijeme produkční databázi, pokud je vyplněná
+    if (prodConfig.databaseURL !== "SEM_VLOZ_PRODUKCNI_DATABASE_URL") {
+        config.databaseURL = prodConfig.databaseURL;
+    }
+    
+    // Pokud je vyplněn i zbytek (Varianta B), přepíšeme i ostatní klíče
+    if (prodConfig.apiKey !== "SEM_VLOZ_PRODUKCNI_API_KEY") {
+        Object.assign(config, prodConfig);
+    }
+    
+    return config;
+};
+
+// Pokud jsme v produkčním buildu a je nastavena produkční databáze, použijeme produkční config, jinak vývojový fallback.
 const firebaseConfig = (import.meta.env.PROD && prodConfig.databaseURL !== "SEM_VLOZ_PRODUKCNI_DATABASE_URL") 
-    ? prodConfig 
+    ? getProdConfig() 
     : devConfig;
 
 const app = initializeApp(firebaseConfig);
