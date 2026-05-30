@@ -27,14 +27,14 @@ const devConfig = {
 
 // Konfigurace pro produkci (Zde vyplň údaje podle zvolené varianty)
 const prodConfig = {
-    apiKey: "SEM_VLOZ_PRODUKCNI_API_KEY",
-    authDomain: "SEM_VLOZ_PRODUKCNI_AUTH_DOMAIN",
-    databaseURL: "SEM_VLOZ_PRODUKCNI_DATABASE_URL", // Sem vlož URL produkční databáze
-    projectId: "SEM_VLOZ_PRODUKCNI_PROJECT_ID",
-    storageBucket: "SEM_VLOZ_PRODUKCNI_STORAGE_BUCKET",
-    messagingSenderId: "SEM_VLOZ_PRODUKCNI_MESSAGING_SENDER_ID",
-    appId: "SEM_VLOZ_PRODUKCNI_APP_ID",
-    measurementId: "SEM_VLOZ_PRODUKCNI_MEASUREMENT_ID"
+    apiKey: "AIzaSyC0Jdknti1kjw78mx2QgscVptlHJKQMMSw",
+    authDomain: "monstero-prod.firebaseapp.com",
+    databaseURL: "https://monstero-prod-default-rtdb.europe-west1.firebasedatabase.app", // Sem vlož URL produkční databáze
+    projectId: "monstero-prod",
+    storageBucket: "monstero-prod.firebasestorage.app",
+    messagingSenderId: "377425376218",
+    appId: "1:377425376218:web:067be9eb13898aa10e06e3",
+    measurementId: "G-G3D8E5GETV"
 };
 
 // Chytré spojení konfigurací:
