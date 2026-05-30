@@ -20,11 +20,11 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
   const rarities = ['all', ...systemValues.monsterRarities.map((r: any) => getLoc(r, 'cz'))]
 
   const caughtFiltered = caughtMonsters
-    .filter(m => filter === 'all' || RARITY_MAP[m.rarity] === RARITY_MAP[filter])
+    .filter(m => filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter])
     .sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
 
   const uncaughtInDB = monsterDB
-    .filter(m => filter === 'all' || RARITY_MAP[m.rarity] === RARITY_MAP[filter])
+    .filter(m => filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter])
     .filter(m => !caughtMonsters.some(cm => cm.id === m.id))
     .slice(0, 6); // Limit unknown monsters to 6 items
 

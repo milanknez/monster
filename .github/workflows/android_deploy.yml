@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - test
+      - closed
     tags:
       - 'v*'
 
@@ -73,7 +74,9 @@ jobs:
       - name: Determine Track
         id: determine_track
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/v* ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "track=production" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/closed" || "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "track=alpha" >> $GITHUB_OUTPUT
           else
             echo "track=internal" >> $GITHUB_OUTPUT
