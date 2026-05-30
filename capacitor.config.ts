@@ -1,5 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+const isProd = process.env.NODE_ENV === 'production' || process.env.CI === 'true';
+
+const googleClientId = isProd
+  ? '377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com'
+  : '924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com';
+
 const config: CapacitorConfig = {
   appId: 'com.monster.collector',
   appName: 'Monstero - Lovci příšer',
@@ -11,8 +17,8 @@ const config: CapacitorConfig = {
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
-      serverClientId: '924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com',
-      clientId: '924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com',
+      serverClientId: googleClientId,
+      clientId: googleClientId,
       forceCodeForRefreshToken: false,
     },
   }

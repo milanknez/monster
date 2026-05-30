@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "924150763137",
-    "firebase_url": "https://monster-app-3062e-default-rtdb.europe-west1.firebasedatabase.app",
-    "project_id": "monster-app-3062e",
-    "storage_bucket": "monster-app-3062e.firebasestorage.app"
+    "project_number": "377425376218",
+    "firebase_url": "https://monstero-prod-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "monstero-prod",
+    "storage_bucket": "monstero-prod.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:924150763137:android:c188f1e9f510dc87c38780",
+        "mobilesdk_app_id": "1:377425376218:android:605298ec5012e9a20e06e3",
         "android_client_info": {
           "package_name": "com.monster.collector"
         }
       },
       "oauth_client": [
         {
-          "client_id": "924150763137-etrugc8krqf393cblv837phpic519mks.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.monster.collector",
-            "certificate_hash": "648b5a8a194a605405a92ee50fb110c63ccc8ced"
-          }
-        },
-        {
-          "client_id": "924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com",
+          "client_id": "377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCThrnPN28Z8El74BSKkdCyGyo32oGN3qo"
+          "current_key": "AIzaSyCnyxKarI0YOarwh2VtZCBMWpTvp_-eDBc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "924150763137-pd4i32nplr27ntgmp2vs4cht1cfiufpc.apps.googleusercontent.com",
+              "client_id": "377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
