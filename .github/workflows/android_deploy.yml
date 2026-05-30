@@ -33,10 +33,38 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Determine Track and Database Environment
+        id: determine_track
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "track=production" >> $GITHUB_OUTPUT
+            echo "db_env=production" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/closed" || "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "track=alpha" >> $GITHUB_OUTPUT
+            echo "db_env=development" >> $GITHUB_OUTPUT
+          else
+            echo "track=internal" >> $GITHUB_OUTPUT
+            echo "db_env=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure Google Services config
+        run: |
+          if [[ "${{ steps.determine_track.outputs.db_env }}" == "production" ]]; then
+            echo "Using PRODUCTION firebase google-services config"
+            cp android/app/google-services.prod.json android/app/google-services.json
+          else
+            echo "Using DEVELOPMENT/TEST firebase google-services config"
+            cp android/app/google-services.dev.json android/app/google-services.json
+          fi
+
       - name: Build web application
+        env:
+          VITE_FIREBASE_DB_ENV: ${{ steps.determine_track.outputs.db_env }}
         run: npm run build
 
       - name: Sync Capacitor
+        env:
+          CAPACITOR_ENV: ${{ steps.determine_track.outputs.db_env }}
         run: npx cap sync android
 
       - name: Update Android Version
@@ -70,17 +98,6 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-      - name: Determine Track
-        id: determine_track
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            echo "track=production" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/closed" || "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "track=alpha" >> $GITHUB_OUTPUT
-          else
-            echo "track=internal" >> $GITHUB_OUTPUT
-          fi
 
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1

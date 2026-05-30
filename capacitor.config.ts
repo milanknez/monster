@@ -1,6 +1,6 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const isProd = process.env.NODE_ENV === 'production' || process.env.CI === 'true';
+const isProd = process.env.CAPACITOR_ENV === 'production';
 
 const googleClientId = isProd
   ? '377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com'

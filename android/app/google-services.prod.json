@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "377425376218",
+    "firebase_url": "https://monstero-prod-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "monstero-prod",
+    "storage_bucket": "monstero-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377425376218:android:605298ec5012e9a20e06e3",
+        "android_client_info": {
+          "package_name": "com.monster.collector"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnyxKarI0YOarwh2VtZCBMWpTvp_-eDBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377425376218-0q87uddfld0hu98h9nt1mll67t7igfju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
