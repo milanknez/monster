@@ -46,6 +46,93 @@ if (typeof window !== 'undefined') {
   })
 }
 
+// ── IndexedDB Map Tile Cache Helper ─────────────────────────────
+const TILE_DB_NAME = 'monstero-tile-cache';
+const TILE_STORE_NAME = 'tiles';
+
+function openTileDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(TILE_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(TILE_STORE_NAME);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function getTileFromIndexedDb(key: string): Promise<string | null> {
+  return openTileDb()
+    .then(db => {
+      return new Promise<string | null>((resolve) => {
+        const transaction = db.transaction(TILE_STORE_NAME, 'readonly');
+        const store = transaction.objectStore(TILE_STORE_NAME);
+        const request = store.get(key);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => resolve(null);
+      });
+    })
+    .catch(() => null);
+}
+
+function saveTileToIndexedDb(key: string, base64Data: string): Promise<void> {
+  return openTileDb()
+    .then(db => {
+      return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(TILE_STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(TILE_STORE_NAME);
+        const request = store.put(base64Data, key);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    })
+    .catch(err => {
+      console.warn("Failed to cache tile in IndexedDB:", err);
+    });
+}
+
+// ── Custom Leaflet layer with automatic IndexedDB caching ──────
+const CachedTileLayer = L.TileLayer.extend({
+  createTile: function (coords: any, done: any) {
+    const tile = document.createElement('img');
+    L.DomEvent.on(tile, 'load', L.Util.bind((this as any)._tileOnLoad, this, done, tile));
+    L.DomEvent.on(tile, 'error', L.Util.bind((this as any)._tileOnError, this, done, tile));
+
+    if ((this as any).options.crossOrigin || (this as any).options.crossOrigin === '') {
+      tile.crossOrigin = (this as any).options.crossOrigin === true ? '' : (this as any).options.crossOrigin;
+    }
+
+    tile.alt = '';
+    tile.setAttribute('role', 'presentation');
+
+    const url = (this as any).getTileUrl(coords);
+    const cacheKey = `${coords.z}_${coords.x}_${coords.y}`;
+
+    getTileFromIndexedDb(cacheKey).then(cachedData => {
+      if (cachedData) {
+        tile.src = cachedData;
+      } else {
+        fetch(url)
+          .then(res => res.blob())
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64Data = reader.result as string;
+              tile.src = base64Data;
+              saveTileToIndexedDb(cacheKey, base64Data);
+            };
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => {
+            tile.src = url;
+          });
+      }
+    });
+
+    return tile;
+  }
+});
+
 // ── Typy ─────────────────────────────────────────────────────
 // NearbyPlayer interface is now imported from '../../types'
 
@@ -525,7 +612,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
     if (!tileLayerRef.current) {
-      tileLayerRef.current = L.tileLayer(tileUrl, { 
+      tileLayerRef.current = new (CachedTileLayer as any)(tileUrl, { 
         maxZoom: 19,
         attribution
       }).addTo(mapRef.current);

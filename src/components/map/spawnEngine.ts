@@ -251,9 +251,9 @@ out center;`;
       console.warn("Offline cache search failed:", e);
     }
 
-    // 2. If no cache exists, generate stable offline pseudo-landmarks
-    console.log("Offline Fallback: Generating mathematical pseudo-landmarks...");
-    return generateOfflinePseudoPois(lat, lng, cooldowns, radiusM);
+    // 2. Pokud neexistuje cache, nebudou offline žádné památky
+    console.log("Offline Fallback: No cached POI data found. Returning empty POI arrays.");
+    return { monsters: [], resources: [], buildings: [] };
   }
 
   const monsters: SpawnPoint[] = []
@@ -381,81 +381,4 @@ out center;`;
   return result;
 }
 
-/**
- * Generuje stabilní offline pseudo-památky, pokud není k dispozici internet ani cache
- */
-function generateOfflinePseudoPois(
-  lat: number,
-  lng: number,
-  cooldowns: Cooldowns,
-  radiusM: number = 1500
-): { monsters: SpawnPoint[], resources: ResourceSpawn[], buildings: { lat: number, lng: number }[] } {
-  const monsters: SpawnPoint[] = [];
-  const resources: ResourceSpawn[] = [];
-  const buildings: { lat: number, lng: number }[] = [];
 
-  // Použijeme hrubší mřížku pro památky (např. 400m)
-  const OFFLINE_POI_GRID_M = 400;
-  const poiLatStep = metersToLatDeg(OFFLINE_POI_GRID_M);
-  const poiLngStep = metersToLngDeg(OFFLINE_POI_GRID_M, REF_LAT);
-
-  const centerIX = Math.floor(lat / poiLatStep);
-  const centerIY = Math.floor(lng / poiLngStep);
-  const radiusCells = Math.ceil(radiusM / OFFLINE_POI_GRID_M);
-
-  for (let dy = -radiusCells; dy <= radiusCells; dy++) {
-    for (let dx = -radiusCells; dx <= radiusCells; dx++) {
-      const ix = centerIX + dy;
-      const iy = centerIY + dx;
-      const gridLat = ix * poiLatStep;
-      const gridLng = iy * poiLngStep;
-
-      const cellId = `offpoi_${ix}_${iy}`;
-      
-      // 12% šance na spawn památky v této buňce
-      if (seededFloat(`${cellId}_spawn`) >= 0.12) continue;
-
-      // Jitter pozice uvnitř buňky
-      const pLat = gridLat + (seededFloat(`${cellId}_lat`) - 0.5) * poiLatStep * 0.8;
-      const pLng = gridLng + (seededFloat(`${cellId}_lng`) - 0.5) * poiLngStep * 0.8;
-
-      const id = `poi_offline_${ix}_${iy}`;
-      const isCollected = isOnCooldown(cooldowns, id);
-
-      // Určíme raritu (60% Rare, 35% Epic, 5% Legendary)
-      const rarityRoll = seededFloat(`${cellId}_rarity`);
-      let rarity: SpawnRarity = 'rare';
-      if (rarityRoll < 0.05) rarity = 'legendary';
-      else if (rarityRoll < 0.40) rarity = 'epic';
-
-      monsters.push({
-        id,
-        lat: pLat,
-        lng: pLng,
-        rarity,
-        monsterId: pickMonster(id, rarity),
-        level: pickLevel(id, rarity),
-        caught: isCollected
-      });
-      
-      // Občas přidáme i nějakou vzácnější surovinu u této památky
-      if (seededFloat(`${cellId}_res`) < 0.50) {
-        const resId = `res_offline_${ix}_${iy}`;
-        const resRoll = seededFloat(`${cellId}_restype`);
-        let type: any = 'magic_crystal';
-        if (resRoll < 0.50) type = 'super_mineral';
-        
-        resources.push({
-          id: resId,
-          lat: pLat + 0.0001, // kousek vedle památky
-          lng: pLng + 0.0001,
-          type,
-          amount: Math.floor(seededFloat(`${cellId}_resamt`) * 3) + 2,
-          isCollected: isOnCooldown(cooldowns, resId)
-        });
-      }
-    }
-  }
-
-  return { monsters, resources, buildings };
-}
