@@ -430,10 +430,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings } = await fetchPoiData(lat, lng, cooldownsRef.current, spawnRadius, force)
 
         setSpawns(prev => {
+          const currentCooldowns = loadCooldowns()
           const poiMap = new Map<string, SpawnPoint>()
           // 1. Zafixujeme POI z okolí + nové POI
-          prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => poiMap.set(p.id, p))
-          poiMonsters.forEach(p => poiMap.set(p.id, p))
+          prev.filter(p => p.rarity !== 'common' && haversineM(lat, lng, p.lat, p.lng) < 2000).forEach(p => {
+            poiMap.set(p.id, { ...p, caught: p.caught || isOnCooldown(currentCooldowns, p.id) })
+          })
+          poiMonsters.forEach(p => {
+            poiMap.set(p.id, { ...p, caught: p.caught || isOnCooldown(currentCooldowns, p.id) })
+          })
 
           const rawPois = Array.from(poiMap.values())
 
@@ -456,10 +461,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         })
 
         setResources(prev => {
+          const currentCooldowns = loadCooldowns()
           const poiMap = new Map<string, ResourceSpawn>()
           // 1. Zafixujeme POI z okolí + nové
-          prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).forEach(r => poiMap.set(r.id, r))
-          poiResources.forEach(r => poiMap.set(r.id, r))
+          prev.filter(r => r.id.startsWith('poi_') && haversineM(lat, lng, r.lat, r.lng) < 2000).forEach(r => {
+            poiMap.set(r.id, { ...r, isCollected: r.isCollected || isOnCooldown(currentCooldowns, r.id) })
+          })
+          poiResources.forEach(r => {
+            poiMap.set(r.id, { ...r, isCollected: r.isCollected || isOnCooldown(currentCooldowns, r.id) })
+          })
           const poisArray = Array.from(poiMap.values())
 
           // 2. Posunout a pročistit
@@ -677,6 +687,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         }
 
         const cooldowns = loadCooldowns()
+        cooldownsRef.current = cooldowns // Keep ref in sync
         const commonMonsters = generateCommonSpawns(lat, lng, cooldowns, spawnRadius)
         const commonRes = generateResources(lat, lng, cooldowns, spawnRadius)
 
@@ -768,7 +779,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         uid: playerUid,
         name: playerName,
         level: playerLevel,
-        monsterCount: caughtMonsters.length,
+        monsterCount: new Set(caughtMonsters.map(m => m.id)).size,
         lat: playerPos[0],
         lng: playerPos[1],
         avatarStyle: avatarStyle,

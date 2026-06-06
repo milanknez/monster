@@ -21,7 +21,7 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   
   const { i18n, t } = useTranslation();
   const currentLang = i18n.language.split('-')[0] || 'cz';
-  const inviteLink = `${APP_CONFIG.PROD_URL}/landing/invite.html?ref=${referralCode}&lang=${currentLang}`;
+  const inviteLink = `${APP_CONFIG.INVITE_BASE_URL}?ref=${referralCode}&lang=${currentLang}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);

@@ -18,10 +18,24 @@ interface LeaderboardProps {
 }
 
 export const Leaderboard = ({ userUid }: LeaderboardProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [leaderboardTop, setLeaderboardTop] = useState<LeaderboardPlayer[]>([]);
   const [leaderboardNearby, setLeaderboardNearby] = useState<LeaderboardPlayer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const getSpeciesLabel = (count: number) => {
+    if (i18n.language === 'cs') {
+      if (count === 1) return 'druh';
+      if (count >= 2 && count <= 4) return 'druhy';
+      return 'druhů';
+    } else if (i18n.language === 'sk') {
+      if (count === 1) return 'druh';
+      if (count >= 2 && count <= 4) return 'druhy';
+      return 'druhov';
+    } else {
+      return 'species';
+    }
+  };
 
   useEffect(() => {
     if (!userUid) return;
@@ -43,7 +57,7 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
           return {
             id,
             name: merged.playerName || merged.name || merged.nam || merged.n || 'Neznámý lovec',
-            mct: Array.isArray(merged.caughtMonsters) ? merged.caughtMonsters.length : 
+            mct: Array.isArray(merged.caughtMonsters) ? new Set(merged.caughtMonsters.map((m: any) => m.id)).size : 
                  (typeof merged.mct === 'number' ? merged.mct : 
                  typeof merged.monsterCount === 'number' ? merged.monsterCount : 
                  typeof merged.mc === 'number' ? merged.mc : 0)
@@ -56,7 +70,8 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
       const top3 = players.slice(0, 3).map((p, idx) => ({
         name: p.name,
         mct: p.mct,
-        rank: idx + 1
+        rank: idx + 1,
+        isMe: p.id === userUid
       }));
       setLeaderboardTop(top3);
 
@@ -146,7 +161,7 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
                   {player.name}
                 </p>
                 <span className="text-[10px] font-bold text-slate-500 tabular-nums">
-                  {player.mct} ks
+                  {player.mct} {getSpeciesLabel(player.mct)}
                 </span>
               </div>
             </div>
@@ -202,7 +217,7 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
                   {player.name}
                 </p>
                 <span className="text-[10px] font-bold text-slate-600 tabular-nums">
-                  {player.mct} ks
+                  {player.mct} {getSpeciesLabel(player.mct)}
                 </span>
               </div>
             </div>

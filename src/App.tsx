@@ -260,6 +260,8 @@ function AppContent() {
       }
     } else if (cheatId === 'debugIAP') {
       if ((window as any).debugIAP) (window as any).debugIAP();
+    } else if (cheatId === 'openEditor') {
+      setIsEditorMode(true);
     }
   };
 

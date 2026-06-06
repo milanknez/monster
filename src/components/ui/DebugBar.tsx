@@ -27,6 +27,7 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
 
     { id: 'testNotification', label: 'Test Notifikace', icon: Bell, color: 'text-indigo-400' },
     { id: 'debugIAP', label: 'Stav Obchodu (IAP DR)', icon: ShoppingBag, color: 'text-yellow-400' },
+    { id: 'openEditor', label: 'Spustit Systémový Editor', icon: Database, color: 'text-rose-400 font-bold' },
   ];
 
   const handleCheatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

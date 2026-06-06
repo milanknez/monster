@@ -142,6 +142,21 @@ export function generateResources(playerLat: number, playerLng: number, cooldown
   return spawns
 }
 
+function applyCooldowns(content: any, cooldowns: Cooldowns) {
+  if (!content) return { monsters: [], resources: [], buildings: [] };
+  return {
+    ...content,
+    monsters: (content.monsters || []).map((m: any) => ({
+      ...m,
+      caught: isOnCooldown(cooldowns, m.id)
+    })),
+    resources: (content.resources || []).map((r: any) => ({
+      ...r,
+      isCollected: isOnCooldown(cooldowns, r.id)
+    }))
+  };
+}
+
 /**
  * Načítá body zájmu (POI) z OpenStreetMap přes Overpass API
  */
@@ -161,7 +176,7 @@ export async function fetchPoiData(
       try {
         const data = JSON.parse(cached);
         if (Date.now() - data.timestamp < 3600000) { // 1 hour cache
-          return data.content;
+          return applyCooldowns(data.content, cooldowns);
         }
       } catch (e) { console.error("Cache read error:", e) }
     }
@@ -244,7 +259,7 @@ out center;`;
         if (cached) {
           const data = JSON.parse(cached);
           console.log("Offline Fallback: Loaded cached POI data at distance", closestDist, "meters");
-          return data.content;
+          return applyCooldowns(data.content, cooldowns);
         }
       }
     } catch (e) {
