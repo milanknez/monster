@@ -15,20 +15,22 @@ interface LeaderboardPlayer {
 
 interface LeaderboardProps {
   userUid: string;
+  localPlayerName?: string | null;
+  localMonsterCount?: number;
 }
 
-export const Leaderboard = ({ userUid }: LeaderboardProps) => {
+export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: LeaderboardProps) => {
   const { t, i18n } = useTranslation();
   const [leaderboardTop, setLeaderboardTop] = useState<LeaderboardPlayer[]>([]);
   const [leaderboardNearby, setLeaderboardNearby] = useState<LeaderboardPlayer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getSpeciesLabel = (count: number) => {
-    if (i18n.language === 'cs') {
+    if (i18n.language.startsWith('cs') || i18n.language.startsWith('cz')) {
       if (count === 1) return 'druh';
       if (count >= 2 && count <= 4) return 'druhy';
       return 'druhů';
-    } else if (i18n.language === 'sk') {
+    } else if (i18n.language.startsWith('sk')) {
       if (count === 1) return 'druh';
       if (count >= 2 && count <= 4) return 'druhy';
       return 'druhov';
@@ -46,7 +48,11 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
       const usersData = usersSnap.val() || {};
       const playersNodeData = playersNodeSnap.val() || {};
       
-      const allUids = Array.from(new Set([...Object.keys(usersData), ...Object.keys(playersNodeData)]));
+      const allUids = Array.from(new Set([
+        ...Object.keys(usersData), 
+        ...Object.keys(playersNodeData),
+        userUid
+      ]));
       
       const players = allUids
         .map(id => {
@@ -54,13 +60,29 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
           const p = playersNodeData[id] || {};
           const merged = { ...p, ...u };
           
-          return {
-            id,
-            name: merged.playerName || merged.name || merged.nam || merged.n || 'Neznámý lovec',
-            mct: Array.isArray(merged.caughtMonsters) ? new Set(merged.caughtMonsters.map((m: any) => m.id)).size : 
+          let name = merged.playerName || merged.name || merged.nam || merged.n;
+          let mct = Array.isArray(merged.caughtMonsters) ? new Set(merged.caughtMonsters.map((m: any) => m.id)).size : 
                  (typeof merged.mct === 'number' ? merged.mct : 
                  typeof merged.monsterCount === 'number' ? merged.monsterCount : 
-                 typeof merged.mc === 'number' ? merged.mc : 0)
+                 typeof merged.mc === 'number' ? merged.mc : 0);
+
+          if (id === userUid) {
+            if (localPlayerName) {
+              name = localPlayerName;
+            }
+            if (typeof localMonsterCount === 'number') {
+              mct = localMonsterCount;
+            }
+          }
+
+          if (!name) {
+            name = 'Neznámý lovec';
+          }
+
+          return {
+            id,
+            name,
+            mct
           };
         })
         .filter(p => (p.name !== 'Neznámý lovec' && p.mct > 0) || p.id === userUid)
@@ -119,7 +141,7 @@ export const Leaderboard = ({ userUid }: LeaderboardProps) => {
       unsub1();
       unsub2();
     };
-  }, [userUid]);
+  }, [userUid, localPlayerName, localMonsterCount]);
 
   if (isLoading && leaderboardTop.length === 0) {
     return (

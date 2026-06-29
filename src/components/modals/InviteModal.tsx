@@ -20,7 +20,8 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
   const [showQR, setShowQR] = useState(false);
   
   const { i18n, t } = useTranslation();
-  const currentLang = i18n.language.split('-')[0] || 'cz';
+  const rawLang = i18n.language.split('-')[0] || 'cs';
+  const currentLang = rawLang === 'cz' ? 'cs' : rawLang;
   const inviteLink = `${APP_CONFIG.INVITE_BASE_URL}?ref=${referralCode}&lang=${currentLang}`;
 
   const handleCopy = () => {

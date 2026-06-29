@@ -334,10 +334,10 @@ export const SettingsModal = ({
                       
                       <div className="grid grid-cols-3 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
                         <button
-                          onClick={() => i18n.changeLanguage('cz')}
+                          onClick={() => i18n.changeLanguage('cs')}
                           className={cn(
                             "py-3 rounded-xl transition-all font-bold text-[10px] flex items-center justify-center gap-1.5",
-                            i18n.language.startsWith('cz') ? "bg-primary text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                            (i18n.language.startsWith('cz') || i18n.language.startsWith('cs')) ? "bg-primary text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
                           )}
                         >
                           <span className="text-sm">🇨🇿</span>

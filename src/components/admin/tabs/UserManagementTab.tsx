@@ -364,183 +364,67 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
   }, [selectedPlayerId, hasCoords, currentLat, currentLng]);
 
+  const [isCleaning, setIsCleaning] = useState(false);
 
-
-  const [isRepairing, setIsRepairing] = useState(false);
-
-
-
-  const repairAllReferrals = async () => {
-
-    setIsRepairing(true);
-
+  const cleanupInactiveUsers = async () => {
+    if (!window.confirm('Opravdu chcete z databáze vymazat všechny neaktivní hráče (bez přezdívky, 0 XP, bez monster)?')) return;
+    setIsCleaning(true);
     try {
-
       const usersSnap = await get(ref(db, 'users'));
-
-      const referralsSnap = await get(ref(db, 'referrals'));
-
-      const invitesSnap = await get(ref(db, 'invites'));
-
-
-
-      const allUsers = usersSnap.val() || {};
-
-      const allReferrals = referralsSnap.val() || {};
-
-      const allInvites = invitesSnap.val() || {};
-
-      let repairCount = 0;
-
-
-
-      // 1. Create email -> UID map from both Users and Global Invites
-
-      const emailToUid: Record<string, string> = {};
-
-
-
-      // Map from users backup
-
-      Object.entries(allUsers).forEach(([uid, data]: [string, any]) => {
-
-        const email = data.email || (data.playerName?.includes('@') ? data.playerName : null);
-
-        if (email) emailToUid[email.toLowerCase()] = uid;
-
-      });
-
-
-
-      // Map from global invites (source of truth for registration)
-
-      Object.entries(allInvites).forEach(([cleanEmail, data]: [string, any]) => {
-
-        if (data.registeredUid) {
-
-          const originalEmail = data.email || cleanEmail.replace('_', '.');
-
-          emailToUid[originalEmail.toLowerCase()] = data.registeredUid;
-
-        }
-
-      });
-
-
-
-      // 2. Scan all referrals
-
-      for (const [referrerUid, userReferrals] of Object.entries(allReferrals)) {
-
-        for (const [refKey, refData] of Object.entries(userReferrals as any)) {
-
-          const emailMatch = (refKey.includes('@') ? refKey.replace('_', '.') : (refData as any).email)?.toLowerCase();
-
-
-
-          if (emailMatch && emailToUid[emailMatch]) {
-
-            const realUid = emailToUid[emailMatch];
-
-            // Only update if link is missing or status is invited
-
-            if (!(refData as any).registeredUid || (refData as any).status === 'invited') {
-
-              await update(ref(db, `referrals/${referrerUid}/${refKey}`), {
-
-                registeredUid: realUid,
-
-                status: 'registered'
-
-              });
-
-              // Repair invited_emails mapping
-
-              const cleanEmail = emailMatch.replace(/\./g, '_');
-
-              await update(ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`), {
-
-                registeredUid: realUid,
-
-                status: 'registered'
-
-              });
-
-              repairCount++;
-
-            }
-
-          }
-
-        }
-
+      if (!usersSnap.exists()) {
+        alert('Žádní uživatelé v databázi.');
+        return;
       }
+      const allUsers = usersSnap.val();
+      let deleteCount = 0;
+      for (const [uid, uVal] of Object.entries(allUsers)) {
+        const u = uVal as any;
+        const name = u.playerName;
+        const hasRealName = name && name !== 'undefined' && name !== 'null' && name.trim().length > 0;
+        const hasXP = u.totalXP && u.totalXP > 0;
+        const hasMonsters = u.caughtMonsters && u.caughtMonsters.length > 0;
+        const hasInvites = u.invited_emails && Object.keys(u.invited_emails).length > 0;
 
-      alert(`Oprava dokončena! Propojeno ${repairCount} pozvánek. Refreshněte stránku (F5).`);
-
+        if (!hasRealName && !hasXP && !hasMonsters && !hasInvites) {
+          await remove(ref(db, `users/${uid}`));
+          deleteCount++;
+        }
+      }
+      alert(`Vyčištění dokončeno! Bylo smazáno ${deleteCount} neaktivních profilů.`);
+      window.location.reload();
     } catch (e) {
-
       console.error(e);
-
-      alert('Chyba při opravě.');
-
+      alert('Chyba při mazání neaktivních hráčů.');
     } finally {
-
-      setIsRepairing(false);
-
+      setIsCleaning(false);
     }
+  };
 
+  const toggleBlockPlayer = async () => {
+    if (!selectedPlayerId) return;
+    const isCurrentlyBlocked = !!detailedData?.blo;
+    const actionText = isCurrentlyBlocked ? 'odblokovat' : 'zablokovat';
+    if (window.confirm(`Opravdu chcete ${actionText} hráče ${currentName}?`)) {
+      try {
+        await update(ref(db, `users/${selectedPlayerId}`), {
+          blo: !isCurrentlyBlocked
+        });
+        setDetailedData((prev: any) => prev ? { ...prev, blo: !isCurrentlyBlocked } : null);
+        alert(`Hráč byl úspěšně ${isCurrentlyBlocked ? 'odblokován' : 'zablokován'}.`);
+      } catch (err) {
+        console.error(err);
+        alert('Chyba při změně stavu blokování.');
+      }
+    }
   };
 
 
 
-  const [manualEmail, setManualEmail] = useState('');
-
-  const [manualUid, setManualUid] = useState('');
+  
 
 
 
-  const handleManualLink = async () => {
-
-    if (!manualEmail || !manualUid) return alert('VyplĹte obě pole!');
-
-    const cleanEmail = manualEmail.replace(/\./g, '_').toLowerCase();
-
-
-
-    try {
-
-      const inviteSnap = await get(ref(db, `invites/${cleanEmail}`));
-
-      if (!inviteSnap.exists()) return alert('Tento e-mail nebyl v systému nalezen jako pozvaný.');
-
-
-
-      const referrerUid = inviteSnap.val().referrerUid;
-
-
-
-      await update(ref(db, `invites/${cleanEmail}`), { registeredUid: manualUid, status: 'registered' });
-
-      await update(ref(db, `referrals/${referrerUid}/${cleanEmail}`), { registeredUid: manualUid, status: 'registered' });
-
-      await update(ref(db, `users/${referrerUid}/invited_emails/${cleanEmail}`), { registeredUid: manualUid, status: 'registered' });
-
-
-
-      alert('Propojeno! Teď už by se měl level v dashboardu zobrazit správně.');
-
-      setManualEmail('');
-
-      setManualUid('');
-
-    } catch (e) {
-
-      alert('Chyba při propojování.');
-
-    }
-
-  };
+  
 
 
 
@@ -566,55 +450,24 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
           </div>
 
-          <button
-
-            onClick={repairAllReferrals}
-
-            disabled={isRepairing}
-
+                    <button
+            onClick={cleanupInactiveUsers}
+            disabled={isCleaning}
             className={cn(
-
-              "px-5 py-2.5 bg-purple-500/10 border border-purple-500/20 rounded-xl text-[10px] font-black uppercase text-purple-500 hover:bg-purple-500 hover:text-white transition-all flex items-center gap-2",
-
-              isRepairing && "opacity-50 animate-pulse"
-
+              "px-5 py-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-black uppercase text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2",
+              isCleaning && "opacity-50 animate-pulse"
             )}
-
           >
-
-            {isRepairing ? <Activity size={14} className="animate-spin" /> : <AlertCircle size={14} />}
-
-            {isRepairing ? 'Opravuji...' : 'Opravit všechny vztahy'}
-
+            {isCleaning ? 'Čistím...' : 'Vyčistit neaktivní'}
           </button>
 
-        </div>
-
-
-
-        {/* Manual Link Tool */}
-
-        <div className="p-4 bg-slate-900/50 border border-dashed border-white/10 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-
-          <div>
-
-            <label className="block text-[8px] font-black text-slate-500 uppercase mb-1 ml-2">E-mail pozvánky</label>
-
-            <input type="text" value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="daniel@test.cz" className="w-full bg-black border border-white/5 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-primary/50" />
-
-          </div>
-
-          <div>
-
-            <label className="block text-[8px] font-black text-slate-500 uppercase mb-1 ml-2">ID hráče (z tabulky)</label>
-
-            <input type="text" value={manualUid} onChange={(e) => setManualUid(e.target.value)} placeholder="UID zleva..." className="w-full bg-black border border-white/5 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-primary/50" />
-
-          </div>
-
-          <button onClick={handleManualLink} className="py-2.5 bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all">Propojit ručně</button>
+          
 
         </div>
+
+
+
+        
 
       </div>
 
@@ -686,7 +539,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
                     <LogIn size={14} className="text-primary" />
 
-                    {new Date(pSummary?.lastActive || Date.now()).toLocaleString(i18n.language === 'cz' ? 'cs-CZ' : (i18n.language === 'sk' ? 'sk-SK' : 'en-US'))}
+                    {pSummary?.lastActive ? new Date(pSummary.lastActive).toLocaleString(i18n.language === 'cz' ? 'cs-CZ' : (i18n.language === 'sk' ? 'sk-SK' : 'en-US')) : 'Nikdy'}
 
                   </div>
 
@@ -696,9 +549,14 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
                   <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Status</div>
 
-                  <div className="text-[10px] font-black text-emerald-500">
+                  <div className={cn(
+                    "text-[10px] font-black",
+                    detailedData?.blo 
+                      ? "text-rose-500 animate-pulse" 
+                      : (pSummary?.isOnline ? 'text-emerald-500' : 'text-slate-400')
+                  )}>
 
-                    {pSummary?.isOnline ? 'Online' : 'Offline'}
+                    {detailedData?.blo ? 'Zablokován' : (pSummary?.isOnline ? 'Online' : 'Offline')}
 
                   </div>
 
@@ -725,6 +583,19 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                 <div className="bg-black/40 p-3 rounded-2xl"><div className="text-[9px] text-slate-500 font-bold uppercase">Příšery</div><div className="text-xl font-black text-primary italic">{detailedData?.caughtMonsters?.length || pSummary?.monsterCount || 0}</div></div>
 
               </div>
+
+              {/* Tlačítko pro blokování */}
+              <button
+                onClick={toggleBlockPlayer}
+                className={cn(
+                  "mt-6 w-full py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border",
+                  detailedData?.blo
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-slate-950"
+                    : "bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white"
+                )}
+              >
+                {detailedData?.blo ? 'Odblokovat hráče' : 'Zablokovat hráče'}
+              </button>
 
             </div>
 

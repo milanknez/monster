@@ -56,10 +56,10 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
           {/* Language Switcher */}
           <div className="flex justify-center gap-2 mb-6">
             <button 
-              onClick={() => changeLanguage('cz')} 
+              onClick={() => changeLanguage('cs')} 
               className={cn(
                 "px-2.5 py-1.5 rounded-xl border text-[10px] font-black transition-all flex items-center gap-1.5",
-                i18n.language.startsWith('cz') ? "bg-primary text-slate-950 border-primary" : "bg-white/5 text-slate-500 border-white/10"
+                (i18n.language.startsWith('cz') || i18n.language.startsWith('cs')) ? "bg-primary text-slate-950 border-primary" : "bg-white/5 text-slate-500 border-white/10"
               )}
             >
               <span>🇨🇿</span> CZ

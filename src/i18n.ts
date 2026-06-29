@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import translations from './data/translations.json';
 
 export const resources = {
+  cs: { translation: translations.cz },
   cz: { translation: translations.cz },
   en: { translation: translations.en },
   sk: { translation: translations.sk }
@@ -15,7 +16,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'cz',
+    fallbackLng: 'cs',
     debug: false,
     interpolation: {
       escapeValue: false,
