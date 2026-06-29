@@ -107,3 +107,4 @@ jobs:
           releaseFiles: ${{ steps.sign_app.outputs.signedReleaseFile }}
           tracks: ${{ steps.determine_track.outputs.track }}
           status: completed
+          changesNotSentForReview: true
