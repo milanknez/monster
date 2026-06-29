@@ -31,8 +31,11 @@ import { Store } from './components/bestiary/Store'
 import { SystemEditor } from './components/admin/SystemEditor'
 import { GooglePayModal } from './components/modals/GooglePayModal'
 import { DuelSelectionModal } from './components/modals/DuelSelectionModal'
+import { TestEndedModal } from './components/modals/TestEndedModal'
 import { ToastContainer } from './components/ui/Toast'
 import { DebugBar } from './components/ui/DebugBar'
+
+import { APP_CONFIG } from './config'
 
 // Hooks
 import { useToasts } from './hooks/useToasts'
@@ -67,7 +70,8 @@ import {
   watchReferrals,
   claimReferralReward,
   deleteReferral,
-  resolveReferralCode
+  resolveReferralCode,
+  isProdDb
 } from './lib/firebase'
 import { User as FirebaseUser } from 'firebase/auth'
 
@@ -1188,6 +1192,12 @@ function AppContent() {
       </div>
     </motion.button>
   )
+
+  const showTestEndedScreen = !isProdDb && (Capacitor.isNativePlatform() || !import.meta.env.DEV);
+
+  if (showTestEndedScreen && !isEditorMode) {
+    return <TestEndedModal />;
+  }
 
   if (isBlocked && !isEditorMode) {
     return (

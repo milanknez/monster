@@ -57,7 +57,7 @@ const getProdConfig = () => {
 };
 
 // Pokud je nastaveno VITE_FIREBASE_DB_ENV na 'production', použije se produkční databáze (jinak vývojová).
-const isProdDb = import.meta.env.VITE_FIREBASE_DB_ENV === 'production';
+export const isProdDb = import.meta.env.VITE_FIREBASE_DB_ENV === 'production';
 
 const firebaseConfig = (isProdDb && prodConfig.databaseURL !== "SEM_VLOZ_PRODUKCNI_DATABASE_URL") 
     ? getProdConfig() 
