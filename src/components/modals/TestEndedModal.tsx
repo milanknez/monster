@@ -2,7 +2,11 @@ import { motion } from 'framer-motion';
 import { Trophy } from 'lucide-react';
 import { APP_CONFIG } from '../../config';
 
-export const TestEndedModal = () => {
+interface TestEndedModalProps {
+  onSkip: () => void;
+}
+
+export const TestEndedModal = ({ onSkip }: TestEndedModalProps) => {
   return (
     <div className="fixed inset-0 z-[99999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden">
       {/* Glow Effects */}
@@ -56,20 +60,35 @@ export const TestEndedModal = () => {
           </motion.p>
         </div>
 
-        {/* Download Button */}
-        <motion.a
-          href={APP_CONFIG.INVITE_BASE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-4 bg-primary text-slate-950 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-xs"
-        >
-          Stáhnout z Google Play
-        </motion.a>
+        <div className="w-full space-y-3">
+          {/* Download Button */}
+          <motion.a
+            href={APP_CONFIG.INVITE_BASE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-4 bg-primary text-slate-950 font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-xs"
+          >
+            Stáhnout z Google Play
+          </motion.a>
+
+          {/* Skip/Continue anyway button */}
+          <motion.button
+            onClick={onSkip}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-3.5 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 font-black uppercase tracking-widest rounded-2xl text-[10px] transition-all"
+          >
+            Přesto pokračovat v testovací verzi
+          </motion.button>
+        </div>
       </div>
     </div>
   );

@@ -101,6 +101,7 @@ function AppContent() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userUid, setUserUid] = useState<string>(PLAYER_UID)
   const [isBlocked, setIsBlocked] = useState(false)
+  const [isTestEndedSkipped, setIsTestEndedSkipped] = useState(false)
   const [referrals, setReferrals] = useState<ReferralEntry[]>([])
   const [logs, setLogs] = useState<DebugLog[]>([])
 
@@ -1194,10 +1195,10 @@ function AppContent() {
     </motion.button>
   )
 
-  const showTestEndedScreen = !isProdDb && (Capacitor.isNativePlatform() || !import.meta.env.DEV);
+  const showTestEndedScreen = !isProdDb && (Capacitor.isNativePlatform() || !import.meta.env.DEV) && !isTestEndedSkipped;
 
   if (showTestEndedScreen && !isEditorMode) {
-    return <TestEndedModal />;
+    return <TestEndedModal onSkip={() => setIsTestEndedSkipped(true)} />;
   }
 
   if (isBlocked && !isEditorMode) {
