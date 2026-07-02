@@ -501,6 +501,7 @@
       "bonus": "Bonus"
     },
     "battle": {
+      "miss": "Vedle",
       "attacking": "Útočím...",
       "healing": "Léčím se...",
       "defending": "Bráním se...",
@@ -1196,6 +1197,7 @@
       "bonus": "Bonus"
     },
     "battle": {
+      "miss": "Missed",
       "attacking": "Attacking...",
       "healing": "Healing...",
       "defending": "Defending...",
