@@ -439,7 +439,10 @@ function AppContent() {
           if (data.avatarSeed) localStorage.setItem('monster_collector_avatar_seed', data.avatarSeed);
           if (data.totalXP !== undefined) localStorage.setItem('monster_collector_xp', String(data.totalXP));
           if (data.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(data.caughtMonsters));
-          if (data.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+          if (data.inventory) {
+            localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+            localStorage.setItem('monster_collector_inventory_v2', JSON.stringify(data.inventory));
+          }
           
           alert('Váš herní postup byl úspěšně přenesen! Hra se nyní restartuje.');
           window.location.href = window.location.origin + window.location.pathname;
@@ -489,7 +492,10 @@ function AppContent() {
             if (data.avatarSeed) localStorage.setItem('monster_collector_avatar_seed', data.avatarSeed);
             if (data.totalXP !== undefined) localStorage.setItem('monster_collector_xp', String(data.totalXP));
             if (data.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(data.caughtMonsters));
-            if (data.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+            if (data.inventory) {
+              localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+              localStorage.setItem('monster_collector_inventory_v2', JSON.stringify(data.inventory));
+            }
             
             alert('Váš herní postup byl úspěšně přenesen do aplikace! Hra se nyní restartuje.');
             window.location.reload();
@@ -604,7 +610,10 @@ function AppContent() {
           localStorage.setItem('monster_collector_avatar_seed', backup.avatarSeed);
           if (backup.totalXP) localStorage.setItem('monster_collector_xp', backup.totalXP.toString());
           if (backup.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(backup.caughtMonsters));
-          if (backup.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
+          if (backup.inventory) {
+            localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
+            localStorage.setItem('monster_collector_inventory_v2', JSON.stringify(backup.inventory));
+          }
 
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
         } else if (!backup && !playerName) {

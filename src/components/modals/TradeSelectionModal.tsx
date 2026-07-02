@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, ArrowLeftRight } from 'lucide-react';
-import { cn, getLoc } from '../../utils';
+import { cn, getLoc, getMonsterImage } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -46,7 +46,7 @@ export const TradeSelectionModal = ({
             >
               <div className="flex items-center gap-4">
                 <div className="size-14 bg-black/40 rounded-xl p-2 border border-white/5 relative">
-                  <img src={monster.image} className="w-full h-full object-contain" alt={getLoc(monster.name, i18n.language)} />
+                  <img src={getMonsterImage(monster)} className="w-full h-full object-contain" alt={getLoc(monster.name, i18n.language)} />
                   
                   {/* Jewel Sockets */}
                   <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex flex-row gap-[1px] bg-slate-900/60 p-[3px] px-1 rounded-full backdrop-blur-sm border border-white/5 shadow-lg">

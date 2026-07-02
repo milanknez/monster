@@ -274,3 +274,14 @@ export const calculateBoostMultiplier = (activeBoosts: any[], type: 'xp_boost' |
   // Sečteme bonusové části (např. 2x a 1.5x => 1 + 1.0 + 0.5 = 2.5x)
   return Math.round(boosts.reduce((acc, b) => acc + (b.multiplier - 1), 1.0) * 10) / 10;
 };
+
+/**
+ * Returns the image path for a monster, deriving it from the ID as fallback.
+ * This is needed because after backup restore the .image field may be missing.
+ */
+export const getMonsterImage = (monster: { id?: string; image?: string } | null | undefined): string => {
+  if (!monster) return '/monsters/001.png';
+  if (monster.image) return monster.image;
+  if (monster.id) return `/monsters/${monster.id}.png`;
+  return '/monsters/001.png';
+};

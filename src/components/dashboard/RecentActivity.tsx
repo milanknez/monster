@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../utils';
+import { cn, getMonsterImage } from '../../utils';
 import type { Monster } from '../../types';
 import { monsterDB } from '../../data/monsters';
 
@@ -36,7 +36,7 @@ export const RecentActivity = ({ caughtMonsters, onSelect, onSeeAll }: { caughtM
               'placeholder' in m && "opacity-40 grayscale cursor-default"
             )}
           >
-            <img src={m.image} alt="Monster" className="size-full object-contain relative z-10 drop-shadow-[0_0_5px_rgba(255,255,255,0.1)] pointer-events-none" />
+            <img src={getMonsterImage(m)} alt="Monster" className="size-full object-contain relative z-10 drop-shadow-[0_0_5px_rgba(255,255,255,0.1)] pointer-events-none" />
             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <div className="absolute bottom-1 right-1 size-1.5 rounded-full bg-primary/30 pointer-events-none" />
           </motion.div>

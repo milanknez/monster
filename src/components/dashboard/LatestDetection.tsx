@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Activity, Bolt } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn, TYPE_COLORS, getMonsterAttack, formatLocation, getLoc, getMonsterColors } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterAttack, formatLocation, getLoc, getMonsterColors, getMonsterImage } from '../../utils';
 import type { Monster } from '../../types';
 
 export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster | null, onSelect: (m: Monster) => void }) => {
@@ -25,7 +25,7 @@ export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster 
             <div className="absolute inset-0 bg-primary/5 animate-pulse" />
             <motion.img 
               whileHover={{ scale: 1.1, rotate: 5 }}
-              src={lastCaught ? lastCaught.image : "/monsters/001.png"} 
+              src={lastCaught ? getMonsterImage(lastCaught) : "/monsters/001.png"} 
               alt={t('monster.title') || "Příšerka"} 
               className="w-full h-full object-contain relative z-10 drop-shadow-[0_0_8px_rgba(13,185,242,0.5)]"
             />

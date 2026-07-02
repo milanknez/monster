@@ -576,8 +576,24 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
       avatarStyle: detailedData.avatarStyle || detailedData.avs || pSummary?.avatarStyle || 'bottts',
       avatarSeed: detailedData.avatarSeed || detailedData.avd || pSummary?.avatarSeed || selectedPlayerId,
       totalXP: detailedData.totalXP || 0,
-      caughtMonsters: detailedData.caughtMonsters || [],
-      inventory: detailedData.inventory || []
+      caughtMonsters: (detailedData.caughtMonsters || []).map((m: any) => ({
+        id: m.id,
+        level: m.level,
+        xp: m.xp || 0,
+        currentHP: m.currentHP,
+        gems: m.gems || [null, null, null],
+        items: m.items || [null, null, null],
+        caughtAt: m.caughtAt,
+        stats: m.stats,
+        mutations: m.mutations
+      })),
+      inventory: (detailedData.inventory || []).map((item: any) => {
+        if (!item) return null;
+        return {
+          type: item.type,
+          count: item.count
+        };
+      })
     };
 
     try {
@@ -603,6 +619,53 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
     } catch (e: any) {
       console.error(e);
       alert('Chyba při balení dat pro migraci: ' + e.message);
+    }
+  };
+
+  const downloadPlayerBackup = () => {
+    if (!selectedPlayerId || !detailedData) {
+      alert('Chyba: Data hráče nejsou načtena.');
+      return;
+    }
+
+    const migrationPayload = {
+      uid: selectedPlayerId,
+      playerName: detailedData.playerName || pSummary?.name || 'Lovec',
+      avatarStyle: detailedData.avatarStyle || detailedData.avs || pSummary?.avatarStyle || 'bottts',
+      avatarSeed: detailedData.avatarSeed || detailedData.avd || pSummary?.avatarSeed || selectedPlayerId,
+      totalXP: detailedData.totalXP || 0,
+      caughtMonsters: (detailedData.caughtMonsters || []).map((m: any) => ({
+        id: m.id,
+        level: m.level,
+        xp: m.xp || 0,
+        currentHP: m.currentHP,
+        gems: m.gems || [null, null, null],
+        items: m.items || [null, null, null],
+        caughtAt: m.caughtAt,
+        stats: m.stats,
+        mutations: m.mutations
+      })),
+      inventory: (detailedData.inventory || []).map((item: any) => {
+        if (!item) return null;
+        return {
+          type: item.type,
+          count: item.count
+        };
+      })
+    };
+
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(migrationPayload, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      const filename = `monstero_player_${migrationPayload.playerName.replace(/\s+/g, '_')}_backup.json`;
+      downloadAnchor.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (e: any) {
+      console.error(e);
+      alert('Chyba při stahování zálohy: ' + e.message);
     }
   };
 
@@ -646,7 +709,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                 onClick={cleanupInactiveUsers}
                 disabled={isCleaning}
                 className={cn(
-                  "px-5 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-black uppercase text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2",
+                  "px-5 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-black uppercase text-rose-500 hover:bg-rose-500 hover:text-white transition-all",
                   isCleaning && "opacity-50 animate-pulse"
                 )}
               >
@@ -842,23 +905,28 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
               </button>
 
               {!isProdDb && (
-                <>
-                  <button
-                    onClick={migrateUserToProduction}
-                    disabled={isMigratingUser}
-                    className="mt-2.5 w-full py-3 bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-slate-950 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all disabled:opacity-50"
-                  >
-                    {isMigratingUser ? 'Přenáším...' : 'Přenést do produkce'}
-                  </button>
-
-                  <button
-                    onClick={copyMigrationLink}
-                    className="mt-2 w-full py-3 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-slate-950 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all"
-                  >
-                    Kopírovat odkaz pro migraci
-                  </button>
-                </>
+                <button
+                  onClick={migrateUserToProduction}
+                  disabled={isMigratingUser}
+                  className="mt-2.5 w-full py-3 bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-slate-950 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all disabled:opacity-50"
+                >
+                  {isMigratingUser ? 'Přenáším...' : 'Přenést do produkce'}
+                </button>
               )}
+
+              <button
+                onClick={copyMigrationLink}
+                className="mt-2 w-full py-3 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-slate-950 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all"
+              >
+                Kopírovat odkaz pro migraci
+              </button>
+
+              <button
+                onClick={downloadPlayerBackup}
+                className="mt-2 w-full py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all"
+              >
+                Stáhnout zálohu hráče (JSON)
+              </button>
             </div>
 
             {/* Right Side: Tabbed Details & Map */}
@@ -906,7 +974,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                         ref={mapContainerRef}
                         className="absolute inset-0 w-full h-full"
                         key={`map-${selectedPlayerId}`}
-                        style={{ background: '#020617', zIndex: 1, position: 'relative' }}
+                        style={{ background: '#020617', zIndex: 1, position: 'absolute' }}
                       />
 
                       {!hasCoords && (
