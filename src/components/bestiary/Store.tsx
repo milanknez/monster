@@ -190,12 +190,12 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
             <h2 className="text-slate-100 text-2xl font-black uppercase tracking-tighter italic">{t('store.title')}</h2>
           </div>
         </div>
-        
+
         {/* IAP Debug Info - visible only when needed or temporarily for testing */}
         <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg w-fit">
           <div className="size-1.5 rounded-full bg-slate-500 animate-pulse" />
           <span className="text-[9px] font-black text-slate-500 uppercase">
-             {t('store.status_iap')}: {(window as any).purchaseService?.getStatus() || t('common.loading')}
+            {t('store.status_iap')}: {(window as any).purchaseService?.getStatus() || t('common.loading')}
           </span>
         </div>
       </div>
@@ -205,7 +205,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
         {LOCALIZED_STORE_ITEMS.sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1)).map((item, idx) => {
           const isActive = isBoostActive(item.type, item.multiplier)
           const timePercent = getRemainingTimePercent(item.type, item.multiplier)
-          
+
           // Try to get real price from store
           const realPrice = (window as any).purchaseService?.getProductPrice(item.id);
           const displayPrice = realPrice || item.price;
@@ -223,14 +223,14 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
               }, { ...item, price: displayPrice })}
               className={cn(
                 "group relative aspect-[4/4.5] rounded-2xl overflow-hidden border transition-all duration-300 cursor-pointer flex flex-col",
-                isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : 
-                item.disabled ? "border-slate-800 bg-slate-900/20 opacity-50 grayscale cursor-not-allowed" :
-                "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
+                isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" :
+                  item.disabled ? "border-slate-800 bg-slate-900/20 opacity-50 grayscale cursor-not-allowed" :
+                    "border-slate-800 bg-slate-900/40 hover:border-slate-600 hover:bg-slate-900/60"
               )}
             >
               {/* Gradientní pozadí */}
               <div className={cn("absolute inset-0 z-0 bg-gradient-to-br opacity-40 group-hover:opacity-60 transition-opacity", !item.disabled && item.gradient)} />
-              
+
               {/* Ikona a Badge nahoře */}
               <div className="relative z-10 p-3 flex justify-between items-start">
                 <div className={cn("p-1.5 rounded-xl bg-black/40 backdrop-blur-md border border-white/5", item.disabled ? "text-slate-600" : item.colorClass)}>
@@ -272,7 +272,7 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                           <span className="text-slate-500">24h</span>
                         </div>
                         <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                          <motion.div 
+                          <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${timePercent}%` }}
                             className="h-full bg-primary shadow-[0_0_8px_#0db9f2]"
@@ -284,9 +284,9 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
                     <div className={cn(
                       "w-full py-1 rounded-lg border text-center transition-all flex items-center justify-center gap-2",
                       item.disabled ? "bg-slate-900 border-slate-800 text-slate-700" :
-                      item.price 
-                        ? "bg-yellow-400/10 border-yellow-400/30 group-hover:bg-yellow-400 group-hover:border-yellow-400 group-hover:text-slate-950" 
-                        : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
+                        item.price
+                          ? "bg-yellow-400/10 border-yellow-400/30 group-hover:bg-yellow-400 group-hover:border-yellow-400 group-hover:text-slate-950"
+                          : "bg-white/[0.03] border-white/10 group-hover:bg-primary group-hover:border-primary group-hover:text-slate-950"
                     )}>
                       <span className="text-[8px] font-black uppercase tracking-[0.15em]">
                         {item.disabled ? t('store.out_of_service') : displayPrice ? t('store.buy_for', { price: displayPrice }) : t('store.activate')}

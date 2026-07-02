@@ -3,7 +3,8 @@ import {
   Save, Plus, Trash2, Download, Copy, ArrowLeft, ShieldAlert,
   Beaker, Gem, Droplets,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
-  Sword, Shield, Heart, Sparkles, Info, Check, Users, Globe, Languages
+  Sword, Shield, Heart, Sparkles, Info, Check, Users, Globe, Languages,
+  Trophy, Activity, Clock
 } from 'lucide-react'
 
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,8 +13,8 @@ import { monsterDB } from '../../data/monsters'
 import { RESOURCE_CONFIG as initialResources } from '../../data/resources'
 import { cn, TYPE_COLORS, TYPE_ICONS, getMonsterColors, getMonsterTypeIcon, getMonsterRarityColor, getLoc, RARITY_COLORS } from '../../utils'
 import { SYSTEM_SETTINGS } from '../../data/settings'
-import { db } from '../../lib/firebase'
-import { ref, onValue, set } from 'firebase/database'
+import { db, isProdDb } from '../../lib/firebase'
+import { ref, onValue, set, get } from 'firebase/database'
 import translationsData from '../../data/translations.json'
 import systemValues from '../../data/system_values.json'
 
@@ -52,7 +53,7 @@ const ABILITY_TYPES = [
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 50, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 
-type EditorTab = 'monsters' | 'resources' | 'users' | 'languages' | 'settings';
+type EditorTab = 'dashboard' | 'monsters' | 'resources' | 'users' | 'languages' | 'settings';
 
 
 interface SystemEditorProps {
@@ -89,7 +90,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const { t, i18n } = useTranslation()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [passInput, setPassInput] = useState('')
-  const [activeTab, setActiveTab] = useState<EditorTab>('monsters')
+  const [activeTab, setActiveTab] = useState<EditorTab>('dashboard')
 
   // Data States
   const [monsters, setMonsters] = useState(monsterDB)
@@ -104,6 +105,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
   // Players State
   const [players, setPlayers] = useState<any[]>([])
+  const [referrals, setReferrals] = useState<any[]>([])
 
   // Translation & System Values State
   const [translationResources, setTranslationResources] = useState(translationsData as any)
@@ -122,6 +124,69 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const [isNoteOpen, setIsNoteOpen] = useState(false)
   const [isSavingNote, setIsSavingNote] = useState(false)
 
+  const [isBackingUp, setIsBackingUp] = useState(false)
+  const [isRestoring, setIsRestoring] = useState(false)
+
+  const handleBackupDatabase = async () => {
+    setIsBackingUp(true);
+    try {
+      const rootSnap = await get(ref(db, "/"));
+      if (!rootSnap.exists()) {
+        alert("Chyba: Databáze je prázdná.");
+        return;
+      }
+      const data = rootSnap.val();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      const envName = isProdDb ? 'PROD' : 'TEST';
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute("download", `monstero_backup_${envName}_${dateStr}.json`);
+      downloadAnchor.click();
+      alert("Záloha byla úspěšně stažena!");
+    } catch (err: any) {
+      console.error(err);
+      alert("Chyba při zálohování databáze: " + err.message);
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleRestoreDatabase = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const envName = isProdDb ? 'PRODUKČNÍ' : 'TESTOVACÍ';
+    if (!window.confirm(`⚠️ VAROVÁNÍ: Obnovením kompletně přepíšete aktuální ${envName} databázi daty ze záložního souboru. Všechna stávající data v tomto prostředí budou smazána.\n\nOpravdu chcete pokračovat?`)) {
+      event.target.value = '';
+      return;
+    }
+
+    setIsRestoring(true);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const jsonContent = e.target?.result as string;
+        const parsedData = JSON.parse(jsonContent);
+
+        if (typeof parsedData !== 'object' || parsedData === null) {
+          throw new Error('Neplatný formát záložního souboru.');
+        }
+
+        await set(ref(db, "/"), parsedData);
+        alert('Obnova databáze byla úspěšně dokončena!');
+        window.location.reload();
+      } catch (err: any) {
+        console.error(err);
+        alert('Chyba při importu zálohy: ' + err.message);
+      } finally {
+        setIsRestoring(false);
+        event.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   // Sync monsters list with DB (mock) or local update
   useEffect(() => {
     if (selectedMonsterId) {
@@ -135,6 +200,29 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       setMonsterForm(null)
     }
   }, [selectedMonsterId, monsters])
+
+  // Sync Referrals for Dashboard
+  useEffect(() => {
+    const referralsRef = ref(db, 'referrals');
+    const unsubReferrals = onValue(referralsRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      const flattened: any[] = [];
+      Object.entries(val).forEach(([referrerId, userRefs]: [string, any]) => {
+        Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
+          flattened.push({
+            ...refData,
+            referrerId,
+            invitedId,
+          });
+        });
+      });
+      flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      setReferrals(flattened);
+    }, (error) => {
+      console.error("[SystemEditor] Referrals Sync Error:", error);
+    });
+    return () => unsubReferrals();
+  }, []);
 
   // Sync Players
   useEffect(() => {
@@ -179,10 +267,26 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           avatarStyle: merged.avs || merged.avatarStyle || 'bottts',
           avatarSeed: merged.avd || merged.avatarSeed || id,
           inventory: merged.inventory || [],
+
           caughtMonsters: merged.caughtMonsters || [],
-          email: merged.email || (merged.playerName?.includes('@') ? merged.playerName : (merged.nam?.includes('@') ? merged.nam : null))
+
+          email: merged.email || merged.eml || (merged.playerName?.includes('@') ? merged.playerName : (merged.nam?.includes('@') ? merged.nam : null)),
+
+          isBlocked: !!merged.blo,
+
+          updatedAt: merged.updatedAt || merged.lastSync || merged.act || 0
+
         };
-      }).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
+
+      }).sort((a, b) => {
+
+        if (a.isBlocked && !b.isBlocked) return 1;
+
+        if (!a.isBlocked && b.isBlocked) return -1;
+
+        return (b.lastActive || 0) - (a.lastActive || 0);
+
+      });
 
       setPlayers(combined);
     };
@@ -385,169 +489,101 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col md:flex-row overflow-hidden font-display">
 
       {/* Sidebar */}
-      <aside className="w-full md:w-[350px] border-r border-white/10 bg-slate-900 flex flex-col shrink-0">
-
+      <aside className="w-full md:w-[280px] border-r border-white/10 bg-slate-900 flex flex-col shrink-0">
 
         {/* TAB SWITCHER */}
-        <div className="p-4 border-b border-white/5 grid grid-cols-5 gap-2">
+        <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <div className="mb-8 px-2 py-4 border-b border-white/5">
+            <h2 className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">Administrace</h2>
+            <div className="text-lg font-black text-white uppercase italic tracking-tighter">Monstero</div>
+
+            {/* Env Switcher */}
+            <div className="mt-4 flex items-center justify-between p-1 bg-black/40 border border-white/5 rounded-xl">
+              <button 
+                onClick={() => {
+                  if (isProdDb) {
+                    localStorage.setItem('monster_admin_db_env', 'development');
+                    window.location.reload();
+                  }
+                }}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-center transition-all",
+                  !isProdDb 
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" 
+                    : "text-slate-500 hover:text-slate-350"
+                )}
+              >
+                TEST (DEV)
+              </button>
+              <button 
+                onClick={() => {
+                  if (!isProdDb) {
+                    localStorage.setItem('monster_admin_db_env', 'production');
+                    window.location.reload();
+                  }
+                }}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-center transition-all",
+                  isProdDb 
+                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-lg" 
+                    : "text-slate-500 hover:text-slate-350"
+                )}
+              >
+                PRODUKCE
+              </button>
+            </div>
+          </div>
           {[
-            { id: 'monsters', icon: Settings2, label: 'Příšery' },
-            { id: 'resources', icon: Palette, label: 'Suroviny' },
-            { id: 'users', icon: Users, label: 'Hráči' },
-            { id: 'languages', icon: Globe, label: 'Jazyky' },
-            { id: 'settings', icon: Settings2, label: 'Systém' }
+            { id: 'dashboard', icon: Trophy, label: 'Dashboard', desc: 'Přehled a rychlé statistiky' },
+            { id: 'monsters', icon: Settings2, label: 'Příšery', desc: 'Editor a AI generátor' },
+            { id: 'resources', icon: Palette, label: 'Suroviny', desc: 'Design herních surovin' },
+            { id: 'users', icon: Users, label: 'Hráči', desc: 'Správa a online monitoring' },
+            { id: 'languages', icon: Globe, label: 'Jazyky', desc: 'Překlady a lokalizace' },
+            { id: 'settings', icon: Settings2, label: 'Systém', desc: 'Globální nastavení hry' }
           ].map(tab => (
-            <button key={tab.id} onClick={() => { setActiveTab(tab.id as EditorTab); setSelectedMonsterId(null); }} className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border transition-all", activeTab === tab.id ? "bg-primary/20 border-primary text-primary" : "bg-black/40 border-white/5 text-slate-500 hover:text-slate-300")}>
-              <tab.icon size={16} />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-tight">{tab.label}</span>
+            <button key={tab.id} onClick={() => { setActiveTab(tab.id as EditorTab); setSelectedMonsterId(null); setSelectedPlayerId(null); }} className={cn("w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all group", activeTab === tab.id ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_15px_rgba(13,185,242,0.1)]" : "bg-black/20 border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200")}>
+              <tab.icon size={18} className={cn("shrink-0 transition-transform group-hover:scale-110", activeTab === tab.id ? "text-primary" : "text-slate-500")} />
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-wider block leading-none">{tab.label}</span>
+                <span className="text-[8px] text-slate-500 block leading-none mt-1">{tab.desc}</span>
+              </div>
             </button>
           ))}
         </div>
-
-        {activeTab === 'monsters' ? (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-white/5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-black text-sm uppercase tracking-widest text-primary">KATALOG</h2>
-                <button onClick={handleAddNewMonster} className="p-1.5 bg-primary/10 hover:bg-primary/20 rounded-lg text-primary transition-all"><Plus size={18} /></button>
-              </div>
-              <div className="space-y-3">
-                <input type="text" placeholder="Hledat název..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
-                <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1">
-                  {['Vše', ...MONSTER_RARITIES].map(r => {
-                    const colorClass = r === 'Vše' ? (sidebarFilter === 'Vše' ? 'bg-primary border-primary text-slate-950 px-3' : 'bg-white/5 border-white/5 text-slate-500') : (sidebarFilter === r ? cn(getMonsterRarityColor(r), "bg-white/10 border-current shadow-lg shadow-white/5") : "bg-white/5 border-white/5 text-slate-500 opacity-60 hover:opacity-100");
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => setSidebarFilter(r)}
-                        className={cn("px-2 py-1 rounded-md text-[10px] font-black uppercase whitespace-nowrap border transition-all", colorClass)}
-                      >
-                        {r === 'Vše' ? 'Vše' : t(`rarities.${r}`)}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1">
-                  {['Vše', ...MONSTER_TYPES].map(type => {
-                    const Icon = getMonsterTypeIcon(type);
-                    const colors = getMonsterColors(type);
-                    return (
-                      <button key={type} onClick={() => setElementFilter(type)} className={cn("p-1.5 rounded-md border transition-all", elementFilter === type ? cn(colors.bg, colors.border, colors.text) : "bg-white/5 border-white/5 text-slate-600")}>
-                        {Icon ? <Icon size={12} title={type === 'Vše' ? 'Vše' : t(`monster_types.${type}`)} /> : <span className="text-[10px] font-black px-1 uppercase">Vše</span>}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 grid grid-cols-4 gap-2 content-start">
-              {monsters
-                .filter(m => sidebarFilter === 'Vše' || getLoc(m.rarity, 'cz') === sidebarFilter)
-                .filter(m => elementFilter === 'Vše' || getLoc(m.type, 'cz') === elementFilter)
-                .filter(m => getLoc(m.name, 'cz').toLowerCase().includes(searchQuery.toLowerCase()))
-                .map(m => (
-                  <button key={m.id} onClick={() => setSelectedMonsterId(m.id)} className={cn("relative aspect-square rounded-2xl transition-all border flex flex-col items-center justify-between p-2 overflow-hidden", selectedMonsterId === m.id ? "bg-primary border-primary shadow-[0_0_15px_rgba(13,185,242,0.4)]" : "bg-black/60 border-white/5 hover:border-white/20")}>
-                    <div className={cn("absolute top-1 right-1 p-0.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 z-10", selectedMonsterId === m.id ? "text-slate-950" : (getMonsterColors(m.type)?.text || 'text-white'))}>
-                      {(() => { const Icon = getMonsterTypeIcon(m.type); return Icon ? <Icon size={8} /> : null; })()}
-                    </div>
-                    <div className="flex-1 flex items-center justify-center w-full">
-                      <img src={`/monsters/${m.id}.png`} className="w-full h-full object-contain filter drop-shadow-md" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-0.5 bg-black/80"><div className={cn("text-[8px] font-black truncate uppercase text-center", selectedMonsterId === m.id ? "text-primary" : (getMonsterRarityColor(m.rarity) || 'text-white'))}>{getLoc(m.name, 'cz')}</div></div>
-                  </button>
-                ))
-              }
-            </div>
-          </div>
-        ) : activeTab === 'users' ? (
-          <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-4 border-b border-white/5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-black text-sm uppercase tracking-widest text-primary">Seznam Hráčů</h2>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full">
-                    <span className="text-[8px] font-black text-primary">{players.length} CELKEM</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                    <span className="text-[8px] font-black text-emerald-500">{players.filter(p => p.isOnline).length} ONLINE</span>
-                  </div>
-                </div>
-                <input type="text" placeholder="Hledat hráče..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-primary/50 outline-none" />
-              </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
-              {players
-                .filter(p =>
-                  p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map(p => (
-                  <button key={p.id} onClick={() => setSelectedPlayerId(p.id)} className={cn("w-full p-3 rounded-xl flex items-center gap-3 transition-all text-left group border", selectedPlayerId === p.id ? "bg-primary/20 border-primary/30" : "hover:bg-white/5 border-transparent")}>
-                    <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden shrink-0 relative">
-                      <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" />
-                      {p.isOnline && (
-                        <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-black truncate text-white uppercase group-hover:text-primary transition-colors">{p.name || 'Lovec'}</div>
-                      <div className="text-[9px] font-medium text-slate-500 truncate group-hover:text-slate-400 transition-colors">
-                        {p.email || (p.name?.includes('@') ? p.name : '')}
-                      </div>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-[8px] font-bold truncate opacity-50">ID: {p.id}</span>
-                        <div className="flex items-center gap-1.5">
-                          {renderTimeBadge(p.lastActive)}
-                          <span className="text-[10px] font-black shrink-0 px-2 py-0.5 bg-primary/10 text-primary rounded-md border border-primary/20 shadow-sm shadow-primary/5">Lv {p.level}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))
-              }
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 opacity-50 grayscale">
-            <div className="size-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center"><Settings2 size={32} /></div>
-            <p className="text-[11px] font-black uppercase tracking-[0.3em] leading-relaxed">Globální<br />Nastavení </p>
-          </div>
-        )}
 
         <button onClick={onBack} className="p-4 border-t border-white/5 flex items-center gap-2 text-slate-500 hover:text-white transition-colors uppercase text-[11px] font-black tracking-widest shrink-0"><ArrowLeft size={14} /> Zpět</button>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-2 md:p-6">
-        <div className="w-full space-y-10 pb-20">
-
-
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="w-full space-y-8 pb-20">
 
           {/* TOP BAR ACTIONS */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
             <div>
-              <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter">
-                {activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : (activeTab === 'languages' ? 'Jazyky & Hodnoty' : 'Resource Design'))}
+              <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter flex items-center gap-2">
+                {activeTab === 'dashboard' ? 'Přehled Systému' : activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : (activeTab === 'languages' ? 'Jazyky & Hodnoty' : 'Resource Design'))}
               </h1>
-              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[11px]">
-                {activeTab === 'users' ? 'Monitoring a správa registrovaných hráčů' : 'Administrace herních datových struktur'}
+              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-1">
+                {activeTab === 'dashboard' ? 'Statistiky a rychlé přehledy herního světa' : activeTab === 'users' ? 'Monitoring a správa registrovaných hráčů' : 'Administrace herních datových struktur'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => activeTab === 'monsters' ? handleSaveMonster() : handleSaveConfig(activeTab, resourceConfig)}
-                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 border border-emerald-500/30 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-500 shadow-xl shadow-emerald-500/10"
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 border border-emerald-500/30 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-500 shadow-xl shadow-emerald-500/10"
               >
-                <Save size={16} /> Uložit Změny
+                <Save size={14} /> Uložit Změny
               </button>
-              <button onClick={openJsonEditor} className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-                <Copy size={16} /> RAW JSON
+              <button onClick={openJsonEditor} className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                <Copy size={14} /> RAW JSON
               </button>
               <button onClick={() => {
                 const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2))
                 const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr); anchor.setAttribute("download", `${activeTab}.json`); anchor.click();
-              }} className="flex items-center gap-2 px-5 py-3 bg-primary text-slate-950 rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
-                <Download size={16} /> Export
+              }} className="flex items-center gap-2 px-4 py-2.5 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
+                <Download size={14} /> Export
               </button>
             </div>
           </div>
@@ -575,7 +611,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                       value={globalNote}
                       onChange={(e) => setGlobalNote(e.target.value)}
                       placeholder="Zde si můžete psát poznámky k balancování, TODO list nebo herní lore..."
-                      className="w-full min-h-[320px] bg-transparent text-slate-300 font-mono text-[13px] outline-none resize-y p-2 placeholder:text-slate-600 custom-scrollbar leading-relaxed"
+                      className="w-full min-h-[150px] bg-transparent text-slate-300 font-mono text-xs outline-none resize-y p-2 placeholder:text-slate-600 custom-scrollbar leading-relaxed"
                     />
 
                     <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
@@ -601,8 +637,215 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
 
           <AnimatePresence mode="wait">
-            {activeTab === 'monsters' && monsterForm && (
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                {/* Stats Grid - Tighter padding */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl relative overflow-hidden group">
+                    <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3"><Users size={20} /></div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Registrovaní Hráči</div>
+                    <div className="text-2xl font-black text-white italic">{players.length}</div>
+                  </div>
+                  
+                  <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl relative overflow-hidden group">
+                    <div className="size-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-3"><Activity size={20} /></div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Hráči Online</div>
+                    <div className="text-2xl font-black text-emerald-500 italic">{players.filter(p => p.isOnline).length}</div>
+                  </div>
+
+                  <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl relative overflow-hidden group">
+                    <div className="size-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500 mb-3"><Trophy size={20} /></div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Celkem Pozvánek</div>
+                    <div className="text-2xl font-black text-purple-500 italic">{referrals.length}</div>
+                  </div>
+
+                  <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl relative overflow-hidden group">
+                    <div className="size-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 mb-3"><Settings2 size={20} /></div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Aktivní Prostředí</div>
+                    <div className={cn("text-lg font-black uppercase italic mt-0.5", isProdDb ? "text-rose-500" : "text-amber-500")}>
+                      {isProdDb ? 'PRODUKCE' : 'TEST (DEV)'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dashboard Columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {/* Column 1: Recent Registered Players - High density list */}
+                  <div className="space-y-3">
+                    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-1.5">
+                      <Clock size={14} className="text-cyan-400" /> Poslední registrovaní
+                    </h2>
+                    <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
+                      {players
+                        .filter(p => p.updatedAt > 0)
+                        .sort((a, b) => b.updatedAt - a.updatedAt)
+                        .slice(0, 8)
+                        .map(p => (
+                          <div 
+                            key={p.id} 
+                            onClick={() => { setActiveTab('users'); setSelectedPlayerId(p.id); }}
+                            className="flex items-center justify-between pt-2 pb-1 first:pt-1 last:pb-1 px-2 cursor-pointer hover:bg-white/5 rounded-xl transition-all group"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden relative shrink-0">
+                                <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" alt="Avatar" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[11px] font-black text-white uppercase truncate flex items-center gap-1 group-hover:text-primary transition-colors">
+                                  {p.name || 'Lovec'}
+                                </div>
+                                <div className="text-[8px] text-slate-500 font-mono leading-none mt-0.5">ID: {p.id}</div>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 ml-2">
+                              <div className="text-[10px] font-black text-primary leading-none">Lv {p.level}</div>
+                              <div className="text-[8px] text-slate-500 mt-1 leading-none">
+                                {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('cs-CZ') : 'Neznámé'}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </div>
+
+                  {/* Column 2: Recent Active Players - High density list */}
+                  <div className="space-y-3">
+                    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-1.5">
+                      <Users size={14} className="text-primary" /> Poslední aktivní hráči
+                    </h2>
+                    <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
+                      {players.slice(0, 8).map(p => (
+                        <div 
+                          key={p.id} 
+                          onClick={() => { setActiveTab('users'); setSelectedPlayerId(p.id); }}
+                          className="flex items-center justify-between pt-2 pb-1 first:pt-1 last:pb-1 px-2 cursor-pointer hover:bg-white/5 rounded-xl transition-all group"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden relative shrink-0">
+                              <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" alt="Avatar" />
+                              {p.isOnline && (
+                                <div className="absolute -bottom-0.5 -right-0.5 size-2 bg-emerald-500 border-2 border-slate-950 rounded-full" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-black text-white uppercase truncate flex items-center gap-1 group-hover:text-primary transition-colors">
+                                {p.name || 'Lovec'}
+                                {p.isBlocked && <span className="text-[7px] text-rose-500 bg-rose-500/10 px-0.5 rounded leading-none shrink-0 border border-rose-500/20">BLOK</span>}
+                              </div>
+                              <div className="text-[8px] text-slate-500 font-mono leading-none mt-0.5">ID: {p.id}</div>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-[10px] font-black text-primary leading-none">Lv {p.level}</div>
+                            <div className="text-[8px] text-slate-500 mt-1 leading-none">{renderTimeBadge(p.lastActive)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Column 3: TOP Players - High density list sorted by unique monster species */}
+                  <div className="space-y-3">
+                    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-1.5">
+                      <Trophy size={14} className="text-amber-400" /> TOP Hráči (Unikátní druhy)
+                    </h2>
+                    <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
+                      {players
+                        .map(p => ({
+                          ...p,
+                          uniqueCount: p.caughtMonsters ? new Set(p.caughtMonsters.map((m: any) => m.id)).size : 0
+                        }))
+                        .sort((a, b) => b.uniqueCount - a.uniqueCount)
+                        .slice(0, 8)
+                        .map((p, rank) => (
+                          <div 
+                            key={p.id} 
+                            onClick={() => { setActiveTab('users'); setSelectedPlayerId(p.id); }}
+                            className="flex items-center justify-between pt-2 pb-1 first:pt-1 last:pb-1 px-2 cursor-pointer hover:bg-white/5 rounded-xl transition-all group"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="text-[10px] font-black text-amber-500 w-4 text-center shrink-0">
+                                {rank + 1}.
+                              </div>
+                              <div className="size-8 rounded-lg bg-slate-800 border border-white/10 overflow-hidden relative shrink-0">
+                                <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" alt="Avatar" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[11px] font-black text-white uppercase truncate flex items-center gap-1 group-hover:text-primary transition-colors">
+                                  {p.name || 'Lovec'}
+                                </div>
+                                <div className="text-[8px] text-slate-500 font-mono leading-none mt-0.5">ID: {p.id}</div>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 ml-2">
+                              <div className="text-[10px] font-black text-emerald-400 leading-none">
+                                {p.uniqueCount} druhů
+                              </div>
+                              <div className="text-[8px] text-slate-500 mt-1 leading-none">
+                                Celkem: {p.caughtMonsters?.length || 0}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </div>
+
+                  {/* Column 4: Recent Invitations - High density list */}
+                  <div className="space-y-3">
+                    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-1.5">
+                      <Trophy size={14} className="text-purple-500" /> Poslední pozvánky a doporučení
+                    </h2>
+                    <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
+                      {referrals.length === 0 ? (
+                        <div className="py-8 text-center opacity-25 italic text-[10px] uppercase tracking-wider">Žádné pozvánky v databázi</div>
+                      ) : (
+                        referrals.slice(0, 8).map((refEntry, idx) => {
+                          const referrer = players.find(p => p.id === refEntry.referrerId);
+                          const isRegistered = refEntry.status === 'registered' || !!refEntry.registeredUid;
+                          return (
+                            <div key={idx} className="flex items-center justify-between pt-2 first:pt-0">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="size-8 bg-black/40 rounded-lg border border-white/5 flex items-center justify-center text-[11px] shrink-0">
+                                  {refEntry.hatchClaimed ? '👑' : '🥚'}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-[11px] font-black text-white uppercase leading-none">
+                                    {getLoc(refEntry.name, 'cz') || refEntry.email?.split('@')[0] || 'Neznámý'}
+                                  </div>
+                                  <div className="text-[8px] text-slate-500 truncate leading-none mt-1">
+                                    Od: <span className="font-bold text-slate-400">{referrer?.name || refEntry.referrerId}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0 ml-3">
+                                <span className={cn(
+                                  "px-1.5 py-0.5 rounded text-[7px] font-black uppercase leading-none border",
+                                  isRegistered ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-slate-800 text-slate-500 border-transparent"
+                                )}>
+                                  {isRegistered ? `Lv ${refEntry.level || 0}` : 'PENDING'}
+                                </span>
+                                <div className="text-[8px] text-slate-500 mt-1 leading-none">
+                                  {refEntry.timestamp ? new Date(refEntry.timestamp).toLocaleDateString('cs-CZ') : 'Neznámé datum'}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {activeTab === 'monsters' && (
               <MonsterEditorTab
+                monsters={monsters}
+                setMonsters={setMonsters}
+                selectedMonsterId={selectedMonsterId}
+                setSelectedMonsterId={setSelectedMonsterId}
+                handleAddNewMonster={handleAddNewMonster}
                 monsterForm={monsterForm}
                 setMonsterForm={setMonsterForm}
                 MONSTER_TYPES={MONSTER_TYPES}
@@ -652,6 +895,65 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                   }
                 }}
               />
+            )}
+            {activeTab === 'settings' && (
+              <div className="max-w-4xl space-y-6">
+                <div className="bg-slate-900 border border-white/5 rounded-3xl p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" />
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-black text-white uppercase tracking-tight italic">Aktivní Prostředí</h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 leading-none">Všechny operace zálohování a obnovy budou provedeny v tomto prostředí.</p>
+                    </div>
+                    <div className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border", isProdDb ? "bg-rose-500/10 border-rose-500/20 text-rose-500" : "bg-amber-500/10 border-amber-500/20 text-amber-500")}>
+                      {isProdDb ? 'PRODUKCE' : 'TEST (DEV)'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Backup Card */}
+                  <div className="bg-slate-900 border border-white/5 p-6 rounded-3xl flex flex-col justify-between h-64">
+                    <div>
+                      <div className="size-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4"><Download size={22} /></div>
+                      <h4 className="text-sm font-black text-white uppercase tracking-wider">Záloha databáze (Export)</h4>
+                      <p className="text-[10px] text-slate-500 leading-normal mt-2">
+                        Stáhne kompletní kopii aktivní databáze (uživatelské profily, chycená monstra, batoh, pozvánky, atd.) jako soubor `.json` do vašeho počítače.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleBackupDatabase}
+                      disabled={isBackingUp}
+                      className="w-full py-3.5 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isBackingUp ? 'Zálohuji...' : <><Download size={14} /> Stáhnout Zálohu (JSON)</>}
+                    </button>
+                  </div>
+
+                  {/* Restore Card */}
+                  <div className="bg-slate-900 border border-white/5 p-6 rounded-3xl flex flex-col justify-between h-64 border-t-rose-500/20">
+                    <div>
+                      <div className="size-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 mb-4"><Upload size={22} /></div>
+                      <h4 className="text-sm font-black text-white uppercase tracking-wider">Obnova databáze (Import)</h4>
+                      <p className="text-[10px] text-rose-500 font-bold uppercase leading-normal mt-2">
+                        ⚠️ VAROVÁNÍ: Nahráním zálohy kompletně přepíšete aktuální databázi v aktivním prostředí. Stávající data budou nevratně přepsána.
+                      </p>
+                    </div>
+                    <label className={cn(
+                      "w-full py-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 text-center",
+                      isRestoring && "opacity-50 pointer-events-none"
+                    )}>
+                      {isRestoring ? 'Obnovuji...' : <><Upload size={14} /> Nahrát a Obnovit Databázi</>}
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleRestoreDatabase}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             )}
 
           </AnimatePresence>

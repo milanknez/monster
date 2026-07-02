@@ -56,8 +56,11 @@ const getProdConfig = () => {
     return config;
 };
 
-// Pokud je nastaveno VITE_FIREBASE_DB_ENV na 'production', použije se produkční databáze (jinak vývojová).
-export const isProdDb = import.meta.env.VITE_FIREBASE_DB_ENV === 'production';
+// Pokud je nastaveno VITE_FIREBASE_DB_ENV na 'production' nebo v localStorage, použije se produkční databáze (jinak vývojová).
+const storedEnv = typeof window !== 'undefined' ? localStorage.getItem('monster_admin_db_env') : null;
+export const isProdDb = storedEnv 
+    ? storedEnv === 'production' 
+    : import.meta.env.VITE_FIREBASE_DB_ENV === 'production';
 
 const firebaseConfig = (isProdDb && prodConfig.databaseURL !== "SEM_VLOZ_PRODUKCNI_DATABASE_URL") 
     ? getProdConfig() 

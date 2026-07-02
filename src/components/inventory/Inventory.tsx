@@ -215,14 +215,14 @@ export const Inventory = ({
                 <div className={cn(
                   "size-12 rounded-xl border flex items-center justify-center shadow-lg",
                   RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'legendary' ? "border-amber-500/50 bg-amber-500/10" :
-                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'epic' ? "border-purple-500/50 bg-purple-500/10" :
-                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'rare' ? "border-blue-500/50 bg-blue-500/10" :
-                  "border-white/10 bg-slate-700"
+                    RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'epic' ? "border-purple-500/50 bg-purple-500/10" :
+                      RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'rare' ? "border-blue-500/50 bg-blue-500/10" :
+                        "border-white/10 bg-slate-700"
                 )}>
-                  <ResourceIcon 
-                    id={inventory[draggedIdx]!.type} 
-                    config={RESOURCE_CONFIG[inventory[draggedIdx]!.type]!} 
-                    size="md" 
+                  <ResourceIcon
+                    id={inventory[draggedIdx]!.type}
+                    config={RESOURCE_CONFIG[inventory[draggedIdx]!.type]!}
+                    size="md"
                   />
                 </div>
                 <div>
@@ -249,7 +249,7 @@ export const Inventory = ({
             <div className="flex gap-2">
               <AnimatePresence mode="wait">
                 {isConfirmingDiscard ? (
-                  <motion.div 
+                  <motion.div
                     key="confirm"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -273,7 +273,7 @@ export const Inventory = ({
                     </motion.button>
                   </motion.div>
                 ) : (
-                  <motion.div 
+                  <motion.div
                     key="actions"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}

@@ -73,7 +73,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
             const theme = RARITY_THEME[RARITY_MAP[r]];
             const label = r === 'all' ? t('bestiary.filter_all') : getLoc(systemValues.monsterRarities.find((mr: any) => (typeof mr === 'object' ? mr.cz : mr) === r), i18n.language);
             const firstLetterClass = theme ? theme.text : "text-primary";
-            
+
             return (
               <button
                 key={r}

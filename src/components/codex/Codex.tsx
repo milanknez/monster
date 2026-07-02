@@ -111,7 +111,7 @@ export const Laboratory = ({
             const active = craftingRecipeId === recipe.id;
             const config = RESOURCE_CONFIG[recipe.result.id];
             const rarity = config?.rarity || 'Běžná';
-            
+
             return (
               <motion.div
                 layout
@@ -127,8 +127,8 @@ export const Laboratory = ({
                     ? "bg-slate-900 border-secondary/30"
                     : "bg-slate-900/40 border-white/5 opacity-80",
                   rarity === 'legendary' ? "border-amber-500/50" :
-                  rarity === 'epic' ? "border-purple-500/50" :
-                  rarity === 'rare' ? "border-blue-500/50" : ""
+                    rarity === 'epic' ? "border-purple-500/50" :
+                      rarity === 'rare' ? "border-blue-500/50" : ""
                 )}
               >
                 {/* Card Content */}
@@ -137,9 +137,9 @@ export const Laboratory = ({
                     <div className={cn(
                       "size-11 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg overflow-hidden",
                       rarity === 'legendary' ? "border-amber-500 bg-amber-500/10 shadow-amber-500/5" :
-                      rarity === 'epic' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
-                      rarity === 'rare' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
-                      "bg-slate-800 border-white/10"
+                        rarity === 'epic' ? "border-purple-500 bg-purple-500/10 shadow-purple-500/5" :
+                          rarity === 'rare' ? "border-blue-500 bg-blue-500/10 shadow-blue-500/5" :
+                            "bg-slate-800 border-white/10"
                     )}>
                       <ResourceIcon id={recipe.result.id} config={RESOURCE_CONFIG[recipe.result.id] as any} size="md" className="w-full h-full" />
                     </div>
@@ -151,7 +151,7 @@ export const Laboratory = ({
                   <h3 className="text-[11px] font-black text-white uppercase italic leading-tight mb-1">
                     {recipe.name}
                   </h3>
-                  
+
                   <p className="text-[9px] text-slate-500 font-bold mb-3 line-clamp-2 leading-tight h-7">
                     {recipe.description}
                   </p>
@@ -197,7 +197,7 @@ export const Laboratory = ({
                       onClick={() => ready && startCrafting(recipe)}
                       className={cn(
                         "mt-auto w-full py-2.5 rounded-xl font-black uppercase text-[9px] tracking-widest transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-lg",
-                        ready 
+                        ready
                           ? "bg-gradient-to-r from-secondary to-blue-600 text-white shadow-secondary/10"
                           : "bg-slate-800 text-slate-600 cursor-not-allowed"
                       )}

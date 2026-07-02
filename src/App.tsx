@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, Trophy, ShoppingBag, Bluetooth, SignalHigh, RefreshCw, Sword, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -28,8 +28,11 @@ import { TradeSelectionModal } from './components/modals/TradeSelectionModal'
 import { SettingsModal } from './components/modals/SettingsModal'
 import { pickLevel, pickMonster } from './components/map/mapUtils'
 import { Store } from './components/bestiary/Store'
-import { SystemEditor } from './components/admin/SystemEditor'
 import { GooglePayModal } from './components/modals/GooglePayModal'
+
+const SystemEditor = import.meta.env.DEV
+  ? lazy(() => import('./components/admin/SystemEditor').then(m => ({ default: m.SystemEditor })))
+  : () => null;
 import { DuelSelectionModal } from './components/modals/DuelSelectionModal'
 import { TestEndedModal } from './components/modals/TestEndedModal'
 import { BlockedUserScreen } from './components/modals/BlockedUserScreen'
@@ -132,7 +135,10 @@ function AppContent() {
   })
 
   const [isEditorMode, setIsEditorMode] = useState(() => {
-    return new URLSearchParams(window.location.search).get('editor') === '1'
+    if (!import.meta.env.DEV) return false;
+    return new URLSearchParams(window.location.search).get('editor') === '1' ||
+      window.location.pathname === '/admin' ||
+      window.location.pathname === '/admin/';
   })
 
   const [isDebugMode, setIsDebugMode] = useState(false)
@@ -166,10 +172,10 @@ function AppContent() {
     const originalWarn = console.warn;
 
     const addLog = (type: DebugLog['type'], args: any[]) => {
-      const message = args.map(arg => 
+      const message = args.map(arg =>
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');
-      
+
       setLogs(prev => [{
         id: Math.random().toString(36).substr(2, 9),
         type,
@@ -342,7 +348,7 @@ function AppContent() {
       if (updated && JSON.stringify(updated) !== JSON.stringify(selectedMonster)) {
         setSelectedMonster(updated);
       }
-      
+
       // Lock body scroll when detail is open
       document.body.style.overflow = 'hidden';
       document.body.style.height = '100vh';
@@ -362,36 +368,36 @@ function AppContent() {
     // Helper: process and save a referral code from any source
     const processReferralCode = async (code: string, source: string) => {
       if (!code || code.includes('utm_source')) return;
-      
+
       console.log(`[Referral] Kód přijat z ${source}:`, code);
-      
+
       // Pokusíme se vyřešit kód (pokud je to krátký kód, převede se na UID)
       const resolvedUid = await resolveReferralCode(code);
       console.log(`[Referral] Kód po vyřešení (${source}):`, resolvedUid);
 
       const savedRef = localStorage.getItem('pending_referral');
       if (savedRef === resolvedUid) {
-          // I když je v localStorage, ujistíme se, že je i ve stavu
-          if (!pendingReferral) setPendingReferral(resolvedUid);
-          return; 
+        // I když je v localStorage, ujistíme se, že je i ve stavu
+        if (!pendingReferral) setPendingReferral(resolvedUid);
+        return;
       }
-      
+
       localStorage.setItem('pending_referral', resolvedUid);
       setPendingReferral(resolvedUid);
       setReferredBy(resolvedUid);
-      
+
       // Pokud je uživatel už přihlášen a referral ještě nebyl zaregistrován,
       // zaregistrujeme ho ihned (řeší race condition kdy referrer přijde pozdě)
       if (userUid && userUid !== resolvedUid && playerName) {
         if (currentLevel < 2) {
           console.log(`[Referral] Okamžitá registrace: ${resolvedUid} → ${userUid}`);
           const isNew = await registerReferral(resolvedUid, userUid, playerName, playerEmail || undefined);
-          
+
           if (isNew) {
-            addToast({ 
-              title: 'Pozvánka přijata!', 
-              message: 'Byl jsi úspěšně spárován s lovcem. Odměna tě čeká na 3. úrovni!', 
-              type: 'success' 
+            addToast({
+              title: 'Pozvánka přijata!',
+              message: 'Byl jsi úspěšně spárován s lovcem. Odměna tě čeká na 3. úrovni!',
+              type: 'success'
             });
           }
         } else {
@@ -399,10 +405,10 @@ function AppContent() {
           // Toast ukážeme jen pokud to přišlo z URL/Deep linku (manuální akce), 
           // ne při každém spuštění z automatického referreru.
           if (source === 'URL' || source === 'Deep Link') {
-            addToast({ 
-              title: 'Pozvánka neaplikována', 
-              message: 'Omlouváme se, pozvánky jsou určeny pouze pro nově začínající lovce.', 
-              type: 'info' 
+            addToast({
+              title: 'Pozvánka neaplikována',
+              message: 'Omlouváme se, pozvánky jsou určeny pouze pro nově začínající lovce.',
+              type: 'info'
             });
           }
         }
@@ -414,6 +420,38 @@ function AppContent() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     const urlLang = urlParams.get('lang');
+    const importData = urlParams.get('import');
+
+    if (importData) {
+      try {
+        const binString = atob(decodeURIComponent(importData));
+        const utf8Bytes = new Uint8Array(binString.length);
+        for (let i = 0; i < binString.length; i++) {
+          utf8Bytes[i] = binString.charCodeAt(i);
+        }
+        const jsonStr = new TextDecoder().decode(utf8Bytes);
+        const data = JSON.parse(jsonStr);
+
+        if (data && data.uid) {
+          localStorage.setItem('monster_collector_uid', data.uid);
+          localStorage.setItem('monster_collector_player_name', data.playerName || 'Lovec');
+          if (data.avatarStyle) localStorage.setItem('monster_collector_avatar_style', data.avatarStyle);
+          if (data.avatarSeed) localStorage.setItem('monster_collector_avatar_seed', data.avatarSeed);
+          if (data.totalXP !== undefined) localStorage.setItem('monster_collector_xp', String(data.totalXP));
+          if (data.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(data.caughtMonsters));
+          if (data.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+          
+          alert('Váš herní postup byl úspěšně přenesen! Hra se nyní restartuje.');
+          window.location.href = window.location.origin + window.location.pathname;
+        } else {
+          alert('Chyba: Neplatný formát dat pro import.');
+        }
+      } catch (err: any) {
+        console.error(err);
+        alert('Chyba při importu dat: Odkaz je poškozený nebo neúplný.');
+      }
+      return;
+    }
 
     if (urlLang && ['cz', 'en', 'sk'].includes(urlLang)) {
       i18n.changeLanguage(urlLang);
@@ -425,7 +463,7 @@ function AppContent() {
       window.history.replaceState({}, '', newUrl);
     }
 
-    // 2. Handle Native Deep Links (monsterapp://invite?ref=CODE)
+    // 2. Handle Native Deep Links (monsterapp://invite?ref=CODE or Universal Links)
     const handleDeepLink = (event: any) => {
       try {
         const url = new URL(event.url);
@@ -433,35 +471,59 @@ function AppContent() {
         if (ref) {
           processReferralCode(ref, 'Deep Link');
         }
+
+        const importData = url.searchParams.get('import');
+        if (importData) {
+          const binString = atob(decodeURIComponent(importData));
+          const utf8Bytes = new Uint8Array(binString.length);
+          for (let i = 0; i < binString.length; i++) {
+            utf8Bytes[i] = binString.charCodeAt(i);
+          }
+          const jsonStr = new TextDecoder().decode(utf8Bytes);
+          const data = JSON.parse(jsonStr);
+
+          if (data && data.uid) {
+            localStorage.setItem('monster_collector_uid', data.uid);
+            localStorage.setItem('monster_collector_player_name', data.playerName || 'Lovec');
+            if (data.avatarStyle) localStorage.setItem('monster_collector_avatar_style', data.avatarStyle);
+            if (data.avatarSeed) localStorage.setItem('monster_collector_avatar_seed', data.avatarSeed);
+            if (data.totalXP !== undefined) localStorage.setItem('monster_collector_xp', String(data.totalXP));
+            if (data.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(data.caughtMonsters));
+            if (data.inventory) localStorage.setItem('monster_collector_inventory', JSON.stringify(data.inventory));
+            
+            alert('Váš herní postup byl úspěšně přenesen do aplikace! Hra se nyní restartuje.');
+            window.location.reload();
+          }
+        }
       } catch (e) {
         console.error('Deep link error:', e);
       }
     };
 
     CapApp.addListener('appUrlOpen', handleDeepLink);
-    
+
     // 3. Handle Native Install Referrer (Google Play)
     const handleInstallReferrer = (event: any) => {
       try {
         console.log('[Referral] Nativní event přijat:', event);
-        
+
         // Event může přijít jako CustomEvent s detail (Capacitor), nebo jako Capacitor event
         const rawData = event.detail || event;
         let data = rawData;
-        
+
         if (typeof rawData === 'string') {
           try {
             data = JSON.parse(rawData);
-          } catch(e) {
+          } catch (e) {
             // Není to JSON, zkusíme jestli to není přímo kód
             data = { referrer: rawData };
           }
         }
-        
+
         let code = data.referrer || data.value || (typeof data === 'string' ? data : null);
-        
+
         console.log('[Referral] Nativní kód k zpracování:', code);
-        
+
         if (code) {
           // Google Play referrer formát: "ref=FIREBASE_UID" (URL-encoded)
           if (typeof code === 'string' && code.includes('=')) {
@@ -473,7 +535,7 @@ function AppContent() {
               console.warn("[Referral] Chyba při parsování referrer parametrů");
             }
           }
-          
+
           processReferralCode(code, 'Google Play Referrer');
         }
       } catch (e) {
@@ -507,7 +569,7 @@ function AppContent() {
         const refFromUrl = pendingReferral || localStorage.getItem('pending_referral');
         const referrerUidMatch = firebaseUser.email ? await checkEmailInvitation(firebaseUser.email) : null;
         const finalRef = refFromUrl || referrerUidMatch;
-        
+
         console.log('[Referral/Auth] uid:', firebaseUser.uid, 'finalRef:', finalRef, 'refFromUrl:', refFromUrl, 'emailMatch:', referrerUidMatch);
 
         // Online Backup Recovery
@@ -517,24 +579,24 @@ function AppContent() {
           setPlayerName(backup.playerName);
           setAvatarStyle(backup.avatarStyle);
           setAvatarSeed(backup.avatarSeed);
-          
+
           // Pokud byl uživatel pozván (ale v backupu to není), zaregistrujeme referral
           const backupRef = backup.referredBy || finalRef;
           if (backupRef) {
             console.log('[Referral/Auth] Nastavuji referredBy z backupu:', backupRef);
             setReferredBy(backupRef);
           }
-          
+
           if (finalRef && finalRef !== firebaseUser.uid && !backup.referredBy && (backup.currentLevel || 1) < 2) {
             // Hráč má backup, ale referral ještě nebyl zaregistrován
             console.log('[Referral/Auth] Registrace referralu pro existujícího hráče (Level 1)');
             const isNew = await registerReferral(finalRef, firebaseUser.uid, backup.playerName || firebaseUser.displayName || 'Lovec', firebaseUser.email);
             if (isNew) {
-                addToast({ title: 'Pozvánka přijata!', message: 'Byl jsi úspěšně spárován s lovcem.', type: 'success' });
+              addToast({ title: 'Pozvánka přijata!', message: 'Byl jsi úspěšně spárován s lovcem.', type: 'success' });
             }
             localStorage.removeItem('pending_referral');
           }
-          
+
           // Note: hooks like usePlayerXP/useMonsters also need to be synced
           // For now, we update localStorage so hooks pick it up on reload or next sync
           localStorage.setItem('monster_collector_player_name', backup.playerName);
@@ -593,6 +655,7 @@ function AppContent() {
         const now = Date.now();
         await saveUserBackup(userUid, {
           playerName,
+          email: playerEmail,
           avatarStyle,
           avatarSeed,
           totalXP,
@@ -607,7 +670,7 @@ function AppContent() {
       }, 60000); // Back up every minute
       return () => clearInterval(interval);
     }
-  }, [user, userUid, playerName, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
+  }, [user, userUid, playerName, playerEmail, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
 
   // Automatická synchronizace progressu k referrerovi (Milanovi)
   useEffect(() => {
@@ -660,7 +723,7 @@ function AppContent() {
       if (!isFirstReferralLoad.current) {
         list.forEach(refEntry => {
           const previousData = referrals.find(r => r.uid === refEntry.uid);
-          
+
           // 1. Nová registrace (přechod z levelu 0 na level 1+)
           if (refEntry.level >= 1 && (!previousData || previousData.level === 0)) {
             addToast({
@@ -803,7 +866,7 @@ function AppContent() {
     (window as any).givePlayerXP = (amt = 200) => {
       addXP(amt);
     };
-    
+
     return () => {
       delete (window as any).addGems;
       delete (window as any).giveXP;
@@ -999,17 +1062,17 @@ function AppContent() {
       const amount = cfg.statsType === 'perc' ? 100 : cfg.stats.hp; // Since max HP is 100 (for player)
       healHP(amount);
       if (caughtMonsters.length > 0) updateMonsterHP(0, amount);
-      addToast({ 
-        title: t('toasts.item_used', { name: label }), 
-        message: t('toasts.hp_healed', { amount: cfg.statsType === 'perc' ? cfg.stats.hp + '%' : amount }), 
-        type: 'success' 
+      addToast({
+        title: t('toasts.item_used', { name: label }),
+        message: t('toasts.hp_healed', { amount: cfg.statsType === 'perc' ? cfg.stats.hp + '%' : amount }),
+        type: 'success'
       });
     }
     if (cfg.stats?.energy) {
-      addToast({ 
-        title: t('toasts.item_used', { name: label }), 
-        message: t('toasts.energy_restored'), 
-        type: 'info' 
+      addToast({
+        title: t('toasts.item_used', { name: label }),
+        message: t('toasts.energy_restored'),
+        type: 'info'
       });
     }
 
@@ -1216,10 +1279,12 @@ function AppContent() {
 
   if (isEditorMode) {
     return (
-      <SystemEditor onBack={() => {
-        window.history.pushState({}, '', window.location.pathname);
-        setIsEditorMode(false);
-      }} />
+      <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">Načítám administraci...</div>}>
+        <SystemEditor onBack={() => {
+          window.history.pushState({}, '', window.location.pathname);
+          setIsEditorMode(false);
+        }} />
+      </Suspense>
     )
   }
 
@@ -1376,9 +1441,9 @@ function AppContent() {
 
       <main className="mx-auto relative w-full max-w-md md:max-w-lg">
         {/* Main Tabs - Always mounted to preserve scroll state */}
-        <div 
+        <div
           className={cn(
-            "w-full transition-all duration-300", 
+            "w-full transition-all duration-300",
             selectedMonster && "opacity-0 scale-95 blur-md pointer-events-none"
           )}
         >
@@ -1503,7 +1568,7 @@ function AppContent() {
         <AnimatePresence>
           {selectedMonster && (
             <div className="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: '100%' }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: '100%' }}
@@ -1511,93 +1576,93 @@ function AppContent() {
                 className="w-full max-w-lg h-full bg-slate-900 overflow-y-auto relative scrollbar-hide"
               >
                 <MonsterDetail
-                key="detail"
-                monster={selectedMonster}
-                canRelease={caughtMonsters.length > 1}
-                onBack={() => setSelectedMonster(null)}
-                inventory={inventory}
-                onUsePotion={(type: string) => {
-                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                  if (idx !== -1) {
-                    const cfg = RESOURCE_CONFIG[type];
-                    if (cfg && cfg.stats?.hp) {
-                      updateMonsterHP(idx, cfg.stats.hp);
-                      consumeResources([{ type: type as any, count: 1 }]);
-                      addToast({ 
-                        title: t('toasts.monster_healed'), 
-                        message: t('toasts.monster_healed_msg', { amount: cfg.stats.hp }), 
-                        type: 'success' 
+                  key="detail"
+                  monster={selectedMonster}
+                  canRelease={caughtMonsters.length > 1}
+                  onBack={() => setSelectedMonster(null)}
+                  inventory={inventory}
+                  onUsePotion={(type: string) => {
+                    const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                    if (idx !== -1) {
+                      const cfg = RESOURCE_CONFIG[type];
+                      if (cfg && cfg.stats?.hp) {
+                        updateMonsterHP(idx, cfg.stats.hp);
+                        consumeResources([{ type: type as any, count: 1 }]);
+                        addToast({
+                          title: t('toasts.monster_healed'),
+                          message: t('toasts.monster_healed_msg', { amount: cfg.stats.hp }),
+                          type: 'success'
+                        });
+                      }
+                    }
+                  }}
+                  onEquipGem={(gemIdx, type) => {
+                    const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                    if (idx !== -1) {
+                      const oldGem = caughtMonsters[idx].gems?.[gemIdx];
+                      equipGem(idx, gemIdx, type);
+                      const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
+                      newGems[gemIdx] = type;
+                      const updated = { ...caughtMonsters[idx], gems: newGems };
+                      setSelectedMonster(updated);
+                      if (type) consumeResources([{ type: type as any, count: 1 }]);
+                      if (oldGem) addResource(oldGem as any, 1);
+                      addToast({
+                        title: type ? t('toasts.gem_inserted') : t('toasts.gem_removed'),
+                        message: type ? t('toasts.gem_inserted_msg') : t('toasts.gem_removed_msg'),
+                        type: 'success'
                       });
                     }
-                  }
-                }}
-                onEquipGem={(gemIdx, type) => {
-                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                  if (idx !== -1) {
-                    const oldGem = caughtMonsters[idx].gems?.[gemIdx];
-                    equipGem(idx, gemIdx, type);
-                    const newGems = [...(caughtMonsters[idx].gems || [null, null, null])];
-                    newGems[gemIdx] = type;
-                    const updated = { ...caughtMonsters[idx], gems: newGems };
-                    setSelectedMonster(updated);
-                    if (type) consumeResources([{ type: type as any, count: 1 }]);
-                    if (oldGem) addResource(oldGem as any, 1);
-                    addToast({
-                      title: type ? t('toasts.gem_inserted') : t('toasts.gem_removed'),
-                      message: type ? t('toasts.gem_inserted_msg') : t('toasts.gem_removed_msg'),
-                      type: 'success'
-                    });
-                  }
-                }}
-                onEquipItem={(itemIdx, type) => {
-                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                  if (idx !== -1) {
-                    const oldItem = caughtMonsters[idx].items?.[itemIdx];
-                    equipItem(idx, itemIdx, type);
-                    const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
-                    newItems[itemIdx] = type;
-                    const updated = { ...caughtMonsters[idx], items: newItems };
-                    setSelectedMonster(updated);
-                    if (type) consumeResources([{ type: type as any, count: 1 }]);
-                    if (oldItem) addResource(oldItem as any, 1);
-                    addToast({
-                      title: type ? t('toasts.relic_inserted') : t('toasts.relic_removed'),
-                      message: type ? t('toasts.relic_inserted_msg') : t('toasts.relic_removed_msg'),
-                      type: 'success'
-                    });
-                  }
-                }}
-                onPermanentlyUpgrade={(itemType: string, stats: any) => {
-                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
-                  if (idx !== -1) {
-                    updateMonsterStats(idx, stats, itemType);
-                    consumeResources([{ type: itemType as any, count: 1 }]);
-                    addToast({
-                      title: t('toasts.mutation_title'),
-                      message: t('toasts.mutation_msg', { name: getLoc(selectedMonster.name) }),
-                      type: 'success'
-                    });
-                  }
-                }}
-                onRelease={() => {
-                  const idx = caughtMonsters.findIndex(m =>
-                    ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
-                    (m.id === selectedMonster.id)
-                  );
-                  if (idx !== -1) {
-                    removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
-                    setSelectedMonster(null);
-                    addToast({ title: t('toasts.released'), message: t('toasts.released_msg', { name: getLoc(selectedMonster.name) }), type: 'info' });
-                  } else {
-                    const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
-                    if (fallbackIdx !== -1) {
-                      removeMonster(selectedMonster.id);
+                  }}
+                  onEquipItem={(itemIdx, type) => {
+                    const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                    if (idx !== -1) {
+                      const oldItem = caughtMonsters[idx].items?.[itemIdx];
+                      equipItem(idx, itemIdx, type);
+                      const newItems = [...(caughtMonsters[idx].items || [null, null, null])];
+                      newItems[itemIdx] = type;
+                      const updated = { ...caughtMonsters[idx], items: newItems };
+                      setSelectedMonster(updated);
+                      if (type) consumeResources([{ type: type as any, count: 1 }]);
+                      if (oldItem) addResource(oldItem as any, 1);
+                      addToast({
+                        title: type ? t('toasts.relic_inserted') : t('toasts.relic_removed'),
+                        message: type ? t('toasts.relic_inserted_msg') : t('toasts.relic_removed_msg'),
+                        type: 'success'
+                      });
+                    }
+                  }}
+                  onPermanentlyUpgrade={(itemType: string, stats: any) => {
+                    const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                    if (idx !== -1) {
+                      updateMonsterStats(idx, stats, itemType);
+                      consumeResources([{ type: itemType as any, count: 1 }]);
+                      addToast({
+                        title: t('toasts.mutation_title'),
+                        message: t('toasts.mutation_msg', { name: getLoc(selectedMonster.name) }),
+                        type: 'success'
+                      });
+                    }
+                  }}
+                  onRelease={() => {
+                    const idx = caughtMonsters.findIndex(m =>
+                      ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
+                      (m.id === selectedMonster.id)
+                    );
+                    if (idx !== -1) {
+                      removeMonster(selectedMonster.id, (selectedMonster as any).caughtAt);
                       setSelectedMonster(null);
                       addToast({ title: t('toasts.released'), message: t('toasts.released_msg', { name: getLoc(selectedMonster.name) }), type: 'info' });
+                    } else {
+                      const fallbackIdx = caughtMonsters.findIndex(m => m.id === selectedMonster.id);
+                      if (fallbackIdx !== -1) {
+                        removeMonster(selectedMonster.id);
+                        setSelectedMonster(null);
+                        addToast({ title: t('toasts.released'), message: t('toasts.released_msg', { name: getLoc(selectedMonster.name) }), type: 'info' });
+                      }
                     }
-                  }
-                }}
-              />
+                  }}
+                />
               </motion.div>
             </div>
           )}
@@ -1985,10 +2050,10 @@ function AppContent() {
         referralCode={userUid}
       />
 
-      <DebugConsole 
-        isOpen={isConsoleOpen} 
-        onClose={() => setIsConsoleOpen(false)} 
-        logs={logs} 
+      <DebugConsole
+        isOpen={isConsoleOpen}
+        onClose={() => setIsConsoleOpen(false)}
+        logs={logs}
         onClear={() => setLogs([])}
         onCheat={handleCheat}
         onToggleLegacy={() => {
@@ -2002,7 +2067,7 @@ function AppContent() {
   async function handleProfileComplete(name: string, email?: string, referralCode?: string, overrideUid?: string) {
     // Použijeme explicitně předané UID z login procesu, abychom se vyhnuli race conditions
     const currentUid = overrideUid || userUid;
-    
+
     setPlayerName(name)
     localStorage.setItem('monster_collector_player_name', name)
     if (email) {
@@ -2017,7 +2082,7 @@ function AppContent() {
         setReferredBy(resolvedRef);
         const isNew = await registerReferral(resolvedRef, currentUid, name, email);
         if (isNew) {
-            addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
+          addToast({ title: 'Pozvánka uložena!', message: 'Odměnu získáš až budeš na Lv. 3!', type: 'success' });
         }
       } else {
         addToast({ title: 'Pozvánka ignorována', message: 'Tento účet již není považován za nově registrovaný.', type: 'info' });
@@ -2037,7 +2102,7 @@ function AppContent() {
   async function handleHatchReferral(invitedUid: string) {
     try {
       if (!userUid) return;
-      
+
       // Pojistka proti vícenásobnému vybrání
       const referral = referrals.find(r => r.uid === invitedUid);
       if (referral?.hatchClaimed) {
