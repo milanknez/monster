@@ -1258,23 +1258,38 @@ function AppContent() {
 
   const StoreButton = () => (
     <motion.button
-      whileHover={{ scale: 1.02, translateY: -2 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.03, translateY: -3 }}
+      whileTap={{ scale: 0.97 }}
       onClick={() => setActiveTab('store')}
-      className="w-full mb-6 p-4 bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/20 rounded-2xl flex items-center justify-between group relative overflow-hidden"
+      className="w-full mb-6 p-4 bg-gradient-to-r from-amber-500/25 via-amber-500/5 to-amber-950/10 border border-amber-500/35 rounded-2xl flex items-center justify-between group relative overflow-hidden shadow-[0_4px_25px_rgba(245,158,11,0.08)] active:shadow-[0_2px_10px_rgba(245,158,11,0.08)] transition-all duration-300"
     >
-      <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+      {/* Shining effect overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/20 to-transparent pointer-events-none animate-rarity-glint" />
+      
       <div className="flex items-center gap-4 relative z-10">
-        <div className="size-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary shadow-[0_0_15px_rgba(13,185,242,0.2)]">
-          <ShoppingBag size={24} />
+        {/* Glowing Shop Icon Container */}
+        <div className="size-12 bg-gradient-to-br from-amber-400 to-yellow-300 rounded-xl flex items-center justify-center text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)] group-hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] transition-all duration-300">
+          <Sparkles size={24} className="animate-pulse" />
         </div>
-        <div className="text-left w-full">
-          <p className="text-[10px] font-black text-primary uppercase tracking-widest opacity-80">{t('admin.resources.title')}</p>
-          <h3 className=" text-lg font-black text-white uppercase italic leading-tight">{t('tabs.store')}</h3>
+        <div className="text-left">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-black text-white uppercase italic leading-none tracking-tight">
+              {t('tabs.store')}
+            </h3>
+            {/* Glowing Premium Badge */}
+            <span className="text-[8px] font-black text-slate-950 bg-gradient-to-r from-yellow-300 to-amber-400 px-1.5 py-0.5 rounded-full leading-none tracking-wider uppercase shadow-[0_0_10px_rgba(245,158,11,0.4)]">
+              PREMIUM
+            </span>
+          </div>
+          <p className="text-[10px] font-bold text-amber-400/90 uppercase tracking-wider mt-1 leading-tight">
+            {t('store.button_subtitle')}
+          </p>
         </div>
       </div>
-      <div className="size-8 bg-white/5 rounded-full flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors relative z-10">
-        <Sparkles size={16} className="group-hover:animate-spin-slow" />
+      
+      {/* Right trophy icon with glow */}
+      <div className="size-8 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-amber-400 group-hover:text-white group-hover:border-amber-400/50 group-hover:bg-amber-500/20 transition-all duration-300 relative z-10 shadow-[inner_0_0_4px_rgba(255,255,255,0.05)]">
+        <Trophy size={16} className="group-hover:scale-110 transition-transform" />
       </div>
     </motion.button>
   )

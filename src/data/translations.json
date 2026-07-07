@@ -222,7 +222,7 @@
         }
       },
       "resources": {
-        "title": "Resource Design",
+        "title": "Editor surovin",
         "search_placeholder": "Hledat item...",
         "all": "Vše",
         "categories": {
@@ -330,7 +330,7 @@
       "editor_title": "Editor Příšer",
       "user_management": "Správa Uživatelů",
       "lang_values": "Jazyky & Hodnoty",
-      "resource_design": "Resource Design",
+      "resource_design": "Editor surovin",
       "show_notes": "Zobrazit globální poznámky",
       "hide_notes": "Skrýt poznámky",
       "notes_placeholder": "Zde si můžete psát poznámky k balancování, TODO list nebo herní lore...",
@@ -344,7 +344,7 @@
       "bestiary": "Bestiář",
       "inventory": "Inventář",
       "world": "Svět",
-      "store": "Obchod",
+      "store": "Gobliní kartel",
       "laboratory": "Laboratoř"
     },
     "toasts": {
@@ -417,7 +417,8 @@
       "working": "EXTRAKCE..."
     },
     "store": {
-      "title": "Sektorový Obchod",
+      "button_subtitle": "Získej výhody a 2x rychlejší XP",
+      "title": "Gobliní kartel",
       "support": "Logistická Podpora",
       "status_iap": "STATUS IAP",
       "active_module": "Aktivní modul",
@@ -918,7 +919,7 @@
         }
       },
       "resources": {
-        "title": "Resource Design",
+        "title": "Resource Editor",
         "search_placeholder": "Search item...",
         "all": "All",
         "categories": {
@@ -1026,7 +1027,7 @@
       "editor_title": "Monster Editor",
       "user_management": "User Management",
       "lang_values": "Languages & Values",
-      "resource_design": "Resource Design",
+      "resource_design": "Resource Editor",
       "show_notes": "Show global notes",
       "hide_notes": "Hide notes",
       "notes_placeholder": "Write notes for balancing, TODO list or game lore here...",
@@ -1040,7 +1041,7 @@
       "bestiary": "Bestiary",
       "inventory": "Inventory",
       "world": "World",
-      "store": "Store",
+      "store": "Goblin Cartel",
       "laboratory": "Laboratory"
     },
     "toasts": {
@@ -1113,7 +1114,8 @@
       "working": "EXTRACTION..."
     },
     "store": {
-      "title": "Sector Store",
+      "button_subtitle": "Get advantages & 2x faster XP",
+      "title": "Goblin Cartel",
       "support": "Logistics Support",
       "status_iap": "IAP STATUS",
       "active_module": "Active module",
@@ -1615,7 +1617,7 @@
         }
       },
       "resources": {
-        "title": "Resource Design",
+        "title": "Editor surovín",
         "search_placeholder": "Hľadať item...",
         "all": "Všetko",
         "categories": {
@@ -1723,7 +1725,7 @@
       "editor_title": "Editor Príšer",
       "user_management": "Správa Užívateľov",
       "lang_values": "Jazyky & Hodnoty",
-      "resource_design": "Resource Design",
+      "resource_design": "Editor surovín",
       "show_notes": "Zobraziť globálne poznámky",
       "hide_notes": "Skryť poznámky",
       "notes_placeholder": "Sem si môžete písať poznámky k balancovaniu, TODO list alebo herný lore...",
@@ -1737,7 +1739,7 @@
       "bestiary": "Bestiár",
       "inventory": "Inventár",
       "world": "Svet",
-      "store": "Obchod",
+      "store": "Gobliní kartel",
       "laboratory": "Laboratórium"
     },
     "toasts": {
@@ -1810,7 +1812,8 @@
       "working": "EXTRAKCIA..."
     },
     "store": {
-      "title": "Sektorový Obchod",
+      "button_subtitle": "Získaj výhody a 2x rýchlejšie XP",
+      "title": "Gobliní kartel",
       "support": "Logistická Podpora",
       "status_iap": "STATUS IAP",
       "active_module": "Aktívny modul",

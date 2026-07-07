@@ -190,14 +190,6 @@ export const Store = ({ onActivateBoost, activeBoosts, maxSlots }: StoreProps) =
             <h2 className="text-slate-100 text-2xl font-black uppercase tracking-tighter italic">{t('store.title')}</h2>
           </div>
         </div>
-
-        {/* IAP Debug Info - visible only when needed or temporarily for testing */}
-        <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg w-fit">
-          <div className="size-1.5 rounded-full bg-slate-500 animate-pulse" />
-          <span className="text-[9px] font-black text-slate-500 uppercase">
-            {t('store.status_iap')}: {(window as any).purchaseService?.getStatus() || t('common.loading')}
-          </span>
-        </div>
       </div>
 
       {/* Grid s dlaždicemi */}
