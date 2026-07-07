@@ -130,12 +130,44 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   const handleBackupDatabase = async () => {
     setIsBackingUp(true);
     try {
-      const rootSnap = await get(ref(db, "/"));
-      if (!rootSnap.exists()) {
-        alert("Chyba: Databáze je prázdná.");
+      let data: any = null;
+      try {
+        const rootSnap = await get(ref(db, "/"));
+        if (rootSnap.exists()) {
+          data = rootSnap.val();
+        }
+      } catch (err: any) {
+        console.warn("Standard SDK backup read failed, attempting REST fallback...", err);
+        
+        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        if (!token) {
+          const tokenInput = window.prompt(
+            "Oprávnění pro zálohu celé databáze zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci stažení:"
+          );
+          if (tokenInput) {
+            localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+            token = tokenInput;
+          }
+        }
+
+        if (token) {
+          const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+          if (dbUrl) {
+            const res = await fetch(`${dbUrl}/.json?auth=${encodeURIComponent(token)}`);
+            if (res.ok) {
+              data = await res.json();
+            } else {
+              throw new Error(`REST API returned status: ${res.status}`);
+            }
+          }
+        }
+      }
+
+      if (!data) {
+        alert("Chyba při zálohování databáze (nedostatečná oprávnění).");
         return;
       }
-      const data = rootSnap.val();
+
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
@@ -173,9 +205,48 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           throw new Error('Neplatný formát záložního souboru.');
         }
 
-        await set(ref(db, "/"), parsedData);
-        alert('Obnova databáze byla úspěšně dokončena!');
-        window.location.reload();
+        let restored = false;
+        try {
+          const { set } = await import('firebase/database');
+          await set(ref(db, "/"), parsedData);
+          restored = true;
+        } catch (err: any) {
+          console.warn("Standard SDK restore failed, attempting REST fallback...", err);
+          
+          let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+          if (!token) {
+            const tokenInput = window.prompt(
+              "Oprávnění databáze pro zápis zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci obnovy:"
+            );
+            if (tokenInput) {
+              localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+              token = tokenInput;
+            }
+          }
+
+          if (token) {
+            const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+            if (dbUrl) {
+              const res = await fetch(`${dbUrl}/.json?auth=${encodeURIComponent(token)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: jsonContent
+              });
+              if (res.ok) {
+                restored = true;
+              } else {
+                throw new Error(`REST API returned status: ${res.status}`);
+              }
+            }
+          }
+        }
+
+        if (restored) {
+          alert('Obnova databáze byla úspěšně dokončena!');
+          window.location.reload();
+        } else {
+          alert('Chyba při obnově databáze (nedostatečná oprávnění).');
+        }
       } catch (err: any) {
         console.error(err);
         alert('Chyba při importu zálohy: ' + err.message);
@@ -201,6 +272,102 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     }
   }, [selectedMonsterId, monsters])
 
+  const fetchInitialDataViaRest = async () => {
+    let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+    if (!token) {
+      const tokenInput = window.prompt(
+        "Oprávnění pro načtení seznamu hráčů a pozvánek zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci:"
+      );
+      if (tokenInput) {
+        localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+        token = tokenInput;
+      }
+    }
+
+    if (token) {
+      const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+      if (dbUrl) {
+        try {
+          const [usersRes, presenceRes, playersRes, referralsRes] = await Promise.all([
+            fetch(`${dbUrl}/users.json?auth=${encodeURIComponent(token)}`),
+            fetch(`${dbUrl}/presence.json?auth=${encodeURIComponent(token)}`),
+            fetch(`${dbUrl}/players.json?auth=${encodeURIComponent(token)}`),
+            fetch(`${dbUrl}/referrals.json?auth=${encodeURIComponent(token)}`)
+          ]);
+
+          let usersMap = {};
+          let presenceMap = {};
+          let playersNodeMap = {};
+
+          if (usersRes.ok) usersMap = await usersRes.json() || {};
+          if (presenceRes.ok) presenceMap = await presenceRes.json() || {};
+          if (playersRes.ok) playersNodeMap = await playersRes.json() || {};
+          
+          if (referralsRes.ok) {
+            const referralsVal = await referralsRes.json() || {};
+            const flattened: any[] = [];
+            Object.entries(referralsVal).forEach(([referrerId, userRefs]: [string, any]) => {
+              if (userRefs && typeof userRefs === 'object') {
+                Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
+                  flattened.push({
+                    ...refData,
+                    referrerId,
+                    invitedId,
+                  });
+                });
+              }
+            });
+            flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            setReferrals(flattened);
+          }
+
+          const allUids = Array.from(new Set([
+            ...Object.keys(presenceMap), 
+            ...Object.keys(usersMap),
+            ...Object.keys(playersNodeMap)
+          ]));
+          const combined = allUids.map(id => {
+            const pData = (presenceMap as any)[id] || {};
+            const uData = (usersMap as any)[id] || {};
+            const pNodeData = (playersNodeMap as any)[id] || {};
+            
+            const merged = { ...pNodeData, ...uData, ...pData };
+            const rawName = merged.nam || merged.playerName || merged.name || merged.n || id;
+            const finalName = getLoc(rawName, 'cz');
+            const finalLevel = merged.lvl || merged.level || merged.currentLevel || 1;
+            const finalMonsterCount = merged.mct || (Array.isArray(merged.caughtMonsters) ? merged.caughtMonsters.length : (merged.monsterCount || merged.mc || 0));
+            
+            return {
+              id,
+              name: finalName,
+              level: finalLevel,
+              monsterCount: finalMonsterCount,
+              isOnline: !!merged.onl,
+              lastActive: merged.act || merged.lastActive || merged.updatedAt || merged.lastSync || 0,
+              lat: merged.lat || 0,
+              lng: merged.lng || 0,
+              avatarStyle: merged.avs || merged.avatarStyle || 'bottts',
+              avatarSeed: merged.avd || merged.avatarSeed || id,
+              inventory: merged.inventory || [],
+              caughtMonsters: merged.caughtMonsters || [],
+              email: merged.email || merged.eml || (merged.playerName?.includes('@') ? merged.playerName : (merged.nam?.includes('@') ? merged.nam : null)),
+              isBlocked: !!merged.blo,
+              updatedAt: merged.updatedAt || merged.lastSync || merged.act || 0
+            };
+          }).sort((a, b) => {
+            if (a.isBlocked && !b.isBlocked) return 1;
+            if (!a.isBlocked && b.isBlocked) return -1;
+            return (b.lastActive || 0) - (a.lastActive || 0);
+          });
+
+          setPlayers(combined);
+        } catch (err) {
+          console.error("REST sync failed:", err);
+        }
+      }
+    }
+  };
+
   // Sync Referrals for Dashboard
   useEffect(() => {
     const referralsRef = ref(db, 'referrals');
@@ -219,7 +386,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       setReferrals(flattened);
     }, (error) => {
-      console.error("[SystemEditor] Referrals Sync Error:", error);
+      console.error("[SystemEditor] Referrals Sync Error, trying REST fallback:", error);
+      fetchInitialDataViaRest();
     });
     return () => unsubReferrals();
   }, []);
@@ -295,21 +463,24 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       presenceMap = snapshot.val() || {};
       mergeAndSet();
     }, (error) => {
-      console.error("[SystemEditor] Presence Error:", error);
+      console.error("[SystemEditor] Presence Error, trying REST fallback:", error);
+      fetchInitialDataViaRest();
     });
 
     const unsubUsers = onValue(usersRef, (snapshot) => {
       usersMap = snapshot.val() || {};
       mergeAndSet();
     }, (error) => {
-      console.error("[SystemEditor] Users Error:", error);
+      console.error("[SystemEditor] Users Error, trying REST fallback:", error);
+      fetchInitialDataViaRest();
     });
 
     const unsubPlayersNode = onValue(playersRef, (snapshot) => {
       playersNodeMap = snapshot.val() || {};
       mergeAndSet();
     }, (error) => {
-      console.error("[SystemEditor] Players Error:", error);
+      console.error("[SystemEditor] Players Error, trying REST fallback:", error);
+      fetchInitialDataViaRest();
     });
 
     return () => {

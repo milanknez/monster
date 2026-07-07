@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Users, User, Trophy, Activity,
   MapPin, Clock, Sword, Heart, AlertCircle, Mail, LogIn, Package,
-  ArrowLeft, Search
+  ArrowLeft, Search, ChevronUp, ChevronDown
 } from 'lucide-react';
 
 import { RESOURCE_CONFIG } from '../../../data/resources';
@@ -94,6 +94,102 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'online' | 'blocked'>('all');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortKey, setSortKey] = useState<'name' | 'id' | 'level' | 'monsterCount' | 'lastActive' | 'status'>('lastActive');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDirection(key === 'name' || key === 'id' ? 'asc' : 'desc');
+    }
+  };
+
+  const toggleSelectPlayer = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = (filteredPlayers: PlayerSummary[]) => {
+    const allFilteredIds = filteredPlayers.map(p => p.id);
+    const isAllSelected = allFilteredIds.every(id => selectedIds.includes(id));
+    if (isAllSelected) {
+      setSelectedIds(prev => prev.filter(id => !allFilteredIds.includes(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...allFilteredIds])));
+    }
+  };
+
+  const deleteSelectedPlayers = async (filteredPlayers: PlayerSummary[]) => {
+    const activeFilteredIds = filteredPlayers.map(p => p.id);
+    const idsToDelete = selectedIds.filter(id => activeFilteredIds.includes(id));
+
+    if (idsToDelete.length === 0) return;
+
+    if (window.confirm(`Opravdu chcete SMAZAT všech ${idsToDelete.length} vybraných hráčů?\nTato akce je nevratná a smaže veškerý jejich herní postup!`)) {
+      let deleteCount = 0;
+      let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+      const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+
+      for (const id of idsToDelete) {
+        const shortCode = id.slice(-6).toUpperCase();
+        try {
+          await remove(ref(db, `users/${id}`));
+          await remove(ref(db, `presence/${id}`));
+          await remove(ref(db, `players/${id}`));
+          await remove(ref(db, `referrals/${id}`));
+          await remove(ref(db, `signals/${id}`));
+          await remove(ref(db, `codes/${shortCode}`));
+          deleteCount++;
+        } catch (err: any) {
+          console.warn(`Standard SDK remove failed for ${id}, attempting REST fallback...`, err);
+          if (!token) {
+            const tokenInput = window.prompt(
+              "Oprávnění databáze zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci zápisu:"
+            );
+            if (tokenInput) {
+              localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+              token = tokenInput;
+            }
+          }
+          if (token && dbUrl) {
+            try {
+              const resUsers = await fetch(`${dbUrl}/users/${id}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/presence/${id}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/players/${id}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/referrals/${id}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/signals/${id}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/codes/${shortCode}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              if (resUsers.ok) {
+                deleteCount++;
+              }
+            } catch (fetchErr) {
+              console.error(`REST delete failed for ${id}:`, fetchErr);
+            }
+          }
+        }
+      }
+
+      alert(`Smazáno ${deleteCount} z ${idsToDelete.length} vybraných hráčů.`);
+      setSelectedIds(prev => prev.filter(id => !idsToDelete.includes(id)));
+      window.location.reload();
+    }
+  };
 
   const [profileTab, setProfileTab] = useState<'info' | 'monsters' | 'inventory' | 'referrals'>('info');
   const [monsterSearch, setMonsterSearch] = useState('');
@@ -136,57 +232,80 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
   const fetchUserDetails = async (uid: string) => {
-
     setIsLoadingDetails(true);
-
     try {
-
       const userRef = ref(db, `users/${uid}`);
-
       const referralRef = ref(db, `referrals/${uid}`);
 
+      let userData: any = null;
+      let referralData: any = null;
 
+      try {
+        const userSnap = await get(userRef);
+        if (userSnap.exists()) {
+          userData = userSnap.val();
+        }
+      } catch (err: any) {
+        console.warn("Standard SDK fetch for user failed, trying REST API with Secret...", err);
+        
+        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        if (!token) {
+          const tokenInput = window.prompt(
+            "Oprávnění databáze pro čtení detailů zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci čtení:"
+          );
+          if (tokenInput) {
+            localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+            token = tokenInput;
+          }
+        }
 
-      // Fetch both snaps, but catch errors individually (e.g. Permission Denied on referrals for non-fida emails)
+        if (token) {
+          const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+          if (dbUrl) {
+            try {
+              const res = await fetch(`${dbUrl}/users/${uid}.json?auth=${encodeURIComponent(token)}`);
+              if (res.ok) {
+                userData = await res.json();
+              }
+            } catch (fetchErr) {
+              console.error("REST fetch for user failed:", fetchErr);
+            }
+          }
+        }
+      }
 
-      const userSnap = await get(userRef).catch(err => {
-
-        console.warn("Failed to fetch user data:", err);
-
-        return null;
-
-      });
-
-
-
-      const referralSnap = await get(referralRef).catch(err => {
-
-        console.warn("Failed to fetch referral data:", err);
-
-        return null;
-
-      });
-
-
+      try {
+        const referralSnap = await get(referralRef);
+        if (referralSnap.exists()) {
+          referralData = referralSnap.val();
+        }
+      } catch (err: any) {
+        console.warn("Standard SDK fetch for referrals failed, trying REST API...", err);
+        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        if (token) {
+          const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+          if (dbUrl) {
+            try {
+              const res = await fetch(`${dbUrl}/referrals/${uid}.json?auth=${encodeURIComponent(token)}`);
+              if (res.ok) {
+                referralData = await res.json();
+              }
+            } catch (fetchErr) {
+              console.error("REST fetch for referrals failed:", fetchErr);
+            }
+          }
+        }
+      }
 
       setDetailedData({
-
-        ...(userSnap && userSnap.exists() ? userSnap.val() : {}),
-
-        referralList: referralSnap && referralSnap.exists() ? referralSnap.val() : {}
-
+        ...(userData || {}),
+        referralList: referralData || {}
       });
-
-    } catch (e) { 
-
-      console.error("Error in fetchUserDetails:", e); 
-
-    } finally { 
-
-      setIsLoadingDetails(false); 
-
+    } catch (e) {
+      console.error("Error in fetchUserDetails:", e);
+    } finally {
+      setIsLoadingDetails(false);
     }
-
   };
 
 
@@ -510,6 +629,80 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
     }
   };
 
+  const deletePlayer = async () => {
+    if (!selectedPlayerId) return;
+    const shortCode = selectedPlayerId.slice(-6).toUpperCase();
+    if (window.confirm(`Opravdu chcete SMAZAT hráče ${currentName}?\nTato akce je nevratná a smaže veškerý jeho herní postup!`)) {
+      let deleted = false;
+      try {
+        await remove(ref(db, `users/${selectedPlayerId}`));
+        await remove(ref(db, `presence/${selectedPlayerId}`));
+        await remove(ref(db, `players/${selectedPlayerId}`));
+        await remove(ref(db, `referrals/${selectedPlayerId}`));
+        await remove(ref(db, `signals/${selectedPlayerId}`));
+        await remove(ref(db, `codes/${shortCode}`));
+        deleted = true;
+      } catch (err: any) {
+        console.warn("Standard SDK remove failed, attempting fallback via REST API with Database Secret...", err);
+        
+        // Fallback using Database Secret / auth token
+        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        
+        // If token is missing, ask the user for it
+        if (!token) {
+          const tokenInput = window.prompt(
+            "Oprávnění databáze zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console (Project Settings -> Service Accounts -> Database Secrets) pro autorizaci zápisu:"
+          );
+          if (tokenInput) {
+            localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+            token = tokenInput;
+          }
+        }
+
+        if (token) {
+          const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
+          if (dbUrl) {
+            try {
+              // Delete from users, presence, players, referrals, signals and codes
+              const resUsers = await fetch(`${dbUrl}/users/${selectedPlayerId}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/presence/${selectedPlayerId}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/players/${selectedPlayerId}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/referrals/${selectedPlayerId}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/signals/${selectedPlayerId}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              await fetch(`${dbUrl}/codes/${shortCode}.json?auth=${encodeURIComponent(token)}`, {
+                method: 'DELETE'
+              });
+              if (resUsers.ok) {
+                deleted = true;
+              }
+            } catch (fetchErr) {
+              console.error("REST delete fetch request failed:", fetchErr);
+            }
+          }
+        }
+      }
+
+      if (deleted) {
+        alert(`Hráč ${currentName} byl úspěšně smazán.`);
+        setSelectedPlayerId(null);
+        setDetailedData(null);
+        window.location.reload();
+      } else {
+        alert('Chyba při mazání hráče (nedostatečná oprávnění).');
+      }
+    }
+  };
+
   const [isMigratingUser, setIsMigratingUser] = useState(false);
 
   const migrateUserToProduction = async () => {
@@ -709,6 +902,42 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
     }
   };
 
+  const filteredPlayers = players
+    .filter(p =>
+      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(p => {
+      if (statusFilter === 'online') return p.isOnline && !p.isBlocked;
+      if (statusFilter === 'blocked') return p.isBlocked;
+      return true;
+    });
+
+  const sortedPlayers = [...filteredPlayers].sort((a, b) => {
+    if (sortKey === 'status') {
+      const valA = a.isBlocked ? -1 : (a.isOnline ? 1 : 0);
+      const valB = b.isBlocked ? -1 : (b.isOnline ? 1 : 0);
+      return sortDirection === 'asc' ? valA - valB : valB - valA;
+    }
+
+    let valA: any = a[sortKey as keyof PlayerSummary];
+    let valB: any = b[sortKey as keyof PlayerSummary];
+
+    if (valA === undefined || valA === null) return 1;
+    if (valB === undefined || valB === null) return -1;
+
+    if (typeof valA === 'string') {
+      return sortDirection === 'asc' 
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    } else {
+      return sortDirection === 'asc'
+        ? (valA > valB ? 1 : -1)
+        : (valB > valA ? 1 : -1);
+    }
+  });
+
   return (
     <div className="flex-1 overflow-y-auto pr-2 h-full">
 
@@ -755,6 +984,15 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
               >
                 {isCleaning ? 'Čistím...' : 'Vyčistit neaktivní'}
               </button>
+
+              {selectedIds.length > 0 && (
+                <button
+                  onClick={() => deleteSelectedPlayers(filteredPlayers)}
+                  className="px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white border border-rose-500/20 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(244,63,94,0.3)] animate-pulse"
+                >
+                  Smazat vybrané ({selectedIds.length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -763,96 +1001,120 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/25">
-                    <th className="p-4 pl-6">Hráč</th>
-                    <th className="p-4">ID</th>
-                    <th className="p-4">Level</th>
-                    <th className="p-4">Sbírka</th>
-                    <th className="p-4">Poslední Aktivita</th>
-                    <th className="p-4 pr-6 text-right">Status</th>
+                  <tr className="border-b border-white/5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/25 select-none">
+                    <th className="p-4 pl-6 w-12 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={filteredPlayers.length > 0 && filteredPlayers.every(p => selectedIds.includes(p.id))}
+                        onChange={() => toggleSelectAll(filteredPlayers)}
+                        className="rounded border-white/10 bg-black/60 text-primary focus:ring-primary focus:ring-offset-slate-900 cursor-pointer size-4" 
+                      />
+                    </th>
+                    <th className="p-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>
+                      <div className="flex items-center gap-1">
+                        Hráč
+                        {sortKey === 'name' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
+                    <th className="p-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('id')}>
+                      <div className="flex items-center gap-1">
+                        ID
+                        {sortKey === 'id' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
+                    <th className="p-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('level')}>
+                      <div className="flex items-center gap-1">
+                        Level
+                        {sortKey === 'level' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
+                    <th className="p-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('monsterCount')}>
+                      <div className="flex items-center gap-1">
+                        Sbírka
+                        {sortKey === 'monsterCount' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
+                    <th className="p-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('lastActive')}>
+                      <div className="flex items-center gap-1">
+                        Poslední Aktivita
+                        {sortKey === 'lastActive' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
+                    <th className="p-4 pr-6 text-right cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('status')}>
+                      <div className="flex items-center justify-end gap-1">
+                        Status
+                        {sortKey === 'status' && (sortDirection === 'asc' ? <ChevronUp size={12} className="text-primary" /> : <ChevronDown size={12} className="text-primary" />)}
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {players
-                    .filter(p =>
-                      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      p.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .filter(p => {
-                      if (statusFilter === 'online') return p.isOnline && !p.isBlocked;
-                      if (statusFilter === 'blocked') return p.isBlocked;
-                      return true;
-                    })
-                    .length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="p-8 text-center text-xs text-slate-500 uppercase tracking-wider italic">
-                          Žádní hráči nenalezeni
+                  {sortedPlayers.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-xs text-slate-500 uppercase tracking-wider italic">
+                        Žádní hráči nenalezeni
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedPlayers.map(p => (
+                      <tr
+                        key={p.id}
+                        onClick={() => setSelectedPlayerId(p.id)}
+                        className={cn(
+                          "hover:bg-white/5 transition-colors cursor-pointer group",
+                          p.isBlocked && "opacity-60"
+                        )}
+                      >
+                        <td className="p-4 pl-6 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedIds.includes(p.id)}
+                            onChange={() => toggleSelectPlayer(p.id)}
+                            className="rounded border-white/10 bg-black/60 text-primary focus:ring-primary focus:ring-offset-slate-900 cursor-pointer size-4" 
+                          />
+                        </td>
+                        <td className="p-4 flex items-center gap-3">
+                          <div className="size-10 rounded-xl bg-slate-800 border border-white/10 overflow-hidden relative shrink-0">
+                            <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" alt="Avatar" />
+                            {p.isOnline && !p.isBlocked && (
+                              <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-950 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+                            )}
+                            {p.isBlocked && (
+                              <div className="absolute -bottom-0.5 -right-0.5 size-3.5 bg-rose-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-[7px] font-black text-white shadow-[0_0_8px_rgba(239,68,68,0.8)]">✕</div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-white uppercase group-hover:text-primary transition-colors flex items-center gap-1.5 font-sans leading-none">
+                              {p.name || 'Lovec'}
+                              {p.isBlocked && (
+                                <span className="text-[8px] font-black text-rose-500 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded leading-none shrink-0 flex items-center gap-1">
+                                  <AlertCircle size={10} /> BLOKOVÁN
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-slate-500 mt-1">{p.email}</div>
+                          </div>
+                        </td>
+                        <td className="p-4 text-[10px] font-mono text-slate-400">{p.id}</td>
+                        <td className="p-4">
+                          <span className="text-xs font-black px-2.5 py-1 bg-primary/10 text-primary rounded-lg border border-primary/20 shadow-sm shadow-primary/5">
+                            Lv {p.level}
+                          </span>
+                        </td>
+                        <td className="p-4 text-xs font-bold text-slate-350">
+                          {p.monsterCount} {p.monsterCount === 1 ? 'Příšera' : p.monsterCount < 5 ? 'Příšery' : 'Příšer'}
+                        </td>
+                        <td className="p-4 text-xs text-slate-400">
+                          {p.lastActive ? new Date(p.lastActive).toLocaleString('cs-CZ') : 'Nikdy'}
+                        </td>
+                        <td className="p-4 pr-6 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {renderTimeBadge(p.lastActive)}
+                          </div>
                         </td>
                       </tr>
-                    ) : (
-                      players
-                        .filter(p =>
-                          p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                        )
-                        .filter(p => {
-                          if (statusFilter === 'online') return p.isOnline && !p.isBlocked;
-                          if (statusFilter === 'blocked') return p.isBlocked;
-                          return true;
-                        })
-                        .map(p => (
-                          <tr
-                            key={p.id}
-                            onClick={() => setSelectedPlayerId(p.id)}
-                            className={cn(
-                              "hover:bg-white/5 transition-colors cursor-pointer group",
-                              p.isBlocked && "opacity-60"
-                            )}
-                          >
-                            <td className="p-4 pl-6 flex items-center gap-3">
-                              <div className="size-10 rounded-xl bg-slate-800 border border-white/10 overflow-hidden relative shrink-0">
-                                <img src={`https://api.dicebear.com/7.x/${p.avatarStyle || 'bottts'}/svg?seed=${p.avatarSeed || p.id}`} className="w-full h-full" alt="Avatar" />
-                                {p.isOnline && !p.isBlocked && (
-                                  <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-slate-950 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-                                )}
-                                {p.isBlocked && (
-                                  <div className="absolute -bottom-0.5 -right-0.5 size-3.5 bg-rose-600 border-2 border-slate-950 rounded-full flex items-center justify-center text-[7px] font-black text-white shadow-[0_0_8px_rgba(239,68,68,0.8)]">✕</div>
-                                )}
-                              </div>
-                              <div>
-                                <div className="text-xs font-black text-white uppercase group-hover:text-primary transition-colors flex items-center gap-1.5">
-                                  {p.name || 'Lovec'}
-                                  {p.isBlocked && (
-                                    <span className="text-[8px] font-black text-rose-500 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded leading-none shrink-0 flex items-center gap-1">
-                                      <AlertCircle size={10} /> BLOKOVÁN
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[10px] text-slate-500">{p.email}</div>
-                              </div>
-                            </td>
-                            <td className="p-4 text-[10px] font-mono text-slate-400">{p.id}</td>
-                            <td className="p-4">
-                              <span className="text-xs font-black px-2.5 py-1 bg-primary/10 text-primary rounded-lg border border-primary/20 shadow-sm shadow-primary/5">
-                                Lv {p.level}
-                              </span>
-                            </td>
-                            <td className="p-4 text-xs font-bold text-slate-350">
-                              {p.monsterCount} {p.monsterCount === 1 ? 'Příšera' : p.monsterCount < 5 ? 'Příšery' : 'Příšer'}
-                            </td>
-                            <td className="p-4 text-xs text-slate-400">
-                              {p.lastActive ? new Date(p.lastActive).toLocaleString('cs-CZ') : 'Nikdy'}
-                            </td>
-                            <td className="p-4 pr-6 text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                {renderTimeBadge(p.lastActive)}
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                    )}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -954,6 +1216,13 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                 )}
               >
                 {detailedData?.blo ? 'Odblokovat hráče' : 'Zablokovat hráče'}
+              </button>
+
+              <button
+                onClick={deletePlayer}
+                className="mt-2 w-full py-3 bg-rose-500/20 hover:bg-rose-600 border border-rose-500/30 text-rose-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(244,63,94,0.05)]"
+              >
+                Smazat hráče
               </button>
 
               {!isProdDb && (
