@@ -720,9 +720,21 @@ function AppContent() {
 
   // Watch Referrals
   const isFirstReferralLoad = useRef(true);
+  const referralsRef = useRef<ReferralEntry[]>([]);
+  
+  // Sync ref with state to prevent dependencies loop
+  useEffect(() => {
+    referralsRef.current = referrals;
+  }, [referrals]);
+
   useEffect(() => {
     if (!userUid) return;
     const unsubscribe = watchReferrals(userUid, (data) => {
+      if (!data) {
+        setReferrals([]);
+        isFirstReferralLoad.current = false;
+        return;
+      }
       const list: ReferralEntry[] = Object.entries(data).map(([uid, val]: [string, any]) => ({
         uid,
         ...val
@@ -731,7 +743,7 @@ function AppContent() {
       // Kontrola změn (pouze pokud už máme počáteční data)
       if (!isFirstReferralLoad.current) {
         list.forEach(refEntry => {
-          const previousData = referrals.find(r => r.uid === refEntry.uid);
+          const previousData = referralsRef.current.find(r => r.uid === refEntry.uid);
 
           // 1. Nová registrace (přechod z levelu 0 na level 1+)
           if (refEntry.level >= 1 && (!previousData || previousData.level === 0)) {
@@ -769,7 +781,7 @@ function AppContent() {
     });
 
     return () => unsubscribe();
-  }, [userUid, referrals]);
+  }, [userUid]);
 
   // --- DEBUG TOOLS ---
   useEffect(() => {

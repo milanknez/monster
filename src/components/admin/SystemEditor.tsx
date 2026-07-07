@@ -677,7 +677,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                     </h2>
                     <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
                       {players
-                        .filter(p => p.updatedAt > 0)
+                        .filter(p => p.updatedAt > 0 && !p.isBlocked)
                         .sort((a, b) => b.updatedAt - a.updatedAt)
                         .slice(0, 8)
                         .map(p => (
@@ -715,7 +715,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                       <Users size={14} className="text-primary" /> Poslední aktivní hráči
                     </h2>
                     <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
-                      {players.slice(0, 8).map(p => (
+                      {players.filter(p => !p.isBlocked).slice(0, 8).map(p => (
                         <div 
                           key={p.id} 
                           onClick={() => { setActiveTab('users'); setSelectedPlayerId(p.id); }}
@@ -752,6 +752,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                     </h2>
                     <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-3 divide-y divide-white/5 space-y-2.5">
                       {players
+                        .filter(p => !p.isBlocked)
                         .map(p => ({
                           ...p,
                           uniqueCount: p.caughtMonsters ? new Set(p.caughtMonsters.map((m: any) => m.id)).size : 0

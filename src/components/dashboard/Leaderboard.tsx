@@ -4,13 +4,17 @@ import { Trophy, Target } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../../lib/firebase';
-import { cn } from '../../utils';
+import { cn, getLoc } from '../../utils';
 
 interface LeaderboardPlayer {
+  id: string;
   name: string;
   mct: number;
   rank: number;
   isMe?: boolean;
+  avatarStyle?: string;
+  avatarSeed?: string;
+  isBlocked?: boolean;
 }
 
 interface LeaderboardProps {
@@ -21,8 +25,9 @@ interface LeaderboardProps {
 
 export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: LeaderboardProps) => {
   const { t, i18n } = useTranslation();
-  const [leaderboardTop, setLeaderboardTop] = useState<LeaderboardPlayer[]>([]);
+  const [allPlayers, setAllPlayers] = useState<LeaderboardPlayer[]>([]);
   const [leaderboardNearby, setLeaderboardNearby] = useState<LeaderboardPlayer[]>([]);
+  const [visibleCount, setVisibleCount] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
 
   const getSpeciesLabel = (count: number) => {
@@ -39,18 +44,38 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
     }
   };
 
+  const getLoadMoreLabel = () => {
+    const remaining = Math.max(0, allPlayers.length - visibleCount);
+    if (i18n.language.startsWith('cs') || i18n.language.startsWith('cz')) {
+      return `Načíst další (+10, zbývá ${remaining})`;
+    } else if (i18n.language.startsWith('sk')) {
+      return `Načítať ďalšie (+10, zostáva ${remaining})`;
+    } else {
+      return `Load more (+10, ${remaining} left)`;
+    }
+  };
+
   useEffect(() => {
     if (!userUid) return;
+    setIsLoading(true);
+    
     const usersRef = ref(db, 'users');
     const playersNodeRef = ref(db, 'players');
-    
-    const handleData = (usersSnap: any, playersNodeSnap: any) => {
+    const presenceRef = ref(db, 'presence');
+
+    Promise.all([
+      get(usersRef),
+      get(playersNodeRef),
+      get(presenceRef)
+    ]).then(([usersSnap, playersNodeSnap, presenceSnap]) => {
       const usersData = usersSnap.val() || {};
       const playersNodeData = playersNodeSnap.val() || {};
+      const presenceData = presenceSnap.val() || {};
       
       const allUids = Array.from(new Set([
         ...Object.keys(usersData), 
         ...Object.keys(playersNodeData),
+        ...Object.keys(presenceData),
         userUid
       ]));
       
@@ -58,13 +83,27 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         .map(id => {
           const u = usersData[id] || {};
           const p = playersNodeData[id] || {};
-          const merged = { ...p, ...u };
+          const pr = presenceData[id] || {};
+          const merged = { ...p, ...u, ...pr };
           
-          let name = merged.playerName || merged.name || merged.nam || merged.n;
-          let mct = Array.isArray(merged.caughtMonsters) ? new Set(merged.caughtMonsters.map((m: any) => m.id)).size : 
-                 (typeof merged.mct === 'number' ? merged.mct : 
-                 typeof merged.monsterCount === 'number' ? merged.monsterCount : 
-                 typeof merged.mc === 'number' ? merged.mc : 0);
+          const rawName = merged.playerName || merged.name || merged.nam || merged.n || id;
+          let name = getLoc(rawName, i18n.language);
+          
+          let mct = 0;
+          if (merged.caughtMonsters) {
+            const monstersList = Array.isArray(merged.caughtMonsters)
+              ? merged.caughtMonsters
+              : Object.values(merged.caughtMonsters);
+            mct = new Set(monstersList.filter((m: any) => m && m.id).map((m: any) => m.id)).size;
+          } else {
+            mct = typeof merged.mct === 'number' ? merged.mct : 
+                  typeof merged.monsterCount === 'number' ? merged.monsterCount : 
+                  typeof merged.mc === 'number' ? merged.mc : 0;
+          }
+
+          let avatarStyle = merged.avatarStyle || merged.avs;
+          let avatarSeed = merged.avatarSeed || merged.avd;
+          let isBlocked = !!merged.blo;
 
           if (id === userUid) {
             if (localPlayerName) {
@@ -82,20 +121,26 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           return {
             id,
             name,
-            mct
+            mct,
+            avatarStyle,
+            avatarSeed,
+            isBlocked
           };
         })
-        .filter(p => (p.name !== 'Neznámý lovec' && p.mct > 0) || p.id === userUid)
+        .filter(p => (p.name !== 'Neznámý lovec' || p.id === userUid) && !p.isBlocked)
         .sort((a, b) => b.mct - a.mct);
       
-      // Get Top 3
-      const top3 = players.slice(0, 3).map((p, idx) => ({
+      // Get all players
+      const mappedPlayers = players.map((p, idx) => ({
+        id: p.id,
         name: p.name,
         mct: p.mct,
         rank: idx + 1,
-        isMe: p.id === userUid
+        isMe: p.id === userUid,
+        avatarStyle: p.avatarStyle,
+        avatarSeed: p.avatarSeed
       }));
-      setLeaderboardTop(top3);
+      setAllPlayers(mappedPlayers);
 
       const myIdx = players.findIndex(p => p.id === userUid);
       if (myIdx !== -1) {
@@ -103,53 +148,35 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         const start = Math.max(0, myIdx - 2);
         const end = Math.min(players.length, myIdx + 3);
         const nearby = players.slice(start, end).map((p, idx) => ({
+          id: p.id,
           name: p.name,
           mct: p.mct,
           rank: start + idx + 1,
-          isMe: p.id === userUid
+          isMe: p.id === userUid,
+          avatarStyle: p.avatarStyle,
+          avatarSeed: p.avatarSeed
         }));
         setLeaderboardNearby(nearby);
       } else {
         setLeaderboardNearby([]);
       }
       setIsLoading(false);
-    };
-
-    let lastUsersSnap: any = null;
-    let lastPlayersSnap: any = null;
-
-    const unsub1 = onValue(usersRef, (snap) => {
-      lastUsersSnap = snap;
-      if (lastPlayersSnap !== null) handleData(lastUsersSnap, lastPlayersSnap);
+    }).catch(err => {
+      setIsLoading(false);
     });
+  }, [userUid]);
 
-    const unsub2 = onValue(playersNodeRef, (snap) => {
-      lastPlayersSnap = snap;
-      if (lastUsersSnap !== null) handleData(lastUsersSnap, lastPlayersSnap);
-    });
-
-    // Initial fetch
-    get(usersRef).then(uSnap => {
-      lastUsersSnap = uSnap;
-      get(playersNodeRef).then(pSnap => {
-        lastPlayersSnap = pSnap;
-        handleData(uSnap, pSnap);
-      });
-    });
-
-    return () => {
-      unsub1();
-      unsub2();
-    };
-  }, [userUid, localPlayerName, localMonsterCount]);
-
-  if (isLoading && leaderboardTop.length === 0) {
+  if (isLoading && allPlayers.length === 0) {
     return (
       <div className="py-8 flex justify-center">
         <div className="animate-spin size-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
+
+  const displayedTop = allPlayers.slice(0, visibleCount);
+  const isMeVisible = displayedTop.some(p => p.isMe);
+  const filteredNearby = leaderboardNearby.filter(p => p.rank > visibleCount);
 
   return (
     <section className="mt-8 px-5 pb-8 space-y-4">
@@ -159,8 +186,8 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
       </div>
 
       <div className="bg-slate-900/40 border border-slate-800/50 rounded-3xl overflow-hidden divide-y divide-slate-800/50">
-        {/* Top 3 */}
-        {leaderboardTop.map((player, idx) => (
+        {/* Top Players */}
+        {displayedTop.map((player, idx) => (
           <div 
             key={`top-${idx}`}
             className={cn(
@@ -168,10 +195,13 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
               player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
             )}
           >
-            <div className="w-6 flex justify-center">
-              {player.rank === 1 ? <Trophy size={16} className="text-amber-400" /> :
-               player.rank === 2 ? <Trophy size={16} className="text-slate-300" /> :
-               <Trophy size={16} className="text-amber-700" />}
+            {/* Avatar on the left */}
+            <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50 shrink-0">
+              <img 
+                src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
+                className="w-full h-full object-cover" 
+                alt="Avatar" 
+              />
             </div>
             
             <div className="flex-1 min-w-0">
@@ -188,12 +218,17 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
               </div>
             </div>
 
+            {/* Cup (Trophy) and Rank on the right */}
             <div className="flex items-center gap-1.5 shrink-0">
+              {player.rank === 1 ? <Trophy size={16} className="text-amber-400" /> :
+               player.rank === 2 ? <Trophy size={16} className="text-slate-300" /> :
+               player.rank === 3 ? <Trophy size={16} className="text-amber-700" /> : null}
               <span className={cn(
                 "text-[10px] font-black",
                 player.rank === 1 ? "text-amber-400" : 
                 player.rank === 2 ? "text-slate-300" : 
-                "text-amber-700"
+                player.rank === 3 ? "text-amber-700" : 
+                player.isMe ? "text-amber-500" : "text-slate-600"
               )}>
                 #{player.rank}
               </span>
@@ -201,8 +236,19 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           </div>
         ))}
 
+        {/* Load More Button */}
+        {allPlayers.length > visibleCount && (
+          <button 
+            type="button"
+            onClick={() => setVisibleCount(prev => prev + 10)}
+            className="w-full py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white bg-slate-950/20 hover:bg-slate-950/40 transition-colors cursor-pointer"
+          >
+            {getLoadMoreLabel()}
+          </button>
+        )}
+
         {/* Gap Separator */}
-        {leaderboardNearby.length > 0 && leaderboardNearby[0].rank > 4 && (
+        {!isMeVisible && filteredNearby.length > 0 && filteredNearby[0].rank > visibleCount + 1 && (
           <div className="py-2 flex justify-center bg-slate-950/20">
             <div className="flex gap-1">
               {[1, 2, 3].map(i => <div key={i} className="size-1 bg-slate-800 rounded-full" />)}
@@ -211,8 +257,7 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         )}
 
         {/* Nearby Players */}
-        {leaderboardNearby
-          .filter(p => p.rank > 3)
+        {!isMeVisible && filteredNearby
           .map((player, idx) => (
           <div 
             key={`nearby-${idx}`}
@@ -221,13 +266,13 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
               player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
             )}
           >
-            <div className="w-6 flex justify-center shrink-0">
-              <div className={cn(
-                "size-5 rounded-md flex items-center justify-center border",
-                player.isMe ? "bg-amber-500/10 border-amber-500/20" : "bg-slate-800/30 border-white/5"
-              )}>
-                <Target size={12} className={player.isMe ? "text-amber-500" : "text-slate-600"} />
-              </div>
+            {/* Avatar on the left */}
+            <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50 shrink-0">
+              <img 
+                src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
+                className="w-full h-full object-cover" 
+                alt="Avatar" 
+              />
             </div>
             
             <div className="flex-1 min-w-0">
