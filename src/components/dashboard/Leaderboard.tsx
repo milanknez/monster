@@ -45,13 +45,12 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
   };
 
   const getLoadMoreLabel = () => {
-    const remaining = Math.max(0, allPlayers.length - visibleCount);
     if (i18n.language.startsWith('cs') || i18n.language.startsWith('cz')) {
-      return `Načíst další (+10, zbývá ${remaining})`;
+      return 'Načíst další';
     } else if (i18n.language.startsWith('sk')) {
-      return `Načítať ďalšie (+10, zostáva ${remaining})`;
+      return 'Načítať ďalšie';
     } else {
-      return `Load more (+10, ${remaining} left)`;
+      return 'Load more';
     }
   };
 
