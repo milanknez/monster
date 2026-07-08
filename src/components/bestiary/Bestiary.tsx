@@ -17,16 +17,42 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
   const { t, i18n } = useTranslation();
   const { playBookFlip, playClick } = useGameSound();
   const [filter, setFilter] = useState('all')
+  const [lockedLimit, setLockedLimit] = useState(6);
   const rarities = ['all', ...systemValues.monsterRarities.map((r: any) => getLoc(r, 'cz'))]
+
+  const caughtUniqueIds = new Set(caughtMonsters.map(m => m.id));
+  const totalInFilter = monsterDB.filter(m => filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter]).length;
+  const caughtInFilter = monsterDB.filter(m => (filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter]) && caughtUniqueIds.has(m.id)).length;
+  const remainingInFilter = totalInFilter - caughtInFilter;
 
   const caughtFiltered = caughtMonsters
     .filter(m => filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter])
     .sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
 
-  const uncaughtInDB = monsterDB
+  const allUncaught = monsterDB
     .filter(m => filter === 'all' || RARITY_MAP[getLoc(m.rarity)] === RARITY_MAP[filter])
-    .filter(m => !caughtMonsters.some(cm => cm.id === m.id))
-    .slice(0, 6); // Limit unknown monsters to 6 items
+    .filter(m => !caughtMonsters.some(cm => cm.id === m.id));
+
+  // Split into commons and non-commons
+  const uncaughtCommons = allUncaught.filter(m => getLoc(m.rarity, 'en').toLowerCase() === 'common');
+  const uncaughtNonCommons = allUncaught.filter(m => getLoc(m.rarity, 'en').toLowerCase() !== 'common');
+
+  const totalUncaughtCommons = uncaughtCommons.length;
+
+  let uncaughtInDB: any[] = [];
+  if (filter === 'all') {
+    const limit = 6;
+    const commonsToShow = uncaughtCommons.slice(0, limit);
+    const remainingSlots = limit - commonsToShow.length;
+    const nonCommonsToShow = uncaughtNonCommons.slice(0, remainingSlots);
+    uncaughtInDB = [...commonsToShow, ...nonCommonsToShow];
+  } else {
+    if (RARITY_MAP[filter] === 'common') {
+      uncaughtInDB = uncaughtCommons.slice(0, lockedLimit);
+    } else {
+      uncaughtInDB = uncaughtNonCommons.slice(0, 6);
+    }
+  }
 
   const allToDisplay = [...caughtFiltered, ...uncaughtInDB];
 
@@ -45,11 +71,11 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
           <div className="flex gap-2">
             <div className="text-right flex flex-col items-end">
               <p className="text-slate-100 text-sm font-black uppercase">
-                {new Set(caughtMonsters.map(m => m.id)).size} / {monsterDB.length}
+                {caughtInFilter} / {totalInFilter}
                 <span className="text-primary/60 ml-1">{t('bestiary.species_count')}</span>
               </p>
               <p className="text-slate-500 text-[10px] font-black uppercase mt-0.5">
-                {caughtMonsters.length} {t('bestiary.total_caught')}
+                {caughtFiltered.length} {t('bestiary.total_caught')}
               </p>
             </div>
           </div>
@@ -79,6 +105,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                 key={r}
                 onClick={() => {
                   setFilter(r);
+                  setLockedLimit(6);
                   playBookFlip();
                 }}
                 className={cn(
@@ -112,7 +139,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                 "relative group aspect-square rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 border-2",
                 isCaught
                   ? theme.card
-                  : "border-slate-800 bg-slate-900/40 grayscale"
+                  : "border-slate-800 bg-slate-900/40"
               )}
             >
               {/* Decorative Frame for Rare/Epic/Legendary */}
@@ -239,21 +266,40 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
                   </div>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center size-full gap-2 opacity-50 pointer-events-none">
-                  <Lock size={32} className="text-slate-600" />
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{t('bestiary.unknown_species')}</p>
-
-                  {/* Empty sockets for unknown monster */}
-                  <div className="flex gap-2.5 mt-1.5">
-                    {[0, 1, 2].map(i => (
-                      <div key={i} className="size-1.5 rotate-45 border bg-slate-800 border-white/5" />
-                    ))}
+                <>
+                  {getLoc(m.rarity, 'en').toLowerCase() === 'common' ? (
+                    <img
+                      src={`/monsters/${m.id}.png`}
+                      className="absolute inset-0 w-full h-full object-contain p-4 opacity-25 grayscale transition-all pointer-events-none"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-slate-950/10" />
+                  )}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 z-20 pointer-events-none">
+                    <Lock size={20} className="text-slate-500/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest bg-slate-900/60 px-1.5 py-0.5 rounded border border-white/5">
+                      {t('bestiary.unknown_species')}
+                    </p>
                   </div>
-                </div>
+                </>
               )}
             </motion.div>
           )
         })}
+      </div>
+
+      <div className="flex justify-center px-4 mt-4 mb-8">
+        {RARITY_MAP[filter] === 'common' && totalUncaughtCommons > lockedLimit && (
+          <button
+            onClick={() => {
+              setLockedLimit(prev => prev + 6);
+              playClick();
+            }}
+            className="w-full py-3.5 rounded-2xl bg-slate-900/60 border border-primary/20 hover:border-primary/50 text-primary text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_0_15px_rgba(13,185,242,0.15)] flex items-center justify-center gap-2"
+          >
+            {t('bestiary.show_more_locked')}
+          </button>
+        )}
       </div>
     </motion.div>
   )

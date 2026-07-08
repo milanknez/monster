@@ -151,7 +151,10 @@
       "total_caught": "celkem chyceno",
       "complete": "Kompletní",
       "next_milestone": "Další milník",
-      "unknown_species": "Neznámý Druh"
+      "unknown_species": "Neznámý Druh",
+      "species_filter_stats": "Druhů v kategorii: {{caught}} / {{total}} (zbývá {{left}})",
+      "species_remaining": "zbývá",
+      "show_more_locked": "Zobrazit další (+6)"
     },
     "duel": {
       "select_fighter": "Vyber si bojovníka",
@@ -848,7 +851,10 @@
       "total_caught": "total caught",
       "complete": "Complete",
       "next_milestone": "Next Milestone",
-      "unknown_species": "Unknown Species"
+      "unknown_species": "Unknown Species",
+      "species_filter_stats": "Species in category: {{caught}} / {{total}} ({{left}} remaining)",
+      "species_remaining": "remaining",
+      "show_more_locked": "Show more (+6)"
     },
     "duel": {
       "select_fighter": "Select Fighter",
@@ -1546,7 +1552,10 @@
       "total_caught": "celkom chytené",
       "complete": "Kompletné",
       "next_milestone": "Ďalší míľnik",
-      "unknown_species": "Neznámy Druh"
+      "unknown_species": "Neznámy Druh",
+      "species_filter_stats": "Druhov v kategórii: {{caught}} / {{total}} (zostáva {{left}})",
+      "species_remaining": "zostáva",
+      "show_more_locked": "Zobraziť ďalšie (+6)"
     },
     "duel": {
       "select_fighter": "Vyber si bojovníka",
