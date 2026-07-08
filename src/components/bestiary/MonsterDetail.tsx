@@ -469,8 +469,8 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
             className="absolute inset-0 z-15 pointer-events-none mix-blend-screen blur-xl"
             style={{
               backgroundColor: glowColor,
-              maskImage: `url(${monster.image})`,
-              WebkitMaskImage: `url(${monster.image})`,
+              maskImage: `url(${monsterImage})`,
+              WebkitMaskImage: `url(${monsterImage})`,
               maskSize: 'contain',
               maskRepeat: 'no-repeat',
               maskPosition: 'center',

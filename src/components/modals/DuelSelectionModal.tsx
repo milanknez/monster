@@ -69,11 +69,15 @@ export const DuelSelectionModal = ({
             <div className="flex items-center gap-6 relative z-10">
               <div className="size-24 bg-black/60 rounded-[1.8rem] p-4 border border-red-500/30 flex items-center justify-center relative shadow-inner overflow-hidden">
                 <div className="absolute inset-0 bg-red-500/10 animate-pulse" />
-                <img 
-                  src={opponent.image} 
-                  className="w-full h-full object-contain relative z-10 brightness-0 opacity-80" 
-                  alt="Opponent Silhouette" 
-                />
+                {!isCollected ? (
+                  <div className="text-red-500/40 font-black text-4xl select-none z-10 animate-pulse">?</div>
+                ) : (
+                  <img 
+                    src={opponent.image || `/monsters/${opponent.id}.png`} 
+                    className="w-full h-full object-contain relative z-10" 
+                    alt="Opponent" 
+                  />
+                )}
                 {/* Type icon in the corner of the silhouette - Enhanced visibility */}
                 <div className="absolute bottom-1.5 right-1.5 size-8 bg-slate-900/90 rounded-xl flex items-center justify-center border border-white/20 shadow-2xl z-20 backdrop-blur-sm">
                   <TypeIcon type={getLoc(opponent.type, 'cz')} size={16} />
@@ -201,7 +205,7 @@ export const DuelSelectionModal = ({
 
                     {/* Monster Image */}
                     <img 
-                      src={monster.image} 
+                      src={monster.image || `/monsters/${monster.id}.png`} 
                       className="absolute inset-0 w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-110" 
                       alt={getLoc(monster.name, i18n.language)}
                     />

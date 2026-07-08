@@ -327,10 +327,29 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       }
     };
 
+    (window as any).spawnCustomResource = (type: ResourceType, amount: number) => {
+      if (playerPos) {
+        setResources(prev => {
+          const newR: ResourceSpawn = {
+            id: 'custom_res_' + Date.now(),
+            lat: playerPos[0] - 0.00006,
+            lng: playerPos[1] - 0.00006,
+            type: type,
+            amount: amount,
+            isCollected: false
+          };
+          return [...prev, newR];
+        });
+        const label = type === 'herb' ? 'Bylinka' : 'Minerál';
+        addToast?.({ title: 'Surovina!', message: `${label} (${amount}x) se objevila u tebe!`, type: 'success' });
+      }
+    };
+
     return () => {
       delete (window as any).spawnMapMonster;
       delete (window as any).spawnBasicMonster;
       delete (window as any).spawnCustomMonster;
+      delete (window as any).spawnCustomResource;
     };
   }, [playerPos]);
 
@@ -1001,40 +1020,60 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       </AnimatePresence>
 
       <AnimatePresence>
-        {nearbyResource && !nearbySpawn && !isInteractionBlocked && !isTooFast && (
-          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
-            <button onClick={handleGather} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-500 border-b-4 border-black/20 shadow-2xl transition-all active:scale-95">
-              <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30">
-                <Package size={16} />
-                <span>{t('map.gather', { type: getLoc(RESOURCE_CONFIG[nearbyResource.type]?.label, i18n.language) || t('common.sector') })}</span>
-              </div>
-              <div className="text-[10px] opacity-80 mt-1">{t('map.gather_desc', { amount: nearbyResource.amount })}</div>
-            </button>
-          </motion.div>
-        )}
-        {nearbySpawn && !isInteractionBlocked && !isTooFast && (
-          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="absolute bottom-6 left-6 right-6 z-[1001]">
-            {nearbySpawn.level > playerLevel ? (
-              <div className="w-full py-5 rounded-2xl bg-red-950/90 backdrop-blur-md border-b-4 border-red-500/50 text-red-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
-                <X size={16} className="text-red-500" />
+        {!isInteractionBlocked && !isTooFast && (nearbyResource || nearbySpawn) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: 50 }} 
+            className="absolute bottom-6 left-6 right-6 z-[1001] flex flex-col gap-2 pointer-events-none"
+          >
+            {/* 1. Zpráva o uzamčené příšeře (pokud je příšera zablokovaná levelem) */}
+            {nearbySpawn && nearbySpawn.level > playerLevel && (
+              <div className="w-full py-3.5 rounded-2xl bg-red-950/90 backdrop-blur-md border border-red-500/20 text-red-200 font-black text-center uppercase text-[11px] flex items-center justify-center gap-2 shadow-2xl pointer-events-auto">
+                <X size={14} className="text-red-500" />
                 <span>{t('map.locked', { level: nearbySpawn.level })}</span>
               </div>
-            ) : energyBlocked ? (
-              <div className="w-full py-5 rounded-2xl bg-slate-900/90 backdrop-blur-md border-b-4 border-orange-500/50 text-orange-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
-                <span>{t('map.low_energy')}</span>
-              </div>
-            ) : (
-              <button onClick={handleCatch} className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #b91c1c, #450a0a)' }}>
-                <div className="flex items-center gap-2">
-                  <Target size={16} className="animate-pulse" />
-                  <span>{caughtMonsters.length === 0 ? t('map.catch') : t('map.battle')}: {t('monster.level_short')} {nearbySpawn.level}</span>
+            )}
+
+            {/* 2. Tlačítko pro sběr suroviny */}
+            {nearbyResource && (
+              <button 
+                onClick={handleGather} 
+                className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-500 border-b-4 border-black/20 shadow-2xl transition-all active:scale-95 pointer-events-auto"
+              >
+                <div className="flex items-center gap-2 underline underline-offset-4 decoration-white/30">
+                  <Package size={16} />
+                  <span>{t('map.gather', { type: getLoc(RESOURCE_CONFIG[nearbyResource.type]?.label, i18n.language) || t('common.sector') })}</span>
                 </div>
-                <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">
-                  {caughtMonsters.length === 0 
-                    ? t('map.catch_energy', { amount: calculateHPCost(nearbySpawn.level, nearbySpawn.rarity) }) 
-                    : t('map.take_strongest')}
-                </div>
+                <div className="text-[10px] opacity-80 mt-1">{t('map.gather_desc', { amount: nearbyResource.amount })}</div>
               </button>
+            )}
+
+            {/* 3. Tlačítko pro boj s příšerou (pokud na ni hráč má level) */}
+            {nearbySpawn && nearbySpawn.level <= playerLevel && (
+              <div className="w-full pointer-events-auto">
+                {energyBlocked ? (
+                  <div className="w-full py-5 rounded-2xl bg-slate-900/90 backdrop-blur-md border-b-4 border-orange-500/50 text-orange-200 font-black text-center uppercase text-sm flex items-center justify-center gap-2 shadow-2xl">
+                    <span>{t('map.low_energy')}</span>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={handleCatch} 
+                    className="w-full py-4 rounded-2xl font-black text-white uppercase tracking-widest flex flex-col items-center justify-center border-b-4 border-black/20 shadow-2xl transition-all active:scale-95" 
+                    style={{ background: nearbySpawn.rarity === 'epic' ? 'linear-gradient(135deg, #7e22ce, #a855f7)' : nearbySpawn.rarity === 'rare' ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' : 'linear-gradient(135deg, #b91c1c, #450a0a)' }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Target size={16} className="animate-pulse" />
+                      <span>{caughtMonsters.length === 0 ? t('map.catch') : t('map.battle')}: {t('monster.level_short')} {nearbySpawn.level}</span>
+                    </div>
+                    <div className="text-[10px] opacity-80 mt-1 uppercase tracking-tighter font-black">
+                      {caughtMonsters.length === 0 
+                        ? t('map.catch_energy', { amount: calculateHPCost(nearbySpawn.level, nearbySpawn.rarity) }) 
+                        : t('map.take_strongest')}
+                    </div>
+                  </button>
+                )}
+              </div>
             )}
           </motion.div>
         )}

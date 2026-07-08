@@ -15,6 +15,7 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'addGems', label: 'Balíček surovin (Resources)', icon: Package, color: 'text-amber-400' },
     { id: 'giveXP', label: 'Přidat XP Monstru', icon: Zap, color: 'text-indigo-400' },
     { id: 'addPotions', label: 'Lektvary (HP/Mana)', icon: FlaskConical, color: 'text-emerald-400' },
+    { id: 'spawnNearMe', label: 'Spawn Příšera + Bylina (MAP)', icon: UserPlus, color: 'text-purple-400 font-bold animate-pulse' },
     { id: 'spawn:common', label: 'Spawn Běžné (MAP)', icon: UserPlus, color: 'text-slate-400' },
     { id: 'spawn:rare', label: 'Spawn Vzácné (MAP)', icon: UserPlus, color: 'text-blue-400' },
     { id: 'spawn:legendary', label: 'Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400' },
@@ -24,6 +25,7 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
 
     { id: 'playerXP200', label: 'Hráč XP +200', icon: Zap, color: 'text-cyan-400' },
     { id: 'triggerLevelUp', label: 'Level Up Hráč', icon: Database, color: 'text-blue-400' },
+    { id: 'resetLevel', label: 'Resetovat na Level 1', icon: RefreshCw, color: 'text-rose-400 font-bold' },
 
     { id: 'testNotification', label: 'Test Notifikace', icon: Bell, color: 'text-indigo-400' },
     { id: 'debugIAP', label: 'Stav Obchodu (IAP DR)', icon: ShoppingBag, color: 'text-yellow-400' },

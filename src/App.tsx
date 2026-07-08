@@ -252,6 +252,31 @@ function AppContent() {
           addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě a máš GPS signál!', type: 'error' });
         }
       }, 500);
+    } else if (cheatId === 'spawnNearMe') {
+      setActiveTab('world');
+      setTimeout(() => {
+        if ((window as any).spawnCustomMonster && (window as any).spawnCustomResource) {
+          const seed = 'debug_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+          const rarities = ['rare', 'epic'];
+          const pickedRarity = rarities[Math.floor(Math.random() * rarities.length)] as any;
+          const mId = (pickMonster as any)(seed, pickedRarity);
+          const finalLvl = (pickLevel as any)(seed, pickedRarity);
+          
+          (window as any).spawnCustomMonster(mId, finalLvl, pickedRarity);
+          (window as any).spawnCustomResource('herb', 3);
+        } else {
+          addToast({ title: 'Spawn selhal', message: 'Ujisti se, že jsi na mapě a máš GPS signál!', type: 'error' });
+        }
+      }, 500);
+    } else if (cheatId === 'resetLevel') {
+      localStorage.setItem('monster_collector_xp', '0');
+      if (userUid) {
+        update(ref(db, `users/${userUid}`), { currentLevel: 1, totalXP: 0 });
+      }
+      addToast({ title: 'Reset Levelu', message: 'Tvoje úroveň byla resetována na Level 1! Restartuji...', type: 'info' });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } else if (cheatId === 'triggerLevelUp') {
       (window as any).triggerLevelUp?.();
     } else if (cheatId === 'addPotions') {
