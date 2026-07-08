@@ -1,8 +1,45 @@
 import { motion } from 'framer-motion';
-import { Activity, Bolt } from 'lucide-react';
+import { Sword, Heart } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn, TYPE_COLORS, getMonsterAttack, formatLocation, getLoc, getMonsterColors, getMonsterImage } from '../../utils';
+import { cn, TYPE_COLORS, getMonsterAttack, getMonsterMaxHP, formatLocation, getLoc, getMonsterColors, getMonsterImage, RARITY_MAP, TYPE_MAP, getMonsterTypeIcon } from '../../utils';
 import type { Monster } from '../../types';
+
+// Asynchronous component to fetch and cache city/town names from coordinates
+export const LocationText = ({ lat, lng }: { lat?: number, lng?: number }) => {
+  const { t } = useTranslation();
+  const [city, setCity] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (lat === undefined || lng === undefined) return;
+
+    const cacheKey = `geo_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setCity(cached);
+      return;
+    }
+
+    // Nominatim reverse lookup with custom User-Agent to respect OSM guidelines
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=cs`)
+      .then(res => res.json())
+      .then(data => {
+        const address = data.address;
+        const cityName = address?.city || address?.town || address?.village || address?.municipality || address?.suburb || address?.county;
+        if (cityName) {
+          localStorage.setItem(cacheKey, cityName);
+          setCity(cityName);
+        }
+      })
+      .catch(() => {});
+  }, [lat, lng]);
+
+  if (lat === undefined || lng === undefined) {
+    return <span>{t('common.unknown_sector')}</span>;
+  }
+
+  return <span>{city || formatLocation(lat, lng)}</span>;
+};
 
 export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster | null, onSelect: (m: Monster) => void }) => {
   const { t } = useTranslation();
@@ -40,22 +77,35 @@ export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster 
                 lastCaught ? (getMonsterColors(lastCaught.type)?.bg || "bg-primary") : "bg-red-500",
                 lastCaught ? (getMonsterColors(lastCaught.type)?.text || "text-background-dark") : "text-white"
               )}>
-                {lastCaught ? getLoc(lastCaught.rarity) : t('bestiary.unknown_species')}
+                {lastCaught 
+                  ? t(`rarities.${RARITY_MAP[getLoc(lastCaught.rarity)] || getLoc(lastCaught.rarity, 'en').toLowerCase()}`) 
+                  : t('bestiary.unknown_species')}
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
               {lastCaught?.caughtAt 
                 ? new Date(lastCaught.caughtAt).toLocaleDateString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) 
-                : ""} • {formatLocation(lastCaught?.lat, lastCaught?.lng)}
+                : ""} • <LocationText lat={lastCaught?.lat} lng={lastCaught?.lng} />
             </p>
             <div className="flex gap-3 mt-3">
               <div className="flex items-center gap-1">
-                <Activity size={12} className="text-primary" />
+                <Sword size={12} className="text-primary" />
                 <span className="text-[10px] font-bold text-slate-400">{lastCaught ? getMonsterAttack(lastCaught) : 0} ATK</span>
               </div>
               <div className="flex items-center gap-1">
-                <Bolt size={12} className="text-primary" />
-                <span className="text-[10px] font-bold text-slate-400">{lastCaught ? getLoc(lastCaught.type).toUpperCase() : ""}</span>
+                <Heart size={12} className="text-primary" />
+                <span className="text-[10px] font-bold text-slate-400">{lastCaught ? getMonsterMaxHP(lastCaught) : 0} HP</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const Icon = lastCaught ? getMonsterTypeIcon(lastCaught.type) : null;
+                  return Icon ? <Icon size={12} className="text-primary" /> : null;
+                })()}
+                <span className="text-[10px] font-bold text-slate-400">
+                  {lastCaught 
+                    ? t(`monster_types.${TYPE_MAP[getLoc(lastCaught.type, 'en').toLowerCase()] || getLoc(lastCaught.type, 'en').toLowerCase()}`).toUpperCase() 
+                    : ""}
+                </span>
               </div>
             </div>
           </div>
@@ -64,4 +114,4 @@ export const LatestDetection = ({ lastCaught, onSelect }: { lastCaught: Monster 
       </motion.div>
     </section>
   );
-}
+};

@@ -7,38 +7,8 @@ export function useMonsters(addToast: (toast: any) => void) {
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
     try {
       const saved = localStorage.getItem('monster_collector_caught')
-      let parsed = saved ? JSON.parse(saved) : []
-
-      // Seed two identical monsters of species "001" (level 2 and level 7) for testing
-      const testId = "001";
-      const hasLvl2 = parsed.some((m: any) => m.id === testId && m.level === 2);
-      const hasLvl7 = parsed.some((m: any) => m.id === testId && m.level === 7);
-      if (!hasLvl2 || !hasLvl7) {
-        parsed = parsed.filter((m: any) => m.id !== testId || (m.level !== 2 && m.level !== 7));
-        parsed.push({
-          id: testId,
-          level: 2,
-          xp: 10,
-          currentHP: 220,
-          caughtAt: 1783500700000,
-          gems: [null, null, null],
-          items: [null, null, null],
-          mutations: []
-        });
-        parsed.push({
-          id: testId,
-          level: 7,
-          xp: 50,
-          currentHP: 350,
-          caughtAt: 1783500710000,
-          gems: [null, null, null],
-          items: [null, null, null],
-          mutations: []
-        });
-        localStorage.setItem('monster_collector_caught', JSON.stringify(parsed));
-      }
-
-      if (parsed.length > 0) {
+      if (saved) {
+        const parsed = JSON.parse(saved)
         // Ensure stats and HP exist on load
         return parsed.map((m: any) => {
           const dbData = monsterDB.find(d => String(d.id) === String(m.id));
