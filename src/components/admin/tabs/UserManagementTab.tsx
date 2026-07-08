@@ -1399,6 +1399,75 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                 
                 {profileTab === 'info' && (
                   <div className="space-y-6 h-full flex flex-col">
+                    {/* Grid s detailními daty z DB */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 p-5 rounded-3xl border border-white/5 text-[11px]">
+                      <div className="space-y-3">
+                        <h3 className="text-[9px] font-black uppercase text-primary tracking-wider border-b border-white/5 pb-2">Profil a účet</h3>
+                        <div className="flex justify-between py-1 border-b border-white/5 gap-4">
+                          <span className="text-slate-500 font-bold shrink-0">UID:</span>
+                          <span className="font-mono text-slate-350 truncate">{selectedPlayerId}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5 gap-4">
+                          <span className="text-slate-500 font-bold shrink-0">Přezdívka (playerName):</span>
+                          <span className="font-black text-white truncate">{detailedData?.playerName || detailedData?.nam || 'Nenastaveno'}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5 gap-4">
+                          <span className="text-slate-500 font-bold shrink-0">E-mail:</span>
+                          <span className="text-slate-350 truncate">{detailedData?.email || detailedData?.eml || 'Bez e-mailu'}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Úroveň (Level):</span>
+                          <span className="font-bold text-primary">Lv {detailedData?.level || detailedData?.currentLevel || 1}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Zkušenosti (XP):</span>
+                          <span className="font-bold text-slate-300">{detailedData?.totalXP || 0} XP</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5 gap-4">
+                          <span className="text-slate-500 font-bold shrink-0">Pozván od (referredBy):</span>
+                          <span className="font-bold text-amber-400 truncate">{detailedData?.referredBy || 'Nikdo (přímá registrace)'}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h3 className="text-[9px] font-black uppercase text-primary tracking-wider border-b border-white/5 pb-2">Systémové a stavové informace</h3>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Stav (Online):</span>
+                          <span className={cn("font-bold", pSummary?.isOnline ? "text-emerald-400" : "text-slate-400")}>
+                            {pSummary?.isOnline ? 'Online' : 'Offline'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Blokován (blo):</span>
+                          <span className={cn("font-bold", detailedData?.blo ? "text-rose-500" : "text-slate-400")}>
+                            {detailedData?.blo ? 'Ano' : 'Ne'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5 gap-4">
+                          <span className="text-slate-500 font-bold shrink-0">Aktivní příšera:</span>
+                          <span className="font-bold text-slate-300 truncate">
+                            {detailedData?.activeMonster ? (
+                              `${getLoc(detailedData.activeMonster.name, 'cz')} (Lv. ${detailedData.activeMonster.level})`
+                            ) : (detailedData?.mon ? (
+                              `${getLoc(detailedData.mon.name, 'cz')} (Lv. ${detailedData.mon.level})`
+                            ) : 'Žádná')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Poslední aktivita:</span>
+                          <span className="text-slate-400">{pSummary?.lastActive ? new Date(pSummary.lastActive).toLocaleString('cs-CZ') : 'Nikdy'}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Poslední synchronizace:</span>
+                          <span className="text-slate-400">{detailedData?.lastSync ? new Date(detailedData.lastSync).toLocaleString('cs-CZ') : 'Nikdy'}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-slate-500 font-bold">Aktualizováno (updatedAt):</span>
+                          <span className="text-slate-400">{detailedData?.updatedAt ? new Date(detailedData.updatedAt).toLocaleString('cs-CZ') : 'Nikdy'}</span>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="flex-1 min-h-[280px] bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden relative shadow-inner">
                       <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-1 pointer-events-none">
                         <div className="bg-slate-900/90 px-3 py-1.5 rounded-xl border border-white/10 text-[9px] font-black text-white uppercase flex items-center gap-1.5 shadow-2xl backdrop-blur-md">

@@ -617,18 +617,10 @@ function AppContent() {
 
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
         } else if (!backup && !playerName) {
-          // Nový uživatel! Zkontrolujeme pozvánky (z URL nebo z emailu)
+          // Nový uživatel! Pouze uložíme informaci o pozvání do stavu, zápis provedeme až po dokončení profilu (získání jména)
           if (finalRef && finalRef !== firebaseUser.uid) {
-            const defaultName = firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Lovec';
-            console.log('[Referral/Auth] Nový uživatel s referralem:', finalRef);
+            console.log('[Referral/Auth] Nový uživatel s referralem (čeká na dokončení profilu):', finalRef);
             setReferredBy(finalRef);
-            await registerReferral(finalRef, firebaseUser.uid, firebaseUser.displayName || defaultName, firebaseUser.email);
-            localStorage.removeItem('pending_referral'); // Vyčistit po úspěšné registraci
-            addToast({
-              title: 'Odměna za pozvánku',
-              message: 'Paráda! Byl jsi pozván. Dosáhni 3. úrovně pro společnou odměnu.',
-              type: 'xp'
-            });
           }
         } else if (backup && playerName) {
           // Existující hráč (přihlásil se znovu) – zkontroluj jestli má referredBy
@@ -2083,7 +2075,7 @@ function AppContent() {
       <InviteModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
-        referralCode={userUid}
+        referralCode={userUid.slice(-6).toUpperCase()}
       />
 
       <DebugConsole
