@@ -1507,8 +1507,8 @@ function AppContent() {
                 dailyStats={dailyStats}
                 referrals={referrals}
                 onInvite={() => setIsInviteModalOpen(true)}
-                onHatch={(uid) => claimReferralReward(userUid!, uid)}
-                onDelete={(uid) => deleteReferral(userUid!, uid)}
+                onHatch={handleHatchReferral}
+                onDelete={handleDeleteReferral}
               />
               <Leaderboard userUid={userUid} />
             </motion.div>
