@@ -1,8 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Share2, Mail, CheckCircle2, QrCode, Send, ExternalLink } from 'lucide-react';
+import { X, Copy, Share2, CheckCircle2, QrCode } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { inviteByEmail } from '../../lib/firebase';
 import { APP_CONFIG } from '../../config';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
@@ -15,14 +14,16 @@ interface InviteModalProps {
 
 export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps) => {
   const [copied, setCopied] = useState(false);
-  const [email, setEmail] = useState('');
-  const [isInviting, setIsInviting] = useState(false);
-  const [showQR, setShowQR] = useState(false);
   
   const { i18n, t } = useTranslation();
   const rawLang = i18n.language.split('-')[0] || 'cs';
   const currentLang = rawLang === 'cz' ? 'cs' : rawLang;
-  const inviteLink = `${APP_CONFIG.INVITE_BASE_URL}?ref=${referralCode}&lang=${currentLang}`;
+
+  const inviteLink = APP_CONFIG.INVITE_BASE_URL.includes('play.google.com')
+    ? `${APP_CONFIG.INVITE_BASE_URL}&referrer=ref%3D${referralCode}%26lang%3D${currentLang}`
+    : APP_CONFIG.INVITE_BASE_URL.includes('?')
+    ? `${APP_CONFIG.INVITE_BASE_URL}&ref=${referralCode}&lang=${currentLang}`
+    : `${APP_CONFIG.INVITE_BASE_URL}?ref=${referralCode}&lang=${currentLang}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);
@@ -55,32 +56,6 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
       }
     } else {
       handleCopy();
-    }
-  };
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) return;
-    
-    setIsInviting(true);
-    try {
-      await inviteByEmail(referralCode, email);
-      
-      const subject = encodeURIComponent(currentLang === 'en' ? 'Monster Collector - Invitation' : currentLang === 'sk' ? 'Monster Collector - Pozvánka' : 'Monster Collector - Pozvánka');
-      const body = encodeURIComponent(currentLang === 'en' 
-        ? `Hi,\n\ncome hunt monsters with me in the real world! Register through my link and get a bonus to start:\n\n${inviteLink}\n\nHappy hunting!`
-        : currentLang === 'sk'
-        ? `Ahoj,\n\npoď loviť príšery so mnou v reálnom svete! Zaregistruj sa cez môj odkaz a získaj bonus do začiatku:\n\n${inviteLink}\n\nTeším sa na lov!`
-        : `Ahoj,\n\npojď se mnou lovit příšery v reálném světě! Zaregistruj se přes můj odkaz a získej bonus do začátku:\n\n${inviteLink}\n\nTěším se na lovu!`);
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-
-      setEmail('');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 4000);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsInviting(false);
     }
   };
 
@@ -117,23 +92,13 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
             <div className="p-8 pt-10 text-center relative z-10">
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <div className="size-20 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
-                    {showQR ? (
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(inviteLink)}&bgcolor=0f172a&color=0db9f2`} 
-                        alt="QR Code"
-                        className="size-16 rounded-lg"
-                      />
-                    ) : (
-                      <QrCode size={40} className="text-primary" />
-                    )}
+                  <div className="size-28 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5 p-2">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(inviteLink)}&bgcolor=0f172a&color=0db9f2`} 
+                      alt="QR Code"
+                      className="w-full h-full rounded-lg"
+                    />
                   </div>
-                  <button 
-                    onClick={() => setShowQR(!showQR)}
-                    className="absolute -bottom-2 -right-2 size-8 bg-slate-800 border border-white/10 rounded-full flex items-center justify-center text-primary shadow-lg hover:bg-slate-700 transition-colors"
-                  >
-                    {showQR ? <Mail size={14} /> : <QrCode size={14} />}
-                  </button>
                 </div>
               </div>
 
@@ -144,7 +109,7 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
                 Získej <span className="text-primary italic">Vzácné vajíčko</span> za každého kámoše (Lv. 3)
               </p>
 
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handleShare}
                   className="flex flex-col items-center justify-center gap-2 p-4 bg-slate-950/50 border border-white/5 rounded-2xl hover:bg-slate-950 transition-all active:scale-95 group"
@@ -165,46 +130,6 @@ export const InviteModal = ({ isOpen, onClose, referralCode }: InviteModalProps)
                   <span className="text-[10px] font-black uppercase text-slate-300">{copied ? 'Zkopírováno' : 'Kopírovat'}</span>
                 </button>
               </div>
-
-              <div className="relative mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/5"></div>
-                </div>
-                <div className="relative flex justify-center text-[8px] uppercase font-black text-slate-700 tracking-[0.3em] bg-slate-900 px-4 italic">
-                  Nebo poslat emailem
-                </div>
-              </div>
-
-              <form onSubmit={handleInvite} className="space-y-3">
-                 <div className="relative group">
-                    <input
-                      type="email"
-                      placeholder="Email kamaráda"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-12 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-primary/50 transition-all group-hover:bg-slate-950/80"
-                      required
-                    />
-                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" />
-                 </div>
-                 
-                 <button
-                   type="submit"
-                   disabled={isInviting || !email}
-                   className="w-full h-14 flex items-center justify-center gap-2 bg-primary text-background-dark rounded-2xl font-black uppercase tracking-tight shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
-                 >
-                   {isInviting ? (
-                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-                         <Mail size={18} />
-                      </motion.div>
-                   ) : (
-                      <>
-                         <Send size={16} />
-                         <span className="text-sm">Odeslat pozvánku</span>
-                      </>
-                   )}
-                 </button>
-              </form>
             </div>
             
             <div className="p-4 bg-slate-950/30 border-t border-white/5 text-center">

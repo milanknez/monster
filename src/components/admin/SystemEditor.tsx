@@ -273,13 +273,15 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   }, [selectedMonsterId, monsters])
 
   const fetchInitialDataViaRest = async () => {
-    let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+    const tokenKey = isProdDb ? 'monster_admin_prod_auth_token' : 'monster_admin_dev_auth_token';
+    const envSecret = isProdDb ? import.meta.env.VITE_PROD_DB_SECRET : import.meta.env.VITE_DEV_DB_SECRET;
+    let token = (envSecret as string) || localStorage.getItem(tokenKey) || "";
     if (!token) {
       const tokenInput = window.prompt(
-        "Oprávnění pro načtení seznamu hráčů a pozvánek zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci:"
+        `Oprávnění pro načtení seznamu hráčů a pozvánek v ${isProdDb ? 'PRODUKCI' : 'TESTU'} zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret pro toto prostředí:`
       );
       if (tokenInput) {
-        localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+        localStorage.setItem(tokenKey, tokenInput);
         token = tokenInput;
       }
     }

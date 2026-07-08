@@ -20,7 +20,7 @@ import { db, isProdDb } from '../../../lib/firebase';
 
 import { ref, get, update, remove } from 'firebase/database';
 
-import { cn, calculateLevel, getLoc } from '../../../utils';
+import { cn, calculateLevel, getLoc, getMonsterPower, getMonsterRarityColor } from '../../../utils';
 
 import { Trash2 } from 'lucide-react';
 
@@ -90,6 +90,7 @@ interface UserManagementTabProps {
 
 export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, selectedPlayerId, setSelectedPlayerId }) => {
   const { t, i18n } = useTranslation();
+  const isProdDb = localStorage.getItem('monster_admin_db_env') === 'production';
   const [detailedData, setDetailedData] = useState<any>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,10 +225,9 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
   const mapRef = useRef<L.Map | null>(null);
-
   const markerRef = useRef<L.CircleMarker | null>(null);
-
   const pulseRef = useRef<L.CircleMarker | null>(null);
+  const catchesMapRef = useRef<L.Map | null>(null);
 
 
 
@@ -248,13 +248,15 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
       } catch (err: any) {
         console.warn("Standard SDK fetch for user failed, trying REST API with Secret...", err);
         
-        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        const tokenKey = isProdDb ? 'monster_admin_prod_auth_token' : 'monster_admin_dev_auth_token';
+        const envSecret = isProdDb ? import.meta.env.VITE_PROD_DB_SECRET : import.meta.env.VITE_DEV_DB_SECRET;
+        let token = (envSecret as string) || localStorage.getItem(tokenKey) || "";
         if (!token) {
           const tokenInput = window.prompt(
-            "Oprávnění databáze pro čtení detailů zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret z Firebase Console pro autorizaci čtení:"
+            `Oprávnění databáze pro čtení detailů v ${isProdDb ? 'PRODUKCI' : 'TESTU'} zamítnuto (permission_denied).\n\nZadejte prosím platný Database Secret pro toto prostředí:`
           );
           if (tokenInput) {
-            localStorage.setItem('monster_admin_prod_auth_token', tokenInput);
+            localStorage.setItem(tokenKey, tokenInput);
             token = tokenInput;
           }
         }
@@ -281,7 +283,9 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
         }
       } catch (err: any) {
         console.warn("Standard SDK fetch for referrals failed, trying REST API...", err);
-        let token = (import.meta.env.VITE_PROD_DB_SECRET as string) || localStorage.getItem('monster_admin_prod_auth_token') || "";
+        const tokenKey = isProdDb ? 'monster_admin_prod_auth_token' : 'monster_admin_dev_auth_token';
+        const envSecret = isProdDb ? import.meta.env.VITE_PROD_DB_SECRET : import.meta.env.VITE_DEV_DB_SECRET;
+        let token = (envSecret as string) || localStorage.getItem(tokenKey) || "";
         if (token) {
           const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
           if (dbUrl) {
@@ -461,6 +465,18 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
   const hasCoords = !isNaN(currentLat) && !isNaN(currentLng) && currentLat !== 0;
 
+  const caughtMonstersList = detailedData?.caughtMonsters
+    ? (Array.isArray(detailedData.caughtMonsters)
+        ? detailedData.caughtMonsters
+        : Object.values(detailedData.caughtMonsters))
+    : [];
+
+  const playerInventoryList = detailedData?.inventory
+    ? (Array.isArray(detailedData.inventory)
+        ? detailedData.inventory
+        : Object.values(detailedData.inventory))
+    : [];
+
 
 
   // ── CALLBACK REF PRO MAPU (Zaručuje, že div existuje) ──────────
@@ -528,12 +544,116 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
       // Vynucený update
-
       setTimeout(() => map.invalidateSize(), 200);
+    }
+  }, [selectedPlayerId, hasCoords, currentLat, currentLng]);
 
+  const catchesMapContainerRef = useCallback((node: HTMLDivElement | null) => {
+    if (catchesMapRef.current) {
+      catchesMapRef.current.remove();
+      catchesMapRef.current = null;
     }
 
-  }, [selectedPlayerId, hasCoords, currentLat, currentLng]);
+    const monstersWithCoords = caughtMonstersList.filter((m: any) => 
+      m.lat !== undefined && m.lat !== null &&
+      m.lng !== undefined && m.lng !== null &&
+      Number(m.lat) !== 0 && Number(m.lng) !== 0 &&
+      !isNaN(Number(m.lat)) && !isNaN(Number(m.lng))
+    );
+
+    if (node !== null && monstersWithCoords.length > 0) {
+      const avgLat = monstersWithCoords.reduce((sum: number, m: any) => sum + Number(m.lat), 0) / monstersWithCoords.length;
+      const avgLng = monstersWithCoords.reduce((sum: number, m: any) => sum + Number(m.lng), 0) / monstersWithCoords.length;
+
+      const map = L.map(node, {
+        center: [avgLat, avgLng],
+        zoom: 13,
+        zoomControl: true,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+      catchesMapRef.current = map;
+
+      monstersWithCoords.forEach((m: any) => {
+        const monsterIcon = L.icon({
+          iconUrl: `/monsters/${m.id}.png`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+          popupAnchor: [0, -16],
+          className: 'border-2 border-primary bg-slate-900 rounded-full p-0.5 shadow-lg'
+        });
+
+        const popupContent = `
+          <div style="color: #0f172a; font-family: sans-serif; font-size: 11px; padding: 4px; line-height: 1.4;">
+            <strong style="text-transform: uppercase; color: #0db9f2;">${getLoc(m.name, 'cz')}</strong><br/>
+            <strong>Úroveň:</strong> ${m.level}<br/>
+            <strong>Chyceno:</strong> ${m.caughtAt ? new Date(m.caughtAt).toLocaleString('cs-CZ') : 'neznámo'}<br/>
+            <strong>GPS:</strong> ${Number(m.lat).toFixed(5)}, ${Number(m.lng).toFixed(5)}
+          </div>
+        `;
+
+        L.marker([Number(m.lat), Number(m.lng)], { icon: monsterIcon })
+          .addTo(map)
+          .bindPopup(popupContent);
+      });
+
+      setTimeout(() => map.invalidateSize(), 200);
+    }
+  }, [selectedPlayerId, caughtMonstersList]);
+
+  useEffect(() => {
+    if (!catchesMapRef.current) return;
+
+    // Remove existing markers
+    catchesMapRef.current.eachLayer((layer: any) => {
+      if (layer instanceof L.Marker) {
+        catchesMapRef.current?.removeLayer(layer);
+      }
+    });
+
+    const filteredMonsters = caughtMonstersList.filter((m: any) => 
+      getLoc(m.name, 'cz').toLowerCase().includes(monsterSearch.toLowerCase()) || 
+      m.id.includes(monsterSearch)
+    );
+
+    const monstersWithCoords = filteredMonsters.filter((m: any) => 
+      m.lat !== undefined && m.lat !== null &&
+      m.lng !== undefined && m.lng !== null &&
+      Number(m.lat) !== 0 && Number(m.lng) !== 0 &&
+      !isNaN(Number(m.lat)) && !isNaN(Number(m.lng))
+    );
+
+    if (monstersWithCoords.length > 0) {
+      monstersWithCoords.forEach((m: any) => {
+        const monsterIcon = L.icon({
+          iconUrl: `/monsters/${m.id}.png`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+          popupAnchor: [0, -16],
+          className: 'border-2 border-primary bg-slate-900 rounded-full p-0.5 shadow-lg'
+        });
+
+        const popupContent = `
+          <div style="color: #0f172a; font-family: sans-serif; font-size: 11px; padding: 4px; line-height: 1.4;">
+            <strong style="text-transform: uppercase; color: #0db9f2;">${getLoc(m.name, 'cz')}</strong><br/>
+            <strong>Úroveň:</strong> ${m.level}<br/>
+            <strong>Chyceno:</strong> ${m.caughtAt ? new Date(m.caughtAt).toLocaleString('cs-CZ') : 'neznámo'}<br/>
+            <strong>GPS:</strong> ${Number(m.lat).toFixed(5)}, ${Number(m.lng).toFixed(5)}
+          </div>
+        `;
+
+        L.marker([Number(m.lat), Number(m.lng)], { icon: monsterIcon })
+          .addTo(catchesMapRef.current!)
+          .bindPopup(popupContent);
+      });
+
+      // Recenter on remaining markers
+      const avgLat = monstersWithCoords.reduce((sum: number, m: any) => sum + Number(m.lat), 0) / monstersWithCoords.length;
+      const avgLng = monstersWithCoords.reduce((sum: number, m: any) => sum + Number(m.lng), 0) / monstersWithCoords.length;
+      catchesMapRef.current.panTo([avgLat, avgLng]);
+    }
+  }, [monsterSearch, caughtMonstersList, selectedPlayerId]);
 
   const [isCleaning, setIsCleaning] = useState(false);
 
@@ -1195,13 +1315,13 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                 <div className="bg-black/40 p-2.5 rounded-2xl">
                   <div className="text-[8px] text-slate-500 font-bold uppercase">Inventář</div>
                   <div className="text-base font-black text-emerald-500 italic">
-                    {detailedData?.inventory?.length || 0}
+                    {playerInventoryList.length}
                   </div>
                 </div>
                 <div className="bg-black/40 p-2.5 rounded-2xl">
                   <div className="text-[8px] text-slate-500 font-bold uppercase">Příšery</div>
                   <div className="text-base font-black text-primary italic">
-                    {detailedData?.caughtMonsters?.length || pSummary?.monsterCount || 0}
+                    {caughtMonstersList.length || pSummary?.monsterCount || 0}
                   </div>
                 </div>
               </div>
@@ -1267,8 +1387,8 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                     )}
                   >
                     {tab === 'info' ? 'Profil & Poloha' : 
-                     tab === 'monsters' ? `Příšery (${detailedData?.caughtMonsters?.length || pSummary?.monsterCount || 0})` : 
-                     tab === 'inventory' ? `Inventář (${detailedData?.inventory?.length || 0})` : 
+                     tab === 'monsters' ? `Příšery (${caughtMonstersList.length || pSummary?.monsterCount || 0})` : 
+                     tab === 'inventory' ? `Inventář (${playerInventoryList.length})` : 
                      `Pozvání (${detailedData?.referralList ? Object.keys(detailedData.referralList).length : 0})`}
                   </button>
                 ))}
@@ -1321,10 +1441,32 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                       />
                     </div>
 
+                    {caughtMonstersList.filter((m: any) => 
+                      m.lat !== undefined && m.lat !== null &&
+                      m.lng !== undefined && m.lat !== null &&
+                      Number(m.lat) !== 0 && Number(m.lng) !== 0 &&
+                      !isNaN(Number(m.lat)) && !isNaN(Number(m.lng))
+                    ).length > 0 && (
+                      <div className="h-[500px] bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden relative shadow-inner">
+                        <div className="absolute top-3 left-3 z-[1000] flex flex-col gap-1 pointer-events-none">
+                          <div className="bg-slate-900/90 px-2 py-1 rounded-lg border border-white/10 text-[8px] font-black text-white uppercase flex items-center gap-1 shadow-2xl backdrop-blur-md">
+                            <MapPin size={8} className="text-cyan-400" /> Mapa poloh chycení
+                          </div>
+                        </div>
+                        <div
+                          ref={catchesMapContainerRef}
+                          className="absolute inset-0 w-full h-full"
+                          key={`catches-map-inside-${selectedPlayerId}`}
+                          style={{ background: '#020617', zIndex: 1, position: 'absolute' }}
+                        />
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[300px] overflow-y-auto pr-1 content-start custom-scrollbar">
-                      {detailedData?.caughtMonsters && detailedData.caughtMonsters.length > 0 ? (
-                        detailedData.caughtMonsters
+                      {caughtMonstersList.length > 0 ? (
+                        [...caughtMonstersList]
                           .filter((m: any) => getLoc(m.name, 'cz').toLowerCase().includes(monsterSearch.toLowerCase()) || m.id.includes(monsterSearch))
+                          .sort((a, b) => getMonsterPower(b) - getMonsterPower(a))
                           .map((m: any, i: number) => (
                             <div key={i} className="p-2 bg-black/25 border border-white/5 rounded-xl flex flex-col items-center text-center group hover:border-primary/30 transition-all">
                               <div className="size-12 bg-black/40 rounded-lg p-1 flex items-center justify-center shrink-0 mb-1">
@@ -1332,7 +1474,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                               </div>
                               <div className="min-w-0 w-full">
                                 <div className="text-[9px] font-black text-white uppercase truncate leading-tight">{getLoc(m.name, 'cz')}</div>
-                                <div className="text-[8px] font-black text-primary leading-tight">Lv {m.level}</div>
+                                <div className={cn("text-[8px] font-black leading-tight", getMonsterRarityColor(m.rarity))}>Lv {m.level}</div>
                               </div>
                             </div>
                           ))
@@ -1370,9 +1512,9 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-1 content-start custom-scrollbar">
-                      {detailedData?.inventory && detailedData.inventory.length > 0 ? (
+                      {playerInventoryList.length > 0 ? (
                         (() => {
-                          const filteredItems = detailedData.inventory.map((item: any, i: number) => {
+                          const filteredItems = playerInventoryList.map((item: any, i: number) => {
                             const config = RESOURCE_CONFIG[item.type];
                             return { item, config, index: i };
                           }).filter(({ item, config }: any) => {
