@@ -134,7 +134,7 @@ export const Bestiary = ({ caughtMonsters, onSelect }: {
               key={(m as any).caughtAt ? (m as any).caughtAt + idx : m.id}
               whileHover={isCaught ? { scale: 1.02, y: -4 } : {}}
               whileTap={isCaught ? { scale: 0.98 } : {}}
-              onClick={() => isCaught && onSelect(caughtMonsters.find(cm => cm.id === m.id) || m)}
+              onClick={() => isCaught && onSelect(m)}
               className={cn(
                 "relative group aspect-square rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 border-2",
                 isCaught

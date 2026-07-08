@@ -139,12 +139,22 @@ export const getMonsterMinLevel = (rarity: any) => {
 };
 
 import { RESOURCE_CONFIG } from '../data/resources';
+import { monsterDB } from '../data/monsters';
+
+export const getBaseStats = (monster: any) => {
+  if (monster && monster.stats) return monster.stats;
+  if (monster && monster.id) {
+    const dbData = monsterDB.find((d: any) => String(d.id) === String(monster.id));
+    if (dbData && dbData.stats) return dbData.stats;
+  }
+  return { hp: 100, attack: 10, defense: 10 };
+};
 
 export const getMonsterMaxHP = (monster: any) => {
-  if (!monster || !monster.stats) return 100;
-  const base = monster.stats.hp || 100;
-  const minLvl = getMonsterMinLevel(monster.rarity || '');
-  const levelBonus = Math.floor(base * Math.max(0, monster.level - 1) * 0.1);
+  if (!monster) return 100;
+  const stats = getBaseStats(monster);
+  const base = stats.hp || 100;
+  const levelBonus = Math.floor(base * Math.max(0, (monster.level || 1) - 1) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {
@@ -163,9 +173,10 @@ export const getMonsterMaxHP = (monster: any) => {
 };
 
 export const getMonsterDefense = (monster: any) => {
-  if (!monster || !monster.stats) return 10;
-  const base = monster.stats.defense || 10;
-  const levelBonus = Math.floor(base * Math.max(0, monster.level - 1) * 0.1);
+  if (!monster) return 10;
+  const stats = getBaseStats(monster);
+  const base = stats.defense || 10;
+  const levelBonus = Math.floor(base * Math.max(0, (monster.level || 1) - 1) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {
@@ -184,10 +195,10 @@ export const getMonsterDefense = (monster: any) => {
 };
 
 export const getMonsterAttack = (monster: any) => {
-  if (!monster || !monster.stats) return 10;
-  const base = monster.stats.attack || 10;
-  const minLvl = getMonsterMinLevel(monster.rarity || '');
-  const levelBonus = Math.floor(base * (monster.level - 1) * 0.1);
+  if (!monster) return 10;
+  const stats = getBaseStats(monster);
+  const base = stats.attack || 10;
+  const levelBonus = Math.floor(base * Math.max(0, (monster.level || 1) - 1) * 0.1);
   
   const getEqBonus = (slots: (string | null)[]) => {
     return (slots || []).reduce((acc: number, id: string | null) => {
