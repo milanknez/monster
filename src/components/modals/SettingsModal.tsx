@@ -13,17 +13,24 @@ const AVATAR_STYLES = [
   { id: 'lorelei', name: 'Lorelei' },
 ];
 
-const Toggle = ({ label, active, onToggle, icon }: { label: string, active: boolean, onToggle: () => void, icon?: any }) => (
+const Toggle = ({ label, description, active, onToggle, icon }: { label: string, description?: string, active: boolean, onToggle: () => void, icon?: any }) => (
   <button 
     onClick={onToggle}
-    className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"
+    className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-left"
   >
     <div className="flex items-center gap-3">
-      {icon && <div className="text-primary/60">{icon}</div>}
-      <span className="text-sm font-bold text-slate-300">{label}</span>
+      {icon && <div className="text-primary/60 shrink-0">{icon}</div>}
+      <div className="text-left">
+        <span className="text-sm font-bold text-slate-300 block leading-tight">{label}</span>
+        {description && (
+          <span className="text-[10px] text-slate-500 font-medium tracking-tight block mt-0.5 leading-snug">
+            {description}
+          </span>
+        )}
+      </div>
     </div>
     <div className={cn(
-      "w-10 h-6 rounded-full p-1 transition-colors duration-300",
+      "w-10 h-6 rounded-full p-1 transition-colors duration-300 shrink-0 self-center ml-4",
       active ? "bg-primary" : "bg-slate-700"
     )}>
       <motion.div 
@@ -338,23 +345,27 @@ export const SettingsModal = ({
                       <div className="space-y-3">
                         <Toggle 
                           label={t('settings.battery_saver')} 
+                          description={t('settings.battery_saver_desc')}
                           active={tempBatterySaver} 
                           onToggle={() => setTempBatterySaver(!tempBatterySaver)} 
                           icon={<Shield size={14} className="text-primary" />}
                         />
                         <Toggle 
                           label={t('settings.notifications')} 
+                          description={t('settings.notifications_desc')}
                           active={tempNotifications} 
                           onToggle={() => setTempNotifications(!tempNotifications)} 
                         />
                         <Toggle 
                           label={t('settings.sound')} 
+                          description={t('settings.sound_desc')}
                           icon={<Volume2 size={14} />}
                           active={!tempMuted} 
                           onToggle={() => setTempMuted(!tempMuted)} 
                         />
                         <Toggle 
                           label={t('settings.haptic')} 
+                          description={t('settings.haptic_desc')}
                           active={tempVibration} 
                           onToggle={() => setTempVibration(!tempVibration)} 
                         />
@@ -450,6 +461,7 @@ export const SettingsModal = ({
                       <div className="space-y-3">
                         <Toggle 
                           label={t('settings.auto_day_night')} 
+                          description={t('settings.auto_day_night_desc')}
                           active={tempMapAutoTheme} 
                           onToggle={() => setTempMapAutoTheme(!tempMapAutoTheme)} 
                           icon={<RefreshCw size={14} className={cn(tempMapAutoTheme && "animate-spin")} />}
@@ -481,9 +493,12 @@ export const SettingsModal = ({
                         )}
 
                         <div className="pt-2">
-                           <label className="text-[9px] font-bold text-slate-500 ml-1 uppercase tracking-widest mb-2 block">
+                           <label className="text-[9px] font-bold text-slate-500 ml-1 uppercase tracking-widest mb-1 block">
                              {t('settings.spawn_radius')}
                            </label>
+                           <span className="text-[10px] text-slate-500 font-medium tracking-tight block mb-3 leading-snug">
+                             {t('settings.spawn_radius_desc')}
+                           </span>
                            <div className="grid grid-cols-4 gap-1.5 p-1 bg-white/5 border border-white/10 rounded-2xl">
                              {[400, 1000, 1500, 2500].map(r => (
                                <button
