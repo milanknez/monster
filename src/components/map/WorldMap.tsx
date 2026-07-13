@@ -667,9 +667,35 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     const startWatching = () => {
       if (watchId !== null) return;
       watchId = navigator.geolocation.watchPosition((pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords
+        const { latitude: lat, longitude: lng, accuracy } = pos.coords
         if (!isFinite(lat) || !isFinite(lng)) return
         const now = Date.now()
+
+        // 1. Filter out poor accuracy/drift to prevent location "flying"
+        if (lastPosRef.current) {
+          // Ignore updates with accuracy worse than 100 meters
+          if (accuracy !== undefined && accuracy > 100) {
+            return;
+          }
+          // If accuracy is poor (e.g. > 35m) and the jump from the last position is larger than the accuracy range,
+          // ignore the update to prevent sudden jumps
+          if (accuracy !== undefined && accuracy > 35) {
+            const jumpDist = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng);
+            if (jumpDist > accuracy) {
+              return;
+            }
+          }
+        }
+
+        // 2. Battery saver throttling: limit updates to once every 5 seconds (unless they moved > 15m)
+        if (isBatterySaver && lastPosRef.current && lastPosTimeRef.current) {
+          const timeSinceLastUpdate = now - lastPosTimeRef.current;
+          const distMoved = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng);
+          if (timeSinceLastUpdate < 5000 && distMoved < 15) {
+            return;
+          }
+        }
+
         if (lastPosRef.current && lastPosTimeRef.current) {
           const traveled = haversineM(lastPosRef.current[0], lastPosRef.current[1], lat, lng)
           const timeDiff = (now - lastPosTimeRef.current) / 1000 // seconds
@@ -739,8 +765,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         setStatusMsg(t('map.gps_unavailable'));
         console.warn("Geolocation watch error:", err);
       }, {
-        enableHighAccuracy: !isBatterySaver,
-        maximumAge: isBatterySaver ? 5000 : 1000,
+        enableHighAccuracy: true, // Always use high accuracy (GPS) to prevent location jumping hundreds of meters
+        maximumAge: isBatterySaver ? 10000 : 1000, // Cache results longer in battery saver mode
         timeout: 10000
       })
     };
