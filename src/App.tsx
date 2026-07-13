@@ -391,14 +391,6 @@ function AppContent() {
       if (updated && JSON.stringify(updated) !== JSON.stringify(selectedMonster)) {
         setSelectedMonster(updated);
       }
-
-      // Lock body scroll when detail is open
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = '100vh';
-    } else {
-      // Unlock body scroll
-      document.body.style.overflow = 'unset';
-      document.body.style.height = 'unset';
     }
   }, [caughtMonsters, selectedMonster]);
 
@@ -1497,34 +1489,31 @@ function AppContent() {
         />
       )}
 
-      <Header
-        title={
-          activeTab === 'vault' ? t('tabs.bestiary') :
-            activeTab === 'inventory' ? t('tabs.inventory') :
-              activeTab === 'world' ? t('tabs.world') :
-                activeTab === 'store' ? t('tabs.store') :
-                  activeTab === 'codex' ? t('tabs.laboratory') :
-                    activeTab === 'detail' && selectedMonster ? getLoc(selectedMonster.name) :
+      {activeTab !== 'detail' && (
+        <Header
+          title={
+            activeTab === 'vault' ? t('tabs.bestiary') :
+              activeTab === 'inventory' ? t('tabs.inventory') :
+                activeTab === 'world' ? t('tabs.world') :
+                  activeTab === 'store' ? t('tabs.store') :
+                    activeTab === 'codex' ? t('tabs.laboratory') :
                       playerName || "Runner"
-        }
-        showBack={activeTab !== 'home'}
-        onBack={() => {
-          if (activeTab === 'codex') setActiveTab('inventory')
-          else if (activeTab === 'detail') {
-            setActiveTab('vault');
-            setSelectedMonster(null);
           }
-          else setActiveTab('home')
-        }}
-        playerName={playerName || 'Runner'}
-        avatarStyle={avatarStyle}
-        avatarSeed={avatarSeed}
-        onSettingsClick={() => setIsSettingsOpen(true)}
-        onAvatarClick={handleAvatarClick}
-        onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
-        onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
-        caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
-      />
+          showBack={activeTab !== 'home'}
+          onBack={() => {
+            if (activeTab === 'codex') setActiveTab('inventory')
+            else setActiveTab('home')
+          }}
+          playerName={playerName || 'Runner'}
+          avatarStyle={avatarStyle}
+          avatarSeed={avatarSeed}
+          onSettingsClick={() => setIsSettingsOpen(true)}
+          onAvatarClick={handleAvatarClick}
+          onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
+          onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
+          caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
+        />
+      )}
 
       <main className="mx-auto relative w-full max-w-md md:max-w-lg">
         {/* Main Tabs - Always mounted to preserve scroll state */}
