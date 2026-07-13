@@ -416,14 +416,16 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
 
                 {/* Header Profile */}
                 <div className="flex items-center gap-4 mb-6 shrink-0">
-                  <div className="relative size-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700/50 shadow-inner">
-                    <img 
-                      src={`https://api.dicebear.com/7.x/${selectedPlayer.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(selectedPlayer.avatarSeed || selectedPlayer.id)}`} 
-                      className="w-full h-full object-cover" 
-                      alt="Avatar" 
-                    />
-                    {selectedPlayer.isOnline && (
-                      <span className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border border-slate-900 rounded-full shadow-[0_0_8px_#10b981]" />
+                  <div className="relative size-16 shrink-0">
+                    <div className="w-full h-full rounded-2xl overflow-hidden bg-slate-800 border border-slate-700/50 shadow-inner">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/${selectedPlayer.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(selectedPlayer.avatarSeed || selectedPlayer.id)}`} 
+                        className="w-full h-full object-cover" 
+                        alt="Avatar" 
+                      />
+                    </div>
+                    {(selectedPlayer.isOnline || selectedPlayer.isMe || selectedPlayer.id === userUid) && (
+                      <span className="absolute -bottom-1 -right-1 size-3 bg-emerald-500 border border-slate-900 rounded-full shadow-[0_0_8px_#10b981] z-20 animate-pulse" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -448,7 +450,7 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                       </span>
                     </div>
                     <p className="text-[9px] font-bold text-slate-500 mt-1.5 lowercase">
-                      {selectedPlayer.isOnline ? (
+                      {(selectedPlayer.isOnline || selectedPlayer.isMe || selectedPlayer.id === userUid) ? (
                         <span className="text-emerald-400 font-extrabold uppercase text-[8px] tracking-wider">online nyní</span>
                       ) : (
                         formatLastActive(selectedPlayer.lastActive)
