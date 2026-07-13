@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Trophy, Target } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, Target, X, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../../lib/firebase';
@@ -23,6 +23,12 @@ interface LeaderboardPlayer {
     epic: number;
     legendary: number;
   };
+  caughtList?: {
+    id: string;
+    name: any;
+    rarity: any;
+    type: any;
+  }[];
 }
 
 interface LeaderboardProps {
@@ -37,6 +43,7 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
   const [leaderboardNearby, setLeaderboardNearby] = useState<LeaderboardPlayer[]>([]);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPlayer, setSelectedPlayer] = useState<LeaderboardPlayer | null>(null);
 
   const getSpeciesLabel = (count: number) => {
     if (i18n.language.startsWith('cs') || i18n.language.startsWith('cz')) {
@@ -98,6 +105,7 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           
           let mct = 0;
           let rarities = { common: 0, rare: 0, epic: 0, legendary: 0 };
+          let caughtList: { id: string; name: any; rarity: any; type: any }[] = [];
           if (merged.caughtMonsters) {
             const monstersList = Array.isArray(merged.caughtMonsters)
               ? merged.caughtMonsters
@@ -113,6 +121,13 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                 else if (r === 'epic') rarities.epic++;
                 else if (r === 'rare') rarities.rare++;
                 else rarities.common++;
+
+                caughtList.push({
+                  id: dbM.id,
+                  name: dbM.name,
+                  rarity: dbM.rarity,
+                  type: dbM.type
+                });
               }
             });
           } else {
@@ -148,7 +163,8 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             avatarSeed,
             isBlocked,
             rarities,
-            isOnline
+            isOnline,
+            caughtList
           };
         })
         .filter(p => (p.name !== 'Neznámý lovec' || p.id === userUid) && !p.isBlocked)
@@ -164,7 +180,8 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         avatarStyle: p.avatarStyle,
         avatarSeed: p.avatarSeed,
         rarities: p.rarities,
-        isOnline: p.isOnline
+        isOnline: p.isOnline,
+        caughtList: p.caughtList
       }));
       setAllPlayers(mappedPlayers);
 
@@ -182,7 +199,8 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           avatarStyle: p.avatarStyle,
           avatarSeed: p.avatarSeed,
           rarities: p.rarities,
-          isOnline: p.isOnline
+          isOnline: p.isOnline,
+          caughtList: p.caughtList
         }));
         setLeaderboardNearby(nearby);
       } else {
@@ -218,9 +236,10 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         {displayedTop.map((player, idx) => (
           <div 
             key={`top-${idx}`}
+            onClick={() => setSelectedPlayer(player)}
             className={cn(
-              "flex items-center gap-4 px-5 py-3 transition-colors",
-              player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
+              "flex items-center gap-4 px-5 py-3 transition-colors cursor-pointer hover:bg-white/[0.02]",
+              player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500 hover:bg-amber-500/15" : "bg-transparent"
             )}
           >
             {/* Avatar on the left */}
@@ -319,9 +338,10 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           .map((player, idx) => (
           <div 
             key={`nearby-${idx}`}
+            onClick={() => setSelectedPlayer(player)}
             className={cn(
-              "flex items-center gap-4 px-5 py-3 transition-colors",
-              player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500" : "bg-transparent"
+              "flex items-center gap-4 px-5 py-3 transition-colors cursor-pointer hover:bg-white/[0.02]",
+              player.isMe ? "bg-amber-500/10 border-l-2 border-l-amber-500 hover:bg-amber-500/15" : "bg-transparent"
             )}
           >
             {/* Avatar on the left */}
@@ -388,6 +408,125 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           </div>
         ))}
       </div>
+
+      {/* Player Detail Bottom Sheet */}
+      <AnimatePresence>
+        {selectedPlayer && (
+          <div 
+            className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedPlayer(null)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-slate-900 border-t border-white/10 rounded-t-[2.5rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col max-h-[75vh]"
+            >
+              {/* Drag Handle */}
+              <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-6 shrink-0" />
+
+              {/* Header Profile */}
+              <div className="flex items-center gap-4 mb-6 shrink-0">
+                <div className="relative size-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700/50 shadow-inner">
+                  <img 
+                    src={`https://api.dicebear.com/7.x/${selectedPlayer.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(selectedPlayer.avatarSeed || selectedPlayer.id)}`} 
+                    className="w-full h-full object-cover" 
+                    alt="Avatar" 
+                  />
+                  {selectedPlayer.isOnline && (
+                    <span className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border border-slate-900 rounded-full shadow-[0_0_8px_#10b981]" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-black text-white uppercase italic leading-none tracking-tight">
+                    {selectedPlayer.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-none">
+                      #{selectedPlayer.rank} lovec
+                    </span>
+                    <div className="size-1 rounded-full bg-white/10" />
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {selectedPlayer.mct} {getSpeciesLabel(selectedPlayer.mct)}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlayer(null)}
+                  className="size-10 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-400 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Caught Monsters List */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-1">Chycené příšery ({selectedPlayer.caughtList?.length || 0})</h4>
+                
+                {selectedPlayer.caughtList && selectedPlayer.caughtList.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-3">
+                    {[...selectedPlayer.caughtList]
+                      .sort((a, b) => {
+                        const getRarityWeight = (rar: string) => {
+                          const w = getLoc(rar, 'en').toLowerCase();
+                          if (w === 'legendary') return 4;
+                          if (w === 'epic') return 3;
+                          if (w === 'rare') return 2;
+                          return 1;
+                        };
+                        return getRarityWeight(b.rarity) - getRarityWeight(a.rarity);
+                      })
+                      .map(m => {
+                        const r = getLoc(m.rarity, 'en').toLowerCase();
+                        const isLegendary = r === 'legendary';
+                        const isEpic = r === 'epic';
+                        const isRare = r === 'rare';
+                        
+                        const borderColors = isLegendary ? 'border-amber-500/50 bg-amber-500/5 shadow-lg shadow-amber-500/5' :
+                                             isEpic ? 'border-purple-500/50 bg-purple-500/5 shadow-lg shadow-purple-500/5' :
+                                             isRare ? 'border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/5' :
+                                             'border-slate-800 bg-slate-950/20';
+
+                        const textColors = isLegendary ? 'text-amber-400' :
+                                           isEpic ? 'text-purple-400' :
+                                           isRare ? 'text-blue-400' :
+                                           'text-slate-400';
+
+                        return (
+                          <div 
+                            key={m.id}
+                            className={cn(
+                              "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 text-center relative overflow-hidden group hover:bg-white/[0.02] transition-colors",
+                              borderColors
+                            )}
+                          >
+                            <img 
+                              src={`/monsters/${m.id}.png`} 
+                              className="size-10 object-contain drop-shadow-md mb-1 relative z-10" 
+                              alt={getLoc(m.name, i18n.language)} 
+                            />
+                            <p className="text-[8px] font-black text-white uppercase truncate w-full relative z-10 leading-none">{getLoc(m.name, i18n.language)}</p>
+                            <p className={cn("text-[7px] font-black uppercase tracking-tighter mt-0.5 relative z-10", textColors)}>
+                              {t(`rarities.${r}`)}
+                            </p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01]">
+                    <p className="text-xs italic text-slate-600 font-bold uppercase tracking-widest px-8">
+                      Zatím žádné chycené příšery
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
