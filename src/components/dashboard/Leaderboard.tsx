@@ -408,7 +408,7 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   "w-full max-w-md border-t border-white/10 rounded-t-[2.5rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col max-h-[75vh]",
-                  graphicsQuality === 'low' ? "bg-slate-950/80" : "bg-slate-950/75 backdrop-blur-xl"
+                  graphicsQuality === 'low' ? "bg-slate-950/95" : "bg-slate-950/95 backdrop-blur-xl"
                 )}
               >
                 {/* Drag Handle */}
