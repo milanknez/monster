@@ -81,7 +81,7 @@ export const SetupProfileModal = ({ onComplete, isLoggingIn = false, initialRefe
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className="w-full max-w-sm bg-slate-900 border border-primary/30 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(13,185,242,0.15)] relative"
+        className="w-full max-w-sm max-h-[90vh] overflow-y-auto bg-slate-900 border border-primary/30 rounded-[2.5rem] shadow-[0_0_50px_rgba(13,185,242,0.15)] relative"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
 
