@@ -1104,8 +1104,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         <AnimatePresence>
           {showHealingModal && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-end flex-col">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHealingModal(false)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
-              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="w-full max-w-lg bg-slate-900/90 backdrop-blur-xl border-t-4 border-emerald-500 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_80px_rgba(16,185,129,0.3)] relative z-10">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHealingModal(false)} className={cn("absolute inset-0 bg-black/40", graphicsQuality !== 'low' && "backdrop-blur-xl")} />
+              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={cn("w-full max-w-lg border-t-4 border-emerald-500 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_80px_rgba(16,185,129,0.3)] relative z-10", graphicsQuality === 'low' ? "bg-slate-900/98" : "bg-slate-900/90 backdrop-blur-xl")}>
                 <div className="flex justify-between items-center mb-10">
                   <div className="flex items-center gap-4">
                     <div className="p-3.5 bg-emerald-500/20 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10"><Package size={28} /></div>
@@ -1153,8 +1153,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         <AnimatePresence>
           {confirmRelease && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmRelease(false)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
-              <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="w-full max-w-sm bg-slate-900/90 backdrop-blur-xl border-2 border-red-500/20 rounded-[2rem] p-10 text-center shadow-[0_0_120px_rgba(239,68,68,0.25)] relative z-10">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmRelease(false)} className={cn("absolute inset-0 bg-black/40", graphicsQuality !== 'low' && "backdrop-blur-xl")} />
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className={cn("w-full max-w-sm border-2 border-red-500/20 rounded-[2rem] p-10 text-center shadow-[0_0_120px_rgba(239,68,68,0.25)] relative z-10", graphicsQuality === 'low' ? "bg-slate-900/98" : "bg-slate-900/90 backdrop-blur-xl")}>
                 <div className="size-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-inner"><Trash2 size={48} className="text-red-500" /></div>
                 <h2 className="text-3xl font-black text-white uppercase italic mb-3 tracking-tighter">{t('monster.release.confirm_title')}</h2>
                 <p className="text-slate-400 text-sm font-bold mb-10 leading-relaxed px-4">{t('monster.release.confirm_desc')} <span className="text-white font-black underline decoration-red-500/50">{getLoc(monster.name || originalMonster?.name, i18n.language)}</span>?</p>
@@ -1356,14 +1356,17 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setShowMutations(false)}
-                className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+                className={cn("absolute inset-0 bg-black/40", graphicsQuality !== 'low' && "backdrop-blur-xl")}
               />
               <motion.div
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="w-full max-w-lg bg-slate-800/60 backdrop-blur-xl border-t-4 border-primary/50 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(var(--primary-rgb),0.4)] relative z-10 max-h-[85vh] flex flex-col"
+                className={cn(
+                  "w-full max-w-lg border-t-4 border-primary/50 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(var(--primary-rgb),0.4)] relative z-10 max-h-[85vh] flex flex-col",
+                  graphicsQuality === 'low' ? "bg-slate-900/98" : "bg-slate-800/60 backdrop-blur-xl"
+                )}
               >
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8 shrink-0">
