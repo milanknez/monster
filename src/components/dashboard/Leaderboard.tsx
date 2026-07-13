@@ -289,41 +289,16 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <p className={cn(
-                    "text-[11px] font-black uppercase tracking-wide truncate",
-                    player.isMe ? "text-white" : "text-slate-300"
-                  )}>
-                    {player.name}
-                  </p>
-                  <span className="text-[10px] font-bold text-slate-500 tabular-nums">
-                    {player.mct} {getSpeciesLabel(player.mct)}
-                  </span>
-                </div>
-                {/* Rarity Breakdown */}
-                {player.rarities && (player.rarities.rare > 0 || player.rarities.epic > 0 || player.rarities.legendary > 0) && (
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {player.rarities.legendary > 0 && (
-                      <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-amber-400" />
-                        {player.rarities.legendary} L
-                      </span>
-                    )}
-                    {player.rarities.epic > 0 && (
-                      <span className="text-[8px] font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-purple-400" />
-                        {player.rarities.epic} E
-                      </span>
-                    )}
-                    {player.rarities.rare > 0 && (
-                      <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-blue-400" />
-                        {player.rarities.rare} R
-                      </span>
-                    )}
-                  </div>
-                )}
+              <div className="flex items-center gap-2">
+                <p className={cn(
+                  "text-[11px] font-black uppercase tracking-wide truncate",
+                  player.isMe ? "text-white" : "text-slate-300"
+                )}>
+                  {player.name}
+                </p>
+                <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+                  {player.mct} {getSpeciesLabel(player.mct)}
+                </span>
               </div>
             </div>
 
@@ -391,41 +366,16 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <p className={cn(
-                    "text-[11px] font-bold uppercase tracking-wide truncate",
-                    player.isMe ? "text-white" : "text-slate-400"
-                  )}>
-                    {player.name}
-                  </p>
-                  <span className="text-[10px] font-bold text-slate-600 tabular-nums">
-                    {player.mct} {getSpeciesLabel(player.mct)}
-                  </span>
-                </div>
-                {/* Rarity Breakdown */}
-                {player.rarities && (player.rarities.rare > 0 || player.rarities.epic > 0 || player.rarities.legendary > 0) && (
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {player.rarities.legendary > 0 && (
-                      <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-amber-400" />
-                        {player.rarities.legendary} L
-                      </span>
-                    )}
-                    {player.rarities.epic > 0 && (
-                      <span className="text-[8px] font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-purple-400" />
-                        {player.rarities.epic} E
-                      </span>
-                    )}
-                    {player.rarities.rare > 0 && (
-                      <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
-                        <span className="size-1 rounded-full bg-blue-400" />
-                        {player.rarities.rare} R
-                      </span>
-                    )}
-                  </div>
-                )}
+              <div className="flex items-center gap-2">
+                <p className={cn(
+                  "text-[11px] font-bold uppercase tracking-wide truncate",
+                  player.isMe ? "text-white" : "text-slate-400"
+                )}>
+                  {player.name}
+                </p>
+                <span className="text-[10px] font-bold text-slate-600 tabular-nums">
+                  {player.mct} {getSpeciesLabel(player.mct)}
+                </span>
               </div>
             </div>
 
