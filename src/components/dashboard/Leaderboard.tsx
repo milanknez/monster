@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../../lib/firebase';
 import { cn, getLoc } from '../../utils';
+import { monsterDB } from '../../data/monsters';
 
 interface LeaderboardPlayer {
   id: string;
@@ -15,6 +16,13 @@ interface LeaderboardPlayer {
   avatarStyle?: string;
   avatarSeed?: string;
   isBlocked?: boolean;
+  isOnline?: boolean;
+  rarities?: {
+    common: number;
+    rare: number;
+    epic: number;
+    legendary: number;
+  };
 }
 
 interface LeaderboardProps {
@@ -89,11 +97,24 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           let name = getLoc(rawName, i18n.language);
           
           let mct = 0;
+          let rarities = { common: 0, rare: 0, epic: 0, legendary: 0 };
           if (merged.caughtMonsters) {
             const monstersList = Array.isArray(merged.caughtMonsters)
               ? merged.caughtMonsters
               : Object.values(merged.caughtMonsters);
-            mct = new Set(monstersList.filter((m: any) => m && m.id).map((m: any) => m.id)).size;
+            const uniqueIds = Array.from(new Set(monstersList.filter((m: any) => m && m.id).map((m: any) => m.id)));
+            mct = uniqueIds.length;
+
+            uniqueIds.forEach(mId => {
+              const dbM = monsterDB.find(m => m.id === mId);
+              if (dbM) {
+                const r = getLoc(dbM.rarity, 'en').toLowerCase();
+                if (r === 'legendary') rarities.legendary++;
+                else if (r === 'epic') rarities.epic++;
+                else if (r === 'rare') rarities.rare++;
+                else rarities.common++;
+              }
+            });
           } else {
             mct = typeof merged.mct === 'number' ? merged.mct : 
                   typeof merged.monsterCount === 'number' ? merged.monsterCount : 
@@ -103,6 +124,8 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           let avatarStyle = merged.avatarStyle || merged.avs;
           let avatarSeed = merged.avatarSeed || merged.avd;
           let isBlocked = !!merged.blo;
+          const lastActive = merged.lastActive || merged.lastSeen || merged.la || 0;
+          const isOnline = id === userUid || (lastActive > 0 && (Date.now() - lastActive) < 300000);
 
           if (id === userUid) {
             if (localPlayerName) {
@@ -123,7 +146,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             mct,
             avatarStyle,
             avatarSeed,
-            isBlocked
+            isBlocked,
+            rarities,
+            isOnline
           };
         })
         .filter(p => (p.name !== 'Neznámý lovec' || p.id === userUid) && !p.isBlocked)
@@ -137,7 +162,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         rank: idx + 1,
         isMe: p.id === userUid,
         avatarStyle: p.avatarStyle,
-        avatarSeed: p.avatarSeed
+        avatarSeed: p.avatarSeed,
+        rarities: p.rarities,
+        isOnline: p.isOnline
       }));
       setAllPlayers(mappedPlayers);
 
@@ -153,7 +180,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           rank: start + idx + 1,
           isMe: p.id === userUid,
           avatarStyle: p.avatarStyle,
-          avatarSeed: p.avatarSeed
+          avatarSeed: p.avatarSeed,
+          rarities: p.rarities,
+          isOnline: p.isOnline
         }));
         setLeaderboardNearby(nearby);
       } else {
@@ -195,25 +224,55 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             )}
           >
             {/* Avatar on the left */}
-            <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50 shrink-0">
-              <img 
-                src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
-                className="w-full h-full object-cover" 
-                alt="Avatar" 
-              />
+            <div className="relative shrink-0">
+              <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50">
+                <img 
+                  src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
+                  className="w-full h-full object-cover" 
+                  alt="Avatar" 
+                />
+              </div>
+              {player.isOnline && (
+                <span className="absolute -bottom-0.5 -right-0.5 size-2 bg-emerald-500 border border-slate-950 rounded-full shadow-[0_0_6px_#10b981]" />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className={cn(
-                  "text-[11px] font-black uppercase tracking-wide truncate",
-                  player.isMe ? "text-white" : "text-slate-300"
-                )}>
-                  {player.name}
-                </p>
-                <span className="text-[10px] font-bold text-slate-500 tabular-nums">
-                  {player.mct} {getSpeciesLabel(player.mct)}
-                </span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <p className={cn(
+                    "text-[11px] font-black uppercase tracking-wide truncate",
+                    player.isMe ? "text-white" : "text-slate-300"
+                  )}>
+                    {player.name}
+                  </p>
+                  <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+                    {player.mct} {getSpeciesLabel(player.mct)}
+                  </span>
+                </div>
+                {/* Rarity Breakdown */}
+                {player.rarities && (player.rarities.rare > 0 || player.rarities.epic > 0 || player.rarities.legendary > 0) && (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    {player.rarities.legendary > 0 && (
+                      <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-amber-400" />
+                        {player.rarities.legendary} L
+                      </span>
+                    )}
+                    {player.rarities.epic > 0 && (
+                      <span className="text-[8px] font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-purple-400" />
+                        {player.rarities.epic} E
+                      </span>
+                    )}
+                    {player.rarities.rare > 0 && (
+                      <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-blue-400" />
+                        {player.rarities.rare} R
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -266,25 +325,55 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             )}
           >
             {/* Avatar on the left */}
-            <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50 shrink-0">
-              <img 
-                src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
-                className="w-full h-full object-cover" 
-                alt="Avatar" 
-              />
+            <div className="relative shrink-0">
+              <div className="size-6 rounded-full overflow-hidden bg-slate-800 border border-slate-700/50">
+                <img 
+                  src={`https://api.dicebear.com/7.x/${player.avatarStyle || 'bottts'}/svg?seed=${encodeURIComponent(player.avatarSeed || player.id)}`} 
+                  className="w-full h-full object-cover" 
+                  alt="Avatar" 
+                />
+              </div>
+              {player.isOnline && (
+                <span className="absolute -bottom-0.5 -right-0.5 size-2 bg-emerald-500 border border-slate-950 rounded-full shadow-[0_0_6px_#10b981]" />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className={cn(
-                  "text-[11px] font-bold uppercase tracking-wide truncate",
-                  player.isMe ? "text-white" : "text-slate-400"
-                )}>
-                  {player.name}
-                </p>
-                <span className="text-[10px] font-bold text-slate-600 tabular-nums">
-                  {player.mct} {getSpeciesLabel(player.mct)}
-                </span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <p className={cn(
+                    "text-[11px] font-bold uppercase tracking-wide truncate",
+                    player.isMe ? "text-white" : "text-slate-400"
+                  )}>
+                    {player.name}
+                  </p>
+                  <span className="text-[10px] font-bold text-slate-600 tabular-nums">
+                    {player.mct} {getSpeciesLabel(player.mct)}
+                  </span>
+                </div>
+                {/* Rarity Breakdown */}
+                {player.rarities && (player.rarities.rare > 0 || player.rarities.epic > 0 || player.rarities.legendary > 0) && (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    {player.rarities.legendary > 0 && (
+                      <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-amber-400" />
+                        {player.rarities.legendary} L
+                      </span>
+                    )}
+                    {player.rarities.epic > 0 && (
+                      <span className="text-[8px] font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-purple-400" />
+                        {player.rarities.epic} E
+                      </span>
+                    )}
+                    {player.rarities.rare > 0 && (
+                      <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 py-0.2 rounded-md flex items-center gap-0.5 scale-90 origin-left">
+                        <span className="size-1 rounded-full bg-blue-400" />
+                        {player.rarities.rare} R
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
