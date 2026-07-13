@@ -159,6 +159,7 @@ export interface WorldMapProps {
   addToast?: (toast: { title: string; message: string; type: 'success' | 'info' | 'error' | 'boost' }) => void
   ignoreSpeedLimit?: boolean
   isBatterySaver?: boolean
+  graphicsQuality?: 'low' | 'high'
   mapTheme?: 'day' | 'night' | 'auto'
   spawnRadius?: number
 }
@@ -192,6 +193,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   addToast,
   ignoreSpeedLimit = false,
   isBatterySaver = false,
+  graphicsQuality = 'high',
   initialPosition = null,
   mapTheme = 'auto',
   spawnRadius = 1000
@@ -557,7 +559,12 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   useEffect(() => {
     if (mapRef.current || !mapContainerRef.current) return
     const initPos: [number, number] = initialPosition ? [initialPosition.lat, initialPosition.lng] : [50.0755, 14.4378]
-    const map = L.map(mapContainerRef.current, { center: initPos, zoom: 16, zoomControl: false })
+    const map = L.map(mapContainerRef.current, { 
+      center: initPos, 
+      zoom: 16, 
+      zoomControl: false,
+      preferCanvas: graphicsQuality === 'low'
+    })
     mapRef.current = map
 
     

@@ -276,7 +276,7 @@ const MonsterScoreBadge = ({ score, rarity }: { score: number, rarity: any }) =>
   );
 };
 
-const RarityEffects = ({ rarity }: { rarity: any }) => {
+const RarityEffects = ({ rarity, graphicsQuality = 'high' }: { rarity: any, graphicsQuality?: 'low' | 'high' }) => {
   const { i18n } = useTranslation();
   const r = getLoc(rarity, 'en').toLowerCase();
   if (r === 'common') return null;
@@ -285,7 +285,7 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
   const isEpic = r === 'epic';
   const isRare = r === 'rare';
 
-  const particleCount = isLegendary ? 20 : isEpic ? 12 : 6;
+  const particleCount = graphicsQuality === 'low' ? 0 : (isLegendary ? 20 : isEpic ? 12 : 6);
   const particles = Array.from({ length: particleCount });
   const color = isLegendary ? 'bg-amber-400' : isEpic ? 'bg-purple-400' : 'bg-blue-400';
   const accentColor = isLegendary ? 'text-amber-300' : isEpic ? 'text-purple-300' : 'text-blue-300';
@@ -294,16 +294,16 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Background Glow Pulse */}
       <motion.div
-        animate={{
+        animate={graphicsQuality === 'low' ? { opacity: 0.15, scale: 1 } : {
           opacity: [0.1, 0.4, 0.1],
           scale: [1, 1.3, 1]
         }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        transition={graphicsQuality === 'low' ? undefined : { duration: 5, repeat: Infinity, ease: "easeInOut" }}
         className={cn("absolute inset-0 blur-[80px]", color.replace('bg-', 'bg-opacity-25 bg-'))}
       />
 
       {/* Rays for Legendary */}
-      {isLegendary && (
+      {isLegendary && graphicsQuality !== 'low' && (
         <div className="absolute inset-0 flex items-center justify-center opacity-20">
           <div className="size-[500px] bg-[conic-gradient(from_0deg,transparent_0deg,white_10deg,transparent_20deg)] animate-rotate-slow opacity-30 blur-sm" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900" />
@@ -311,7 +311,7 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
       )}
 
       {/* Random Floating Particles */}
-      {particles.map((_, i) => (
+      {graphicsQuality !== 'low' && particles.map((_, i) => (
         <motion.div
           key={i}
           initial={{
@@ -338,7 +338,7 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
       ))}
 
       {/* Rarity Ring / Energy Orbit */}
-      {(isLegendary || isEpic) && (
+      {(isLegendary || isEpic) && graphicsQuality !== 'low' && (
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
@@ -350,7 +350,7 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
       )}
 
       {/* Twinkling Stars for Legendary */}
-      {isLegendary && Array.from({ length: 5 }).map((_, i) => (
+      {isLegendary && graphicsQuality !== 'low' && Array.from({ length: 5 }).map((_, i) => (
         <motion.div
           key={`star-${i}`}
           animate={{
@@ -375,7 +375,7 @@ const RarityEffects = ({ rarity }: { rarity: any }) => {
   );
 };
 
-const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
+const MonsterImageWithEffects = ({ monster, graphicsQuality = 'high' }: { monster: Monster, graphicsQuality?: 'low' | 'high' }) => {
   const { i18n } = useTranslation();
   const r = getLoc(monster.rarity, 'en').toLowerCase();
   const isLegendary = r === 'legendary';
@@ -390,13 +390,13 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
       {/* Floating container for both images to keep them perfectly synced */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
-        animate={{
+        animate={graphicsQuality === 'low' ? { scale: 1, opacity: 1, y: 0, rotate: 0 } : {
           scale: 1,
           opacity: 1,
           y: [0, -15, 0],
           rotate: [0, 1, 0, -1, 0]
         }}
-        transition={{
+        transition={graphicsQuality === 'low' ? { scale: { duration: 0.3 }, opacity: { duration: 0.3 } } : {
           scale: { duration: 0.5 },
           opacity: { duration: 0.5 },
           y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
@@ -406,7 +406,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
         className="relative w-full h-full"
       >
         {/* 1. Base Ambient Glow (Behind) */}
-        {(isLegendary || isEpic || isRare) && (
+        {(isLegendary || isEpic || isRare) && graphicsQuality !== 'low' && (
           <div
             className="absolute inset-0 blur-[25px] opacity-20 z-0 scale-110"
             style={{
@@ -431,7 +431,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
         />
 
         {/* 3. Foil / Shimmer Overlay (Colorized reflection) */}
-        {(isLegendary || isEpic || isRare) && (
+        {(isLegendary || isEpic || isRare) && graphicsQuality !== 'low' && (
           <div
             className="absolute inset-0 z-20 pointer-events-none mix-blend-soft-light opacity-40"
             style={{
@@ -462,7 +462,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
         )}
 
         {/* 4. Soft Aura Pulse (Slower, calmer) */}
-        {(isLegendary || isEpic) && (
+        {(isLegendary || isEpic) && graphicsQuality !== 'low' && (
           <motion.div
             animate={{ opacity: [0.05, 0.15, 0.05] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -480,7 +480,7 @@ const MonsterImageWithEffects = ({ monster }: { monster: Monster }) => {
         )}
 
         {/* 5. Twinkling "Sparkles" (Glitter effect) */}
-        {isLegendary && (
+        {isLegendary && graphicsQuality !== 'low' && (
           <div className="absolute inset-0 z-30 pointer-events-none">
             {[...Array(12)].map((_, i) => (
               <motion.div
@@ -527,8 +527,9 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   onPermanentlyUpgrade?: (itemType: string, stats: any) => void;
   onRelease?: () => void;
   canRelease?: boolean;
+  graphicsQuality?: 'low' | 'high';
 }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRelease, canRelease = true }, ref) => {
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRelease, canRelease = true, graphicsQuality = 'high' }, ref) => {
     const { t, i18n } = useTranslation();
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [focusedItem, setFocusedItem] = useState<any>(null);
@@ -672,10 +673,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             <div className="relative aspect-square w-full bg-slate-800 rounded-3xl border-4 border-white/10 shadow-2xl flex items-center justify-center group-hover:border-white/20 transition-colors">
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-              <RarityEffects rarity={monster.rarity} />
+              <RarityEffects rarity={monster.rarity} graphicsQuality={graphicsQuality} />
               <RarityFrame rarity={monster.rarity} />
 
-              <MonsterImageWithEffects monster={monster} />
+              <MonsterImageWithEffects monster={monster} graphicsQuality={graphicsQuality} />
 
               {/* Mutation History Button - Left Side */}
               <div className="absolute bottom-6 left-6 z-40">

@@ -54,7 +54,7 @@ const HealthBar = ({ current, max, label, colorClass, shadowColor }: { current: 
   </div>
 );
 
-const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: any }) => {
+const MonsterPodium = ({ isPlayer, rarity, isLow }: { isPlayer?: boolean, rarity?: any, isLow?: boolean }) => {
   const r = (getLoc(rarity) || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let color = isPlayer ? 'rgba(13,185,242,0.8)' : 'rgba(239,68,68,0.8)';
   let bg = isPlayer ? 'bg-primary/20 border-primary' : 'bg-red-500/20 border-red-500';
@@ -73,16 +73,25 @@ const MonsterPodium = ({ isPlayer, rarity }: { isPlayer?: boolean, rarity?: any 
         }}
       />
       <div className="absolute w-32 h-32 flex items-center justify-center" style={{ transform: 'rotateX(78deg)', transformStyle: 'preserve-3d' }}>
-        <motion.div
-          animate={{ rotateZ: isPlayer ? -360 : 360 }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className={cn("absolute inset-0 border-2 border-dashed rounded-full opacity-40", isPlayer ? "border-primary/60" : "border-red-400/60")}
-        />
-        <motion.div
-          animate={{ rotateZ: isPlayer ? 360 : -360 }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className={cn("absolute inset-4 border border-dotted rounded-full opacity-30", isPlayer ? "border-primary/40" : "border-red-400/40")}
-        />
+        {isLow ? (
+          <>
+            <div className={cn("absolute inset-0 border-2 border-dashed rounded-full opacity-25", isPlayer ? "border-primary/60" : "border-red-400/60")} />
+            <div className={cn("absolute inset-4 border border-dotted rounded-full opacity-20", isPlayer ? "border-primary/40" : "border-red-400/40")} />
+          </>
+        ) : (
+          <>
+            <motion.div
+              animate={{ rotateZ: isPlayer ? -360 : 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className={cn("absolute inset-0 border-2 border-dashed rounded-full opacity-40", isPlayer ? "border-primary/60" : "border-red-400/60")}
+            />
+            <motion.div
+              animate={{ rotateZ: isPlayer ? 360 : -360 }}
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              className={cn("absolute inset-4 border border-dotted rounded-full opacity-30", isPlayer ? "border-primary/40" : "border-red-400/40")}
+            />
+          </>
+        )}
       </div>
     </div>
   );
@@ -166,14 +175,16 @@ const RarityBadge = ({ rarity }: { rarity: any }) => {
   );
 };
 
-const SkillEffect = ({ type, fromSide, subType }: { type: string | Localized<string>, fromSide: 'player' | 'enemy', subType: string }) => {
+const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Localized<string>, fromSide: 'player' | 'enemy', subType: string, isLow?: boolean }) => {
   const isHeal = subType === 'heal' || subType === 'regen';
   const isCurse = subType === 'curse' || subType === 'debuff';
   const isDefense = subType === 'defense';
   const isMelee = subType === 'attack';
   const isClaw = subType === 'claw';
 
-  const count = isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 30 : isClaw ? 0 : 12;
+  const count = isLow
+    ? (isClaw || isMelee ? 0 : 3)
+    : (isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 30 : isClaw ? 0 : 12);
   const particles = [...Array(count)].map((_, i) => ({
     id: i,
     delay: i * (isMelee ? 0.01 : (isCurse || isDefense ? 0.02 : 0.04)) + (isMelee ? 0.4 : 0),
@@ -385,7 +396,7 @@ const getFinalStats = (m: Monster) => {
 export const Battle = ({
   playerMonster, enemyMonster, isAlreadyCaught, opponentName, incomingEmote, pvpRole,
   incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem,
-  onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster, isTutorial
+  onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster, isTutorial, graphicsQuality
 }: {
   playerMonster: Monster, enemyMonster: Monster, isAlreadyCaught?: boolean, opponentName?: string,
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
@@ -398,8 +409,9 @@ export const Battle = ({
   onUseItem?: (type: string) => void,
   onWin: (xp: number, loot: any[]) => void, onLose: (xp: number) => void, onBack: () => void,
   onCatch?: (monster: Monster, xp: number, spawnId?: string) => void, onCatchFail?: () => void,
-  isNewMonster?: boolean, isTutorial?: boolean
+  isNewMonster?: boolean, isTutorial?: boolean, graphicsQuality?: string
 }) => {
+  const isLow = graphicsQuality === 'low';
   const { t, i18n } = useTranslation();
   const [tutorialStep, setTutorialStep] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<'idle' | 'attack' | 'hit' | 'win' | 'lose'>('idle');
@@ -1035,11 +1047,13 @@ export const Battle = ({
           <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(rgba(13,185,242,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(13,185,242,0.4) 1px, transparent 1px)', backgroundSize: '60px 60px', transform: 'rotateX(60deg) translateY(-20%)', transformOrigin: 'top' }} />
         </div>
         <AnimatePresence>{showFlash && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.7 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-white z-[50]" />}</AnimatePresence>
-        <div className="absolute inset-0 z-10 opacity-30">
-          {[...Array(20)].map((_, i) => (
-            <motion.div key={i} initial={{ x: Math.random() * 100 + '%', y: Math.random() * 80 + 20 + '%', opacity: Math.random() * 0.5 + 0.2 }} animate={{ y: [null, '-=15%'], opacity: [null, 0, 0.4, 0] }} transition={{ duration: Math.random() * 4 + 4, repeat: Infinity }} className="absolute size-1.5 bg-primary rounded-full blur-[1.5px]" />
-          ))}
-        </div>
+        {!isLow && (
+          <div className="absolute inset-0 z-10 opacity-30">
+            {[...Array(20)].map((_, i) => (
+              <motion.div key={i} initial={{ x: Math.random() * 100 + '%', y: Math.random() * 80 + 20 + '%', opacity: Math.random() * 0.5 + 0.2 }} animate={{ y: [null, '-=15%'], opacity: [null, 0, 0.4, 0] }} transition={{ duration: Math.random() * 4 + 4, repeat: Infinity }} className="absolute size-1.5 bg-primary rounded-full blur-[1.5px]" />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Header */}
@@ -1296,7 +1310,7 @@ export const Battle = ({
             className="relative flex justify-center items-end h-28 w-28"
           >
             <AnimatePresence>{incomingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -80 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-white text-3xl p-2 rounded-2xl shadow-3xl border-2 border-slate-200">{incomingEmote}</motion.div>}</AnimatePresence>
-            <div className="absolute bottom-4 w-full flex justify-center"><MonsterPodium rarity={enemyMonster.rarity || ''} /></div>
+            <div className="absolute bottom-4 w-full flex justify-center"><MonsterPodium rarity={enemyMonster.rarity || ''} isLow={isLow} /></div>
             <AnimatePresence>
               {enemyShieldTurns > 0 && (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-32 rounded-full border-4 border-red-500/50 bg-[radial-gradient(circle,rgba(239,68,68,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(239,68,68,0.5)] flex items-center justify-center translate-y-4">
@@ -1345,7 +1359,7 @@ export const Battle = ({
             className="relative flex justify-center items-end h-36 w-36 mb-4"
           >
             <AnimatePresence>{outgoingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -100 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-slate-900 text-3xl p-2 rounded-2xl shadow-3xl border-2 border-primary/40">{outgoingEmote}</motion.div>}</AnimatePresence>
-            <div className="absolute bottom-6 w-full flex justify-center"><MonsterPodium isPlayer rarity={playerMonster.rarity || ''} /></div>
+            <div className="absolute bottom-6 w-full flex justify-center"><MonsterPodium isPlayer rarity={playerMonster.rarity || ''} isLow={isLow} /></div>
             <AnimatePresence>
               {shieldTurns > 0 && (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-48 rounded-full border-4 border-primary/50 bg-[radial-gradient(circle,rgba(59,130,246,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(59,130,246,0.5)] flex items-center justify-center translate-y-4">
@@ -1621,7 +1635,7 @@ export const Battle = ({
         winXP={winXP}
         onComplete={() => onLose(winXP)}
       />
-      <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} />}</AnimatePresence>
+      <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} isLow={isLow} />}</AnimatePresence>
 
       <AnimatePresence>
         {isTutorialActive && (

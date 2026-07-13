@@ -54,6 +54,8 @@ interface SettingsModalProps {
   lastSync: number | null;
   isBatterySaver: boolean;
   onToggleBatterySaver: () => void;
+  graphicsQuality: 'low' | 'high';
+  onUpdateGraphicsQuality: (quality: 'low' | 'high') => void;
   isDebugMode?: boolean;
   onToggleDebug?: () => void;
   mapTheme: 'day' | 'night';
@@ -84,6 +86,8 @@ export const SettingsModal = ({
   lastSync,
   isBatterySaver,
   onToggleBatterySaver,
+  graphicsQuality,
+  onUpdateGraphicsQuality,
   isDebugMode,
   onToggleDebug,
   mapTheme,
@@ -322,6 +326,44 @@ export const SettingsModal = ({
                             localStorage.setItem('monster_haptic_enabled', String(newVal));
                           }} 
                         />
+                        
+                        {/* Graphics Quality Toggle */}
+                        <button
+                          onClick={() => onUpdateGraphicsQuality(graphicsQuality === 'high' ? 'low' : 'high')}
+                          className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="text-primary/60 shrink-0">
+                              {graphicsQuality === 'high'
+                                ? <Flame size={14} className="text-orange-400" />
+                                : <Leaf size={14} className="text-emerald-500" />
+                              }
+                            </div>
+                            <div className="text-left">
+                              <span className="text-sm font-bold text-slate-300 block leading-tight">
+                                {t('settings.graphics_quality')}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-medium tracking-tight block mt-0.5 leading-snug">
+                                {t('settings.graphics_quality_desc')}
+                              </span>
+                              <span className={cn(
+                                "text-[9px] font-black uppercase tracking-widest block mt-1.5",
+                                graphicsQuality === 'high' ? "text-orange-400" : "text-emerald-500"
+                              )}>
+                                {graphicsQuality === 'high' ? 'HIGH' : 'LOW'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={cn(
+                            "w-10 h-6 rounded-full p-1 transition-colors duration-300 shrink-0 self-center ml-4",
+                            graphicsQuality === 'high' ? "bg-orange-500" : "bg-slate-700"
+                          )}>
+                            <motion.div
+                              animate={{ x: graphicsQuality === 'high' ? 16 : 0 }}
+                              className="size-4 bg-slate-950 rounded-full shadow-lg"
+                            />
+                          </div>
+                        </button>
                       </div>
                     </section>
 
