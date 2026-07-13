@@ -66,9 +66,9 @@ const MonsterPodium = ({ isPlayer, rarity, isLow }: { isPlayer?: boolean, rarity
   return (
     <div className="absolute -bottom-6 flex items-center justify-center w-full pointer-events-none">
       <div
-        className={cn("absolute w-40 h-40 rounded-full border-2 blur-[1.5px] opacity-30", bg)}
+        className={cn("absolute w-40 h-40 rounded-full border-2 opacity-30", !isLow && "blur-[1.5px]", bg)}
         style={{
-          boxShadow: `0 0 40px ${color}`,
+          boxShadow: isLow ? undefined : `0 0 40px ${color}`,
           transform: 'rotateX(78deg)'
         }}
       />
@@ -97,7 +97,7 @@ const MonsterPodium = ({ isPlayer, rarity, isLow }: { isPlayer?: boolean, rarity
   );
 };
 
-const PopupLayer = ({ popups, className, t }: { popups: DamagePopup[], className?: string, t: any }) => (
+const PopupLayer = ({ popups, className, t, isLow }: { popups: DamagePopup[], className?: string, t: any, isLow?: boolean }) => (
   <div className={cn("absolute top-0 w-full flex flex-col items-center pointer-events-none z-[400]", className)}>
     <AnimatePresence mode="popLayout">
       {popups.map(p => {
@@ -110,12 +110,13 @@ const PopupLayer = ({ popups, className, t }: { popups: DamagePopup[], className
             exit={{ opacity: 0, scale: 2.5, y: -150 }}
             transition={{ duration: 1, ease: "easeOut" }}
             className={cn(
-              "absolute font-black italic flex items-center gap-1 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)] whitespace-nowrap",
+              "absolute font-black italic flex items-center gap-1 whitespace-nowrap",
+              !isLow && "drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]",
               p.isHeal ? "text-emerald-400 text-5xl" : p.isCrit ? "text-amber-500 text-7xl" : p.isMiss ? "text-slate-400 text-4xl" : p.isPlayerSide ? "text-6xl text-red-500" : "text-5xl text-red-400"
             )}
           >
             {p.isHeal ? <Heart size={28} className="fill-emerald-400" /> : (p.isEffective ? <ArrowUpRight size={32} className="text-emerald-400 stroke-[5]" /> : (p.isWeak && <ArrowDownLeft size={32} className="text-red-400 stroke-[5]" />))}
-            <span className="drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
+            <span className={cn(!isLow && "drop-shadow-[0_0_10px_rgba(0,0,0,1)]")}>
               {p.isMiss ? t('battle.miss') : (p.isHeal ? '+' : '-') + p.value}
             </span>
           </motion.div>
@@ -197,17 +198,17 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
   const getIcon = (idx: number) => {
     const s = 64;
     if (isHeal) return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
-    if (isCurse) return <Skull className="text-purple-600 fill-purple-900/40 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]" size={s} />;
-    if (isDefense) return <ShieldIcon className="text-blue-400 fill-blue-500/40 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]" size={s} />;
+    if (isCurse) return <Skull className={cn("text-purple-600 fill-purple-900/40", !isLow && "drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]")} size={s} />;
+    if (isDefense) return <ShieldIcon className={cn("text-blue-400 fill-blue-500/40", !isLow && "drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]")} size={s} />;
     if (isMelee) return (
-      <svg viewBox="0 0 100 100" className="w-2 h-2 fill-red-600 drop-shadow-[0_0_5px_rgba(220,38,38,0.8)]">
+      <svg viewBox="0 0 100 100" className={cn("w-2 h-2 fill-red-600", !isLow && "drop-shadow-[0_0_5px_rgba(220,38,38,0.8)]")}>
         <path d="M50 0 C60 30 90 40 100 50 C90 60 60 70 50 100 C40 70 10 60 0 50 C10 40 40 30 50 0" />
       </svg>
     );
 
     if (subType === 'claw') {
       return (
-        <svg viewBox="0 0 100 100" className="w-full h-full fill-white drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] overflow-visible">
+        <svg viewBox="0 0 100 100" className={cn("w-full h-full fill-white overflow-visible", !isLow && "drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]")}>
           <defs>
             <linearGradient id="clawGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#fff" stopOpacity="0.3" />
@@ -245,7 +246,7 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
     if (lt.includes('vod') || lt.includes('wat')) return <Droplets className="text-blue-500 fill-blue-500/60" size={s} />;
     if (lt.includes('ele') || lt.includes('zap')) return <Zap className="text-yellow-400 fill-yellow-400/60" size={s} />;
     if (lt.includes('pří') || lt.includes('nat') || lt.includes('leaf') || lt.includes('pri')) return <Leaf className="text-emerald-500 fill-emerald-500/60" size={s} />;
-    return <Sword className="text-white/90 drop-shadow-2xl" size={s} />;
+    return <Sword className={cn("text-white/90", !isLow && "drop-shadow-2xl")} size={s} />;
   };
 
   const startCoords = {
@@ -255,6 +256,54 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
   const targetCoords = {
     left: fromSide === 'player' ? '70%' : '30%',
     top: fromSide === 'player' ? '28%' : '68%'
+  };
+
+  const getParticleAnimate = (p: typeof particles[0]) => {
+    if (isLow) {
+      return {
+        opacity: [0, 1, 1, 0],
+        scale: [0.3, p.scale * 0.7, p.scale * 0.7, 0],
+        left: [startCoords.left, targetCoords.left],
+        top: [startCoords.top, targetCoords.top]
+      };
+    }
+    if (isHeal) return {
+      opacity: [0, 1, 1, 1, 0],
+      scale: [0.5, p.scale, p.scale, 0],
+      top: [startCoords.top, `calc(${startCoords.top} - 35%)`],
+      left: [startCoords.left, `calc(${startCoords.left} + ${(Math.random() - 0.5) * 20}%)`],
+      rotate: [p.rotation, p.rotation + 45]
+    };
+    if (isCurse) return {
+      opacity: [0, 0.8, 1, 0.8, 0],
+      scale: [0.2, p.scale, p.scale * 1.5, 0],
+      x: ['-50%', `${-50 + Math.cos(p.rotation) * 80}%`, `${-50 + Math.cos(p.rotation + 180) * 120}%`],
+      y: ['-50%', `${-50 + Math.sin(p.rotation) * 80}%`, `${-50 + Math.sin(p.rotation + 180) * 120}%`],
+      rotate: [p.rotation, p.rotation + 360],
+      filter: ["blur(0px)", "blur(2px)", "blur(5px)", "blur(0px)"]
+    };
+    if (isDefense) return {
+      opacity: [0, 0.9, 1, 0.9, 0],
+      scale: [0, p.scale * 1.2, p.scale * 2.5],
+      x: ['-50%', `${-50 + Math.cos(p.rotation) * 90}%`],
+      y: ['-50%', `${-50 + Math.sin(p.rotation) * 90}%`],
+      rotate: [p.rotation, p.rotation + 180],
+    };
+    if (isMelee) return {
+      opacity: [0, 1, 1, 0],
+      scale: [0, p.scale * 1.2, p.scale * 0.8, 0],
+      x: ['-50%', `${-50 + (fromSide === 'player' ? (-50 - Math.random() * 200) : (50 + Math.random() * 200))}%`],
+      y: ['-50%', `${-50 + (fromSide === 'player' ? (50 + Math.random() * 200) : (-50 - Math.random() * 200))}%`],
+      rotate: [0, Math.random() * 360],
+      filter: ["blur(0px)", "blur(1px)", "blur(2px)"]
+    };
+    return {
+      opacity: [0, 1, 1, 1, 0],
+      scale: [0.5, p.scale, p.scale, 0],
+      left: [startCoords.left, targetCoords.left],
+      top: [startCoords.top, targetCoords.top],
+      rotate: [p.rotation, p.rotation + 720]
+    };
   };
 
   return (
@@ -270,41 +319,9 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
             x: '-50%',
             y: '-50%'
           }}
-          animate={isHeal ? {
-            opacity: [0, 1, 1, 1, 0],
-            scale: [0.5, p.scale, p.scale, 0],
-            top: [startCoords.top, `calc(${startCoords.top} - 35%)`],
-            left: [startCoords.left, `calc(${startCoords.left} + ${(Math.random() - 0.5) * 20}%)`],
-            rotate: [p.rotation, p.rotation + 45]
-          } : isCurse ? {
-            opacity: [0, 0.8, 1, 0.8, 0],
-            scale: [0.2, p.scale, p.scale * 1.5, 0],
-            x: ['-50%', `${-50 + Math.cos(p.rotation) * 80}%`, `${-50 + Math.cos(p.rotation + 180) * 120}%`],
-            y: ['-50%', `${-50 + Math.sin(p.rotation) * 80}%`, `${-50 + Math.sin(p.rotation + 180) * 120}%`],
-            rotate: [p.rotation, p.rotation + 360],
-            filter: ["blur(0px)", "blur(2px)", "blur(5px)", "blur(0px)"]
-          } : isDefense ? {
-            opacity: [0, 0.9, 1, 0.9, 0],
-            scale: [0, p.scale * 1.2, p.scale * 2.5],
-            x: ['-50%', `${-50 + Math.cos(p.rotation) * 90}%`],
-            y: ['-50%', `${-50 + Math.sin(p.rotation) * 90}%`],
-            rotate: [p.rotation, p.rotation + 180],
-          } : isMelee ? {
-            opacity: [0, 1, 1, 0],
-            scale: [0, p.scale * 1.2, p.scale * 0.8, 0],
-            x: ['-50%', `${-50 + (fromSide === 'player' ? (-50 - Math.random() * 200) : (50 + Math.random() * 200))}%`],
-            y: ['-50%', `${-50 + (fromSide === 'player' ? (50 + Math.random() * 200) : (-50 - Math.random() * 200))}%`],
-            rotate: [0, Math.random() * 360],
-            filter: ["blur(0px)", "blur(1px)", "blur(2px)"]
-          } : {
-            opacity: [0, 1, 1, 1, 0],
-            scale: [0.5, p.scale, p.scale, 0],
-            left: [startCoords.left, targetCoords.left],
-            top: [startCoords.top, targetCoords.top],
-            rotate: [p.rotation, p.rotation + 720]
-          }}
+          animate={getParticleAnimate(p)}
           transition={{ duration: p.speed, delay: p.delay, ease: (isHeal || isDefense || isMelee) ? "easeOut" : "easeInOut" }}
-          className="absolute drop-shadow-[0_0_30px_rgba(255,255,255,0.9)]"
+          className={cn("absolute", !isLow && "drop-shadow-[0_0_30px_rgba(255,255,255,0.9)]")}
         >
           {getIcon(p.id)}
         </motion.div>
@@ -1311,11 +1328,15 @@ export const Battle = ({
           >
             <AnimatePresence>{incomingEmote && <motion.div initial={{ opacity: 0, scale: 0, y: 0 }} animate={{ opacity: 1, scale: 1, y: -80 }} exit={{ opacity: 0, scale: 0 }} className="absolute z-[400] bg-white text-3xl p-2 rounded-2xl shadow-3xl border-2 border-slate-200">{incomingEmote}</motion.div>}</AnimatePresence>
             <div className="absolute bottom-4 w-full flex justify-center"><MonsterPodium rarity={enemyMonster.rarity || ''} isLow={isLow} /></div>
-            <AnimatePresence>
+             <AnimatePresence>
               {enemyShieldTurns > 0 && (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-32 rounded-full border-4 border-red-500/50 bg-[radial-gradient(circle,rgba(239,68,68,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(239,68,68,0.5)] flex items-center justify-center translate-y-4">
-                  <div className="absolute inset-0 border-2 border-red-500/20 rounded-full animate-ping opacity-20" />
-                </motion.div>
+                isLow ? (
+                  <div className="absolute size-32 rounded-full border-2 border-red-500/80 bg-red-950/20 z-10 translate-y-4 flex items-center justify-center shadow-none" />
+                ) : (
+                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-32 rounded-full border-4 border-red-500/50 bg-[radial-gradient(circle,rgba(239,68,68,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(239,68,68,0.5)] flex items-center justify-center translate-y-4">
+                    <div className="absolute inset-0 border-2 border-red-500/20 rounded-full animate-ping opacity-20" />
+                  </motion.div>
+                )
               )}
             </AnimatePresence>
 
@@ -1347,7 +1368,7 @@ export const Battle = ({
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: [0, 0.7, 0] }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 bg-red-600/40 rounded-full blur-2xl z-20 pointer-events-none" />
               )}
             </AnimatePresence>
-            <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" t={t} />
+            <PopupLayer popups={popups.filter(p => !p.isPlayerSide)} className="-translate-x-12" t={t} isLow={isLow} />
           </motion.div>
         </div>
 
@@ -1362,9 +1383,13 @@ export const Battle = ({
             <div className="absolute bottom-6 w-full flex justify-center"><MonsterPodium isPlayer rarity={playerMonster.rarity || ''} isLow={isLow} /></div>
             <AnimatePresence>
               {shieldTurns > 0 && (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-48 rounded-full border-4 border-primary/50 bg-[radial-gradient(circle,rgba(59,130,246,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(59,130,246,0.5)] flex items-center justify-center translate-y-4">
-                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full animate-ping opacity-20" />
-                </motion.div>
+                isLow ? (
+                  <div className="absolute size-48 rounded-full border-2 border-primary/80 bg-primary/10 z-10 translate-y-4 flex items-center justify-center shadow-none" />
+                ) : (
+                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.15, 1.05], opacity: [0.6, 0.8, 0.6], rotate: 360 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 3, repeat: Infinity }} className="absolute size-48 rounded-full border-4 border-primary/50 bg-[radial-gradient(circle,rgba(59,130,246,0.3)_0%,transparent_70%)] z-10 shadow-[0_0_50px_rgba(59,130,246,0.5)] flex items-center justify-center translate-y-4">
+                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full animate-ping opacity-20" />
+                  </motion.div>
+                )
               )}
             </AnimatePresence>
 
@@ -1386,7 +1411,7 @@ export const Battle = ({
             </div>
 
             <img src={playerMonster.image || `/monsters/${playerMonster.id}.png`} className="w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2" />
-            <PopupLayer popups={popups.filter(p => p.isPlayerSide)} t={t} />
+            <PopupLayer popups={popups.filter(p => p.isPlayerSide)} t={t} isLow={isLow} />
           </motion.div>
           <div id="tutorial-player-stats" className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
             <RarityBadge rarity={playerMonster.rarity || ''} />
@@ -1440,6 +1465,50 @@ export const Battle = ({
 
       {/* CONTROL PANEL */}
       <div className="p-4 bg-slate-950/60 border-t border-white/5 backdrop-blur-3xl pb-4 relative z-[9100]">
+        <AnimatePresence>{showSkills && <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[84px] left-4 right-4 max-w-md mx-auto bg-slate-900 backdrop-blur-3xl p-4 rounded-2xl border border-purple-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] space-y-2.5"><h4 className="text-[11px] font-black text-purple-400 mb-1.5 uppercase text-center tracking-[0.2em] opacity-80">{t('battle.ability_menu')}</h4><div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">{playerMonster.abilities?.map((ab, idx) => {
+          const cost = ab.type === 'attack' ? 50 : 30;
+          const estDmg = estimateDamage(playerMonster, enemyMonster, true, idx);
+          const isHeal = ab.type === 'heal';
+          const isDefense = ab.type === 'defense';
+          const isRegen = ab.type === 'regen';
+          const isCurse = ab.type === 'curse';
+          const healVal = isHeal ? Math.round(playerMaxHP * ((ab.value || 15) / 100)) : 0;
+
+          const type = ab.type?.toLowerCase() || 'attack';
+          const typeConfigs: Record<string, { icon: any, color: string, border: string }> = {
+            'attack': { icon: <Sword size={16} strokeWidth={2.5} />, color: '#ef4444', border: 'border-l-red-500' },
+            'extra': { icon: <Sparkles size={16} strokeWidth={2.5} />, color: '#fbbf24', border: 'border-l-amber-400' },
+            'defense': { icon: <ShieldIcon size={16} strokeWidth={2.5} />, color: '#3b82f6', border: 'border-l-blue-400' },
+            'heal': { icon: <Heart size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
+            'regen': { icon: <Leaf size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
+            'curse': { icon: <Skull size={16} strokeWidth={2.5} />, color: '#a855f7', border: 'border-l-purple-400' }
+          };
+          const config = typeConfigs[type] || typeConfigs['attack'];
+
+          return (
+            <button key={idx} onClick={() => { executeAttack(idx); setShowSkills(false); }} disabled={playerEnergy < cost || catchAnim} className={cn("flex items-center justify-between p-3 rounded-xl border border-white/5 border-l-4 transition-all text-left", config.border, playerEnergy >= cost && !catchAnim ? "bg-purple-600/15 hover:bg-purple-600/25 shadow-lg" : "opacity-50 grayscale-[0.5]")}>
+              <div className="flex-1 min-w-0 pr-3 py-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span style={{ color: config.color, filter: `drop-shadow(0 0 5px ${config.color}66)` }}>{config.icon}</span>
+                  <span className="text-[12px] font-black text-white uppercase tracking-tight truncate flex-1">{getLoc(ab.name, i18n.language)}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-[10px] leading-tight text-white/95">
+                    <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
+                      {isHeal ? `+${healVal} HP` : isDefense ? `${t('battle.shield')} 🛡️` : isCurse ? `${t('battle.curse')} 💀` : isRegen ? `${t('battle.regen_short')} 🌿` : `~${estDmg} DMG`}
+                      {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
+                    </span>
+                    <span className="text-slate-200 font-bold italic">{getLoc(ab.description, i18n.language)}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1 shrink-0 bg-black/20 p-1.5 rounded-lg border border-white/5 min-w-[50px]">
+                <span className="text-[11px] font-black text-purple-300 tabular-nums">{cost}⚡</span>
+                <span className="text-[7px] font-black text-purple-500/60 uppercase tracking-tighter">{t('battle.energy')}</span>
+              </div>
+            </button>
+          )
+        })}</div></motion.div>}</AnimatePresence>
         <div className={cn("grid gap-3", pvpRole ? "grid-cols-3" : "grid-cols-4")}>
           {/* Attack */}
           <motion.button
@@ -1461,50 +1530,6 @@ export const Battle = ({
 
           {/* Skill */}
           <div className="relative col-span-1 z-[7001]">
-            <AnimatePresence>{showSkills && <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] left-0 w-80 bg-slate-900 backdrop-blur-3xl p-4 rounded-2xl border border-purple-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] space-y-2.5"><h4 className="text-[11px] font-black text-purple-400 mb-1.5 uppercase text-center tracking-[0.2em] opacity-80">{t('battle.ability_menu')}</h4><div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">{playerMonster.abilities?.map((ab, idx) => {
-              const cost = ab.type === 'attack' ? 50 : 30;
-              const estDmg = estimateDamage(playerMonster, enemyMonster, true, idx);
-              const isHeal = ab.type === 'heal';
-              const isDefense = ab.type === 'defense';
-              const isRegen = ab.type === 'regen';
-              const isCurse = ab.type === 'curse';
-              const healVal = isHeal ? Math.round(playerMaxHP * ((ab.value || 15) / 100)) : 0;
-
-              const type = ab.type?.toLowerCase() || 'attack';
-              const typeConfigs: Record<string, { icon: any, color: string, border: string }> = {
-                'attack': { icon: <Sword size={16} strokeWidth={2.5} />, color: '#ef4444', border: 'border-l-red-500' },
-                'extra': { icon: <Sparkles size={16} strokeWidth={2.5} />, color: '#fbbf24', border: 'border-l-amber-400' },
-                'defense': { icon: <ShieldIcon size={16} strokeWidth={2.5} />, color: '#3b82f6', border: 'border-l-blue-400' },
-                'heal': { icon: <Heart size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
-                'regen': { icon: <Leaf size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
-                'curse': { icon: <Skull size={16} strokeWidth={2.5} />, color: '#a855f7', border: 'border-l-purple-400' }
-              };
-              const config = typeConfigs[type] || typeConfigs['attack'];
-
-              return (
-                <button key={idx} onClick={() => { executeAttack(idx); setShowSkills(false); }} disabled={playerEnergy < cost || catchAnim} className={cn("flex items-center justify-between p-3 rounded-xl border border-white/5 border-l-4 transition-all text-left", config.border, playerEnergy >= cost && !catchAnim ? "bg-purple-600/15 hover:bg-purple-600/25 shadow-lg" : "opacity-50 grayscale-[0.5]")}>
-                  <div className="flex-1 min-w-0 pr-3 py-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span style={{ color: config.color, filter: `drop-shadow(0 0 5px ${config.color}66)` }}>{config.icon}</span>
-                      <span className="text-[12px] font-black text-white uppercase tracking-tight truncate flex-1">{getLoc(ab.name, i18n.language)}</span>
-                    </div>
-                    <div className="flex flex-col gap-0.5">
-                      <p className="text-[10px] leading-tight text-white/95">
-                        <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
-                          {isHeal ? `+${healVal} HP` : isDefense ? `${t('battle.shield')} 🛡️` : isCurse ? `${t('battle.curse')} 💀` : isRegen ? `${t('battle.regen_short')} 🌿` : `~${estDmg} DMG`}
-                          {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
-                        </span>
-                        <span className="text-slate-200 font-bold italic">{getLoc(ab.description, i18n.language)}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0 bg-black/20 p-1.5 rounded-lg border border-white/5 min-w-[50px]">
-                    <span className="text-[11px] font-black text-purple-300 tabular-nums">{cost}⚡</span>
-                    <span className="text-[7px] font-black text-purple-500/60 uppercase tracking-tighter">{t('battle.energy')}</span>
-                  </div>
-                </button>
-              )
-            })}</div></motion.div>}</AnimatePresence>
             <motion.button
               id="tutorial-skills"
               whileTap={{ scale: 0.94, y: 4 }}

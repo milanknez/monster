@@ -53,7 +53,7 @@ interface SettingsModalProps {
   onUpdateEmail?: (email: string) => void;
   lastSync: number | null;
   isBatterySaver: boolean;
-  onToggleBatterySaver: () => void;
+  onUpdateBatterySaver: (active: boolean) => void;
   graphicsQuality: 'low' | 'high';
   onUpdateGraphicsQuality: (quality: 'low' | 'high') => void;
   isDebugMode?: boolean;
@@ -85,7 +85,7 @@ export const SettingsModal = ({
   onUpdateEmail,
   lastSync,
   isBatterySaver,
-  onToggleBatterySaver,
+  onUpdateBatterySaver,
   graphicsQuality,
   onUpdateGraphicsQuality,
   isDebugMode,
@@ -99,10 +99,20 @@ export const SettingsModal = ({
 
   const { t, i18n } = useTranslation();
   const { isMuted, setIsMuted } = useSoundSystem();
+  
+  // Temporary Buffered States
   const [tempName, setTempName] = useState(playerName);
   const [tempEmail, setTempEmail] = useState(playerEmail || '');
-  const [notifications, setNotifications] = useState(true);
-  const [vibration, setVibration] = useState(() => localStorage.getItem('monster_haptic_enabled') !== 'false');
+  const [tempAvatarStyle, setTempAvatarStyle] = useState(avatarStyle);
+  const [tempAvatarSeed, setTempAvatarSeed] = useState(avatarSeed);
+  const [tempBatterySaver, setTempBatterySaver] = useState(isBatterySaver);
+  const [tempGraphicsQuality, setTempGraphicsQuality] = useState(graphicsQuality);
+  const [tempMapTheme, setTempMapTheme] = useState(mapTheme);
+  const [tempMapAutoTheme, setTempMapAutoTheme] = useState(isMapAutoTheme);
+  const [tempSpawnRadius, setTempSpawnRadius] = useState(spawnRadius);
+  const [tempMuted, setTempMuted] = useState(isMuted);
+  const [tempVibration, setTempVibration] = useState(() => localStorage.getItem('monster_haptic_enabled') !== 'false');
+  const [tempNotifications, setTempNotifications] = useState(true);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   
   // Debug trigger for the new console
@@ -129,9 +139,18 @@ export const SettingsModal = ({
     if (isOpen) {
       setTempName(playerName);
       setTempEmail(playerEmail || '');
+      setTempAvatarStyle(avatarStyle);
+      setTempAvatarSeed(avatarSeed);
+      setTempBatterySaver(isBatterySaver);
+      setTempGraphicsQuality(graphicsQuality);
+      setTempMapTheme(mapTheme);
+      setTempMapAutoTheme(isMapAutoTheme);
+      setTempSpawnRadius(spawnRadius);
+      setTempMuted(isMuted);
+      setTempVibration(localStorage.getItem('monster_haptic_enabled') !== 'false');
       setShowConfirmReset(false);
     }
-  }, [isOpen, playerName, playerEmail]);
+  }, [isOpen, playerName, playerEmail, avatarStyle, avatarSeed, isBatterySaver, graphicsQuality, mapTheme, isMapAutoTheme, spawnRadius, isMuted]);
 
   const handleSave = () => {
     if (tempName.trim()) {
@@ -139,13 +158,30 @@ export const SettingsModal = ({
       if (onUpdateEmail && tempEmail.trim() && tempEmail !== playerEmail) {
         onUpdateEmail(tempEmail.trim());
       }
+      if (tempAvatarStyle !== avatarStyle || tempAvatarSeed !== avatarSeed) {
+        onUpdateAvatar(tempAvatarStyle, tempAvatarSeed);
+      }
+      if (tempBatterySaver !== isBatterySaver) {
+        onUpdateBatterySaver(tempBatterySaver);
+      }
+      if (tempGraphicsQuality !== graphicsQuality) {
+        onUpdateGraphicsQuality(tempGraphicsQuality);
+      }
+      if (tempMapTheme !== mapTheme || tempMapAutoTheme !== isMapAutoTheme) {
+        onUpdateMapTheme(tempMapTheme, tempMapAutoTheme);
+      }
+      if (tempSpawnRadius !== spawnRadius) {
+        onUpdateSpawnRadius(tempSpawnRadius);
+      }
+      setIsMuted(tempMuted);
+      localStorage.setItem('monster_haptic_enabled', String(tempVibration));
       onClose();
     }
   };
 
   const randomizeAvatar = () => {
     const newSeed = Math.random().toString(36).substring(7);
-    onUpdateAvatar(avatarStyle, newSeed);
+    setTempAvatarSeed(newSeed);
   };
 
   const confirmReset = () => {
@@ -239,8 +275,8 @@ export const SettingsModal = ({
                       <div className="flex flex-col items-center gap-4">
                         <div className="relative group cursor-pointer" onClick={handleDebugTrigger}>
                           <div className="size-24 rounded-full border-4 border-primary/30 p-1 bg-slate-800 overflow-hidden ring-4 ring-primary/10 shadow-[0_0_20px_rgba(13,185,242,0.2)] active:scale-95 transition-transform">
-                            <img 
-                              src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`} 
+                             <img 
+                              src={`https://api.dicebear.com/7.x/${tempAvatarStyle}/svg?seed=${tempAvatarSeed}`} 
                               alt="Avatar" 
                               className="w-full h-full rounded-full"
                             />
@@ -266,10 +302,10 @@ export const SettingsModal = ({
                           {AVATAR_STYLES.map(style => (
                             <button
                               key={style.id}
-                              onClick={() => onUpdateAvatar(style.id, avatarSeed)}
+                              onClick={() => setTempAvatarStyle(style.id)}
                               className={cn(
                                 "flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all",
-                                avatarStyle === style.id 
+                                tempAvatarStyle === style.id 
                                   ? "bg-primary text-slate-950 shadow-[0_0_10px_rgba(13,185,242,0.3)]" 
                                   : "bg-white/5 text-slate-500 hover:bg-white/10"
                               )}
@@ -302,39 +338,35 @@ export const SettingsModal = ({
                       <div className="space-y-3">
                         <Toggle 
                           label={t('settings.battery_saver')} 
-                          active={isBatterySaver} 
-                          onToggle={onToggleBatterySaver} 
+                          active={tempBatterySaver} 
+                          onToggle={() => setTempBatterySaver(!tempBatterySaver)} 
                           icon={<Shield size={14} className="text-primary" />}
                         />
                         <Toggle 
                           label={t('settings.notifications')} 
-                          active={notifications} 
-                          onToggle={() => setNotifications(!notifications)} 
+                          active={tempNotifications} 
+                          onToggle={() => setTempNotifications(!tempNotifications)} 
                         />
                         <Toggle 
                           label={t('settings.sound')} 
                           icon={<Volume2 size={14} />}
-                          active={!isMuted} 
-                          onToggle={() => setIsMuted(!isMuted)} 
+                          active={!tempMuted} 
+                          onToggle={() => setTempMuted(!tempMuted)} 
                         />
                         <Toggle 
                           label={t('settings.haptic')} 
-                          active={vibration} 
-                          onToggle={() => {
-                            const newVal = !vibration;
-                            setVibration(newVal);
-                            localStorage.setItem('monster_haptic_enabled', String(newVal));
-                          }} 
+                          active={tempVibration} 
+                          onToggle={() => setTempVibration(!tempVibration)} 
                         />
                         
                         {/* Graphics Quality Toggle */}
                         <button
-                          onClick={() => onUpdateGraphicsQuality(graphicsQuality === 'high' ? 'low' : 'high')}
+                          onClick={() => setTempGraphicsQuality(tempGraphicsQuality === 'high' ? 'low' : 'high')}
                           className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-left"
                         >
                           <div className="flex items-center gap-3">
                             <div className="text-primary/60 shrink-0">
-                              {graphicsQuality === 'high'
+                              {tempGraphicsQuality === 'high'
                                 ? <Flame size={14} className="text-orange-400" />
                                 : <Leaf size={14} className="text-emerald-500" />
                               }
@@ -348,18 +380,18 @@ export const SettingsModal = ({
                               </span>
                               <span className={cn(
                                 "text-[9px] font-black uppercase tracking-widest block mt-1.5",
-                                graphicsQuality === 'high' ? "text-orange-400" : "text-emerald-500"
+                                tempGraphicsQuality === 'high' ? "text-orange-400" : "text-emerald-500"
                               )}>
-                                {graphicsQuality === 'high' ? 'HIGH' : 'LOW'}
+                                {tempGraphicsQuality === 'high' ? 'HIGH' : 'LOW'}
                               </span>
                             </div>
                           </div>
                           <div className={cn(
                             "w-10 h-6 rounded-full p-1 transition-colors duration-300 shrink-0 self-center ml-4",
-                            graphicsQuality === 'high' ? "bg-orange-500" : "bg-slate-700"
+                            tempGraphicsQuality === 'high' ? "bg-orange-500" : "bg-slate-700"
                           )}>
                             <motion.div
-                              animate={{ x: graphicsQuality === 'high' ? 16 : 0 }}
+                              animate={{ x: tempGraphicsQuality === 'high' ? 16 : 0 }}
                               className="size-4 bg-slate-950 rounded-full shadow-lg"
                             />
                           </div>
@@ -418,28 +450,28 @@ export const SettingsModal = ({
                       <div className="space-y-3">
                         <Toggle 
                           label={t('settings.auto_day_night')} 
-                          active={isMapAutoTheme} 
-                          onToggle={() => onUpdateMapTheme(mapTheme, !isMapAutoTheme)} 
-                          icon={<RefreshCw size={14} className={cn(isMapAutoTheme && "animate-spin")} />}
+                          active={tempMapAutoTheme} 
+                          onToggle={() => setTempMapAutoTheme(!tempMapAutoTheme)} 
+                          icon={<RefreshCw size={14} className={cn(tempMapAutoTheme && "animate-spin")} />}
                         />
 
-                        {!isMapAutoTheme && (
+                        {!tempMapAutoTheme && (
                           <div className="flex gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
                             <button
-                              onClick={() => onUpdateMapTheme('day', false)}
+                              onClick={() => setTempMapTheme('day')}
                               className={cn(
                                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs",
-                                mapTheme === 'day' ? "bg-amber-500 text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
+                                tempMapTheme === 'day' ? "bg-amber-500 text-slate-950 shadow-lg" : "text-slate-500 hover:text-slate-300"
                               )}
                             >
                               <Sun size={14} />
                               {t('settings.day')}
                             </button>
                             <button
-                              onClick={() => onUpdateMapTheme('night', false)}
+                              onClick={() => setTempMapTheme('night')}
                               className={cn(
                                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs",
-                                mapTheme === 'night' ? "bg-slate-700 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+                                tempMapTheme === 'night' ? "bg-slate-700 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
                               )}
                             >
                               <Moon size={14} />
@@ -456,18 +488,15 @@ export const SettingsModal = ({
                              {[400, 1000, 1500, 2500].map(r => (
                                <button
                                  key={r}
-                                 onClick={() => {
-                                   onUpdateSpawnRadius(r);
-                                   localStorage.setItem('monster_spawn_radius', r.toString());
-                                 }}
+                                 onClick={() => setTempSpawnRadius(r)}
                                  className={cn(
                                    "py-2.5 rounded-xl transition-all font-black text-[9px] flex items-center justify-center gap-1",
-                                   spawnRadius === r ? "bg-primary text-slate-950 shadow-lg scale-[1.02]" : "text-slate-500 hover:text-slate-300"
+                                   tempSpawnRadius === r ? "bg-primary text-slate-950 shadow-lg scale-[1.02]" : "text-slate-500 hover:text-slate-300"
                                  )}
                                >
                                  {r}m
-                                 {r === 400 && <Leaf size={10} className={cn(spawnRadius === r ? "text-slate-950" : "text-emerald-500")} />}
-                                 {r === 2500 && <Flame size={10} className={cn(spawnRadius === r ? "text-slate-950" : "text-orange-500")} />}
+                                 {r === 400 && <Leaf size={10} className={cn(tempSpawnRadius === r ? "text-slate-950" : "text-emerald-500")} />}
+                                 {r === 2500 && <Flame size={10} className={cn(tempSpawnRadius === r ? "text-slate-950" : "text-orange-500")} />}
                                </button>
                              ))}
                            </div>

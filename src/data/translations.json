@@ -389,7 +389,9 @@
       "hp_regen_title": "HP Regen aktivován!",
       "hp_regen_msg": "Tvoje regenerace zdraví je posílena na {{mins}} minut.",
       "error": "Chyba",
-      "item_missing": "Tento předmět už nemáš!"
+      "item_missing": "Tento předmět už nemáš!",
+      "low_graphics_detected_title": "Detekován slabší hardware",
+      "low_graphics_detected_desc": "Grafika byla automaticky nastavena na LOW pro plynulejší hru. Můžete ji změnit v nastavení."
     },
     "p2p_trade": {
       "request_sent": "Žádost odesána",
@@ -1091,7 +1093,9 @@
       "hp_regen_title": "HP Regen activated!",
       "hp_regen_msg": "Your health regeneration is boosted for {{mins}} minutes.",
       "error": "Error",
-      "item_missing": "You no longer have this item!"
+      "item_missing": "You no longer have this item!",
+      "low_graphics_detected_title": "Low performance hardware detected",
+      "low_graphics_detected_desc": "Graphics set to LOW for smoother gameplay. You can change this in settings."
     },
     "p2p_trade": {
       "request_sent": "Request Sent",
@@ -1794,7 +1798,9 @@
       "hp_regen_title": "HP Regen aktivovaný!",
       "hp_regen_msg": "Tvoja regenerácia zdravia je posilnená na {{mins}} minút.",
       "error": "Chyba",
-      "item_missing": "Tento predmet už nemáš!"
+      "item_missing": "Tento predmet už nemáš!",
+      "low_graphics_detected_title": "Detekovaný slabší hardvér",
+      "low_graphics_detected_desc": "Grafika bola automaticky nastavená na LOW pre plynulejšiu hru. Môžete ju zmeniť v nastaveniach."
     },
     "p2p_trade": {
       "request_sent": "Žiadosť odoslaná",

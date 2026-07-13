@@ -161,10 +161,12 @@ function AppContent() {
   const [graphicsQuality, setGraphicsQuality] = useState<'low' | 'high'>(() => {
     const saved = localStorage.getItem('monster_graphics_quality');
     if (saved === 'low' || saved === 'high') return saved;
-    // Autodetect based on CPU cores (< 4) or RAM (< 4GB)
-    const isLowSpec = 
-      ((navigator as any).deviceMemory && (navigator as any).deviceMemory < 4) || 
-      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+    // Autodetect based on mobile user agent, CPU cores (<= 4) or RAM (<= 4GB)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowSpec = isMobile && (
+      ((navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4) || 
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)
+    );
     const detected = isLowSpec ? 'low' : 'high';
     localStorage.setItem('monster_graphics_quality', detected);
     return detected;
@@ -720,6 +722,19 @@ function AppContent() {
       syncReferralProgress(userUid, currentLevel, totalXP, referredBy, playerName || undefined);
     }
   }, [totalXP, currentLevel, userUid, referredBy, playerName]);
+
+  // Trigger toast if weak device was auto-detected on first launch
+  useEffect(() => {
+    const isFirstLaunchDetection = !localStorage.getItem('monster_graphics_quality_detected_alerted');
+    if (isFirstLaunchDetection && graphicsQuality === 'low') {
+      localStorage.setItem('monster_graphics_quality_detected_alerted', 'true');
+      addToast({
+        title: t('toasts.low_graphics_detected_title'),
+        message: t('toasts.low_graphics_detected_desc'),
+        type: 'info'
+      });
+    }
+  }, [graphicsQuality, addToast, t]);
 
 
   // Initialize notifications (Local & Push)
@@ -1798,10 +1813,9 @@ function AppContent() {
             totalMonsters={monsterDB.length}
             lastSync={lastSync}
             isBatterySaver={isBatterySaver}
-            onToggleBatterySaver={() => {
-              const newVal = !isBatterySaver;
-              setIsBatterySaver(newVal);
-              localStorage.setItem('monster_battery_saver', String(newVal));
+            onUpdateBatterySaver={(active) => {
+              setIsBatterySaver(active);
+              localStorage.setItem('monster_battery_saver', String(active));
             }}
             graphicsQuality={graphicsQuality}
             onUpdateGraphicsQuality={(quality) => {

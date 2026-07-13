@@ -199,6 +199,10 @@ body {
   text-shadow: none !important;
 }
 
+.graphics-low *:not(.leaflet-tile-pane):not(.leaflet-tile) {
+  filter: none !important;
+}
+
 .graphics-low .animate-shimmer,
 .graphics-low .animate-rarity-glint,
 .graphics-low .animate-rotate-slow,
