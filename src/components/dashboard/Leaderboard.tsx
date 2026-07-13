@@ -47,6 +47,14 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
   const [visibleCount, setVisibleCount] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlayer, setSelectedPlayer] = useState<LeaderboardPlayer | null>(null);
+  const [graphicsQuality, setGraphicsQuality] = useState<'low' | 'high'>('high');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('monster_graphics_quality');
+    if (saved === 'low' || saved === 'high') {
+      setGraphicsQuality(saved);
+    }
+  }, []);
 
   const getSpeciesLabel = (count: number) => {
     if (i18n.language.startsWith('cs') || i18n.language.startsWith('cz')) {
@@ -232,24 +240,14 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
   }
 
   const formatLastActive = (timestamp?: number) => {
-    if (!timestamp) return 'Offline';
-    const diffMs = Date.now() - timestamp;
-    const diffMins = Math.floor(diffMs / 60000);
+    if (!timestamp) return 'naposledy: neznámo';
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
     
-    if (diffMins < 1) {
-      return 'aktivní před chvílí';
-    }
-    if (diffMins < 60) {
-      return `aktivní před ${diffMins} min.`;
-    }
-    
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) {
-      return `aktivní před ${diffHours} hod.`;
-    }
-    
-    const diffDays = Math.floor(diffHours / 24);
-    return `aktivní před ${diffDays} d.`;
+    return `naposledy v ${day}.${month}. ${hours}:${minutes}`;
   };
 
   const displayedTop = allPlayers.slice(0, visibleCount);
@@ -396,7 +394,10 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         <AnimatePresence>
           {selectedPlayer && (
             <div 
-              className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/60 backdrop-blur-sm"
+              className={cn(
+                "fixed inset-0 z-[10000] flex items-end justify-center bg-black/50",
+                graphicsQuality !== 'low' && "backdrop-blur-sm"
+              )}
               onClick={() => setSelectedPlayer(null)}
             >
               <motion.div
@@ -405,7 +406,10 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                 exit={{ y: "100%" }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-md bg-slate-900 border-t border-white/10 rounded-t-[2.5rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col max-h-[75vh]"
+                className={cn(
+                  "w-full max-w-md border-t border-white/10 rounded-t-[2.5rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col max-h-[75vh]",
+                  graphicsQuality === 'low' ? "bg-slate-950/80" : "bg-slate-950/75 backdrop-blur-xl"
+                )}
               >
                 {/* Drag Handle */}
                 <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-6 shrink-0" />
