@@ -594,7 +594,10 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
         </div>
 
         {/* --- Header Section --- */}
-        <div className="sticky top-0 z-50 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-4 backdrop-blur-xl bg-black/20 border-b border-white/5">
+        <div className={cn(
+          "sticky top-0 z-50 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-4 border-b border-white/5",
+          graphicsQuality === 'low' ? "bg-slate-950/95" : "backdrop-blur-xl bg-black/20"
+        )}>
           <div className="flex items-center gap-4">
             <motion.button
               whileTap={{ scale: 0.9 }}
