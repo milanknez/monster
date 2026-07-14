@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag } from 'lucide-react';
+import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DebugBarProps {
@@ -73,6 +73,15 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
               <Zap size={10} className="text-primary/50" />
             </div>
           </div>
+
+          <button 
+            onClick={() => onCheat('openDungeonSim')}
+            className="px-2.5 py-1.5 bg-gradient-to-r from-red-600 to-rose-500 border border-red-500/30 rounded-lg hover:from-red-500 hover:to-rose-400 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
+            title="Dungeon"
+          >
+            <Sword size={12} className="text-white" />
+            Dungeon
+          </button>
 
           <button 
             onClick={() => window.location.reload()}

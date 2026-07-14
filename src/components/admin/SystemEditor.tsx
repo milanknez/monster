@@ -4,7 +4,7 @@ import {
   Beaker, Gem, Droplets,
   Package, Dice5, ChevronRight, X, Settings2, Palette, Upload,
   Sword, Shield, Heart, Sparkles, Info, Check, Users, Globe, Languages,
-  Trophy, Activity, Clock
+  Trophy, Activity, Clock, Swords
 } from 'lucide-react'
 
 import { motion, AnimatePresence } from 'framer-motion'
@@ -23,6 +23,8 @@ import { MonsterEditorTab } from './tabs/MonsterEditorTab'
 import { ResourceDesignTab } from './tabs/ResourceDesignTab'
 import { UserManagementTab } from './tabs/UserManagementTab'
 import { TranslationEditorTab } from './tabs/TranslationEditorTab'
+import { DungeonEditorTab } from './tabs/DungeonEditorTab'
+import { dungeonsDB } from '../../data/dungeons'
 
 // --- Constants ---
 const MONSTER_TYPES = ['fire', 'water', 'nature', 'electric']
@@ -53,7 +55,7 @@ const ABILITY_TYPES = [
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 50, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 
-type EditorTab = 'dashboard' | 'monsters' | 'resources' | 'users' | 'languages' | 'settings';
+type EditorTab = 'dashboard' | 'monsters' | 'resources' | 'users' | 'languages' | 'settings' | 'dungeons';
 
 
 interface SystemEditorProps {
@@ -95,6 +97,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
   // Data States
   const [monsters, setMonsters] = useState(monsterDB)
   const [resourceConfig, setResourceConfig] = useState(initialResources)
+  const [dungeons, setDungeons] = useState(dungeonsDB)
 
   // Selection & UI States
   const [selectedMonsterId, setSelectedMonsterId] = useState<string | null>(null)
@@ -565,6 +568,18 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       }
     }
 
+    if (tab === 'dungeons') {
+      const content = `import { Localized } from '../types';\n\nexport interface DungeonWaveConfig {\n  waveIndex: number;\n  enemyRarityPool: 'rare' | 'epic' | 'legendary';\n  enemyCount: number;\n  cloneSameMonster: boolean;\n  baseHp: number;\n  level: number;\n  shield?: number;\n}\n\nexport interface DungeonConfig {\n  id: string;\n  name: Localized<string>;\n  description: Localized<string>;\n  backgroundImage: string;\n  recommendedLevel: number;\n  waves: DungeonWaveConfig[];\n  lootTable: {\n    waveDrops: {\n      [waveIndex: number]: {\n        chance: number;\n        rarity: 'common' | 'rare' | 'epic' | 'legendary';\n      };\n    };\n    bossDrops: {\n      chance: number;\n      rarityDistribution: {\n        legendary: number;\n        epic: number;\n        rare: number;\n      };\n    };\n  };\n}\n\nexport const dungeonsDB: DungeonConfig[] = ${JSON.stringify(data, null, 2)};`;
+
+      const dataStr = "data:text/typescript;charset=utf-8," + encodeURIComponent(content);
+      const anchor = document.createElement('a');
+      anchor.setAttribute("href", dataStr);
+      anchor.setAttribute("download", "dungeons.ts");
+      anchor.click();
+      alert('Konfigurace dungeons.ts připravena k uložení. Nahraďte obsah v src/data/dungeons.ts');
+      return;
+    }
+
     const varName = tab === 'resources' ? 'resourceConfig' : (tab === 'settings' ? 'SYSTEM_SETTINGS' : 'monsterDB');
     downloadJson(data, `${tab}.ts`, varName);
   }
@@ -623,7 +638,9 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
 
   const openJsonEditor = () => {
-    const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
+    const data = activeTab === 'monsters' 
+      ? (selectedMonsterId ? monsterForm : monsters) 
+      : (activeTab === 'dungeons' ? dungeons : resourceConfig);
     setJsonInput(JSON.stringify(data, null, 2));
     setIsJsonModalOpen(true);
   }
@@ -638,7 +655,11 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
         } else {
           setMonsters(parsed);
         }
-      } else if (activeTab === 'resources') setResourceConfig(parsed);
+      } else if (activeTab === 'resources') {
+        setResourceConfig(parsed);
+      } else if (activeTab === 'dungeons') {
+        setDungeons(parsed);
+      }
       setIsJsonModalOpen(false);
     } catch (e) {
       alert('Neplatný formát JSON!');
@@ -710,6 +731,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             { id: 'dashboard', icon: Trophy, label: 'Dashboard', desc: 'Přehled a rychlé statistiky' },
             { id: 'monsters', icon: Settings2, label: 'Příšery', desc: 'Editor a AI generátor' },
             { id: 'resources', icon: Palette, label: 'Suroviny', desc: 'Design herních surovin' },
+            { id: 'dungeons', icon: Swords, label: 'Dungeony', desc: 'Správa a konfigurace arén' },
             { id: 'users', icon: Users, label: 'Hráči', desc: 'Správa a online monitoring' },
             { id: 'languages', icon: Globe, label: 'Jazyky', desc: 'Překlady a lokalizace' },
             { id: 'settings', icon: Settings2, label: 'Systém', desc: 'Globální nastavení hry' }
@@ -735,7 +757,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
             <div>
               <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter flex items-center gap-2">
-                {activeTab === 'dashboard' ? 'Přehled Systému' : activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : (activeTab === 'languages' ? 'Jazyky & Hodnoty' : 'Resource Design'))}
+                {activeTab === 'dashboard' ? 'Přehled Systému' : activeTab === 'monsters' ? 'Editor Příšer' : (activeTab === 'users' ? 'Správa Uživatelů' : (activeTab === 'languages' ? 'Jazyky & Hodnoty' : (activeTab === 'dungeons' ? 'Editor Dungeonů' : 'Resource Design')))}
               </h1>
               <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-1">
                 {activeTab === 'dashboard' ? 'Statistiky a rychlé přehledy herního světa' : activeTab === 'users' ? 'Monitoring a správa registrovaných hráčů' : 'Administrace herních datových struktur'}
@@ -743,7 +765,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             </div>
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => activeTab === 'monsters' ? handleSaveMonster() : handleSaveConfig(activeTab, resourceConfig)}
+                onClick={() => activeTab === 'monsters' ? handleSaveMonster() : handleSaveConfig(activeTab, activeTab === 'dungeons' ? dungeons : resourceConfig)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 border border-emerald-500/30 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-500 shadow-xl shadow-emerald-500/10"
               >
                 <Save size={14} /> Uložit Změny
@@ -752,7 +774,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                 <Copy size={14} /> RAW JSON
               </button>
               <button onClick={() => {
-                const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : resourceConfig;
+                const data = activeTab === 'monsters' ? (selectedMonsterId ? monsterForm : monsters) : (activeTab === 'dungeons' ? dungeons : resourceConfig);
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2))
                 const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr); anchor.setAttribute("download", `${activeTab}.json`); anchor.click();
               }} className="flex items-center gap-2 px-4 py-2.5 bg-primary text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
@@ -1069,6 +1091,9 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                   }
                 }}
               />
+            )}
+            {activeTab === 'dungeons' && (
+              <DungeonEditorTab dungeons={dungeons} onSave={(updated) => setDungeons(updated)} />
             )}
             {activeTab === 'settings' && (
               <div className="max-w-4xl space-y-6">

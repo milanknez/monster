@@ -20,6 +20,7 @@ import { Inventory } from './components/inventory/Inventory'
 import { Laboratory } from './components/codex/Codex'
 import { MonsterDetail } from './components/bestiary/MonsterDetail'
 import { Battle } from './components/battle/Battle'
+import { Dungeon } from './components/battle/Dungeon'
 import { NavBar } from './components/ui/NavBar'
 import { PlaceholderTab } from './components/ui/PlaceholderTab'
 import { WorldMap, type WorldMapHandle } from './components/map/WorldMap'
@@ -318,6 +319,8 @@ function AppContent() {
       if ((window as any).debugIAP) (window as any).debugIAP();
     } else if (cheatId === 'openEditor') {
       setIsEditorMode(true);
+    } else if (cheatId === 'openDungeonSim') {
+      setActiveTab('dungeon');
     }
   };
 
@@ -1746,6 +1749,10 @@ function AppContent() {
                 }}
               />
             </motion.div>
+          )}
+
+          {activeTab === 'dungeon' && (
+            <Dungeon onBack={() => setActiveTab('home')} />
           )}
         </div>
       </main>

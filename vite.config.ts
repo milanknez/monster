@@ -65,7 +65,8 @@ export default defineConfig({
                   recipes: 'src/data/recipes.ts',
                   gems: 'src/data/gems.ts',
                   resources: 'src/data/resources.ts',
-                  settings: 'src/data/settings.ts'
+                  settings: 'src/data/settings.ts',
+                  dungeons: 'src/data/dungeons.ts'
                 };
 
                 const relativePath = paths[key];
@@ -78,6 +79,7 @@ export default defineConfig({
                 else if (key === 'gems') content = `export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'resources') content = `import { ResourceConfig } from '../types';\n\nexport const RESOURCE_CONFIG: Record<string, ResourceConfig> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'settings') content = `export const SYSTEM_SETTINGS = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'dungeons') content = `import { Localized } from '../types';\n\nexport interface DungeonWaveConfig {\n  waveIndex: number;\n  enemyRarityPool: 'rare' | 'epic' | 'legendary';\n  enemyCount: number;\n  cloneSameMonster: boolean;\n  baseHp: number;\n  level: number;\n  shield?: number;\n}\n\nexport interface DungeonConfig {\n  id: string;\n  name: Localized<string>;\n  description: Localized<string>;\n  backgroundImage: string;\n  recommendedLevel: number;\n  waves: DungeonWaveConfig[];\n  lootTable: {\n    waveDrops: {\n      [waveIndex: number]: {\n        chance: number;\n        rarity: 'common' | 'rare' | 'epic' | 'legendary';\n      };\n    };\n    bossDrops: {\n      chance: number;\n      rarityDistribution: {\n        legendary: number;\n        epic: number;\n        rare: number;\n      };\n    };\n  };\n}\n\nexport const dungeonsDB: DungeonConfig[] = ${JSON.stringify(data, null, 2)};`;
 
 
                 fs.writeFileSync(filePath, content);
