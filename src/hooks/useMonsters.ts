@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Monster } from '../types'
 import { monsterDB } from '../data/monsters'
-import { getMonsterMaxHP, calculateLevel, getTotalXPForLevel } from '../utils'
+import { getMonsterMaxHP, calculateLevel, getTotalXPForLevel, getLoc } from '../utils'
 
 export function useMonsters(addToast: (toast: any) => void) {
   const [caughtMonsters, setCaughtMonsters] = useState<Monster[]>(() => {
@@ -96,7 +96,7 @@ export function useMonsters(addToast: (toast: any) => void) {
   const saveMonster = (monster: Monster, onGiveXP: (xp: number) => void, shouldGiveXP = true) => {
     const existingCount = caughtMonsters.filter(m => m.id === monster.id).length
     if (existingCount >= 3) {
-      addToast({ title: 'Batoh je plný', message: `Už máš 3x ${monster.name}.`, type: 'info' })
+      addToast({ title: 'Batoh je plný', message: `Už máš 3x ${getLoc(monster.name)}.`, type: 'info' })
       return false
     }
 
@@ -121,7 +121,7 @@ export function useMonsters(addToast: (toast: any) => void) {
       onGiveXP(150)
       addToast({
         title: 'Monstrum chyceno',
-        message: `${monster.name} chycen!`,
+        message: `${getLoc(monster.name)} chycen!`,
         type: 'success'
       })
     } else {
@@ -163,7 +163,7 @@ export function useMonsters(addToast: (toast: any) => void) {
       if (m.level > oldLevel) {
         addToast({
           title: 'LEVEL UP!',
-          message: `${m.name} postoupil na úroveň ${m.level}!`,
+          message: `${getLoc(m.name)} postoupil na úroveň ${m.level}!`,
           type: 'success'
         })
       }
@@ -228,7 +228,7 @@ export function useMonsters(addToast: (toast: any) => void) {
         if (m.level > oldLevel) {
           addToast({
             title: 'LEVEL UP!',
-            message: `${m.name} postoupil na úroveň ${m.level}!`,
+            message: `${getLoc(m.name)} postoupil na úroveň ${m.level}!`,
             type: 'success'
           })
         }
