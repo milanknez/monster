@@ -233,10 +233,10 @@ export const formatLocation = (lat?: number, lng?: number) => {
 };
 
 export const TYPE_MATCHUP: Record<string, { strong: string, weak: string, effect: string }> = {
-  'Ohnivá': { strong: 'Přírodní', weak: 'Vodní', effect: 'BURN' },
-  'Přírodní': { strong: 'Vodní', weak: 'Ohnivá', effect: 'REGEN' },
-  'Vodní': { strong: 'Ohnivá', weak: 'Elektrická', effect: 'SLOW' },
-  'Elektrická': { strong: 'Přírodní', weak: 'Ohnivá', effect: 'PARALYZE' }
+  'fire': { strong: 'nature', weak: 'water', effect: 'BURN' },
+  'nature': { strong: 'water', weak: 'fire', effect: 'REGEN' },
+  'water': { strong: 'fire', weak: 'electric', effect: 'SLOW' },
+  'electric': { strong: 'nature', weak: 'fire', effect: 'PARALYZE' }
 };
 
 export const ADVANTAGE_MULT = 1.3;

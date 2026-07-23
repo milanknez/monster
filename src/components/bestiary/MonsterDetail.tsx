@@ -828,7 +828,8 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
             <div className="grid grid-cols-2 gap-3 mt-6">
               {(() => {
-                const match = TYPE_MATCHUP[getLoc(monster.type, 'cz')];
+                const typeKey = TYPE_MAP[getLoc(monster.type, 'cz')] || 'fire';
+                const match = TYPE_MATCHUP[typeKey];
                 if (!match) return null;
 
                 const strongAgainstColors = TYPE_COLORS[match.strong] || TYPE_COLORS['Default'];
@@ -845,9 +846,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           </div>
                           <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{t(`monster_types.${TYPE_MAP[match.strong]}`)}</span>
                         </div>
-                        <div className="flex flex-col mt-1">
-                          <p className="text-[8px] font-black text-white leading-none">1.3{t('monster.damage_multiplier')}</p>
-                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">{t('monster.pierce_chance')}</p>
+                        <div className="flex flex-col mt-2">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black text-emerald-400 leading-none drop-shadow-[0_0_10px_rgba(52,211,153,0.4)]">+30%</span>
+                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">DMG</span>
+                          </div>
+                          <p className="text-[7px] font-bold text-slate-500/80 uppercase leading-none mt-1.5">{t('monster.pierce_chance')}</p>
                         </div>
                       </div>
                     </div>
@@ -860,9 +864,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           </div>
                           <span className="text-[10px] font-black text-white uppercase tracking-tighter truncate">{t(`monster_types.${TYPE_MAP[match.weak]}`)}</span>
                         </div>
-                        <div className="flex flex-col mt-1">
-                          <p className="text-[8px] font-black text-white leading-none">0.7{t('monster.damage_multiplier')}</p>
-                          <p className="text-[7px] font-bold text-slate-400 uppercase leading-none mt-0.5">{t('monster.reduced_efficiency')}</p>
+                        <div className="flex flex-col mt-2">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black text-red-400 leading-none drop-shadow-[0_0_10px_rgba(248,113,113,0.4)]">-30%</span>
+                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">DMG</span>
+                          </div>
+                          <p className="text-[7px] font-bold text-slate-500/80 uppercase leading-none mt-1.5">{t('monster.reduced_efficiency')}</p>
                         </div>
                       </div>
                     </div>
@@ -874,7 +881,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 opacity-50">
               <Info size={10} className="text-slate-500" />
               <p className="text-[8px] font-bold text-slate-500 uppercase tracking-tight">
-                {t('monster.class')}: {t(`monster_types.${TYPE_MAP[typeof monster.type === 'string' ? monster.type : monster.type?.cz]}`)} | {t('monster.effect')}: {TYPE_MATCHUP[typeof monster.type === 'string' ? monster.type : monster.type?.cz]?.effect || "NONE"}
+                {t('monster.class')}: {t(`monster_types.${TYPE_MAP[getLoc(monster.type, 'cz')]}`)} | {t('monster.effect')}: {TYPE_MATCHUP[TYPE_MAP[getLoc(monster.type, 'cz')] || '']?.effect || "NONE"}
               </p>
             </div>
           </div>

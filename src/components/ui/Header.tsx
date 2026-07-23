@@ -1,4 +1,5 @@
-import { ArrowLeft, Zap, Settings, MapPin, Beaker } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Zap, Settings, MapPin, Beaker, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn, getPlayerRank } from '../../utils';
 
@@ -14,6 +15,7 @@ interface HeaderProps {
   onAvatarClick?: () => void
   onCodexClick?: () => void
   caughtCount?: number
+  onDebugClick?: () => void
 }
 
 export const Header = ({ 
@@ -27,9 +29,36 @@ export const Header = ({
   onLocationClick,
   onAvatarClick,
   onCodexClick,
-  caughtCount = 0
+  caughtCount = 0,
+  onDebugClick
 }: HeaderProps) => {
   const { t } = useTranslation();
+  
+  // Debug button activation via settings gear
+  const [settingsClicks, setSettingsClicks] = useState(0);
+  const [lastSettingsClick, setLastSettingsClick] = useState(0);
+  const [showDebugIcon, setShowDebugIcon] = useState(() => localStorage.getItem('monster_header_debug_visible') === 'true');
+
+  const handleSettingsClick = () => {
+    const now = Date.now();
+    if (now - lastSettingsClick < 2000) {
+      const newCount = settingsClicks + 1;
+      setSettingsClicks(newCount);
+      if (newCount >= 10) {
+        setShowDebugIcon(prev => {
+          const next = !prev;
+          localStorage.setItem('monster_header_debug_visible', String(next));
+          return next;
+        });
+        setSettingsClicks(0);
+      }
+    } else {
+      setSettingsClicks(1);
+    }
+    setLastSettingsClick(now);
+    onSettingsClick?.();
+  };
+
   return (
     <header className="flex items-center justify-between p-4 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center gap-3 flex-1">
@@ -80,9 +109,21 @@ export const Header = ({
             <MapPin size={20} className="text-primary" />
           </button>
         )}
+        
+        {/* Unlocked Debug Terminal Icon */}
+        {!showBack && showDebugIcon && onDebugClick && (
+          <button 
+            onClick={onDebugClick}
+            className="p-2 rounded-lg bg-red-600/10 hover:bg-red-600/20 transition-all border border-red-500/20 active:scale-90 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+            title="Vývojářský panel"
+          >
+            <Terminal size={20} />
+          </button>
+        )}
+
         {!showBack && (
           <button 
-            onClick={onSettingsClick}
+            onClick={handleSettingsClick}
             className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all border border-primary/20 active:scale-90"
           >
             <Settings size={20} className="text-primary" />

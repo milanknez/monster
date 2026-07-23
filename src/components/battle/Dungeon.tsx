@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sword, Shield, Heart, Zap, Sparkles, RefreshCw, Play, Pause, 
@@ -10,6 +10,18 @@ import { dungeonsDB, DungeonConfig } from '../../data/dungeons';
 import type { Monster, Localized } from '../../types';
 import { cn, getLoc, triggerHaptic } from '../../utils';
 import { useGameSound } from '../../data/sounds';
+import {
+  createDungeonLobby,
+  joinDungeonLobby,
+  leaveDungeonLobby,
+  updateLobbyPlayerMonster,
+  setLobbyPlayerReady,
+  startDungeonLobby,
+  watchDungeonLobbies,
+  watchSingleLobby,
+  deleteDungeonLobby,
+  PLAYER_UID
+} from '../../lib/firebase';
 
 interface DungeonPlayer {
   index: number;
@@ -89,9 +101,7 @@ const MonsterPodium = ({ isPlayer, rarity, isAggro }: { isPlayer?: boolean, rari
   );
 };
 
-export const Dungeon = ({ onBack }: { onBack: () => void }) => {
-  const playerCount = 4;
-  
+export const Dungeon = ({ onBack, caughtMonsters = [] }: { onBack: () => void, caughtMonsters?: Monster[] }) => {
   const { 
     playAttack, playHit, playCritical, playHeal, playSlash, 
     playVictory, playDefeat, playDeath, playSpell, playLevelUp 
@@ -99,6 +109,16 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
 
   // Selected configurable dungeon
   const [selectedDungeon, setSelectedDungeon] = useState<DungeonConfig | null>(null);
+
+  // Dungeon Lobby states
+  const [isInLobby, setIsInLobby] = useState<boolean>(false);
+  const [partySlots, setPartySlots] = useState<(Monster | null)[]>([null, null, null, null]);
+  const [lobbyMode, setLobbyMode] = useState<'solo' | 'multiplayer' | null>(null);
+  const [multiplayerState, setMultiplayerState] = useState<'choice' | 'lobbies_list' | 'lobby_room' | 'solo_lobby'>('choice');
+  const [activeLobbyCode, setActiveLobbyCode] = useState<string | null>(null);
+  const [activeLobbyData, setActiveLobbyData] = useState<any | null>(null);
+  const [availableLobbies, setAvailableLobbies] = useState<Record<string, any>>({});
+  const [lobbyCountdown, setLobbyCountdown] = useState<number>(120);
 
   // Vertical Exploration Map States
   const [isFighting, setIsFighting] = useState<boolean>(false);
@@ -115,6 +135,7 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
   const [currentWave, setCurrentWave] = useState<number>(1);
   const [enemies, setEnemies] = useState<DungeonEnemy[]>([]);
   const [players, setPlayers] = useState<DungeonPlayer[]>([]);
+  const playerCount = Math.max(1, players.length);
   const [bossTargetIdx, setBossTargetIdx] = useState<number>(0);
   const [screenShake, setScreenShake] = useState<boolean>(false);
   const [flashColor, setFlashColor] = useState<string | null>(null);
@@ -169,16 +190,115 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
     }
   }, []);
 
+  // Procedural Map Grid Generator (10 columns, 40 rows)
+  const mapGrid = useMemo(() => {
+    if (!selectedDungeon) return [];
+    
+    const dungId = selectedDungeon.id;
+    const rows = 40;
+    const cols = 10;
+    const grid: number[][] = [];
+
+    // Seeded random helper for consistent decor placement
+    let seed = dungId === 'lava_lair' ? 123 : (dungId === 'frost_temple' ? 456 : 789);
+    const pseudoRandom = () => {
+      const x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+    };
+
+    for (let y = 0; y < rows; y++) {
+      const row: number[] = [];
+      for (let x = 0; x < cols; x++) {
+        let cell = 0; // Default to wall (0)
+
+        // Boss Arena (rows 4 to 12)
+        if (y >= 4 && y <= 12) {
+          const distToCenter = Math.hypot(x - 4.5, y - 8);
+          if (distToCenter < 4.0) {
+            cell = pseudoRandom() < 0.15 ? 3 : 1; // Floor with details
+          } else if (distToCenter < 4.6) {
+            cell = 2; // Moat (water/lava/ice hazard)
+          } else {
+            cell = 0; // Outer wall
+          }
+        }
+        // Winding path connecting bottom to arena
+        else {
+          // Winding corridor path center coordinate calculation
+          let centerX = 4.5;
+          let pathWidth = 3.8;
+
+          if (y >= 33) {
+            centerX = 4.5; // Straight start at the bottom
+          } else if (y >= 24) {
+            // Curving to the left and back
+            centerX = 4.5 - Math.sin((y - 24) * 0.35) * 1.8;
+          } else if (y >= 14) {
+            // Curving to the right and back
+            centerX = 4.5 + Math.sin((y - 14) * 0.35) * 1.8;
+          } else {
+            centerX = 4.5; // Straight approach into boss arena
+          }
+
+          const distToCenter = Math.abs(x - centerX);
+          if (distToCenter < pathWidth / 2) {
+            cell = pseudoRandom() < 0.15 ? 3 : 1; // Floor pathway
+          } else if (distToCenter < pathWidth / 2 + 0.6) {
+            cell = 2; // Liquid borders (water/lava/ice)
+          } else {
+            cell = 0; // Hard walls
+          }
+        }
+
+        row.push(cell);
+      }
+      grid.push(row);
+    }
+    return grid;
+  }, [selectedDungeon]);
+
+  const getTileStyle = (cellType: number, dungId: string, x: number, y: number) => {
+    const isLava = dungId === 'lava_lair';
+    const isFrost = dungId === 'frost_temple';
+
+    let tileUrl = '';
+    if (isLava) {
+      if (cellType === 0) tileUrl = '/tiles/wall_lava.png';
+      else if (cellType === 2) tileUrl = '/tiles/lava.png';
+      else tileUrl = '/tiles/floor_lava.png';
+    } else if (isFrost) {
+      if (cellType === 0) tileUrl = '/tiles/wall_frost.png';
+      else if (cellType === 2) tileUrl = '/tiles/ice.png';
+      else tileUrl = '/tiles/floor_frost.png';
+    } else {
+      if (cellType === 0) tileUrl = '/tiles/wall_stone.png';
+      else if (cellType === 2) tileUrl = '/tiles/water_stone.png';
+      else tileUrl = '/tiles/floor_stone.png';
+    }
+
+    // Dynamic rotation and flipping for visual variation
+    const rotations = [0, 90, 180, 270];
+    const rotate = rotations[(x * 3 + y * 7) % 4];
+    const scaleX = (x % 2 === 0) ? 1 : -1;
+    const scaleY = (y % 2 === 0) ? 1 : -1;
+
+    return {
+      backgroundImage: `url(${tileUrl})`,
+      backgroundSize: '100% 100%',
+      transform: `rotate(${rotate}deg) scale(${scaleX}, ${scaleY})`,
+    };
+  };
+
   // Filter Monsters by Rarity
   const rareMonsters = monsterDB.filter(
     (m) => (m.rarity?.toLowerCase() || '') === 'rare' || (m.rarity?.toLowerCase() || '') === 'vzácné' || (m.rarity?.toLowerCase() || '') === 'vzácná'
-  );
+  ) as Monster[];
   const epicMonsters = monsterDB.filter(
     (m) => (m.rarity?.toLowerCase() || '') === 'epic' || (m.rarity?.toLowerCase() || '') === 'epické'
-  );
+  ) as Monster[];
   const legendaryMonsters = monsterDB.filter(
     (m) => (m.rarity?.toLowerCase() || '') === 'legendary' || (m.rarity?.toLowerCase() || '') === 'legendární'
-  );
+  ) as Monster[];
 
   // Helper to trigger physical attack lunge animation for enemies
   const triggerEnemyAttackAnimation = (idx: number) => {
@@ -277,23 +397,34 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
     nextBossAttackRef.current = 0;
   }, [rareMonsters, epicMonsters, legendaryMonsters]);
 
-  // Start simulation based on active selected dungeon config
+  // Start simulation based on active selected dungeon config and party slots
   const initSimulation = useCallback(() => {
     if (!selectedDungeon) return;
-    if (epicMonsters.length < 4) return;
 
-    const shuffled = [...epicMonsters].sort(() => 0.5 - Math.random());
+    // Filter out null slots to get selected monsters
+    const selectedMonsters = partySlots.filter((m): m is Monster => m !== null);
+    
+    // If no party selected, fall back to caughtMonsters or default epicMonsters to prevent crash
+    let finalParty = [...selectedMonsters];
+    if (finalParty.length === 0) {
+      finalParty = (caughtMonsters || []).slice(0, 4);
+    }
+    if (finalParty.length === 0 && epicMonsters.length > 0) {
+      finalParty = epicMonsters.slice(0, 4);
+    }
+
     const recLevel = selectedDungeon.recommendedLevel;
 
-    const initialPlayers: DungeonPlayer[] = Array.from({ length: playerCount }).map((_, idx) => {
-      const monster = shuffled[idx % shuffled.length];
-      const maxHP = (monster.stats?.hp || 100) * 10 + (recLevel * 30) + 300;
+    const initialPlayers: DungeonPlayer[] = finalParty.map((monster, idx) => {
+      const monsterLvl = monster.level || recLevel;
+      const baseHp = monster.stats?.hp || 100;
+      const maxHP = baseHp * 10 + (monsterLvl * 30) + 300;
       return {
         index: idx,
         monster: { 
           ...(monster as any), 
           image: (monster as any).image || `/monsters/${monster.id}.png`,
-          level: recLevel 
+          level: monsterLvl
         },
         currentHP: maxHP,
         maxHP,
@@ -334,14 +465,151 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
     setCompletedWaves([]);
     setIsFighting(false);
     loadWaveEnemies(1, selectedDungeon);
-  }, [playerCount, epicMonsters, selectedDungeon, loadWaveEnemies]);
+  }, [partySlots, caughtMonsters, epicMonsters, selectedDungeon, loadWaveEnemies]);
 
-  // Auto trigger simulation when a dungeon is selected
+  // Prefill party slots and open lobby when a dungeon is selected
   useEffect(() => {
     if (selectedDungeon) {
-      initSimulation();
+      const initialParty: (Monster | null)[] = [null, null, null, null];
+      for (let i = 0; i < 4; i++) {
+        if (caughtMonsters && caughtMonsters[i]) {
+          initialParty[i] = caughtMonsters[i];
+        }
+      }
+      setPartySlots(initialParty);
+      setIsInLobby(true);
+      setLobbyMode(null);
+      setMultiplayerState('choice');
+    } else {
+      setIsInLobby(false);
+      setLobbyMode(null);
+      setActiveLobbyCode(null);
+      setActiveLobbyData(null);
     }
   }, [selectedDungeon]);
+
+  const localPlayerName = useMemo(() => localStorage.getItem('monster_collector_player_name') || 'Lovec', []);
+
+  // Listen to active lobbies list when choosing or viewing lobbies
+  useEffect(() => {
+    if (!selectedDungeon || !isInLobby || lobbyMode !== 'multiplayer' || multiplayerState !== 'lobbies_list') return;
+
+    const unsubscribe = watchDungeonLobbies((lobbies) => {
+      setAvailableLobbies(lobbies || {});
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [selectedDungeon, isInLobby, lobbyMode, multiplayerState]);
+
+  // Listen to single lobby room changes
+  useEffect(() => {
+    if (!activeLobbyCode) return;
+
+    const unsubscribe = watchSingleLobby(activeLobbyCode, (lobbyData) => {
+      if (!lobbyData) {
+        setActiveLobbyData(null);
+        setActiveLobbyCode(null);
+        setMultiplayerState('choice');
+        return;
+      }
+
+      setActiveLobbyData(lobbyData);
+
+      // If status changes to 'started', trigger starting combat!
+      if (lobbyData.status === 'started') {
+        const participants = Object.values(lobbyData.players || {}) as any[];
+        participants.sort((a, b) => a.joinedAt - b.joinedAt);
+
+        const recLevel = selectedDungeon?.recommendedLevel || 10;
+        const initialPlayers: DungeonPlayer[] = participants.map((player, idx) => {
+          const monster = player.monster || epicMonsters[idx % epicMonsters.length];
+          const monsterLvl = monster.level || recLevel;
+          const baseHp = monster.stats?.hp || 100;
+          const maxHP = baseHp * 10 + (monsterLvl * 30) + 300;
+
+          return {
+            index: idx,
+            monster: {
+              ...monster,
+              image: monster.image || `/monsters/${monster.id}.png`,
+              level: monsterLvl
+            },
+            currentHP: maxHP,
+            maxHP,
+            energy: 30,
+            cooldown: Math.random() * 50,
+            threat: 0,
+            dps: 0,
+            totalDamage: 0,
+            totalHealing: 0,
+            isDead: false,
+            stunTimer: 0,
+            freezeTimer: 0,
+            rootTimer: 0,
+            burnTimer: 0,
+          };
+        });
+
+        setPlayers(initialPlayers);
+        setCurrentWave(1);
+        setIsTransitioning(false);
+        setBattleResult(null);
+        setDungeonTime(0);
+        setPopups([]);
+        setFlyingSpells([]);
+        setAccumulatedLoot([]);
+        setChestOpened(false);
+        setHpPotions(2);
+        setManaPotions(2);
+        setShowItems(false);
+        setShowSkillsMenu(false);
+        setEnemyAttackingIdx(null);
+        setSwoopEnemyIdx(null);
+        setBossEnraged(false);
+        setBossEnrageCount(0);
+        setActiveExplosionIndices([]);
+        setPlayerPos({ x: 300, y: 2300 });
+        setTargetPos({ x: 300, y: 2300 });
+        setCompletedWaves([]);
+        setIsFighting(false);
+        loadWaveEnemies(1, selectedDungeon!);
+        setIsInLobby(false);
+      }
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [activeLobbyCode, selectedDungeon, epicMonsters, loadWaveEnemies]);
+
+  // Handle countdown timer inside active lobby room
+  useEffect(() => {
+    if (!activeLobbyCode || !activeLobbyData) return;
+
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.round((activeLobbyData.expiresAt - Date.now()) / 1000));
+      setLobbyCountdown(remaining);
+
+      // Auto-assign random monster from caughtMonsters if timer is expiring and I haven't selected one
+      if (remaining <= 0 && activeLobbyData.status === 'waiting') {
+        const myData = activeLobbyData.players?.[PLAYER_UID];
+        if (myData && !myData.monster) {
+          const pool = caughtMonsters.length > 0 ? caughtMonsters : epicMonsters;
+          const randomMonster = pool[Math.floor(Math.random() * pool.length)];
+          updateLobbyPlayerMonster(activeLobbyCode, PLAYER_UID, randomMonster);
+        }
+      }
+
+      // Auto start if time expires
+      if (remaining <= 0 && activeLobbyData.hostUid === PLAYER_UID && activeLobbyData.status === 'waiting') {
+        startDungeonLobby(activeLobbyCode);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeLobbyCode, activeLobbyData, caughtMonsters, epicMonsters]);
 
   // Walk timer loop to move players on the map and check for collision triggers
   useEffect(() => {
@@ -1427,6 +1695,771 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
     );
   }
 
+  // Dungeon Lobby / Mode Selection Screen
+  if (selectedDungeon && isInLobby) {
+    // 1. MODE CHOICE SCREEN (Solo vs Multiplayer)
+    if (lobbyMode === null) {
+      return (
+        <div className="fixed inset-0 z-[9500] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none text-white transition-all animate-fade-in">
+          <div className="absolute inset-0 z-0 opacity-30">
+            <img src={selectedDungeon.backgroundImage} className="w-full h-full object-cover blur-sm brightness-[0.3]" />
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.9))" />
+          </div>
+
+          <div className="relative z-10 px-6 py-4 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  setSelectedDungeon(null);
+                  setIsInLobby(false);
+                }}
+                className="p-2 rounded-full bg-slate-800/80 text-slate-300 border border-white/10 hover:bg-slate-700 transition cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <div>
+                <h2 className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] leading-none mb-0.5">Dungeon Arena</h2>
+                <h1 className="text-xs font-black uppercase text-white tracking-widest leading-none">VÝBĚR REŽIMU</h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 relative z-10 overflow-y-auto px-6 py-12 flex flex-col items-center justify-center gap-8 max-w-md mx-auto w-full">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-black text-amber-400 tracking-wider uppercase">
+                {getLoc(selectedDungeon.name, 'cz')}
+              </h2>
+              <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                Zvolte, zda chcete vstoupit do dungeonu sami s vlastní partou příšer, nebo hrát kooperativně s ostatními lovci online.
+              </p>
+            </div>
+
+            <div className="w-full flex flex-col gap-4">
+              {/* Solo option */}
+              <button
+                onClick={() => {
+                  setLobbyMode('solo');
+                  triggerHaptic('medium');
+                }}
+                className="p-5 bg-gradient-to-br from-slate-900 to-slate-950 hover:from-slate-800/80 hover:to-slate-900/80 border border-white/5 hover:border-amber-500/30 rounded-3xl text-left transition-all duration-300 shadow-xl flex items-center justify-between group cursor-pointer"
+              >
+                <div className="space-y-1 pr-4">
+                  <span className="text-[8px] font-black uppercase tracking-wider text-amber-500">Jedna osoba</span>
+                  <h3 className="text-sm font-black text-white uppercase group-hover:text-amber-400 transition-colors">
+                    Sólo Výprava 👤
+                  </h3>
+                  <p className="text-[9px] text-slate-400 leading-normal">
+                    Vyberte až 4 vlastní příšery ze své sbírky a vyčistěte dungeon sami.
+                  </p>
+                </div>
+                <ChevronLeft size={16} className="rotate-180 text-slate-500 group-hover:text-amber-400 transition-colors shrink-0" />
+              </button>
+
+              {/* Multiplayer option */}
+              <button
+                onClick={() => {
+                  setLobbyMode('multiplayer');
+                  setMultiplayerState('choice');
+                  triggerHaptic('medium');
+                }}
+                className="p-5 bg-gradient-to-br from-slate-900 to-slate-950 hover:from-slate-800/80 hover:to-slate-900/80 border border-white/5 hover:border-blue-500/30 rounded-3xl text-left transition-all duration-300 shadow-xl flex items-center justify-between group cursor-pointer"
+              >
+                <div className="space-y-1 pr-4">
+                  <span className="text-[8px] font-black uppercase tracking-wider text-blue-400">Kooperace online</span>
+                  <h3 className="text-sm font-black text-white uppercase group-hover:text-blue-400 transition-colors">
+                    Multiplayer Lobby 👥
+                  </h3>
+                  <p className="text-[9px] text-slate-400 leading-normal">
+                    Založte lobby nebo se připojte k ostatním online. Každý hráč ovládá 1 příšeru.
+                  </p>
+                </div>
+                <ChevronLeft size={16} className="rotate-180 text-slate-500 group-hover:text-blue-400 transition-colors shrink-0" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. MULTIPLAYER SELECTION CHOICE
+    if (lobbyMode === 'multiplayer' && multiplayerState === 'choice') {
+      const handleHostLobby = async () => {
+        const lobbyId = `LOBBY_${PLAYER_UID.slice(-6).toUpperCase()}`;
+        await createDungeonLobby(lobbyId, selectedDungeon.id, getLoc(selectedDungeon.name, 'cz'), PLAYER_UID, localPlayerName);
+        setActiveLobbyCode(lobbyId);
+        setMultiplayerState('lobby_room');
+        triggerHaptic('heavy');
+      };
+
+      return (
+        <div className="fixed inset-0 z-[9500] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none text-white transition-all animate-fade-in">
+          <div className="absolute inset-0 z-0 opacity-30">
+            <img src={selectedDungeon.backgroundImage} className="w-full h-full object-cover blur-sm brightness-[0.3]" />
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.9))" />
+          </div>
+
+          <div className="relative z-10 px-6 py-4 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  setLobbyMode(null);
+                  triggerHaptic('light');
+                }}
+                className="p-2 rounded-full bg-slate-800/80 text-slate-300 border border-white/10 hover:bg-slate-700 transition cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <div>
+                <h2 className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] leading-none mb-0.5">Dungeon Lobby</h2>
+                <h1 className="text-xs font-black uppercase text-white tracking-widest leading-none">MULTIPLAYER</h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 relative z-10 overflow-y-auto px-6 py-12 flex flex-col items-center justify-center gap-6 max-w-md mx-auto w-full">
+            <div className="text-center space-y-2 mb-4">
+              <h2 className="text-lg font-black text-blue-400 tracking-wider uppercase">
+                COOPERATIVE DUNGEON
+              </h2>
+              <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                Založte novou místnost pro své přátele, nebo se připojte k již aktivním místnostem.
+              </p>
+            </div>
+
+            <button
+              onClick={handleHostLobby}
+              className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition active:scale-95 cursor-pointer shadow-lg shadow-blue-500/10 border-none"
+            >
+              👑 Založit Nové Lobby
+            </button>
+
+            <button
+              onClick={() => {
+                setMultiplayerState('lobbies_list');
+                triggerHaptic('medium');
+              }}
+              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white border border-white/10 font-black text-xs uppercase tracking-widest rounded-2xl transition active:scale-95 cursor-pointer"
+            >
+              🔍 Najít Aktivní Lobby
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // 3. MULTIPLAYER LOBBIES LIST
+    if (lobbyMode === 'multiplayer' && multiplayerState === 'lobbies_list') {
+      const activeLobbiesArray = Object.values(availableLobbies || {}).filter(
+        (l: any) => l.dungeonId === selectedDungeon.id && l.status === 'waiting'
+      );
+
+      const handleJoinLobbyCode = async (lobbyId: string) => {
+        const id = lobbyId.trim().toUpperCase();
+        if (!id) return;
+        await joinDungeonLobby(id, PLAYER_UID, localPlayerName);
+        setActiveLobbyCode(id);
+        setMultiplayerState('lobby_room');
+        triggerHaptic('heavy');
+      };
+
+      return (
+        <div className="fixed inset-0 z-[9500] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none text-white transition-all animate-fade-in">
+          <div className="absolute inset-0 z-0 opacity-30">
+            <img src={selectedDungeon.backgroundImage} className="w-full h-full object-cover blur-sm brightness-[0.3]" />
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.9))" />
+          </div>
+
+          <div className="relative z-10 px-6 py-4 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  setMultiplayerState('choice');
+                  triggerHaptic('light');
+                }}
+                className="p-2 rounded-full bg-slate-800/80 text-slate-300 border border-white/10 hover:bg-slate-700 transition cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <div>
+                <h2 className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] leading-none mb-0.5">Dungeon Lobby</h2>
+                <h1 className="text-xs font-black uppercase text-white tracking-widest leading-none">AKTIVNÍ MÍSTNOSTI</h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 relative z-10 overflow-y-auto px-6 py-6 flex flex-col gap-6 max-w-lg w-full mx-auto">
+            {/* Quick join by code */}
+            <div className="bg-slate-900/80 border border-white/5 p-4 rounded-3xl backdrop-blur-md flex gap-3 items-center">
+              <input
+                id="lobbyCodeInput"
+                type="text"
+                placeholder="Zadejte kód (např. LOBBY_ABCDEF)"
+                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono tracking-widest uppercase text-white focus:outline-none focus:border-blue-500"
+              />
+              <button
+                onClick={() => {
+                  const input = document.getElementById('lobbyCodeInput') as HTMLInputElement;
+                  if (input) handleJoinLobbyCode(input.value);
+                }}
+                className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 rounded-xl text-xs font-black uppercase tracking-wider transition active:scale-95 cursor-pointer shrink-0 border-none text-slate-950"
+              >
+                Připojit
+              </button>
+            </div>
+
+            <div className="space-y-2 flex-1 flex flex-col">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Seznam veřejných místností</h3>
+              {activeLobbiesArray.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/30 border border-white/5 border-dashed rounded-3xl p-8 text-center min-h-[200px]">
+                  <span className="text-2xl mb-2">📡</span>
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    Nebyly nalezeny žádné aktivní místnosti. Založte si vlastní a sdílejte kód!
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-white/5 bg-slate-900/60 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-md">
+                  {activeLobbiesArray.map((lobby: any) => {
+                    const playersCount = Object.keys(lobby.players || {}).length;
+                    return (
+                      <div key={lobby.id} className="p-4 flex justify-between items-center hover:bg-slate-900/40 transition">
+                        <div>
+                          <span className="text-[8px] font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/15 uppercase font-bold">
+                            {lobby.id}
+                          </span>
+                          <h4 className="text-xs font-black text-white uppercase tracking-wide mt-1.5">
+                            Zakladatel: {lobby.hostName}
+                          </h4>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-bold text-slate-400 font-mono">
+                            {playersCount}/4 hráčů
+                          </span>
+                          <button
+                            onClick={() => handleJoinLobbyCode(lobby.id)}
+                            disabled={playersCount >= 4}
+                            className="px-3.5 py-2 bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-black text-[9px] uppercase tracking-wider rounded-xl transition active:scale-95 cursor-pointer border-none"
+                          >
+                            Připojit
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 4. MULTIPLAYER LOBBY ROOM (LoL Style)
+    if (lobbyMode === 'multiplayer' && multiplayerState === 'lobby_room' && activeLobbyData) {
+      const playersList = Object.values(activeLobbyData.players || {}).sort((a: any, b: any) => a.joinedAt - b.joinedAt) as any[];
+      const myData = activeLobbyData.players[PLAYER_UID];
+      const isHost = activeLobbyData.hostUid === PLAYER_UID;
+      const activeSlotsCount = playersList.filter((p: any) => p.monster !== null).length;
+
+      const handleToggleReady = () => {
+        if (!myData) return;
+        setLobbyPlayerReady(activeLobbyCode!, PLAYER_UID, !myData.isReady);
+        triggerHaptic('light');
+      };
+
+      const handleSelectMonsterLobby = (monster: Monster) => {
+        updateLobbyPlayerMonster(activeLobbyCode!, PLAYER_UID, monster);
+        triggerHaptic('light');
+      };
+
+      const handleLeaveLobby = async () => {
+        if (isHost) {
+          await deleteDungeonLobby(activeLobbyCode!);
+        } else {
+          await leaveDungeonLobby(activeLobbyCode!, PLAYER_UID);
+        }
+        setActiveLobbyCode(null);
+        setActiveLobbyData(null);
+        setMultiplayerState('choice');
+        triggerHaptic('light');
+      };
+
+      const handleForceStart = () => {
+        startDungeonLobby(activeLobbyCode!);
+        triggerHaptic('heavy');
+      };
+
+      return (
+        <div className="fixed inset-0 z-[9500] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none text-white transition-all animate-fade-in">
+          <div className="absolute inset-0 z-0 opacity-30">
+            <img src={selectedDungeon.backgroundImage} className="w-full h-full object-cover blur-sm brightness-[0.3]" />
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.9))" />
+          </div>
+
+          {/* Header */}
+          <div className="relative z-10 px-6 py-4 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleLeaveLobby}
+                className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition cursor-pointer text-[9px] font-black uppercase tracking-wider"
+              >
+                Opustit Lobby
+              </button>
+              <div>
+                <h2 className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] leading-none mb-0.5">Dungeon Lobby</h2>
+                <h1 className="text-xs font-black uppercase text-white tracking-widest leading-none">MÍSTNOST: {activeLobbyCode}</h1>
+              </div>
+            </div>
+
+            {/* Countdown timer */}
+            <div className="flex flex-col items-end">
+              <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Zbývající čas</span>
+              <span className={cn(
+                "text-sm font-mono font-black tracking-widest leading-none mt-0.5",
+                lobbyCountdown <= 30 ? "text-red-400 animate-pulse" : "text-amber-400"
+              )}>
+                {Math.floor(lobbyCountdown / 60)}:{(lobbyCountdown % 60).toString().padStart(2, '0')}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex-1 relative z-10 overflow-y-auto px-6 py-4 flex flex-col gap-5 max-w-4xl w-full mx-auto">
+            {/* Warning banner */}
+            <div className="bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-2xl flex items-center justify-center gap-2 backdrop-blur-md">
+              <span className="animate-bounce">📡</span>
+              <p className="text-[9px] text-blue-300 font-bold uppercase tracking-wider text-center">
+                Vyberte příšeru ze své sbírky a klikněte na PŘIPRAVEN!
+              </p>
+            </div>
+
+            {/* LoL Champ Select slots (horizontal cards) */}
+            <div className="grid grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, idx) => {
+                const player = playersList[idx];
+                const isMySlot = player && player.uid === PLAYER_UID;
+                const isPlayerHost = player && player.uid === activeLobbyData.hostUid;
+
+                return (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "aspect-square rounded-2xl border flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300",
+                      player
+                        ? "bg-slate-900/90 border-blue-500/40 shadow-lg"
+                        : "bg-slate-950/40 border-white/5 border-dashed"
+                    )}
+                  >
+                    {player && (
+                      <>
+                        {isPlayerHost && (
+                          <span className="absolute top-1 left-1 bg-amber-500 text-[6px] text-slate-950 font-black px-1 py-0.5 rounded uppercase tracking-wider z-20">
+                            Hostitel
+                          </span>
+                        )}
+
+                        {player.monster ? (
+                          <>
+                            <img 
+                              src={`/monsters/${player.monster.id}.png`} 
+                              className="w-12 h-12 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                              }}
+                            />
+                            <span className="text-[8px] font-black uppercase text-white truncate max-w-[90%] block mt-1 leading-none">
+                              {getLoc(player.monster.name, 'cz')}
+                            </span>
+                            <span className="text-[7px] text-slate-400 font-mono mt-0.5 block leading-none">
+                              Lvl {player.monster.level || 1}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="text-center text-slate-500 py-2">
+                            <span className="text-xs block animate-pulse">⏳</span>
+                            <span className="text-[6px] font-bold uppercase tracking-wider">Vybírá...</span>
+                          </div>
+                        )}
+
+                        {/* Player name */}
+                        <span className="absolute bottom-1 bg-black/60 px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-wider text-slate-300 max-w-[90%] truncate">
+                          {player.name} {isMySlot && '(Vy)'}
+                        </span>
+
+                        {/* Ready Badge */}
+                        {player.isReady && (
+                          <span className="absolute top-1 right-1 bg-emerald-500 text-slate-950 text-[6px] font-black px-1 py-0.5 rounded uppercase tracking-wider">
+                            PŘIPRAVEN
+                          </span>
+                        )}
+                      </>
+                    )}
+
+                    {!player && (
+                      <div className="text-center text-slate-700">
+                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-600">Volno</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Owned Monsters Grid */}
+            <div className="space-y-3 flex-1 flex flex-col min-h-[220px]">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
+                Vyberte své monstrum ({caughtMonsters.length})
+              </h3>
+              
+              {caughtMonsters.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/30 border border-white/5 border-dashed rounded-3xl p-6 text-center">
+                  <span className="text-xl mb-1">👾</span>
+                  <p className="text-[9px] text-slate-400 font-medium max-w-xs mb-2">
+                    Nemáte chycené žádné vlastní příšery. Můžete použít zkušebního hrdinu!
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (epicMonsters.length > 0) {
+                        handleSelectMonsterLobby(epicMonsters[0]);
+                      }
+                    }}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-[9px] uppercase tracking-wider rounded-xl transition active:scale-95 border-none"
+                  >
+                    Vybrat zkušebního hrdinu ⚔️
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 overflow-y-auto max-h-[240px] pr-1 pb-4">
+                  {caughtMonsters.map((monster) => {
+                    const isSelected = myData?.monster && myData.monster.caughtAt === monster.caughtAt && myData.monster.id === monster.id;
+                    const isLvl = monster.level || 1;
+                    
+                    return (
+                      <div
+                        key={monster.caughtAt || monster.id}
+                        onClick={() => handleSelectMonsterLobby(monster)}
+                        className={cn(
+                          "p-2.5 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col items-center justify-center text-center",
+                          isSelected 
+                            ? "bg-blue-500/10 border-blue-500/60 shadow-[0_0_10px_rgba(59,130,246,0.15)]" 
+                            : "bg-slate-900/40 border-white/5 hover:border-white/10"
+                        )}
+                      >
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 bg-blue-500 text-slate-950 text-[6px] font-black rounded-full size-3.5 flex items-center justify-center">
+                            ✓
+                          </div>
+                        )}
+                        
+                        <img 
+                          src={`/monsters/${monster.id}.png`} 
+                          className={cn("w-9 h-9 object-contain transition-transform duration-300", isSelected && "scale-105")}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                          }}
+                        />
+                        
+                        <span className="text-[8px] font-black text-white uppercase tracking-wide truncate max-w-[80px] mt-1 block leading-tight">
+                          {getLoc(monster.name, 'cz')}
+                        </span>
+                        <span className="text-[6px] text-slate-400 font-mono mt-0.5 block leading-none">
+                          Lvl {isLvl}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons footer */}
+          <div className="p-5 bg-slate-950 border-t border-white/5 backdrop-blur-3xl relative z-10 flex gap-4 justify-center items-center">
+            {/* Ready toggle button */}
+            <button
+              onClick={handleToggleReady}
+              disabled={!myData?.monster}
+              className={cn(
+                "flex-1 max-w-xs py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 border border-solid text-center cursor-pointer",
+                myData?.isReady
+                  ? "bg-red-500/10 border-red-500/40 text-red-400 active:scale-95"
+                  : myData?.monster
+                    ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 active:scale-95"
+                    : "bg-slate-900 border-white/5 text-slate-600 cursor-not-allowed"
+              )}
+            >
+              {myData?.isReady ? 'Zrušit Připraven' : 'PŘIPRAVEN'}
+            </button>
+
+            {/* Host start button */}
+            {isHost && (
+              <button
+                onClick={handleForceStart}
+                disabled={activeSlotsCount === 0}
+                className={cn(
+                  "flex-1 max-w-xs py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 border-none text-slate-950 cursor-pointer",
+                  activeSlotsCount > 0
+                    ? "bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 active:scale-95 shadow-lg shadow-amber-500/10"
+                    : "bg-slate-900 text-slate-600 cursor-not-allowed"
+                )}
+              >
+                Spustit Boj ⚔️
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // 5. SOLO LOBBY SCREEN (Traditional lobby)
+    if (lobbyMode === 'solo') {
+      const activeSlotsCount = partySlots.filter(s => s !== null).length;
+      
+      // Autofill logic
+      const handleAutofill = () => {
+        const sorted = [...caughtMonsters].sort((a, b) => {
+          const lvlDiff = (b.level || 1) - (a.level || 1);
+          if (lvlDiff !== 0) return lvlDiff;
+          return (b.stats?.hp || 0) - (a.stats?.hp || 0);
+        });
+        const filledParty: (Monster | null)[] = [null, null, null, null];
+        for (let i = 0; i < 4; i++) {
+          if (sorted[i]) {
+            filledParty[i] = sorted[i];
+          }
+        }
+        setPartySlots(filledParty);
+        triggerHaptic('medium');
+      };
+
+      // Toggle monster in slots
+      const handleSelectMonster = (monster: Monster) => {
+        // Check if already in party
+        const existingIdx = partySlots.findIndex(s => s && s.caughtAt === monster.caughtAt && s.id === monster.id);
+        if (existingIdx !== -1) {
+          // Remove from slot
+          const nextSlots = [...partySlots];
+          nextSlots[existingIdx] = null;
+          setPartySlots(nextSlots);
+          triggerHaptic('light');
+          return;
+        }
+
+        // Add to first free slot
+        const freeIdx = partySlots.findIndex(s => s === null);
+        if (freeIdx !== -1) {
+          const nextSlots = [...partySlots];
+          nextSlots[freeIdx] = monster;
+          setPartySlots(nextSlots);
+          triggerHaptic('light');
+        } else {
+          triggerHaptic('heavy');
+        }
+      };
+
+      const handleRemoveSlot = (slotIdx: number) => {
+        const nextSlots = [...partySlots];
+        nextSlots[slotIdx] = null;
+        setPartySlots(nextSlots);
+        triggerHaptic('light');
+      };
+
+      const handleStartDungeon = () => {
+        if (activeSlotsCount === 0) return;
+        initSimulation();
+        setIsInLobby(false);
+        triggerHaptic('heavy');
+      };
+
+      return (
+        <div className="fixed inset-0 z-[9500] bg-slate-950 flex flex-col pt-safe overflow-hidden select-none text-white transition-all animate-fade-in">
+          {/* Lobby background */}
+          <div className="absolute inset-0 z-0 opacity-30">
+            <img src={selectedDungeon.backgroundImage} className="w-full h-full object-cover blur-sm brightness-[0.3]" />
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.9))" />
+          </div>
+
+          {/* Lobby Header */}
+          <div className="relative z-10 px-6 py-4 border-b border-white/5 bg-slate-900/40 backdrop-blur-md flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => {
+                  setLobbyMode(null);
+                  triggerHaptic('light');
+                }}
+                className="p-2 rounded-full bg-slate-800/80 text-slate-300 border border-white/10 hover:bg-slate-700 transition cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <div>
+                <h2 className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] leading-none mb-0.5">Dungeon Lobby</h2>
+                <h1 className="text-xs font-black uppercase text-white tracking-widest leading-none">SÓLO PŘÍPRAVA</h1>
+              </div>
+            </div>
+
+            <button
+              onClick={handleAutofill}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-white/10 text-[9px] font-bold uppercase tracking-wider transition active:scale-95 cursor-pointer"
+            >
+              ⚡ Automaticky doplnit
+            </button>
+          </div>
+
+          {/* Scrollable content area */}
+          <div className="flex-1 relative z-10 overflow-y-auto px-6 py-6 flex flex-col gap-6 max-w-4xl w-full mx-auto">
+            {/* Dungeon Info Card */}
+            <div className="bg-slate-900/60 border border-white/5 rounded-3xl p-4 flex gap-4 items-center backdrop-blur-md">
+              <img src={selectedDungeon.backgroundImage} className="w-20 h-20 rounded-2xl object-cover border border-white/10" />
+              <div className="space-y-1">
+                <h2 className="text-sm font-black text-white uppercase tracking-wider">{getLoc(selectedDungeon.name, 'cz')}</h2>
+                <p className="text-[10px] text-slate-400 font-medium leading-relaxed">{getLoc(selectedDungeon.description, 'cz')}</p>
+                <div className="flex gap-3 text-[9px] font-bold text-slate-500 pt-1">
+                  <span className="text-amber-400">REC LEVEL: {selectedDungeon.recommendedLevel}+</span>
+                  <span>•</span>
+                  <span>VLNY: {selectedDungeon.waves.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Party Slots View */}
+            <div className="space-y-2">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Vaše Parta (Max 4)</h3>
+              <div className="grid grid-cols-4 gap-3">
+                {partySlots.map((monster, idx) => {
+                  const isLeader = idx === 0;
+                  return (
+                    <div 
+                      key={idx}
+                      onClick={() => monster && handleRemoveSlot(idx)}
+                      className={cn(
+                        "aspect-square rounded-2xl border flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300",
+                        monster 
+                          ? "bg-slate-900/90 border-amber-500/40 cursor-pointer shadow-lg hover:border-amber-400 hover:scale-105 active:scale-95" 
+                          : "bg-slate-950/40 border-white/5 border-dashed"
+                      )}
+                    >
+                      {isLeader && (
+                        <span className="absolute top-1 left-1 bg-amber-500 text-[6px] text-slate-950 font-black px-1 py-0.5 rounded uppercase tracking-wider z-20">
+                          Vůdce
+                        </span>
+                      )}
+
+                      {monster ? (
+                        <>
+                          <img 
+                            src={`/monsters/${monster.id}.png`} 
+                            className="w-12 h-12 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                            }}
+                          />
+                          <span className="text-[8px] font-black uppercase text-white truncate max-w-[90%] block mt-1 leading-none">
+                            {getLoc(monster.name, 'cz')}
+                          </span>
+                          <span className="text-[7px] text-slate-400 font-mono mt-0.5 block leading-none">
+                            Lvl {monster.level || 1}
+                          </span>
+                        </>
+                      ) : (
+                        <div className="text-center text-slate-600">
+                          <span className="text-sm block mb-1">➕</span>
+                          <span className="text-[7px] font-bold uppercase tracking-wider">Slot {idx + 1}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Collection Grid */}
+            <div className="space-y-3 flex-1 flex flex-col min-h-[250px]">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
+                Vaše Sbírka Příšer ({caughtMonsters.length})
+              </h3>
+              
+              {caughtMonsters.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/30 border border-white/5 border-dashed rounded-3xl p-8 text-center">
+                  <span className="text-2xl mb-2">👾</span>
+                  <p className="text-[10px] text-slate-400 font-medium max-w-xs mb-3">
+                    Nemáte chycené žádné vlastní příšery. Můžete použít zkušební hrdiny pro vstup do dungeonu!
+                  </p>
+                  <button
+                    onClick={() => {
+                      const testParty = epicMonsters.slice(0, 4);
+                      const party: (Monster | null)[] = [null, null, null, null];
+                      testParty.forEach((m, i) => { party[i] = m; });
+                      setPartySlots(party);
+                      triggerHaptic('medium');
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-[9px] uppercase tracking-wider rounded-xl transition active:scale-95"
+                  >
+                    Doplnit zkušební hrdiny ⚔️
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 overflow-y-auto max-h-[300px] pr-1 pb-4">
+                  {caughtMonsters.map((monster) => {
+                    const isSelected = partySlots.some(s => s && s.caughtAt === monster.caughtAt && s.id === monster.id);
+                    const isLvl = monster.level || 1;
+                    
+                    return (
+                      <div
+                        key={monster.caughtAt || monster.id}
+                        onClick={() => handleSelectMonster(monster)}
+                        className={cn(
+                          "p-3 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col items-center justify-center text-center",
+                          isSelected 
+                            ? "bg-amber-500/10 border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.15)]" 
+                            : "bg-slate-900/40 border-white/5 hover:border-white/10"
+                        )}
+                      >
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 bg-amber-500 text-slate-950 text-[6px] font-black rounded-full size-3.5 flex items-center justify-center">
+                            ✓
+                          </div>
+                        )}
+                        
+                        <img 
+                          src={`/monsters/${monster.id}.png`} 
+                          className={cn("w-10 h-10 object-contain transition-transform duration-300", isSelected && "scale-105")}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                          }}
+                        />
+                        
+                        <span className="text-[9px] font-black text-white uppercase tracking-wide truncate max-w-[85px] mt-1.5 block leading-tight">
+                          {getLoc(monster.name, 'cz')}
+                        </span>
+                        <span className="text-[7px] text-slate-400 font-mono mt-0.5 block leading-none">
+                          Lvl {isLvl}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Start Game Action Bar */}
+          <div className="p-5 bg-slate-950 border-t border-white/5 backdrop-blur-3xl relative z-10 flex flex-col items-center">
+            <button
+              onClick={handleStartDungeon}
+              disabled={activeSlotsCount === 0}
+              className={cn(
+                "w-full max-w-md py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2",
+                activeSlotsCount > 0
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 active:scale-[0.98] shadow-lg shadow-amber-500/10 cursor-pointer"
+                  : "bg-slate-900 border border-white/5 text-slate-600 cursor-not-allowed"
+              )}
+            >
+              Vstoupit do dungeonu ⚔️ ({activeSlotsCount}/4)
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
   // If a dungeon is selected, but active combat is NOT fighting yet (and no victory/loss overlay active)
   if (selectedDungeon && !isFighting && !battleResult) {
     const cameraY = Math.max(0, Math.min(1800, playerPos.y - 250));
@@ -1578,7 +2611,7 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
           <div 
             className="absolute inset-0 z-30 pointer-events-none transition-all duration-300"
             style={{
-              background: `radial-gradient(circle 210px at ${playerPos.x}px ${playerPos.y - cameraY}px, rgba(0,0,0,0) 0%, ${fogColor} 45%, rgba(4,10,6,0.85) 75%, rgba(2,4,2,0.98) 100%)`
+              background: `radial-gradient(circle 300px at ${playerPos.x}px ${playerPos.y - cameraY}px, rgba(0,0,0,0) 0%, ${fogColor} 50%, rgba(4,10,6,0.35) 75%, rgba(2,4,2,0.55) 100%)`
             }}
           />
 
@@ -1592,29 +2625,24 @@ export const Dungeon = ({ onBack }: { onBack: () => void }) => {
               const boundedX = Math.max(135, Math.min(465, clickX));
               setTargetPos({ x: boundedX, y: clickY });
             }}
-            className="absolute top-0 left-0 w-full h-[2400px] cursor-pointer"
+            className="absolute top-0 left-0 w-full h-[2400px] cursor-pointer bg-slate-950"
             style={{ 
               transform: `translateY(${-cameraY}px)`, 
-              transition: 'transform 0.18s ease-out',
-              background: mapBg
+              transition: 'transform 0.18s ease-out'
             }}
           >
-            {/* Rocky Cavern Borders (Spooky Warcraft 3 blighted textures) */}
-            <div className={cn("absolute inset-y-0 left-0 w-24 bg-gradient-to-r pointer-events-none", wallStyleLeft)}>
-              <div className="absolute top-[400px] left-6 text-xs opacity-25">{leftDecos[0]}</div>
-              <div className="absolute top-[900px] left-8 text-xs opacity-25">{leftDecos[1]}</div>
-              <div className="absolute top-[1400px] left-4 text-xs opacity-25">{leftDecos[2]}</div>
-              <div className="absolute top-[1900px] left-7 text-xs opacity-25">{leftDecos[3]}</div>
+            {/* 2D Tile Map Grid Background */}
+            <div className="grid grid-cols-10 w-full h-[2400px] absolute inset-0 z-0 pointer-events-none select-none overflow-hidden">
+              {mapGrid.map((row, y) =>
+                row.map((cellType, x) => (
+                  <div 
+                    key={`${x}-${y}`} 
+                    className="w-[60px] h-[60px] bg-cover bg-center" 
+                    style={getTileStyle(cellType, selectedDungeon.id, x, y)}
+                  />
+                ))
+              )}
             </div>
-            <div className={cn("absolute inset-y-0 right-0 w-24 bg-gradient-to-l pointer-events-none", wallStyleRight)}>
-              <div className="absolute top-[600px] right-7 text-xs opacity-25">{rightDecos[0]}</div>
-              <div className="absolute top-[1100px] right-4 text-xs opacity-25">{rightDecos[1]}</div>
-              <div className="absolute top-[1600px] right-8 text-xs opacity-25">{rightDecos[2]}</div>
-              <div className="absolute top-[2100px] right-5 text-xs opacity-25">{rightDecos[3]}</div>
-            </div>
-
-            {/* Central Mossy Path Slab Overlay */}
-            <div className="absolute inset-y-0 left-24 right-24 bg-stone-950/45 border-x border-stone-850 pointer-events-none" />
 
             {/* Slow Drifting Unholy spirits */}
             {spirits.map((s) => (

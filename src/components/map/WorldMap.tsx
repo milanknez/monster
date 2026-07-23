@@ -162,6 +162,8 @@ export interface WorldMapProps {
   graphicsQuality?: 'low' | 'high'
   mapTheme?: 'day' | 'night' | 'auto'
   spawnRadius?: number
+  pvpWins?: number
+  pvpLosses?: number
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -196,7 +198,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   graphicsQuality = 'high',
   initialPosition = null,
   mapTheme = 'auto',
-  spawnRadius = 1000
+  spawnRadius = 1000,
+  pvpWins = 0,
+  pvpLosses = 0
 }, ref) => {
 
   const { t, i18n } = useTranslation()
@@ -836,13 +840,15 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         lng: playerPos[1],
         avatarStyle: avatarStyle,
         avatarSeed: avatarSeed,
-        email: email
+        email: email,
+        pvpWins,
+        pvpLosses
       });
     };
     sync(); // Sync immediately
     const interval = setInterval(sync, 10000); // And every 10s
     return () => clearInterval(interval);
-  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed, playerUid])
+  }, [playerPos, playerName, playerLevel, caughtMonsters.length, avatarStyle, avatarSeed, playerUid, pvpWins, pvpLosses])
 
   useEffect(() => {
     if (!playerPos || !playerName || !playerUid) return

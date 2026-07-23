@@ -117,7 +117,9 @@ export const syncPlayerToFirebase = (data: {
     avatarStyle: string,
     avatarSeed: string,
     email?: string | null,
-    activeMonster?: { id: string, level: number, name: string, stats: any }
+    activeMonster?: { id: string, level: number, name: string, stats: any },
+    pvpWins?: number,
+    pvpLosses?: number
 }) => {
     const uid = data.uid || PLAYER_UID;
     const presenceRef = ref(db, `presence/${uid}`);
@@ -134,7 +136,9 @@ export const syncPlayerToFirebase = (data: {
         eml: data.email || null,
         mon: data.activeMonster || null,
         act: Date.now(),
-        onl: true
+        onl: true,
+        pvw: data.pvpWins || 0,
+        pvl: data.pvpLosses || 0
     };
 
     set(presenceRef, statusData);
@@ -440,4 +444,83 @@ export const watchTradeSignals = (uid: string, callback: (signal: any) => void) 
 export const clearTradeSignal = async (uid: string) => {
     const signalRef = ref(db, `signals/${uid}`);
     await set(signalRef, null);
+};
+
+/**
+ * Dungeon Multiplayer Lobby Helper Functions
+ */
+
+export const createDungeonLobby = async (lobbyId: string, dungeonId: string, dungeonName: string, hostUid: string, hostName: string) => {
+    const lobbyRef = ref(db, `dungeon_lobbies/${lobbyId}`);
+    const now = Date.now();
+    const expiresAt = now + 120000; // 2 minutes countdown
+    await set(lobbyRef, {
+        id: lobbyId,
+        dungeonId,
+        dungeonName,
+        hostUid,
+        hostName,
+        createdAt: now,
+        expiresAt,
+        status: 'waiting',
+        players: {
+            [hostUid]: {
+                uid: hostUid,
+                name: hostName,
+                monster: null,
+                isReady: false,
+                joinedAt: now
+            }
+        }
+    });
+};
+
+export const joinDungeonLobby = async (lobbyId: string, playerUid: string, playerName: string) => {
+    const playerRef = ref(db, `dungeon_lobbies/${lobbyId}/players/${playerUid}`);
+    await set(playerRef, {
+        uid: playerUid,
+        name: playerName,
+        monster: null,
+        isReady: false,
+        joinedAt: Date.now()
+    });
+};
+
+export const leaveDungeonLobby = async (lobbyId: string, playerUid: string) => {
+    const playerRef = ref(db, `dungeon_lobbies/${lobbyId}/players/${playerUid}`);
+    await remove(playerRef);
+};
+
+export const updateLobbyPlayerMonster = async (lobbyId: string, playerUid: string, monster: any) => {
+    const monsterRef = ref(db, `dungeon_lobbies/${lobbyId}/players/${playerUid}/monster`);
+    await set(monsterRef, monster);
+};
+
+export const setLobbyPlayerReady = async (lobbyId: string, playerUid: string, isReady: boolean) => {
+    const readyRef = ref(db, `dungeon_lobbies/${lobbyId}/players/${playerUid}/isReady`);
+    await set(readyRef, isReady);
+};
+
+export const startDungeonLobby = async (lobbyId: string) => {
+    const statusRef = ref(db, `dungeon_lobbies/${lobbyId}/status`);
+    await set(statusRef, 'started');
+};
+
+export const watchDungeonLobbies = (callback: (lobbies: any) => void) => {
+    const lobbiesRef = ref(db, `dungeon_lobbies`);
+    return onValue(lobbiesRef, (snapshot) => {
+        callback(snapshot.val() || {});
+    });
+};
+
+export const watchSingleLobby = (lobbyId: string, callback: (lobby: any) => void) => {
+    const lobbyRef = ref(db, `dungeon_lobbies/${lobbyId}`);
+    return onValue(lobbyRef, (snapshot) => {
+        callback(snapshot.val() || null);
+    });
+};
+
+export const deleteDungeonLobby = async (lobbyId: string) => {
+    const lobbyRef = ref(db, `dungeon_lobbies/${lobbyId}`);
+    await remove(lobbyRef);
 };

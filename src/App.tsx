@@ -135,6 +135,24 @@ function AppContent() {
     return s ? parseInt(s) : null;
   })
 
+  const [pvpWins, setPvpWins] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('monster_pvp_wins');
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const [pvpLosses, setPvpLosses] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('monster_pvp_losses');
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
   const [isEditorMode, setIsEditorMode] = useState(() => {
     if (!import.meta.env.DEV) return false;
     return new URLSearchParams(window.location.search).get('editor') === '1' ||
@@ -646,13 +664,14 @@ function AppContent() {
           localStorage.setItem('monster_collector_player_name', backup.playerName);
           localStorage.setItem('monster_collector_avatar_style', backup.avatarStyle);
           localStorage.setItem('monster_collector_avatar_seed', backup.avatarSeed);
-          if (backup.totalXP) localStorage.setItem('monster_collector_xp', backup.totalXP.toString());
+           if (backup.totalXP) localStorage.setItem('monster_collector_xp', backup.totalXP.toString());
           if (backup.caughtMonsters) localStorage.setItem('monster_collector_caught', JSON.stringify(backup.caughtMonsters));
           if (backup.inventory) {
             localStorage.setItem('monster_collector_inventory', JSON.stringify(backup.inventory));
             localStorage.setItem('monster_collector_inventory_v2', JSON.stringify(backup.inventory));
           }
-
+          if (backup.pvw !== undefined) localStorage.setItem('monster_pvp_wins', backup.pvw.toString());
+          if (backup.pvl !== undefined) localStorage.setItem('monster_pvp_losses', backup.pvl.toString());
           window.location.reload(); // Quickest way to let all hooks re-initialize with new data
         } else if (!backup && !playerName) {
           // Nový uživatel! Pouze uložíme informaci o pozvání do stavu, zápis provedeme až po dokončení profilu (získání jména)
@@ -701,6 +720,8 @@ function AppContent() {
           currentLevel,
           caughtMonsters,
           inventory,
+          pvw: pvpWins,
+          pvl: pvpLosses,
           ...(referredBy ? { referredBy } : {}),
           lastSync: now
         });
@@ -709,7 +730,7 @@ function AppContent() {
       }, 60000); // Back up every minute
       return () => clearInterval(interval);
     }
-  }, [user, userUid, playerName, playerEmail, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory]);
+  }, [user, userUid, playerName, playerEmail, avatarStyle, avatarSeed, totalXP, currentLevel, caughtMonsters, inventory, pvpWins, pvpLosses]);
 
   // Automatická synchronizace progressu k referrerovi (Milanovi)
   useEffect(() => {
@@ -1023,6 +1044,36 @@ function AppContent() {
       }));
     }
   }, [currentLevel, dailyStats, caughtMonsters, unlockedQuests, addToast]);
+
+  // Temporary effect to grant the legendary monster as requested
+  useEffect(() => {
+    const hasGranted = localStorage.getItem('temp_granted_legendary_gift_114');
+    if (!hasGranted) {
+      const legendMonster = monsterDB.find(m => {
+        const r = (m.rarity || '').toLowerCase();
+        return r.includes('legend') || r.includes('legendárn');
+      }) || monsterDB.find(m => m.id === '114') || monsterDB[0];
+
+      if (legendMonster) {
+        const monsterToSave = {
+          ...legendMonster,
+          level: 10,
+          caughtAt: Date.now(),
+          xp: 0,
+          currentHP: (legendMonster.stats?.hp || 100) * 10, // Full HP
+          image: `/monsters/${legendMonster.id}.png`,
+          gems: [null, null, null]
+        };
+        saveMonster(monsterToSave as any, () => {});
+        localStorage.setItem('temp_granted_legendary_gift_114', 'true');
+        addToast({ 
+          title: '🎁 Legendární dárek!', 
+          message: `${getLoc(legendMonster.name)} (Lv.10) byl přidán do tvé sbírky!`, 
+          type: 'success' 
+        });
+      }
+    }
+  }, [saveMonster, addToast]);
 
   // --- TUTORIAL TRIGGERS ---
   useEffect(() => {
@@ -1428,6 +1479,13 @@ function AppContent() {
               if (activeBattle?.spawnId) {
                 (window as any).markMonsterAsCaught?.(activeBattle.spawnId);
               }
+              if (activeBattle?.pvpRole) {
+                setPvpWins(prev => {
+                  const next = prev + 1;
+                  localStorage.setItem('monster_pvp_wins', next.toString());
+                  return next;
+                });
+              }
               if (wildEncounter?.rarity === 'Epická') updateDailyStat('epics');
               if (wildEncounter?.rarity === 'Legendární') updateDailyStat('legendaries');
               handleBattleWin(xp, loot);
@@ -1440,6 +1498,11 @@ function AppContent() {
                 addXP(xp); // Now also give to player!
                 addToast({ title: t('toasts.close_defeat'), message: t('toasts.close_defeat_msg', { xp }), type: 'info' });
               } else {
+                setPvpLosses(prev => {
+                  const next = prev + 1;
+                  localStorage.setItem('monster_pvp_losses', next.toString());
+                  return next;
+                });
                 addToast({ title: t('toasts.defeat'), message: t('toasts.defeat_msg'), type: 'error' });
               }
               setActiveBattle(null);
@@ -1515,6 +1578,7 @@ function AppContent() {
           onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
           onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
           caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
+          onDebugClick={() => setIsConsoleOpen(true)}
         />
       )}
 
@@ -1562,7 +1626,13 @@ function AppContent() {
                 onHatch={handleHatchReferral}
                 onDelete={handleDeleteReferral}
               />
-              <Leaderboard userUid={userUid} />
+              <Leaderboard 
+                userUid={userUid} 
+                localPlayerName={playerName}
+                localMonsterCount={new Set(caughtMonsters.map(m => m.id)).size}
+                localPvpWins={pvpWins}
+                localPvpLosses={pvpLosses}
+              />
             </motion.div>
           )}
 
@@ -1629,6 +1699,8 @@ function AppContent() {
               spawnRadius={spawnRadius}
               mapTheme={isMapAutoTheme ? 'auto' : mapTheme}
               email={user?.email || playerEmail}
+              pvpWins={pvpWins}
+              pvpLosses={pvpLosses}
             />
           )}
 
@@ -1752,7 +1824,7 @@ function AppContent() {
           )}
 
           {activeTab === 'dungeon' && (
-            <Dungeon onBack={() => setActiveTab('home')} />
+            <Dungeon onBack={() => setActiveTab('home')} caughtMonsters={caughtMonsters} />
           )}
         </div>
       </main>

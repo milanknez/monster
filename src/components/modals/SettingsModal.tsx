@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon, Globe, Flame, AlertTriangle, Leaf } from 'lucide-react';
+import { X, User, Bell, Volume2, Shield, Trash2, Save, RefreshCw, Mail, Sun, Moon, Map as MapIcon, Globe, Flame, AlertTriangle, Leaf, Terminal, Bug, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useState, useEffect } from 'react';
@@ -218,12 +218,23 @@ export const SettingsModal = ({
               <h2 className="text-xl font-black text-slate-100 uppercase tracking-wider">
                 {showConfirmReset ? t('settings.delete_all') : t('settings.title')}
               </h2>
-              <button 
-                onClick={onClose}
-                className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-400"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                {onToggleDebug && (
+                  <button
+                    onClick={onToggleDebug}
+                    className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-400 hover:text-primary"
+                    title="Debug Console"
+                  >
+                    <Terminal size={20} />
+                  </button>
+                )}
+                <button 
+                  onClick={onClose}
+                  className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-400"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="p-6 space-y-8 overflow-y-auto max-h-[70vh] relative min-h-[350px]">

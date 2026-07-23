@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Target, X, Star } from 'lucide-react';
+import { Trophy, Target, X, Star, Sword, Shield, Skull } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../../lib/firebase';
@@ -20,6 +20,8 @@ interface LeaderboardPlayer {
   isOnline?: boolean;
   lastActive?: number;
   level?: number;
+  pvw?: number;
+  pvl?: number;
   rarities?: {
     common: number;
     rare: number;
@@ -38,9 +40,11 @@ interface LeaderboardProps {
   userUid: string;
   localPlayerName?: string | null;
   localMonsterCount?: number;
+  localPvpWins?: number;
+  localPvpLosses?: number;
 }
 
-export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: LeaderboardProps) => {
+export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount, localPvpWins, localPvpLosses }: LeaderboardProps) => {
   const { t, i18n } = useTranslation();
   const [allPlayers, setAllPlayers] = useState<LeaderboardPlayer[]>([]);
   const [leaderboardNearby, setLeaderboardNearby] = useState<LeaderboardPlayer[]>([]);
@@ -150,10 +154,13 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           let avatarStyle = merged.avatarStyle || merged.avs;
           let avatarSeed = merged.avatarSeed || merged.avd;
           let isBlocked = !!merged.blo;
-          const lastActive = merged.lastActive || merged.lastSeen || merged.la || 0;
+          const lastActive = merged.lastActive || merged.lastSeen || merged.la || merged.act || 0;
           const isOnline = id === userUid || (lastActive > 0 && (Date.now() - lastActive) < 300000);
           const level = typeof merged.level === 'number' ? merged.level : 
                         typeof merged.lvl === 'number' ? merged.lvl : 1;
+
+          let pvw = typeof merged.pvw === 'number' ? merged.pvw : 0;
+          let pvl = typeof merged.pvl === 'number' ? merged.pvl : 0;
 
           if (id === userUid) {
             if (localPlayerName) {
@@ -161,6 +168,12 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             }
             if (typeof localMonsterCount === 'number') {
               mct = localMonsterCount;
+            }
+            if (typeof localPvpWins === 'number') {
+              pvw = localPvpWins;
+            }
+            if (typeof localPvpLosses === 'number') {
+              pvl = localPvpLosses;
             }
           }
 
@@ -179,7 +192,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
             isOnline,
             caughtList,
             lastActive,
-            level
+            level,
+            pvw,
+            pvl
           };
         })
         .filter(p => (p.name !== 'Neznámý lovec' || p.id === userUid) && !p.isBlocked)
@@ -198,7 +213,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
         isOnline: p.isOnline,
         caughtList: p.caughtList,
         lastActive: p.lastActive,
-        level: p.level
+        level: p.level,
+        pvw: p.pvw,
+        pvl: p.pvl
       }));
       setAllPlayers(mappedPlayers);
 
@@ -219,7 +236,9 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
           isOnline: p.isOnline,
           caughtList: p.caughtList,
           lastActive: p.lastActive,
-          level: p.level
+          level: p.level,
+          pvw: p.pvw,
+          pvl: p.pvl
         }));
         setLeaderboardNearby(nearby);
       } else {
@@ -242,11 +261,19 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
   const formatLastActive = (timestamp?: number) => {
     if (!timestamp) return 'naposledy: neznámo';
     const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const today = new Date();
+    const isToday = date.getDate() === today.getDate() &&
+                    date.getMonth() === today.getMonth() &&
+                    date.getFullYear() === today.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     
+    if (isToday) {
+      return `naposledy dnes v ${hours}:${minutes}`;
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     return `naposledy v ${day}.${month}. ${hours}:${minutes}`;
   };
 
@@ -296,6 +323,11 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                 </p>
                 <span className="text-[10px] font-bold text-slate-500 tabular-nums">
                   {player.mct} {getSpeciesLabel(player.mct)}
+                  {((player.pvw || 0) > 0 || (player.pvl || 0) > 0) && (
+                    <span className="text-slate-600 font-bold ml-1">
+                      • ⚔️ {player.pvw || 0}/{player.pvl || 0}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
@@ -373,6 +405,11 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                 </p>
                 <span className="text-[10px] font-bold text-slate-600 tabular-nums">
                   {player.mct} {getSpeciesLabel(player.mct)}
+                  {((player.pvw || 0) > 0 || (player.pvl || 0) > 0) && (
+                    <span className="text-slate-600 font-bold ml-1">
+                      • ⚔️ {player.pvw || 0}/{player.pvl || 0}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
@@ -448,6 +485,14 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
                       <span className="text-[10px] font-bold text-slate-400">
                         {selectedPlayer.mct} {getSpeciesLabel(selectedPlayer.mct)}
                       </span>
+                      {((selectedPlayer.pvw || 0) > 0 || (selectedPlayer.pvl || 0) > 0) && (
+                        <>
+                          <div className="size-1 rounded-full bg-white/10" />
+                          <span className="text-[10px] font-bold text-red-400">
+                            ⚔️ {selectedPlayer.pvw || 0}V / {selectedPlayer.pvl || 0}P
+                          </span>
+                        </>
+                      )}
                     </div>
                     <p className="text-[9px] font-bold text-slate-500 mt-1.5 lowercase">
                       {(selectedPlayer.isOnline || selectedPlayer.isMe || selectedPlayer.id === userUid) ? (
@@ -467,6 +512,39 @@ export const Leaderboard = ({ userUid, localPlayerName, localMonsterCount }: Lea
 
                 {/* Rarity Counts Overview */}
                 <div className="flex-1 overflow-y-auto pr-1 space-y-5 custom-scrollbar">
+                  
+                  {/* PvP Stats */}
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1 mb-2">
+                      {t('quests.pvp_record')}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Výhry */}
+                      <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg relative overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.06)]">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-40" />
+                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 z-10">
+                          <Sword size={11} className="text-emerald-400" />
+                          {t('quests.pvp_wins')}
+                        </span>
+                        <p className="text-3xl font-black text-white italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none tabular-nums z-10">
+                          {selectedPlayer.pvw || 0}
+                        </p>
+                      </div>
+
+                      {/* Prohry */}
+                      <div className="bg-rose-500/5 border border-rose-500/20 rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg relative overflow-hidden group shadow-[0_0_20px_rgba(244,63,94,0.06)]">
+                        <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-40" />
+                        <span className="text-[9px] font-black text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 z-10">
+                          <Skull size={11} className="text-rose-400" />
+                          {t('quests.pvp_losses')}
+                        </span>
+                        <p className="text-3xl font-black text-white italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none tabular-nums z-10">
+                          {selectedPlayer.pvl || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Statistiky chycených příšer</h4>
                   
                   <div className="grid grid-cols-2 gap-4">

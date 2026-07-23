@@ -9,7 +9,7 @@ import {
   Hourglass, Skull, Moon, Lock, Check, Hash, Target
 } from 'lucide-react';
 import type { Monster, LootTableEntry, Localized } from '../../types';
-import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc, triggerHaptic } from '../../utils';
+import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, TYPE_MAP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc, triggerHaptic } from '../../utils';
 import { useTranslation } from 'react-i18next';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { LootModal, type LootItem } from './LootModal';
@@ -611,15 +611,17 @@ export const Battle = ({
 
     const isCrit = Math.random() < (isSkill ? 0.35 : 0.1);
     let typeMult = 1, isEffective = false, isWeak = false;
-    const match = TYPE_MATCHUP[getLoc(attacker.type, 'cz')];
+    const attackerType = TYPE_MAP[getLoc(attacker.type, 'cz')] || 'fire';
+    const defenderType = TYPE_MAP[getLoc(defender.type, 'cz')] || 'fire';
+    const match = TYPE_MATCHUP[attackerType];
     if (match) {
-      if (match.strong === getLoc(defender.type, 'cz')) {
+      if (match.strong === defenderType) {
         if (Math.random() < 0.3) {
           typeMult = ADVANTAGE_MULT;
           isEffective = true;
         }
       }
-      else if (match.weak === getLoc(defender.type, 'cz')) {
+      else if (match.weak === defenderType) {
         typeMult = WEAKNESS_MULT;
         isWeak = true;
       }
