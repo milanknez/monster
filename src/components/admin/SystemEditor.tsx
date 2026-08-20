@@ -300,6 +300,12 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
             fetch(`${dbUrl}/referrals.json?auth=${encodeURIComponent(token)}`)
           ]);
 
+          if (!usersRes.ok && usersRes.status === 401) {
+            console.warn("[SystemEditor] Invalid auth token, clearing stored token.");
+            localStorage.removeItem(tokenKey);
+            return;
+          }
+
           let usersMap = {};
           let presenceMap = {};
           let playersNodeMap = {};
@@ -311,9 +317,12 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
           if (referralsRes.ok) {
             const referralsVal = await referralsRes.json() || {};
             const flattened: any[] = [];
+            const existingKeys = new Set<string>();
+
             Object.entries(referralsVal).forEach(([referrerId, userRefs]: [string, any]) => {
               if (userRefs && typeof userRefs === 'object') {
                 Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
+                  existingKeys.add(`${referrerId}_${invitedId}`);
                   flattened.push({
                     ...refData,
                     referrerId,
@@ -322,6 +331,34 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                 });
               }
             });
+
+            // Doplnění uživatelů, kteří mají referredBy přímo v profilu
+            Object.entries(usersMap).forEach(([uid, uData]: [string, any]) => {
+              if (uData && uData.referredBy) {
+                let refUid = uData.referredBy;
+                // Najít referrera – buď podle přesného UID nebo podle short-kódu (posledních 6 znaků)
+                const matchingReferrer = Object.keys(usersMap).find(id => 
+                  id === refUid || id.slice(-6).toUpperCase() === refUid.toUpperCase()
+                );
+                if (matchingReferrer) refUid = matchingReferrer;
+
+                const key = `${refUid}_${uid}`;
+                if (!existingKeys.has(key)) {
+                  existingKeys.add(key);
+                  flattened.push({
+                    name: uData.playerName || uData.name || uData.email?.split('@')[0] || 'Lovec',
+                    email: uData.email || null,
+                    level: uData.level || uData.lvl || 1,
+                    status: 'registered',
+                    timestamp: uData.createdAt || uData.updatedAt || Date.now(),
+                    referrerId: refUid,
+                    invitedId: uid,
+                    hatchClaimed: false
+                  });
+                }
+              }
+            });
+
             flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             setReferrals(flattened);
           }
@@ -357,6 +394,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
               caughtMonsters: merged.caughtMonsters || [],
               email: merged.email || merged.eml || (merged.playerName?.includes('@') ? merged.playerName : (merged.nam?.includes('@') ? merged.nam : null)),
               isBlocked: !!merged.blo,
+              referredBy: merged.referredBy || null,
               updatedAt: merged.updatedAt || merged.lastSync || merged.act || 0
             };
           }).sort((a, b) => {
@@ -379,33 +417,40 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
     const unsubReferrals = onValue(referralsRef, (snapshot) => {
       const val = snapshot.val() || {};
       const flattened: any[] = [];
+      const existingKeys = new Set<string>();
+
       Object.entries(val).forEach(([referrerId, userRefs]: [string, any]) => {
-        Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
-          flattened.push({
-            ...refData,
-            referrerId,
-            invitedId,
+        if (userRefs && typeof userRefs === 'object') {
+          Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
+            existingKeys.add(`${referrerId}_${invitedId}`);
+            flattened.push({
+              ...refData,
+              referrerId,
+              invitedId,
+            });
           });
-        });
+        }
       });
+
       flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       setReferrals(flattened);
     }, (error) => {
-      console.error("[SystemEditor] Referrals Sync Error, trying REST fallback:", error);
-      fetchInitialDataViaRest();
+      console.warn("[SystemEditor] Referrals SDK Sync restricted, skipping realtime stream.");
     });
     return () => unsubReferrals();
   }, []);
 
-  // Sync Players
+  // Sync Players & Referrals
   useEffect(() => {
     const presenceRef = ref(db, 'presence');
     const usersRef = ref(db, 'users');
     const playersRef = ref(db, 'players');
+    const referralsRef = ref(db, 'referrals');
 
     let presenceMap: Record<string, any> = {};
     let usersMap: Record<string, any> = {};
     let playersNodeMap: Record<string, any> = {};
+    let rawReferralsMap: Record<string, any> = {};
 
     const mergeAndSet = () => {
       const allUids = Array.from(new Set([
@@ -447,6 +492,8 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
 
           isBlocked: !!merged.blo,
 
+          referredBy: merged.referredBy || null,
+
           updatedAt: merged.updatedAt || merged.lastSync || merged.act || 0
 
         };
@@ -462,6 +509,57 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       });
 
       setPlayers(combined);
+
+      // Construct and update referrals state for dashboard table
+      const flattened: any[] = [];
+      const existingKeys = new Set<string>();
+
+      // 1. Z uzlu referrals v databázi (pokud je dostupný)
+      Object.entries(rawReferralsMap).forEach(([referrerId, userRefs]: [string, any]) => {
+        if (userRefs && typeof userRefs === 'object') {
+          Object.entries(userRefs).forEach(([invitedId, refData]: [string, any]) => {
+            existingKeys.add(`${referrerId}_${invitedId}`);
+            flattened.push({
+              ...refData,
+              referrerId,
+              invitedId,
+            });
+          });
+        }
+      });
+
+      // 2. Doplnění všech uživatelů majících referredBy v profilu
+      Object.entries(usersMap).forEach(([uid, uData]: [string, any]) => {
+        if (uData && uData.referredBy) {
+          let refUid = uData.referredBy;
+          const refNorm = refUid.toUpperCase();
+          const matchingReferrer = Object.keys(usersMap).find(id => 
+            id === refUid || 
+            id.slice(-6).toUpperCase() === refNorm || 
+            id.slice(-6).toUpperCase() === refNorm.slice(-6) ||
+            id.toLowerCase().endsWith(refUid.toLowerCase())
+          );
+          if (matchingReferrer) refUid = matchingReferrer;
+
+          const key = `${refUid}_${uid}`;
+          if (!existingKeys.has(key)) {
+            existingKeys.add(key);
+            flattened.push({
+              name: getLoc(uData.playerName || uData.name || uData.email?.split('@')[0] || 'Lovec', 'cz'),
+              email: uData.email || null,
+              level: Math.max(uData.lvl || uData.level || 0, uData.currentLevel || 0, 1),
+              status: 'registered',
+              timestamp: uData.createdAt || uData.updatedAt || uData.lastActive || Date.now(),
+              referrerId: refUid,
+              invitedId: uid,
+              hatchClaimed: false
+            });
+          }
+        }
+      });
+
+      flattened.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      setReferrals(flattened);
     };
 
     const unsubPresence = onValue(presenceRef, (snapshot) => {
@@ -488,10 +586,18 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
       fetchInitialDataViaRest();
     });
 
+    const unsubReferrals = onValue(referralsRef, (snapshot) => {
+      rawReferralsMap = snapshot.val() || {};
+      mergeAndSet();
+    }, (error) => {
+      // Ignorujeme případný restricted permission na čtení celého uzlu referrals
+    });
+
     return () => {
       unsubPresence();
       unsubUsers();
       unsubPlayersNode();
+      unsubReferrals();
     };
   }, []);
 
@@ -998,7 +1104,7 @@ export const SystemEditor: React.FC<SystemEditorProps> = ({ onBack }) => {
                         <div className="py-8 text-center opacity-25 italic text-[10px] uppercase tracking-wider">Žádné pozvánky v databázi</div>
                       ) : (
                         referrals.slice(0, 8).map((refEntry, idx) => {
-                          const referrer = players.find(p => p.id === refEntry.referrerId);
+                          const referrer = players.find(p => p.id === refEntry.referrerId || p.id.slice(-6).toUpperCase() === refEntry.referrerId?.toUpperCase());
                           const isRegistered = refEntry.status === 'registered' || !!refEntry.registeredUid;
                           return (
                             <div key={idx} className="flex items-center justify-between pt-2 first:pt-0">

@@ -79,7 +79,7 @@ export default defineConfig({
                 else if (key === 'gems') content = `export const GEM_BONUSES: Record<string, { value: number, isPerc?: boolean }> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'resources') content = `import { ResourceConfig } from '../types';\n\nexport const RESOURCE_CONFIG: Record<string, ResourceConfig> = ${JSON.stringify(data, null, 2)};`;
                 else if (key === 'settings') content = `export const SYSTEM_SETTINGS = ${JSON.stringify(data, null, 2)};`;
-                else if (key === 'dungeons') content = `import { Localized } from '../types';\n\nexport interface DungeonWaveConfig {\n  waveIndex: number;\n  enemyRarityPool: 'rare' | 'epic' | 'legendary';\n  enemyCount: number;\n  cloneSameMonster: boolean;\n  baseHp: number;\n  level: number;\n  shield?: number;\n}\n\nexport interface DungeonConfig {\n  id: string;\n  name: Localized<string>;\n  description: Localized<string>;\n  backgroundImage: string;\n  recommendedLevel: number;\n  waves: DungeonWaveConfig[];\n  lootTable: {\n    waveDrops: {\n      [waveIndex: number]: {\n        chance: number;\n        rarity: 'common' | 'rare' | 'epic' | 'legendary';\n      };\n    };\n    bossDrops: {\n      chance: number;\n      rarityDistribution: {\n        legendary: number;\n        epic: number;\n        rare: number;\n      };\n    };\n  };\n}\n\nexport const dungeonsDB: DungeonConfig[] = ${JSON.stringify(data, null, 2)};`;
+                else if (key === 'dungeons') content = `import { Localized } from '../types';\n\nexport interface DungeonWaveConfig {\n  waveIndex: number;\n  enemyName: Localized<string> | string;\n  enemyImage: string;\n  enemyType: string;\n  enemyCount: number;\n  baseHp: number;\n  level: number;\n  shield?: number;\n}\n\nexport interface BossSpecificDrop {\n  resourceId: string;\n  chance: number;\n  minAmount: number;\n  maxAmount: number;\n}\n\nexport interface DungeonLootConfig {\n  specificDrops: BossSpecificDrop[];\n  randomDropsCount: number;\n  rarityDistribution: {\n    legendary: number;\n    epic: number;\n    rare: number;\n  };\n  waveDrops?: Record<number, { chance: number; rarity: string }>;\n  bossDrops?: { chance?: number; rarityDistribution?: Record<string, number> };\n}\n\nexport interface DungeonConfig {\n  id: string;\n  name: Localized<string>;\n  description: Localized<string>;\n  backgroundImage: string;\n  recommendedLevel: number;\n  waves: DungeonWaveConfig[];\n  lootTable: DungeonLootConfig;\n}\n\nexport const dungeonsDB: DungeonConfig[] = ${JSON.stringify(data, null, 2)};\n`;
 
 
                 fs.writeFileSync(filePath, content);
@@ -99,6 +99,32 @@ export default defineConfig({
             const filePath = path.join(dir, `${id}.png`);
             req.pipe(fs.createWriteStream(filePath));
             req.on('end', () => { res.statusCode = 200; res.end('OK'); });
+          } else if (req.method === 'POST' && pathname === '/api/save-dungeon-image') {
+            const parsedUrl = new URL(url, `http://${req.headers?.host || 'localhost'}`);
+            const filename = parsedUrl.searchParams.get('filename') || `enemy_${Date.now()}.png`;
+            const dir = path.resolve(__dirname, 'public/dungeon');
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            const cleanName = filename.endsWith('.png') ? filename : `${filename}.png`;
+            const filePath = path.join(dir, cleanName);
+            req.pipe(fs.createWriteStream(filePath));
+            req.on('end', () => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ path: `/dungeon/${cleanName}` }));
+            });
+          } else if (req.method === 'POST' && pathname === '/api/save-dungeon-bg') {
+            const parsedUrl = new URL(url, `http://${req.headers?.host || 'localhost'}`);
+            const filename = parsedUrl.searchParams.get('filename') || `bg_${Date.now()}.png`;
+            const dir = path.resolve(__dirname, 'public');
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            const cleanName = filename.endsWith('.png') || filename.endsWith('.jpg') ? filename : `${filename}.png`;
+            const filePath = path.join(dir, cleanName);
+            req.pipe(fs.createWriteStream(filePath));
+            req.on('end', () => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ path: `/${cleanName}` }));
+            });
           } else if (req.method === 'POST' && pathname === '/api/save-resource-image') {
             const parsedUrl = new URL(url, `http://${req.headers?.host || 'localhost'}`);
             const id = parsedUrl.searchParams.get('id');

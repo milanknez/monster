@@ -157,6 +157,17 @@ function applyCooldowns(content: any, cooldowns: Cooldowns) {
   };
 }
 
+export interface DungeonSpawnPoint {
+  id: string;
+  lat: number;
+  lng: number;
+  type: 'station' | 'park' | 'square';
+  title: string;
+  dungeonConfigId: string;
+  recommendedLevel: number;
+  isCleared?: boolean;
+}
+
 /**
  * Načítá body zájmu (POI) z OpenStreetMap přes Overpass API
  */
@@ -166,8 +177,8 @@ export async function fetchPoiData(
   cooldowns: Cooldowns,
   radiusM: number = 1500,
   force = false
-): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[], buildings: { lat: number, lng: number }[] }> {
-  if (!isFinite(lat) || !isFinite(lng)) return { monsters: [], resources: [], buildings: [] }
+): Promise<{ monsters: SpawnPoint[], resources: ResourceSpawn[], buildings: { lat: number, lng: number }[], dungeons: DungeonSpawnPoint[] }> {
+  if (!isFinite(lat) || !isFinite(lng)) return { monsters: [], resources: [], buildings: [], dungeons: [] }
 
   const cacheKey = `poi_cache_${lat.toFixed(3)}_${lng.toFixed(3)}_${radiusM}`;
   if (!force) {
@@ -191,22 +202,26 @@ export async function fetchPoiData(
     }
   } catch (e) { console.warn("Cache cleanup failed", e); }
 
-  const query = `[out:json][timeout:60];
+  const query = `[out:json][timeout:25];
 (
   // Monsters POIs
   nwr["historic"](around:${radiusM},${lat},${lng});
   nwr["tourism"](around:${radiusM},${lat},${lng});
   nwr["amenity"~"place_of_worship|museum|library|theatre"](around:${radiusM},${lat},${lng});
   nwr["heritage"](around:${radiusM},${lat},${lng});
-  // Vesnické POI (boží muka, kapličky, pomínky)
+  // Vesnické POI (boží muka, kapličky, pomníky)
   nwr["historic"~"wayside_cross|wayside_shrine|wayside|chapel|memorial|boundary_stone|milestone|village_sign|cross"](around:${radiusM},${lat},${lng});
-  nwr["amenity"~"place_of_worship"](around:${radiusM},${lat},${lng});
   
+  // Dungeons POIs (Nádraží, Parky, Náměstí)
+  nwr["railway"~"station|halt"](around:${radiusM},${lat},${lng});
+  nwr["leisure"~"park|garden"](around:${radiusM},${lat},${lng});
+  nwr["place"~"square"](around:${radiusM},${lat},${lng});
+  nwr["amenity"~"marketplace"](around:${radiusM},${lat},${lng});
+
   // Buildings to avoid
-  nwr["building"](around:500,${lat},${lng});
-  nwr["leisure"~"park|garden|nature_reserve|playground"](around:${radiusM},${lat},${lng});
-  nwr["landuse"~"forest|grass|orchard|flowerbed|allotments|meadow"](around:${radiusM},${lat},${lng});
-  nwr["natural"~"water|wood|scrub|heath|grassland|rock|peak"](around:${radiusM},${lat},${lng});
+  way["building"](around:300,${lat},${lng});
+  way["leisure"~"park|garden|playground"](around:${radiusM},${lat},${lng});
+  way["landuse"~"forest|grass|orchard|meadow"](around:${radiusM},${lat},${lng});
 );
 out center;`;
 
@@ -217,18 +232,23 @@ out center;`;
     'https://overpass.kumi.systems/api/interpreter'
   ];
 
-  let res, json, lastError;
+  let json: any = null;
   for (const endpoint of endpoints) {
     try {
-      res = await fetch(endpoint, { method: 'POST', body: query });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 25000);
+      const res = await fetch(endpoint, { method: 'POST', body: query, signal: controller.signal });
+      clearTimeout(timer);
       if (res.ok) {
-        json = await res.json();
-        break;
-      } else {
-        lastError = `Status ${res.status}`;
+        const text = await res.text();
+        if (text.includes('"elements"') && !text.includes('runtime error')) {
+          json = JSON.parse(text);
+          break;
+        } else {
+          console.warn(`Overpass endpoint ${endpoint} returned error payload, trying next...`);
+        }
       }
     } catch (e) {
-      lastError = e;
       console.warn(`Endpoint ${endpoint} failed, trying next...`);
     }
   }
@@ -274,6 +294,7 @@ out center;`;
   const monsters: SpawnPoint[] = []
   const resources: ResourceSpawn[] = []
   const buildings: { lat: number, lng: number }[] = []
+  const dungeonCandidates: { id: string; lat: number; lng: number; type: 'station' | 'park' | 'square'; title: string; dungeonConfigId: string; recommendedLevel: number; isMain: boolean }[] = []
   const seenPos = new Set<string>()
   const legCandidates: { m: SpawnPoint; tags: any }[] = []
 
@@ -281,6 +302,34 @@ out center;`;
     const elLat: number = el.lat ?? el.center?.lat
     const elLng: number = el.lon ?? el.center?.lon
     if (elLat === undefined || elLng === undefined || !isFinite(elLat) || !isFinite(elLng)) continue
+
+    const tags = el.tags || {}
+
+    // Detekce Dungeon POI (Nádraží, Park, Náměstí)
+    let dType: 'station' | 'park' | 'square' | null = null;
+    if (tags.railway === 'station' || tags.railway === 'halt' || tags.building === 'train_station') {
+      dType = 'station';
+    } else if (tags.leisure === 'park' || tags.leisure === 'garden') {
+      dType = 'park';
+    } else if (tags.place === 'square' || tags.amenity === 'marketplace' || tags.historic === 'square') {
+      dType = 'square';
+    }
+
+    if (dType) {
+      const dId = `dung_${dType}_${el.type}_${el.id}`;
+      const title = tags.name || (dType === 'station' ? 'Kamenná Jeskyně' : dType === 'park' ? 'Sopečné Doupě' : 'Katakomby');
+      const isMain = !!(tags.name?.toLowerCase().match(/hlavní|náměstí|centrální|central/));
+      dungeonCandidates.push({
+        id: dId,
+        lat: elLat,
+        lng: elLng,
+        type: dType,
+        title,
+        dungeonConfigId: dType === 'station' ? 'dark_cave' : dType === 'park' ? 'lava_lair' : 'frost_temple',
+        recommendedLevel: dType === 'station' ? 15 : dType === 'park' ? 25 : 35,
+        isMain
+      });
+    }
 
     // Přeskočit POUZE čisté budovy bez historického tagu – hrady/zámky mívají building=castle
     const isHistoricLandmark = el.tags && (
@@ -297,7 +346,6 @@ out center;`;
     if (seenPos.has(posKey)) continue
     seenPos.add(posKey)
 
-    const tags = el.tags || {}
     const id = `poi_${el.type}_${el.id}`
     const isCollected = isOnCooldown(cooldowns, id)
 
@@ -309,33 +357,28 @@ out center;`;
       const isVillageRural = VILLAGE_RURAL_TAGS.some(t => tags.historic === t) && !isChurch;
       const isSpecialSite = isLegCandidate || isEpicSite;
 
-      // Legendary kandidáti se vždy zaregistrují; ostatní special sites mají 50% šanci na spawn
       if (isSpecialSite && !isLegCandidate && seededFloat(id + '_special_skip') < 0.50) continue;
-      // Kostely & vesnické POI – žádný skip, garantovaný spawn
-      // Ostatní historická místa – 10% šance na přeskočení
       if (!isSpecialSite && !isChurch && !isVillageRural && seededFloat(id + '_spawn_m') < 0.1) continue;
 
       let rarity: SpawnRarity = 'common';
       if (isSpecialSite) {
-        rarity = 'epic'; // Výchozí raritou pro special je Epická (legendární se vybere v Pass 2)
+        rarity = 'epic';
       } else if (isChurch) {
-        // Kostel: 70% Epic, 30% Rare
         const cRoll = seededFloat(id + '_church_rarity');
         rarity = cRoll < 0.70 ? 'epic' : 'rare';
       } else if (isVillageRural) {
-        // Vesnické POI (boží muka, kapličky…): 85% Rare, 15% Epic
         const vRoll = seededFloat(id + '_village_rarity');
         rarity = vRoll < 0.15 ? 'epic' : 'rare';
       } else {
         const rRoll = seededFloat(id + '_rarity');
-        if (rRoll < 0.26) rarity = 'epic';           // 26% Epická
-        else if (rRoll < 0.76) rarity = 'rare';      // 50% Vzácná
-        else rarity = 'common';                     // 24% Běžná
+        if (rRoll < 0.26) rarity = 'epic';
+        else if (rRoll < 0.76) rarity = 'rare';
+        else rarity = 'common';
       }
 
       const m: SpawnPoint = {
         id, lat: elLat, lng: elLng, rarity,
-        monsterId: '', // Bude finalizováno v Pass 3
+        monsterId: '',
         level: 0,
         caught: isCollected,
       };
@@ -344,14 +387,12 @@ out center;`;
       monsters.push(m);
     }
     else {
-      // Zvýšená šance na suroviny z POI (50% šance na spawn)
       if (seededFloat(id + '_spawn') < 0.5) continue
 
       let type: ResourceType = 'crystal'
       let amount = Math.floor(seededFloat(id + '_amt') * 3) + 2
 
       if (tags.leisure || tags.landuse === 'forest' || tags.landuse === 'grass' || tags.landuse === 'orchard' || tags.natural === 'water') {
-        // Bylinky z parků a lesů - zvýšená šance (nerf snížen z 85% na 60%)
         if (seededFloat(id + '_herb_nerf') < 0.60) continue;
         type = 'herb'
       } else if (tags.power || tags.amenity === 'university' || tags.amenity === 'research_institute') {
@@ -372,7 +413,7 @@ out center;`;
     }
   }
 
-  // Pass 2: Výběr legendárních vítězů (maximálně 1 na oblast cca 2km)
+  // Pass 2: Výběr legendárních vítězů
   const winnersByGrid: Record<string, { m: SpawnPoint; score: number }> = {};
   for (const cand of legCandidates) {
     const gridKey = `${Math.floor(cand.m.lat * 50)}_${Math.floor(cand.m.lng * 50)}`;
@@ -385,13 +426,54 @@ out center;`;
     winnersByGrid[key].m.rarity = 'legendary';
   }
 
-  // Pass 3: Finalizace ID monster a úrovní podle konečné rarity
+  // Pass 3: Finalizace ID monster a úrovní
   for (const monster of monsters) {
     monster.monsterId = pickMonster(monster.id, monster.rarity);
     monster.level = pickLevel(monster.id, monster.rarity);
   }
 
-  const result = { monsters, resources, buildings };
+  // Pass 4: Výběr MAX 1 Dungeonu od každého typu (Station, Park, Square) pro město / oblast
+  const dungeons: DungeonSpawnPoint[] = [];
+  const dungeonTypes: ('station' | 'park' | 'square')[] = ['station', 'park', 'square'];
+
+  for (const dt of dungeonTypes) {
+    const pool = dungeonCandidates.filter(c => c.type === dt);
+    if (pool.length > 0) {
+      pool.sort((a, b) => {
+        if (a.isMain && !b.isMain) return -1;
+        if (!a.isMain && b.isMain) return 1;
+        return haversineM(lat, lng, a.lat, a.lng) - haversineM(lat, lng, b.lat, b.lng);
+      });
+      const best = pool[0];
+      dungeons.push({
+        id: best.id,
+        lat: best.lat,
+        lng: best.lng,
+        type: best.type,
+        title: best.title,
+        dungeonConfigId: best.dungeonConfigId,
+        recommendedLevel: best.recommendedLevel,
+        isCleared: isOnCooldown(cooldowns, best.id)
+      });
+    } else {
+      // Fallback: Pokud v okolí chybí daný typ POI z OSM, vytvoříme 1 garanci v přiměřené vzdálenosti od hráče
+      const offsetLat = (dt === 'station' ? 0.003 : (dt === 'park' ? -0.003 : 0.004));
+      const offsetLng = (dt === 'station' ? 0.003 : (dt === 'park' ? 0.004 : -0.003));
+      const fId = `dung_fallback_${dt}_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+      dungeons.push({
+        id: fId,
+        lat: lat + offsetLat,
+        lng: lng + offsetLng,
+        type: dt,
+        title: dt === 'station' ? 'Kamenná Jeskyně' : (dt === 'park' ? 'Sopečné Doupě' : 'Katakomby'),
+        dungeonConfigId: dt === 'station' ? 'dark_cave' : (dt === 'park' ? 'lava_lair' : 'frost_temple'),
+        recommendedLevel: dt === 'station' ? 15 : (dt === 'park' ? 25 : 35),
+        isCleared: isOnCooldown(cooldowns, fId)
+      });
+    }
+  }
+
+  const result = { monsters, resources, buildings, dungeons };
   localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), content: result }));
   return result;
 }

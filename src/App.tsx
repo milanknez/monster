@@ -120,7 +120,7 @@ function AppContent() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Duel selection state
+  const [selectedDungeonId, setSelectedDungeonId] = useState<string | null>(null);
   const [duelPendingChallenge, setDuelPendingChallenge] = useState<{ uid: string, name: string } | null>(null)
   const [isDuelAcceptingPicker, setIsDuelAcceptingPicker] = useState(false)
   const [isConsoleOpen, setIsConsoleOpen] = useState(false)
@@ -163,8 +163,6 @@ function AppContent() {
   const [isDebugMode, setIsDebugMode] = useState(false)
   const [curTutorialStep, setCurTutorialStep] = useState(0)
   const [tutorialType, setTutorialType] = useState<'home' | 'world' | 'collection' | 'inventory' | 'codex' | null>(null)
-  const [avatarClickCount, setAvatarClickCount] = useState(0)
-  const [lastAvatarClick, setLastAvatarClick] = useState(0)
   const [referredBy, setReferredBy] = useState<string | null>(null)
   const [unlockedQuests, setUnlockedQuests] = useState<number[]>(() => {
     try {
@@ -213,12 +211,14 @@ function AppContent() {
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');
 
-      setLogs(prev => [{
-        id: Math.random().toString(36).substr(2, 9),
-        type,
-        message,
-        timestamp: Date.now()
-      }, ...prev].slice(0, 100)); // Keep last 100 logs
+      queueMicrotask(() => {
+        setLogs(prev => [{
+          id: Math.random().toString(36).substr(2, 9),
+          type,
+          message,
+          timestamp: Date.now()
+        }, ...prev].slice(0, 100)); // Keep last 100 logs
+      });
     };
 
     console.log = (...args) => {
@@ -246,7 +246,34 @@ function AppContent() {
   };
 
   const handleCheat = (cheatId: string) => {
-    if (cheatId?.startsWith('addMonster:')) {
+    if (cheatId === 'addLichSet') {
+      addResource('li01', 1); // Lich Crown (+60 DEF, +300 HP)
+      addResource('li02', 1); // Lich Staff (+75 ATK)
+      addResource('li03', 1); // Lich Robes (+40 ATK, +45 DEF, +200 HP)
+      addResource('li04', 1); // Lich Amulet (+450 HP, +25 DEF)
+      addToast({ title: '👑 LICH SET Získán!', message: 'Obdržel jsi kompletní set 4 legendárních relikvií Licha (+950 HP, +170 DEF, +115 ATK)!', type: 'success' });
+    } else if (cheatId === 'addMegaHPMutagens') {
+      addResource('li04', 5); // 5x Amulet Duší (+450 HP každý)
+      addToast({ title: '🧪 Mega HP Mutageny Získány!', message: 'Obdržel jsi 5x Amulet Duší (+450 HP na mutaci každý)!', type: 'success' });
+    } else if (cheatId === 'addXPSerums') {
+      addResource('xp_serum_3', 5);
+      addResource('xp_serum_2', 5);
+      addToast({ title: '🧬 XP Séra Získána!', message: 'Obdržel jsi 5x XP Sérum III (+700 XP) a 5x XP Sérum II (+400 XP)! Použij je v detailu příšery (DNA).', type: 'success' });
+    } else if (cheatId === 'addTankMutations') {
+      addResource('loot_5', 5); // Ochranný mutagen (+15 HP)
+      addResource('loot_1', 5); // Dračí šupina / Obranný mutagen (+5 DEF)
+      addToast({ title: '🛡️ Tank Balíček Získán!', message: 'Obdržel jsi 5x Mutagen na HP (+15 HP) a 5x Mutagen na DEF (+5 DEF)! Krm je v detailu příšery.', type: 'success' });
+    } else if (cheatId === 'addHPMutagens') {
+      addResource('loot_5', 5);
+      addToast({ title: '🧪 HP Mutageny Získány!', message: 'Obdržel jsi 5x Mutagen na max HP (+15 HP každý)! Použij je v detailu příšery.', type: 'success' });
+    } else if (cheatId === 'addDefMutagens') {
+      addResource('loot_1', 5);
+      addToast({ title: '🛡️ DEF Mutageny Získány!', message: 'Obdržel jsi 5x Mutagen na DEF (+5 DEF každý)!', type: 'success' });
+    } else if (cheatId === 'simulateRaid') {
+      setSelectedDungeonId('dark_cave');
+      setActiveTab('dungeon');
+      addToast({ title: '⚔️ Raid Spuštěn!', message: 'Spuštěn testovací zápas v Dungeonu se 3 NPC spoluhráči!', type: 'success' });
+    } else if (cheatId?.startsWith('addMonster:')) {
       const id = cheatId.split(':')[1];
       (window as any).addMonster?.(id);
     } else if (cheatId === 'healMe') {
@@ -1555,32 +1582,36 @@ function AppContent() {
         />
       )}
 
-      {activeTab !== 'detail' && (
-        <Header
-          title={
-            activeTab === 'vault' ? t('tabs.bestiary') :
-              activeTab === 'inventory' ? t('tabs.inventory') :
-                activeTab === 'world' ? t('tabs.world') :
-                  activeTab === 'store' ? t('tabs.store') :
-                    activeTab === 'codex' ? t('tabs.laboratory') :
-                      playerName || "Runner"
-          }
-          showBack={activeTab !== 'home'}
-          onBack={() => {
-            if (activeTab === 'codex') setActiveTab('inventory')
-            else setActiveTab('home')
-          }}
-          playerName={playerName || 'Runner'}
-          avatarStyle={avatarStyle}
-          avatarSeed={avatarSeed}
-          onSettingsClick={() => setIsSettingsOpen(true)}
-          onAvatarClick={handleAvatarClick}
-          onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
-          onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
-          caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
-          onDebugClick={() => setIsConsoleOpen(true)}
-        />
-      )}
+      {activeTab !== 'detail' && (() => {
+        const activeUserEmail = user?.email || playerEmail || '';
+        const isDeveloperUser = activeUserEmail.trim().toLowerCase().endsWith('@fida.cz') || import.meta.env.DEV;
+        return (
+          <Header
+            title={
+              activeTab === 'vault' ? t('tabs.bestiary') :
+                activeTab === 'inventory' ? t('tabs.inventory') :
+                  activeTab === 'world' ? t('tabs.world') :
+                    activeTab === 'store' ? t('tabs.store') :
+                      activeTab === 'codex' ? t('tabs.laboratory') :
+                        playerName || "Runner"
+            }
+            showBack={activeTab !== 'home'}
+            onBack={() => {
+              if (activeTab === 'codex') setActiveTab('inventory')
+              else setActiveTab('home')
+            }}
+            playerName={playerName || 'Runner'}
+            avatarStyle={avatarStyle}
+            avatarSeed={avatarSeed}
+            onSettingsClick={() => setIsSettingsOpen(true)}
+            onAvatarClick={handleAvatarClick}
+            onLocationClick={activeTab === 'world' ? () => worldMapRef.current?.centerOnPlayer() : undefined}
+            onCodexClick={activeTab === 'inventory' ? () => setActiveTab('codex') : undefined}
+            caughtCount={new Set(caughtMonsters.map(m => m.id)).size}
+            onDebugClick={isDeveloperUser ? () => setIsConsoleOpen(true) : undefined}
+          />
+        );
+      })()}
 
       <main className="mx-auto relative w-full max-w-md md:max-w-lg">
         {/* Main Tabs - Always mounted to preserve scroll state */}
@@ -1701,6 +1732,10 @@ function AppContent() {
               email={user?.email || playerEmail}
               pvpWins={pvpWins}
               pvpLosses={pvpLosses}
+              onOpenDungeon={(dung) => {
+                setSelectedDungeonId(dung.dungeonConfigId);
+                setActiveTab('dungeon');
+              }}
             />
           )}
 
@@ -1735,7 +1770,7 @@ function AppContent() {
                   setSelectedMonster(null);
                   setActiveTab('vault');
                 }}
-                inventory={inventory}
+                inventory={inventory.filter(i => i !== null) as any}
                 onUsePotion={(type: string) => {
                   const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                   if (idx !== -1) {
@@ -1788,6 +1823,15 @@ function AppContent() {
                   }
                 }}
                 onPermanentlyUpgrade={(itemType: string, stats: any) => {
+                  const invItem = inventory?.find(i => i && i.type === itemType);
+                  if (!invItem || invItem.count <= 0) {
+                    addToast({
+                      title: t('toasts.error') || 'Chyba',
+                      message: 'Nemáte dostatek této suroviny pro mutaci!',
+                      type: 'error'
+                    });
+                    return;
+                  }
                   const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
                   if (idx !== -1) {
                     updateMonsterStats(idx, stats, itemType);
@@ -1824,7 +1868,15 @@ function AppContent() {
           )}
 
           {activeTab === 'dungeon' && (
-            <Dungeon onBack={() => setActiveTab('home')} caughtMonsters={caughtMonsters} />
+            <Dungeon 
+              onBack={() => {
+                setSelectedDungeonId(null);
+                setActiveTab('home');
+              }} 
+              caughtMonsters={caughtMonsters} 
+              initialDungeonId={selectedDungeonId}
+              onAddResource={addResource}
+            />
           )}
         </div>
       </main>
@@ -1891,9 +1943,11 @@ function AppContent() {
               localStorage.setItem('monster_graphics_quality', quality);
             }}
             isDebugMode={isDebugMode}
-            onToggleDebug={() => {
-              setIsConsoleOpen(true);
-            }}
+            onToggleDebug={
+              ((user?.email || playerEmail || '').trim().toLowerCase().endsWith('@fida.cz') || import.meta.env.DEV)
+                ? () => setIsConsoleOpen(true)
+                : undefined
+            }
             mapTheme={mapTheme}
             isMapAutoTheme={isMapAutoTheme}
             onUpdateMapTheme={(theme, auto) => {

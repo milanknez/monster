@@ -164,6 +164,7 @@ export interface WorldMapProps {
   spawnRadius?: number
   pvpWins?: number
   pvpLosses?: number
+  onOpenDungeon?: (dungeon: DungeonSpawnPoint) => void
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -200,7 +201,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   mapTheme = 'auto',
   spawnRadius = 1000,
   pvpWins = 0,
-  pvpLosses = 0
+  pvpLosses = 0,
+  onOpenDungeon
 }, ref) => {
 
   const { t, i18n } = useTranslation()
@@ -210,6 +212,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
   const resourceMarkersRef = useRef<Map<string, L.Marker>>(new Map())
   const otherPlayersMarkersRef = useRef<Map<string, L.Marker>>(new Map())
+  const dungeonMarkersRef = useRef<Map<string, L.Marker>>(new Map())
+  const [dungeons, setDungeons] = useState<DungeonSpawnPoint[]>([])
   const watchIdRef = useRef<number | null>(null)
   const overpassTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastPoiFetchRef = useRef<{ lat: number; lng: number } | null>(null)
@@ -218,6 +222,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const cooldownsRef = useRef<Cooldowns>(loadCooldowns())
   const autoCenterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalMoveRef = useRef(false)
+  const isStoppingRef = useRef(false)
   const tileLayerRef = useRef<L.TileLayer | null>(null)
   const speedViolationCountRef = useRef(0)
   const detectedMonstersRef = useRef<Set<string>>(new Set())
@@ -232,6 +237,30 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [showMonsters, setShowMonsters] = useState(true)
   const [showResources, setShowResources] = useState(true)
   const [loadingPoi, setLoadingPoi] = useState(false)
+
+  function makeDungeonIcon(type: 'station' | 'park' | 'square', title: string, recommendedLevel: number, scale = 1.0) {
+    const iconEmoji = type === 'station' ? '🪨' : (type === 'park' ? '🌋' : '💀');
+    const bgGradient = type === 'station' ? 'from-slate-700 to-zinc-900' : (type === 'park' ? 'from-orange-700 to-amber-900' : 'from-purple-800 to-slate-950');
+    const borderColor = type === 'station' ? 'border-slate-400' : (type === 'park' ? 'border-orange-500' : 'border-purple-400');
+
+    const html = `
+      <div style="transform: scale(${scale}); transform-origin: bottom center;" class="relative group cursor-pointer flex flex-col items-center">
+        <div class="relative w-7.5 h-7.5 rounded-xl bg-gradient-to-br ${bgGradient} border-2 ${borderColor} shadow-md flex items-center justify-center transition-transform group-hover:scale-110">
+          <span class="text-xs animate-pulse">${iconEmoji}</span>
+        </div>
+        <div class="mt-0.5 px-1.5 py-0.2 bg-black/90 backdrop-blur-md border border-white/10 rounded text-[8px] font-bold text-amber-300 whitespace-nowrap shadow-md">
+          Lv.${recommendedLevel}
+        </div>
+      </div>
+    `;
+
+    return L.divIcon({
+      html,
+      className: 'dungeon-marker-icon',
+      iconSize: [30 * scale, 40 * scale],
+      iconAnchor: [15 * scale, 32 * scale]
+    });
+  }
   const [statusMsg, setStatusMsg] = useState(initialPosition ? '' : t('map.searching'))
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
@@ -425,7 +454,28 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         }
       }
     }
-  }, [visibleRarities])
+
+    // Dungeons
+    const dExisting = dungeonMarkersRef.current
+    for (const [id, marker] of dExisting) {
+      if (!dungeons.find(d => d.id === id)) { marker.remove(); dExisting.delete(id); }
+    }
+    for (const d of dungeons) {
+      const marker = dExisting.get(d.id)
+      if (marker) {
+        if ((marker as any)._scale !== scale) {
+          marker.setIcon(makeDungeonIcon(d.type, d.title, d.recommendedLevel, scale))
+            ; (marker as any)._scale = scale
+        }
+      } else if (map) {
+        const m = L.marker([d.lat, d.lng], { icon: makeDungeonIcon(d.type, d.title, d.recommendedLevel, scale) })
+          .on('click', () => { if (onOpenDungeon) onOpenDungeon(d); })
+          .addTo(map)
+          ; (m as any)._scale = scale
+        dExisting.set(d.id, m)
+      }
+    }
+  }, [visibleRarities, dungeons])
 
   const updateOtherPlayers = useCallback((map: L.Map, players: NearbyPlayer[]) => {
     const existing = otherPlayersMarkersRef.current
@@ -452,7 +502,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
       setStatusMsg(t('map.scanning'))
 
       try {
-        const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings } = await fetchPoiData(lat, lng, cooldownsRef.current, spawnRadius, force)
+        const { monsters: poiMonsters, resources: poiResources, buildings: poiBuildings, dungeons: poiDungeons } = await fetchPoiData(lat, lng, cooldownsRef.current, spawnRadius, force)
+        if (poiDungeons) setDungeons(poiDungeons)
 
         setSpawns(prev => {
           const currentCooldowns = loadCooldowns()
@@ -591,7 +642,11 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     }
 
     const handleManualInteractionStart = () => {
-      if (mapRef.current) map.stop()
+      if (mapRef.current && !isStoppingRef.current) {
+        isStoppingRef.current = true
+        map.stop()
+        isStoppingRef.current = false
+      }
       setAutoCenterSync(false)
       if (autoCenterTimerRef.current) clearTimeout(autoCenterTimerRef.current)
     }
@@ -1165,6 +1220,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           </div>
         )}
       </AnimatePresence>
+
     </motion.div>
   )
 })

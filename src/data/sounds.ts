@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import useSound from 'use-sound';
 import { useSoundSystem } from '../context/SoundContext';
 
@@ -33,12 +34,18 @@ export const SOUND_FILES = {
   CATCH_SUCCESS: '/sounds/catch.ogg',
   CATCH_FAIL: '/sounds/miss.ogg',
   
-  // SPECIAL
+  // SPECIAL & DUNGEON FX
   LAB_START: '/sounds/lab_start.ogg',
-  LAB_COMPLETE: '/sounds/lab_complete.ogg',
-  BOOK_FLIP: '/sounds/book_flip.ogg',
+  // MUSIC TRACKS
   BATTLE_BGM: '/sounds/battle_bgm.ogg',
+  LOBBY_BGM: '/sounds/lobby_war.mp3',
+  SELECTION_BGM: '/sounds/lobby_war.mp3',
+  MAP_BGM: '/sounds/lobby_war.mp3',
+
   SPELL: '/sounds/spell.ogg',
+  FOOTSTEPS: '/sounds/click.ogg',
+  GATE_OPEN: '/sounds/open.ogg',
+  BOSS_ROAR: '/sounds/lab_complete.ogg',
 } as const;
 
 export const useGameSound = (isLowHP = false) => {
@@ -77,6 +84,68 @@ export const useGameSound = (isLowHP = false) => {
   const [playCatchFail] = useSound(SOUND_FILES.CATCH_FAIL, { ...config, volume: volume * 1.0 });
 
   const [playLabStart] = useSound(SOUND_FILES.LAB_START, { ...config, volume: volume * 0.8 });
+
+  const playEpicWarSynth = useCallback(() => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      // Master Gain
+      const master = ctx.createGain();
+      master.gain.value = volume * 0.45;
+      master.connect(ctx.destination);
+
+      // Loop intervals: War drums (BPM 110)
+      const bpm = 110;
+      const beatTime = 60 / bpm;
+      let step = 0;
+
+      const playDrumBeat = () => {
+        if (ctx.state === 'closed') return;
+        const now = ctx.currentTime;
+
+        // Bass War Drum
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+        gain.gain.setValueAtTime(1.0, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(now);
+        osc.stop(now + 0.35);
+
+        // Brass Chords on beat 1 and 3
+        if (step % 2 === 0) {
+          const chord = step % 4 === 0 ? [146.83, 174.61, 220.00] : [130.81, 164.81, 196.00];
+          chord.forEach((freq) => {
+            const brassOsc = ctx.createOscillator();
+            const brassGain = ctx.createGain();
+            brassOsc.type = 'sawtooth';
+            brassOsc.frequency.setValueAtTime(freq, now);
+            brassGain.gain.setValueAtTime(0.12, now);
+            brassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+            brassOsc.connect(brassGain);
+            brassGain.connect(master);
+            brassOsc.start(now);
+            brassOsc.stop(now + 0.6);
+          });
+        }
+        step++;
+      };
+
+      const timerId = setInterval(playDrumBeat, beatTime * 1000);
+      return () => {
+        clearInterval(timerId);
+        try { ctx.close(); } catch (e) {}
+      };
+    } catch (e) {
+      return () => {};
+    }
+  }, [volume]);
   const [playLabComplete] = useSound(SOUND_FILES.LAB_COMPLETE, { ...config, volume: volume * 1.0 });
   const [playBookFlip] = useSound(SOUND_FILES.BOOK_FLIP, { ...config, volume: volume * 0.9 });
   const [playSpell] = useSound(SOUND_FILES.SPELL, { ...config, volume: volume * 1.1 });
@@ -84,6 +153,21 @@ export const useGameSound = (isLowHP = false) => {
   const [playBattleMusic, { stop: stopBattleMusic }] = useSound(SOUND_FILES.BATTLE_BGM, { 
     ...config, 
     volume: currentMusicVolume, 
+    loop: true 
+  });
+  const [playLobbyMusic, { stop: stopLobbyMusic }] = useSound(SOUND_FILES.LOBBY_BGM, { 
+    ...config, 
+    volume: volume * 0.8, 
+    loop: true 
+  });
+  const [playSelectionMusic, { stop: stopSelectionMusic }] = useSound(SOUND_FILES.SELECTION_BGM, { 
+    ...config, 
+    volume: volume * 0.7, 
+    loop: true 
+  });
+  const [playMapMusic, { stop: stopMapMusic }] = useSound(SOUND_FILES.MAP_BGM, { 
+    ...config, 
+    volume: volume * 0.6, 
     loop: true 
   });
 
@@ -108,5 +192,12 @@ export const useGameSound = (isLowHP = false) => {
     playSpell,
     playBattleMusic,
     stopBattleMusic,
+    playLobbyMusic,
+    stopLobbyMusic,
+    playSelectionMusic,
+    stopSelectionMusic,
+    playMapMusic,
+    stopMapMusic,
+    playEpicWarSynth,
   };
 };

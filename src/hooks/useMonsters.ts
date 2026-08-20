@@ -21,7 +21,7 @@ export function useMonsters(addToast: (toast: any) => void) {
              currentXP = Math.max(0, m.totalXP - baseXP);
           }
 
-          const stats = dbData?.stats || m.stats;
+          const stats = m.stats || dbData?.stats || { hp: 100, attack: 10, defense: 10 };
           const max = getMonsterMaxHP({ ...m, stats, level, xp: currentXP || 0 });
           
           return {

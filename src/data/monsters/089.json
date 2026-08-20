@@ -1,52 +1,52 @@
 {
-    "id": "089",
-    "name": {
-        "cz": "Ledová Tříšťka",
-        "en": "Ice Cream",
-        "sk": "Ľadová Trieska"
+  "id": "089",
+  "name": {
+    "cz": "Ledová Tříšťka",
+    "en": "Ice Cream",
+    "sk": "Ľadová Trieska"
+  },
+  "description": {
+    "cz": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
+    "en": "A plastic cup with a blood-red ice shard. A screaming face can be seen beneath the frozen surface, with murderous icicles growing from its sides.",
+    "sk": "Plastový kelímok s krvavo červenou ľadovou triešťou. Pod zamrznutým povrchom je vidieť kričiacu tvár a z bokov vyrastajú vražedné cencúle."
+  },
+  "type": "water",
+  "rarity": "epic",
+  "stats": {
+    "hp": 320,
+    "attack": 155,
+    "defense": 40
+  },
+  "abilities": [
+    {
+      "name": {
+        "cz": "Mrazivý řez",
+        "en": "Freezing cut",
+        "sk": "Mrazivý rez"
+      },
+      "description": {
+        "cz": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
+        "en": "Slashes the enemy with ice claws that cause deep frost wounds.",
+        "sk": "Sekne nepriateľa pazúry z ľadu, ktoré spôsobujú hlboké mrazivé rany."
+      },
+      "type": "attack",
+      "chance": 80,
+      "value": 190
     },
-    "description": {
-        "cz": "Plastový kelímek s krvavě rudou ledovou tříští. Pod zamrzlým povrchem je vidět křičící obličej a z boků vyrůstají vražedné rampouchy.",
-        "en": "A plastic cup with a blood-red ice shard. A screaming face can be seen beneath the frozen surface, with murderous icicles growing from its sides.",
-        "sk": "Plastový kelímok s krvavo červenou ľadovou triešťou. Pod zamrznutým povrchom je vidieť kričiacu tvár a z bokov vyrastajú vražedné cencúle."
-    },
-    "type": "water",
-    "rarity": "epic",
-    "stats": {
-        "hp": 320,
-        "attack": 155,
-        "defense": 40
-    },
-    "abilities": [
-        {
-            "name": {
-                "cz": "Mrazivý řez",
-                "en": "Freezing cut",
-                "sk": "Mrazivý rez"
-            },
-            "description": {
-                "cz": "Sekne nepřítele drápy z ledu, které způsobují hluboké mrazivé rány.",
-                "en": "Slashes the enemy with ice claws that cause deep frost wounds.",
-                "sk": "Sekne nepriateľa pazúry z ľadu, ktoré spôsobujú hlboké mrazivé rany."
-            },
-            "type": "attack",
-            "chance": 80,
-            "value": 190
-        },
-        {
-            "name": {
-                "cz": "Hluboké zmrazení",
-                "en": "Deep freeze",
-                "sk": "Hlboké zmrazenie"
-            },
-            "description": {
-                "cz": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
-                "en": "A piercing frost that freezes the enemy's bones and dramatically weakens their strength.",
-                "sk": "Prenikavý mráz, ktorý stuhne kosti nepriateľa a dramaticky oslabí jeho silu."
-            },
-            "type": "curse",
-            "chance": 65,
-            "value": 35
-        }
-    ]
+    {
+      "name": {
+        "cz": "Hluboké zmrazení",
+        "en": "Deep freeze",
+        "sk": "Hlboké zmrazenie"
+      },
+      "description": {
+        "cz": "Pronikavý mráz, který ztuhne kosti nepřítele a dramaticky oslabí jeho sílu.",
+        "en": "A piercing frost that freezes the enemy's bones and dramatically weakens their strength.",
+        "sk": "Prenikavý mráz, ktorý stuhne kosti nepriateľa a dramaticky oslabí jeho silu."
+      },
+      "type": "curse",
+      "chance": 65,
+      "value": 35
+    }
+  ]
 }

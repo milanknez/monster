@@ -72,6 +72,8 @@ interface PlayerSummary {
 
   isBlocked?: boolean;
 
+  referredBy?: string;
+
 }
 
 
@@ -268,6 +270,8 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
               const res = await fetch(`${dbUrl}/users/${uid}.json?auth=${encodeURIComponent(token)}`);
               if (res.ok) {
                 userData = await res.json();
+              } else if (res.status === 401) {
+                localStorage.removeItem(tokenKey);
               }
             } catch (fetchErr) {
               console.error("REST fetch for user failed:", fetchErr);
@@ -286,6 +290,15 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
         const tokenKey = isProdDb ? 'monster_admin_prod_auth_token' : 'monster_admin_dev_auth_token';
         const envSecret = isProdDb ? import.meta.env.VITE_PROD_DB_SECRET : import.meta.env.VITE_DEV_DB_SECRET;
         let token = (envSecret as string) || localStorage.getItem(tokenKey) || "";
+        if (!token) {
+          const tokenInput = window.prompt(
+            `Oprávnění databáze pro čtení pozvánek v ${isProdDb ? 'PRODUKCI' : 'TESTU'} zamítnuto.\n\nZadejte prosím platný Database Secret pro toto prostředí:`
+          );
+          if (tokenInput) {
+            localStorage.setItem(tokenKey, tokenInput);
+            token = tokenInput;
+          }
+        }
         if (token) {
           const dbUrl = db.app.options.databaseURL?.replace(/\/$/, "");
           if (dbUrl) {
@@ -293,6 +306,11 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
               const res = await fetch(`${dbUrl}/referrals/${uid}.json?auth=${encodeURIComponent(token)}`);
               if (res.ok) {
                 referralData = await res.json();
+              } else {
+                console.warn("[UserManagementTab] REST fetch for referrals failed with status:", res.status);
+                if (res.status === 401) {
+                  localStorage.removeItem(tokenKey);
+                }
               }
             } catch (fetchErr) {
               console.error("REST fetch for referrals failed:", fetchErr);
@@ -300,6 +318,131 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
           }
         }
       }
+
+      if (!referralData) referralData = {};
+      const shortCode = uid.slice(-6).toUpperCase();
+
+      // 1. Načíst index kódů z Firebase (codes/) pro bleskové rozpoznání zkratek
+      let codesMap: Record<string, string> = {};
+      try {
+        const codesSnap = await get(ref(db, 'codes'));
+        if (codesSnap.exists()) codesMap = codesSnap.val() || {};
+      } catch (e) {}
+
+      // Všechny identifikátory, které mohou reprezentovat zvanatele
+      const myRefCodes = new Set<string>([
+        uid.toLowerCase(),
+        shortCode.toLowerCase(),
+        uid.slice(-6).toLowerCase()
+      ]);
+      if (userData?.email) myRefCodes.add(userData.email.toLowerCase());
+      if (userData?.playerName) myRefCodes.add(userData.playerName.toLowerCase());
+      Object.entries(codesMap).forEach(([code, mappedUid]) => {
+        if (mappedUid === uid) myRefCodes.add(code.toLowerCase());
+      });
+
+      const isMyReferralCode = (refVal?: string | null) => {
+        if (!refVal) return false;
+        const normalized = refVal.toLowerCase();
+        if (myRefCodes.has(normalized)) return true;
+        if (codesMap[refVal.toUpperCase()] === uid) return true;
+        if (normalized.length >= 4 && uid.toLowerCase().endsWith(normalized)) return true;
+        return false;
+      };
+
+      // 2. Prohledání uzlu /referrals pod shortCode a dalšími kódy zvanatele
+      try {
+        for (const code of Array.from(myRefCodes)) {
+          const codeSnap = await get(ref(db, `referrals/${code}`));
+          if (codeSnap.exists()) {
+            referralData = { ...codeSnap.val(), ...referralData };
+          }
+        }
+      } catch (e) {}
+
+      // 3. Prohledání globálního uzlu /invites
+      try {
+        const invitesSnap = await get(ref(db, 'invites'));
+        if (invitesSnap.exists()) {
+          Object.entries(invitesSnap.val()).forEach(([cleanEmail, invData]: [string, any]) => {
+            if (invData && isMyReferralCode(invData.referrerUid)) {
+              const key = invData.registeredUid || cleanEmail;
+              if (!referralData[key]) {
+                referralData[key] = {
+                  name: invData.email ? invData.email.split('@')[0] : cleanEmail.replace(/_/g, '.').split('@')[0],
+                  email: invData.email || cleanEmail.replace(/_/g, '.'),
+                  level: 0,
+                  status: invData.registeredUid ? 'registered' : (invData.status || 'invited'),
+                  registeredUid: invData.registeredUid || null,
+                  timestamp: invData.timestamp || invData.registeredAt || Date.now(),
+                  hatchClaimed: false
+                };
+              }
+            }
+          });
+        }
+      } catch (e) {}
+
+      // 4. Kombinace s userData.invited_emails
+      if (userData?.invited_emails) {
+        Object.entries(userData.invited_emails).forEach(([cleanEmail, invData]: [string, any]) => {
+          if (!referralData[cleanEmail] && (!invData.registeredUid || !referralData[invData.registeredUid])) {
+            referralData[cleanEmail] = {
+              name: invData.email ? invData.email.split('@')[0] : 'Pozvaný hráč',
+              email: invData.email,
+              level: 0,
+              status: invData.status || 'invited',
+              timestamp: invData.timestamp || Date.now(),
+              registeredUid: invData.registeredUid || null,
+              hatchClaimed: false
+            };
+          }
+        });
+      }
+
+      // 5. Prohledat v databázi uzel /users pro všechny hráče s matching referredBy
+      try {
+        const usersSnap = await get(ref(db, 'users'));
+        if (usersSnap.exists()) {
+          const allUsers = usersSnap.val();
+          Object.entries(allUsers).forEach(([targetUid, u]: [string, any]) => {
+            if (u && targetUid !== uid && isMyReferralCode(u.referredBy)) {
+              if (!referralData[targetUid]) {
+                const pLevel = Math.max(u.lvl || u.level || 0, u.currentLevel || 0, u.totalXP ? calculateLevel(u.totalXP) : 1);
+                referralData[targetUid] = {
+                  name: getLoc(u.playerName || u.name || u.email?.split('@')[0] || 'Hráč', 'cz'),
+                  email: u.email || null,
+                  level: pLevel,
+                  totalXP: u.totalXP || 0,
+                  status: 'registered',
+                  registeredUid: targetUid,
+                  timestamp: u.createdAt || u.updatedAt || Date.now(),
+                  hatchClaimed: false
+                };
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("Could not query /users for referrals fallback:", e);
+      }
+
+      // 6. Záložní prohledání z props players
+      players.forEach(p => {
+        if (p.id !== uid && isMyReferralCode(p.referredBy)) {
+          if (!referralData[p.id]) {
+            referralData[p.id] = {
+              name: p.name || 'Hráč',
+              email: p.email || null,
+              level: p.level || 1,
+              status: 'registered',
+              registeredUid: p.id,
+              timestamp: p.lastActive || Date.now(),
+              hatchClaimed: false
+            };
+          }
+        }
+      });
 
       setDetailedData({
         ...(userData || {}),
@@ -315,7 +458,6 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
   useEffect(() => {
-    setDetailedData(null);
     setProfileTab('info');
     setMonsterSearch('');
     setItemSearch('');
@@ -323,7 +465,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
     if (selectedPlayerId) {
       fetchUserDetails(selectedPlayerId);
     }
-  }, [selectedPlayerId]);
+  }, [selectedPlayerId, players]);
 
 
 
@@ -1425,7 +1567,16 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                         </div>
                         <div className="flex justify-between py-1 border-b border-white/5 gap-4">
                           <span className="text-slate-500 font-bold shrink-0">Pozván od (referredBy):</span>
-                          <span className="font-bold text-amber-400 truncate">{detailedData?.referredBy || 'Nikdo (přímá registrace)'}</span>
+                          <span className="font-bold text-amber-400 truncate">
+                            {(() => {
+                              if (!detailedData?.referredBy) return 'Nikdo (přímá registrace)';
+                              const refCode = detailedData.referredBy;
+                              const refPlayer = players.find(p => 
+                                p.id === refCode || p.id.slice(-6).toUpperCase() === refCode.toUpperCase()
+                              );
+                              return refPlayer ? `${refPlayer.name || 'Lovec'} (${refCode})` : refCode;
+                            })()}
+                          </span>
                         </div>
                       </div>
 

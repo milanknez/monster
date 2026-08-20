@@ -3,19 +3,19 @@
     "users": {
       ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true || (auth.token.email != null && auth.token.email.matches(/.*@fida\\.cz$/)) || (root.child('presence').child(auth.uid).child('eml').val() != null && root.child('presence').child(auth.uid).child('eml').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('email').val() != null && root.child('users').child(auth.uid).child('email').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('playerName').val() != null && root.child('users').child(auth.uid).child('playerName').val().matches(/.*@fida\\.cz$/)))"
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
       }
     },
     "presence": {
       ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true || (auth.token.email != null && auth.token.email.matches(/.*@fida\\.cz$/)) || (root.child('presence').child(auth.uid).child('eml').val() != null && root.child('presence').child(auth.uid).child('eml').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('email').val() != null && root.child('users').child(auth.uid).child('email').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('playerName').val() != null && root.child('users').child(auth.uid).child('playerName').val().matches(/.*@fida\\.cz$/)))"
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
       }
     },
     "players": {
       ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true || (auth.token.email != null && auth.token.email.matches(/.*@fida\\.cz$/)) || (root.child('presence').child(auth.uid).child('eml').val() != null && root.child('presence').child(auth.uid).child('eml').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('email').val() != null && root.child('users').child(auth.uid).child('email').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('playerName').val() != null && root.child('users').child(auth.uid).child('playerName').val().matches(/.*@fida\\.cz$/)))"
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
       }
     },
     "codes": {
@@ -26,13 +26,13 @@
     },
     "signals": {
       "$uid": {
-        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true || (auth.token.email != null && auth.token.email.matches(/.*@fida\\.cz$/)) || (root.child('presence').child(auth.uid).child('eml').val() != null && root.child('presence').child(auth.uid).child('eml').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('email').val() != null && root.child('users').child(auth.uid).child('email').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('playerName').val() != null && root.child('users').child(auth.uid).child('playerName').val().matches(/.*@fida\\.cz$/)))",
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
         ".write": "auth != null"
       }
     },
     "referrals": {
       "$referrerUid": {
-        ".read": "auth != null && (auth.uid == $referrerUid || root.child('users').child(auth.uid).child('isAdmin').val() === true || (auth.token.email != null && auth.token.email.matches(/.*@fida\\.cz$/)) || (root.child('presence').child(auth.uid).child('eml').val() != null && root.child('presence').child(auth.uid).child('eml').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('email').val() != null && root.child('users').child(auth.uid).child('email').val().matches(/.*@fida\\.cz$/)) || (root.child('users').child(auth.uid).child('playerName').val() != null && root.child('users').child(auth.uid).child('playerName').val().matches(/.*@fida\\.cz$/)))",
+        ".read": "auth != null",
         "$invitedId": {
           ".write": "auth != null"
         }

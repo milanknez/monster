@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.git
+.gitignore
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+android
+latest-app.aab
+dump-*.sql
+*.log
+errors.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

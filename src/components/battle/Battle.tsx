@@ -836,7 +836,20 @@ export const Battle = ({
           };
 
           // Loot Logic:
-          if (isCommon) {
+          if (pvpRole) {
+            // PvP specific rewards: Only HP Potions (25% chance) and Gems (30% chance)
+            if (Math.random() < 0.25) {
+              const potionId = Math.random() < 0.2 ? 'hp_potion_large' : 'hp_potion';
+              const cfg = RESOURCE_CONFIG[potionId];
+              const min = cfg?.dropMin ?? 1;
+              const max = cfg?.dropMax ?? 1;
+              const count = min + Math.floor(Math.random() * (max - min + 1));
+              generatedLoot.push({ id: potionId + '_' + Math.random(), type: potionId, count, collected: false });
+            }
+            if (Math.random() < 0.3) {
+              addLootItem('common', 'gem');
+            }
+          } else if (isCommon) {
             // 80% Resource (material)
             if (Math.random() < 0.8) addLootItem('common', 'material');
             // 10% Gem or Relic (or just small chance for anything extra)

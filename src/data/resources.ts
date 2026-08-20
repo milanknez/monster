@@ -1774,10 +1774,10 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "icon": "🛡️",
     "category": "relic",
     "rarity": "common",
-    "description": { 
-      "cz": "Malý, opotřebovaný štít, který poskytuje základní ochranu.", 
-      "en": "A small, worn shield providing basic protection.", 
-      "sk": "Malý, opotrebovaný štít, ktorý poskytuje základnú ochranu." 
+    "description": {
+      "cz": "Malý, opotřebovaný štít, který poskytuje základní ochranu.",
+      "en": "A small, worn shield providing basic protection.",
+      "sk": "Malý, opotrebovaný štít, ktorý poskytuje základnú ochranu."
     },
     "dropWeight": 15, "dropMin": 1, "dropMax": 1,
     "stats": { "def": 2 },
@@ -1789,10 +1789,10 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "icon": "📌",
     "category": "relic",
     "rarity": "common",
-    "description": { 
-      "cz": "Starý a zrezivělý hřebík. Pořád může ublížit.", 
-      "en": "An old and rusty nail. It can still hurt.", 
-      "sk": "Starý a zhrdzavený klinec. Stále môže ublížiť." 
+    "description": {
+      "cz": "Starý a zrezivělý hřebík. Pořád může ublížit.",
+      "en": "An old and rusty nail. It can still hurt.",
+      "sk": "Starý a zhrdzavený klinec. Stále môže ublížiť."
     },
     "dropWeight": 15, "dropMin": 1, "dropMax": 1,
     "stats": { "atk": 2 },
@@ -1804,10 +1804,10 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "icon": "🧤",
     "category": "relic",
     "rarity": "common",
-    "description": { 
-      "cz": "Potrhaná kožená rukavice. Trochu chrání ruku.", 
-      "en": "A tattered leather glove. Offers slight protection.", 
-      "sk": "Potrhaná kožená rukavica. Trochu chráni ruku." 
+    "description": {
+      "cz": "Potrhaná kožená rukavice. Trochu chrání ruku.",
+      "en": "A tattered leather glove. Offers slight protection.",
+      "sk": "Potrhaná kožená rukavica. Trochu chráni ruku."
     },
     "dropWeight": 20, "dropMin": 1, "dropMax": 1,
     "stats": { "def": 1 },
@@ -1819,13 +1819,194 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "icon": "🐾",
     "category": "relic",
     "rarity": "common",
-    "description": { 
-      "cz": "Zaschlý otisk tlapky. Přináší divokou sílu.", 
-      "en": "A dried paw print. Brings wild power.", 
-      "sk": "Zaschnutý odtlačok labky. Prináša divokú silu." 
+    "description": {
+      "cz": "Zaschlý otisk tlapky. Přináší divokou sílu.",
+      "en": "A dried paw print. Brings wild power.",
+      "sk": "Zaschnutý odtlačok labky. Prináša divokú silu."
     },
     "dropWeight": 20, "dropMin": 1, "dropMax": 1,
     "stats": { "atk": 1 },
     "hasCustomIcon": true, "customIcon": "dog_paw"
+  },
+  "sn01": {
+    "color": "#10b981",
+    "label": { "cz": "Dráp Rypáka Hlubin", "en": "Claw of the Depths", "sk": "Dráp Rypáka Hlbín" },
+    "icon": "🐾",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Masivní, jako břitva ostrý dráp ze slepého podzemního krtčího mutanta. Přidává trvalý bonus (+35 Útok).",
+      "en": "A massive, razor-sharp claw from the blind underground mole mutant. Grants permanent bonus (+35 Attack).",
+      "sk": "Masívny, ako britva ostrý dráp zo slepého podzemného krtčieho mutanta. Pridáva trvalý bonus (+35 Útok)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 2,
+    "stats": { "atk": 35 },
+    "hasCustomIcon": true, "customIcon": "snout_claw"
+  },
+  "sn02": {
+    "color": "#64748b",
+    "label": { "cz": "Kamenný Krunýř Hlubin", "en": "Stone Carapace of the Depths", "sk": "Kamenný Pancier Hlbín" },
+    "icon": "🛡️",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Těžká žulová šupina tvořící brnění Rypáka Hlubin. Poskytuje mohutnou ochranu (+45 Obrana, +150 HP).",
+      "en": "Heavy granite plate forming the armor of the Snout of the Depths. Provides immense protection (+45 Defense, +150 HP).",
+      "sk": "Ťažká žulová šupina tvoriaca brnenie Rypáka Hlbín. Poskytuje mohutnú ochranu (+45 Obrana, +150 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "def": 45, "hp": 150 },
+    "hasCustomIcon": true, "customIcon": "snout_carapace"
+  },
+  "sn03": {
+    "color": "#a855f7",
+    "label": { "cz": "Pulzující Srdce Podzemí", "en": "Pulsing Heart of the Depths", "sk": "Pulzujúce Srdce Podzemia" },
+    "icon": "💜",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Žilami protkané srdce vyzařující prastarou zemskou energii. Výrazně posiluje nositele (+300 HP, +25 Útok, +25 Obrana).",
+      "en": "A vein-laced heart radiating ancient earthen energy. Massively empowers the bearer (+300 HP, +25 Attack, +25 Defense).",
+      "sk": "Žilami pretkané srdce vyžarujúce prastarú zemskú energiu. Výrazne posilňuje nositeľa (+300 HP, +25 Útok, +25 Obrana)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "hp": 300, "atk": 25, "def": 25 },
+    "hasCustomIcon": true, "customIcon": "snout_heart"
+  },
+  "sn04": {
+    "color": "#f59e0b",
+    "label": { "cz": "Smyslový Rypák", "en": "Sensory Snout", "sk": "Zmyslový Rypák" },
+    "icon": "👃",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Hmatovými chapadly posetý rypák, který umožňuje cítit vibrace v naprosté tmě. Přidává bonus (+20 Útok, +20 Obrana, +100 HP).",
+      "en": "A tentacle-covered snout enabling sensation of vibrations in pitch darkness. Grants bonus (+20 Attack, +20 Defense, +100 HP).",
+      "sk": "Hmatovými tykadlami posiaty rypák, ktorý umožňuje cítiť vibrácie v úplnej tme. Pridáva bonus (+20 Útok, +20 Obrana, +100 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "hp": 100, "atk": 20, "def": 20 },
+    "hasCustomIcon": true, "customIcon": "snout_snout"
+  },
+  "ka01": {
+    "color": "#10b981",
+    "label": { "cz": "Karmadonova Smaragdová Koruna", "en": "Emerald Horned Diadem", "sk": "Smaragdová Rohová Koruna" },
+    "icon": "👑",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Starobylá rohatá čelenka se zářícím smaragdem, jež propůjčuje nositeli pradávnou ochranu (+45 Obrana, +150 HP).",
+      "en": "An ancient horned diadem with a radiant emerald bestowing ancestral warding (+45 Defense, +150 HP).",
+      "sk": "Starobylá rohatá čelenka so žiariacim smaragdom, ktorá prepožiačuje nositeľovi pradávnu ochranu (+45 Obrana, +150 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "def": 45, "hp": 150 },
+    "hasCustomIcon": true, "customIcon": "karmadon_diadem"
+  },
+  "ka02": {
+    "color": "#ef4444",
+    "label": { "cz": "Démonické Ohňové Kadidlo", "en": "Demonic Flame Flail", "sk": "Démonické Ohňové Kadidlo" },
+    "icon": "🔥",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Řetězová zbraň s démonickou helmou a plápolajícím ohněm, šířící spoušť (+55 Útok).",
+      "en": "A chained weapon forged with a demonic helm and blazing fire, wreaking destruction (+55 Attack).",
+      "sk": "Reťazová zbraň s démonickou prilbou a blčiacim ohňom, šíriaca skazu (+55 Útok)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "atk": 55 },
+    "hasCustomIcon": true, "customIcon": "karmadon_censer"
+  },
+  "ka03": {
+    "color": "#22c55e",
+    "label": { "cz": "Žezlo Zeleného Plamene", "en": "Staff of the Green Flame", "sk": "Žezlo Zeleného Plameňa" },
+    "icon": "🪄",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Mystická trojzubá hůľ s pulzujícím zeleným krystalem a magickými bublinami (+35 Útok, +250 HP).",
+      "en": "A mystic trident staff with a pulsing green crystal and magical orbs (+35 Attack, +250 HP).",
+      "sk": "Mystická trojzubá palica s pulzujúcim zeleným kryštálom a magickými bublinami (+35 Útok, +250 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "atk": 35, "hp": 250 },
+    "hasCustomIcon": true, "customIcon": "karmadon_staff"
+  },
+  "ka04": {
+    "color": "#f97316",
+    "label": { "cz": "Amulet Věčného Žáru", "en": "Amulet of Eternal Cinders", "sk": "Amulet Večného Žiaru" },
+    "icon": "📿",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Řetězový amulet uchovávající plápolající kapku čistého vulkanického ohně (+25 Útok, +35 Obrana, +150 HP).",
+      "en": "A chained amulet enclosing a blazing drop of pure volcanic fire (+25 Attack, +35 Defense, +150 HP).",
+      "sk": "Reťazový amulet uchovávajúci blčiacu kvapku čistého vulkanického ohňa (+25 Útok, +35 Obrana, +150 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "atk": 25, "def": 35, "hp": 150 },
+    "hasCustomIcon": true, "customIcon": "karmadon_amulet"
+  },
+  "li01": {
+    "color": "#a855f7",
+    "label": { "cz": "Koruna Prastarého Licha", "en": "Crown of the Ancient Lich", "sk": "Koruna Prastarého Licha" },
+    "icon": "👑",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Zlatá koruna nasáklá temnou magií a dušemi padlých králů (+60 Obrana, +300 HP).",
+      "en": "A golden crown imbued with dark sorcery and the souls of fallen kings (+60 Defense, +300 HP).",
+      "sk": "Zlatá koruna nasiaknutá temnou mágiou a dušami padlých kráľov (+60 Obrana, +300 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "def": 60, "hp": 300 },
+    "hasCustomIcon": true, "customIcon": "lich_crown"
+  },
+  "li02": {
+    "color": "#22c55e",
+    "label": { "cz": "Žezlo Nekromancie", "en": "Scepter of Necromancy", "sk": "Žezlo Nekromancie" },
+    "icon": "🪄",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Prastará hůl vyzařující zelený spektrální oheň a ničivou moc (+75 Útok).",
+      "en": "An ancient staff radiating green spectral fire and devastating power (+75 Attack).",
+      "sk": "Prastará palica vyžarujúca zelený spektrálny oheň a ničivú moc (+75 Útok)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "atk": 75 },
+    "hasCustomIcon": true, "customIcon": "lich_staff"
+  },
+  "li03": {
+    "color": "#6366f1",
+    "label": { "cz": "Kryptové Roucho Temnoty", "en": "Crypt Robes of Darkness", "sk": "Kryptové Rúcho Temnoty" },
+    "icon": "🥋",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Tkanina tkaná ze samotných stínů, která pohlcuje nepřátelské rány (+40 Útok, +45 Obrana, +200 HP).",
+      "en": "Fabric woven from shadows that absorbs enemy blows (+40 Attack, +45 Defense, +200 HP).",
+      "sk": "Tkanina tkaná zo samotných tieňov, ktorá pohlcuje nepriateľské rany (+40 Útok, +45 Obrana, +200 HP)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "atk": 40, "def": 45, "hp": 200 },
+    "hasCustomIcon": true, "customIcon": "lich_robes"
+  },
+  "li04": {
+    "color": "#ec4899",
+    "label": { "cz": "Amulet Duší", "en": "Soul Phylactery Amulet", "sk": "Amulet Duší" },
+    "icon": "📿",
+    "category": "relic",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Schránka obsahující uvězněnou nesmrtelnou esenci Licha (+450 HP, +25 Obrana).",
+      "en": "A vessel containing the trapped immortal essence of the Lich (+450 HP, +25 Defense).",
+      "sk": "Schránka obsahujúca uväznenú nesmrteľnú esenciu Licha (+450 HP, +25 Obrana)."
+    },
+    "dropWeight": 0, "dropMin": 1, "dropMax": 1,
+    "stats": { "hp": 450, "def": 25 },
+    "hasCustomIcon": true, "customIcon": "lich_amulet"
   }
 };
+

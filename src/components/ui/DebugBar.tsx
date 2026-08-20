@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword } from 'lucide-react';
+import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DebugBarProps {
@@ -12,6 +12,13 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
 
   const cheats = [
     { id: 'healMe', label: 'Uzdravit vše (Heal All)', icon: Heart, color: 'text-rose-400' },
+    { id: 'addLichSet', label: '👑 LICH BOSS SET: 4x Legendární Relikvie (+950 HP, +170 DEF, +115 ATK)', icon: Gift, color: 'text-amber-400 font-black' },
+    { id: 'addMegaHPMutagens', label: '🧪 5x Mutagen Duší (+450 HP pro příšeru)', icon: Heart, color: 'text-rose-400 font-bold' },
+    { id: 'addXPSerums', label: '🧬 5x XP Sérum (+700 XP pro příšeru)', icon: Zap, color: 'text-purple-400 font-bold' },
+    { id: 'addHPMutagens', label: '🧪 5x HP Mutagen (+15 HP pro příšeru)', icon: Heart, color: 'text-rose-400' },
+    { id: 'addTankMutations', label: '🛡️ TANK PACK: 5x HP + 5x DEF Mutagen', icon: Shield, color: 'text-emerald-400 font-bold' },
+    { id: 'simulateRaid', label: '⏱️ SIMULACE DUNGEONU (Raid Benchmark)', icon: Activity, color: 'text-amber-400 font-bold' },
+    { id: 'addDefMutagens', label: '🛡️ 5x Obranný Mutagen (+10 DEF)', icon: Shield, color: 'text-blue-400' },
     { id: 'addGems', label: 'Balíček surovin (Resources)', icon: Package, color: 'text-amber-400' },
     { id: 'giveXP', label: 'Přidat XP Monstru', icon: Zap, color: 'text-indigo-400' },
     { id: 'addPotions', label: 'Lektvary (HP/Mana)', icon: FlaskConical, color: 'text-emerald-400' },
