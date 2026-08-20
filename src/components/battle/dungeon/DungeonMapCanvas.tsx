@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { cn, getLoc } from '../../../utils';
+import { cn, getLoc, triggerHaptic } from '../../../utils';
 import type { DungeonConfig } from '../../../data/dungeons';
 import type { DungeonPlayer } from './types';
 

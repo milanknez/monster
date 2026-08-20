@@ -288,7 +288,7 @@ out center;`;
 
     // 2. Pokud neexistuje cache, nebudou offline žádné památky
     console.log("Offline Fallback: No cached POI data found. Returning empty POI arrays.");
-    return { monsters: [], resources: [], buildings: [] };
+    return { monsters: [], resources: [], buildings: [], dungeons: [] };
   }
 
   const monsters: SpawnPoint[] = []

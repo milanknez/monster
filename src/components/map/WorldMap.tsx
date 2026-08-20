@@ -33,7 +33,8 @@ import {
   loadCooldowns,
   calculateHPCost,
   COMMON_GRID_M,
-  OVERPASS_RADIUS_M
+  OVERPASS_RADIUS_M,
+  DungeonSpawnPoint
 } from './spawnEngine'
 
 // ── Leaflet default icon fix ──────────────────────────────────

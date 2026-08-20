@@ -621,8 +621,9 @@ export const leaveDungeonLobby = async (lobbyId: string, playerUid: string) => {
     if (snapshot.exists()) {
         const rawData = snapshot.val();
         const lobbyData = parseLobby(rawData);
-        const hostUid = lobbyData?.hostUid;
-        const remainingPlayerUids = Object.keys(lobbyData?.players || {}).filter(uid => uid !== playerUid);
+        if (!lobbyData) return;
+        const hostUid = lobbyData.hostUid;
+        const remainingPlayerUids = Object.keys(lobbyData.players || {}).filter(uid => uid !== playerUid);
         
         if (remainingPlayerUids.length === 0) {
             await remove(lobbyRef);

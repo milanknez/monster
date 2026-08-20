@@ -36,6 +36,8 @@ export const SOUND_FILES = {
   
   // SPECIAL & DUNGEON FX
   LAB_START: '/sounds/lab_start.ogg',
+  LAB_COMPLETE: '/sounds/lab_complete.ogg',
+  BOOK_FLIP: '/sounds/book_flip.ogg',
   // MUSIC TRACKS
   BATTLE_BGM: '/sounds/battle_bgm.ogg',
   LOBBY_BGM: '/sounds/lobby_war.mp3',

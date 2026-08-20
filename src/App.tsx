@@ -246,18 +246,19 @@ function AppContent() {
   };
 
   const handleCheat = (cheatId: string) => {
+    const addRes = addResource as any;
     if (cheatId === 'addLichSet') {
-      addResource('li01', 1); // Lich Crown (+60 DEF, +300 HP)
-      addResource('li02', 1); // Lich Staff (+75 ATK)
-      addResource('li03', 1); // Lich Robes (+40 ATK, +45 DEF, +200 HP)
-      addResource('li04', 1); // Lich Amulet (+450 HP, +25 DEF)
+      addRes('li01', 1); // Lich Crown (+60 DEF, +300 HP)
+      addRes('li02', 1); // Lich Staff (+75 ATK)
+      addRes('li03', 1); // Lich Robes (+40 ATK, +45 DEF, +200 HP)
+      addRes('li04', 1); // Lich Amulet (+450 HP, +25 DEF)
       addToast({ title: '👑 LICH SET Získán!', message: 'Obdržel jsi kompletní set 4 legendárních relikvií Licha (+950 HP, +170 DEF, +115 ATK)!', type: 'success' });
     } else if (cheatId === 'addMegaHPMutagens') {
-      addResource('li04', 5); // 5x Amulet Duší (+450 HP každý)
+      addRes('li04', 5); // 5x Amulet Duší (+450 HP každý)
       addToast({ title: '🧪 Mega HP Mutageny Získány!', message: 'Obdržel jsi 5x Amulet Duší (+450 HP na mutaci každý)!', type: 'success' });
     } else if (cheatId === 'addXPSerums') {
-      addResource('xp_serum_3', 5);
-      addResource('xp_serum_2', 5);
+      addRes('xp_serum_3', 5);
+      addRes('xp_serum_2', 5);
       addToast({ title: '🧬 XP Séra Získána!', message: 'Obdržel jsi 5x XP Sérum III (+700 XP) a 5x XP Sérum II (+400 XP)! Použij je v detailu příšery (DNA).', type: 'success' });
     } else if (cheatId === 'addTankMutations') {
       addResource('loot_5', 5); // Ochranný mutagen (+15 HP)
