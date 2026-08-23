@@ -61,7 +61,7 @@
             },
             "type": "heal",
             "chance": 65,
-            "value": 2
+            "value": 20
         }
     ]
 }

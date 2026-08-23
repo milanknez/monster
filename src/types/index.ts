@@ -16,7 +16,7 @@ export interface Monster {
     name: string | Localized<string>;
     description: string | Localized<string>;
     icon?: string;
-    type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra' | 'curse' | 'regen' | 'debuff';
+    type?: 'attack' | 'defense' | 'buff' | 'heal' | 'extra' | 'curse' | 'regen' | 'debuff' | 'reflect';
     chance?: number;
     value?: number;
   }[];

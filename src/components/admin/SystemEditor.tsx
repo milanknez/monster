@@ -52,6 +52,7 @@ const ABILITY_TYPES = [
   { id: 'regen', label: '🌿 Regenerace (2 kola)', defaultChance: 65, defaultVal: 10, desc: '+10% HP / kolo' },
   { id: 'curse', label: '💀 Kletba (2 kola)', defaultChance: 50, defaultVal: 20, desc: '20% Atk DMG / kolo' },
   { id: 'debuff', label: '🎯 Oslabení (2 kola)', defaultChance: 65, defaultVal: 40, desc: '-40% šance na zásah' },
+  { id: 'reflect', label: '🪞 Odraz poškození (2 kola)', defaultChance: 70, defaultVal: 50, desc: 'Odrazí 50% DMG zpět' },
   { id: 'extra', label: '⚡ Extra útok (%)', defaultChance: 50, defaultVal: 40, desc: '+40% DMG k základu' },
 ]
 

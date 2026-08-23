@@ -52,6 +52,7 @@
         "curse": "Kletba",
         "regen": "Regenerace",
         "debuff": "Oslabení",
+        "reflect": "Odraz",
         "special": "Schopnost",
         "special_val": "Speciální"
       },
@@ -551,7 +552,10 @@
         "defending": "{{name}} se brání!",
         "curse_applied": "{{name}} na tebe uvrhl kletbu!",
         "debuff_cast": "Nepřítel byl oslepen!",
-        "debuff_applied": "Byl jsi oslepen!"
+        "debuff_applied": "Byl jsi oslepen!",
+        "reflect_cast": "Aktivován odraz poškození!",
+        "reflect_applied": "{{name}} aktivoval odraz poškození!",
+        "reflect_trigger": "⚔️ Odraženo {{dmg}} poškození!"
       },
       "modal": {
         "victory_title": "VÍTĚZSTVÍ!",
@@ -765,6 +769,7 @@
         "curse": "Curse",
         "regen": "Regeneration",
         "debuff": "Debuff",
+        "reflect": "Reflect",
         "special": "Ability",
         "special_val": "Special"
       },
@@ -1262,9 +1267,12 @@
         "curse_cast": "Curse cast!",
         "regen_active": "Regeneration active!",
         "defending": "{{name}} is defending!",
-        "curse_applied": "{{name}} cast a curse on you!",
+        "curse_applied": "{{name}} cursed you!",
         "debuff_cast": "Enemy was blinded!",
-        "debuff_applied": "You were blinded!"
+        "debuff_applied": "You were blinded!",
+        "reflect_cast": "Damage reflection activated!",
+        "reflect_applied": "{{name}} activated damage reflection!",
+        "reflect_trigger": "⚔️ Reflected {{dmg}} damage!"
       },
       "modal": {
         "victory_title": "VICTORY!",
@@ -1479,6 +1487,7 @@
         "curse": "Kliatba",
         "regen": "Regenerácia",
         "debuff": "Oslabenie",
+        "reflect": "Odraz",
         "special": "Schopnosť",
         "special_val": "Špeciálna"
       },
@@ -1977,9 +1986,12 @@
         "curse_cast": "Uvrhnutá kletba!",
         "regen_active": "Aktivovaná regenerácia!",
         "defending": "{{name}} sa bráni!",
-        "curse_applied": "{{name}} na teba uvrhol kletbu!",
+        "curse_applied": "{{name}} na teba uvrhol kliatbu!",
         "debuff_cast": "Nepriateľ bol oslepený!",
-        "debuff_applied": "Bol si oslepený!"
+        "debuff_applied": "Bol si oslepený!",
+        "reflect_cast": "Aktivovaný odraz poškodenia!",
+        "reflect_applied": "{{name}} aktivoval odraz poškodenia!",
+        "reflect_trigger": "⚔️ Odrazené {{dmg}} poškodenie!"
       },
       "modal": {
         "victory_title": "VÍŤAZSTVO!",

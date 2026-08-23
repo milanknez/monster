@@ -6,7 +6,7 @@ import {
   FlaskConical, Trophy, Package, ChevronRight, Smile,
   RefreshCw, Star, Heart, Aperture, ArrowUpRight,
   ArrowDownLeft, Flame, Wind, Droplets, Leaf, Circle,
-  Hourglass, Skull, Moon, Lock, Check, Hash, Target
+  Hourglass, Skull, Moon, Lock, Check, Hash, Target, ShieldAlert
 } from 'lucide-react';
 import type { Monster, LootTableEntry, Localized } from '../../types';
 import { cn, getMonsterMaxHP, getMonsterMinLevel, TYPE_MATCHUP, TYPE_MAP, ADVANTAGE_MULT, WEAKNESS_MULT, getLoc, triggerHaptic } from '../../utils';
@@ -30,7 +30,7 @@ interface DamagePopup {
 }
 
 interface StatusEffect {
-  type: 'burn' | 'slow' | 'paralyze' | 'curse' | 'regen' | 'debuff';
+  type: 'burn' | 'slow' | 'paralyze' | 'curse' | 'regen' | 'debuff' | 'reflect';
   duration: number;
   value?: number;
   casterAtk?: number;
@@ -145,14 +145,16 @@ const EffectBadges = ({ effects }: { effects: StatusEffect[] }) => (
             e.type === 'curse' ? "bg-purple-500/20 text-purple-400 border-purple-500/40 shadow-purple-500/10" :
               e.type === 'regen' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-emerald-500/10" :
                 e.type === 'debuff' ? "bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-rose-500/10" :
-                  "bg-yellow-500/20 text-yellow-400 border-yellow-500/40 shadow-yellow-500/10"
+                  e.type === 'reflect' ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 shadow-cyan-500/10" :
+                    "bg-yellow-500/20 text-yellow-400 border-yellow-500/40 shadow-yellow-500/10"
       )}>
         {e.type === 'burn' ? <Flame size={12} className="animate-pulse" /> :
           e.type === 'slow' ? <Wind size={12} className="animate-bounce" /> :
             e.type === 'curse' ? <ShieldIcon size={12} className="rotate-180" /> :
               e.type === 'regen' ? <Heart size={12} className="animate-pulse" /> :
                 e.type === 'debuff' ? <Target size={12} className="animate-pulse" /> :
-                  <Zap size={12} className="animate-pulse" />}
+                  e.type === 'reflect' ? <ShieldAlert size={12} className="animate-pulse" /> :
+                    <Zap size={12} className="animate-pulse" />}
         <span>{e.duration}</span>
       </motion.div>
     ))}
@@ -180,18 +182,19 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
   const isHeal = subType === 'heal' || subType === 'regen';
   const isCurse = subType === 'curse' || subType === 'debuff';
   const isDefense = subType === 'defense';
+  const isReflect = subType === 'reflect';
   const isMelee = subType === 'attack';
   const isClaw = subType === 'claw';
 
   const count = isLow
     ? (isClaw || isMelee ? 0 : 3)
-    : (isHeal ? 15 : (isCurse || isDefense) ? 20 : isMelee ? 30 : isClaw ? 0 : 12);
+    : (isHeal ? 15 : (isCurse || isDefense || isReflect) ? 20 : isMelee ? 30 : isClaw ? 0 : 12);
   const particles = [...Array(count)].map((_, i) => ({
     id: i,
-    delay: i * (isMelee ? 0.01 : (isCurse || isDefense ? 0.02 : 0.04)) + (isMelee ? 0.4 : 0),
+    delay: i * (isMelee ? 0.01 : (isCurse || isDefense || isReflect ? 0.02 : 0.04)) + (isMelee ? 0.4 : 0),
     rotation: isMelee ? 0 : Math.random() * 360,
-    scale: isHeal ? (2.0 + Math.random() * 1.5) : (isCurse || isDefense) ? (1.5 + Math.random() * 2) : isMelee ? 3.5 : (3.5 + Math.random() * 1.5),
-    speed: isHeal ? (1.5 + Math.random() * 1.0) : (isCurse || isDefense) ? (1.5 + Math.random() * 1.0) : isMelee ? 0.4 : (0.8 + Math.random() * 0.4),
+    scale: isHeal ? (2.0 + Math.random() * 1.5) : (isCurse || isDefense || isReflect) ? (1.5 + Math.random() * 2) : isMelee ? 3.5 : (3.5 + Math.random() * 1.5),
+    speed: isHeal ? (1.5 + Math.random() * 1.0) : (isCurse || isDefense || isReflect) ? (1.5 + Math.random() * 1.0) : isMelee ? 0.4 : (0.8 + Math.random() * 0.4),
     offset: Math.random() * 100
   }));
 
@@ -200,6 +203,7 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
     if (isHeal) return <Heart className="text-emerald-400 fill-emerald-400/80" size={s} />;
     if (isCurse) return <Skull className={cn("text-purple-600 fill-purple-900/40", !isLow && "drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]")} size={s} />;
     if (isDefense) return <ShieldIcon className={cn("text-blue-400 fill-blue-500/40", !isLow && "drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]")} size={s} />;
+    if (isReflect) return <ShieldAlert className={cn("text-cyan-300 fill-cyan-400/50 animate-pulse", !isLow && "drop-shadow-[0_0_20px_rgba(6,182,212,0.9)]")} size={s} />;
     if (isMelee) return (
       <svg viewBox="0 0 100 100" className={cn("w-2 h-2 fill-red-600", !isLow && "drop-shadow-[0_0_5px_rgba(220,38,38,0.8)]")}>
         <path d="M50 0 C60 30 90 40 100 50 C90 60 60 70 50 100 C40 70 10 60 0 50 C10 40 40 30 50 0" />
@@ -279,15 +283,17 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
       scale: [0.2, p.scale, p.scale * 1.5, 0],
       x: ['-50%', `${-50 + Math.cos(p.rotation) * 80}%`, `${-50 + Math.cos(p.rotation + 180) * 120}%`],
       y: ['-50%', `${-50 + Math.sin(p.rotation) * 80}%`, `${-50 + Math.sin(p.rotation + 180) * 120}%`],
-      rotate: [p.rotation, p.rotation + 360],
-      filter: ["blur(0px)", "blur(2px)", "blur(5px)", "blur(0px)"]
-    };
-    if (isDefense) return {
-      opacity: [0, 0.9, 1, 0.9, 0],
-      scale: [0, p.scale * 1.2, p.scale * 2.5],
+      scale: [0.2, p.scale * 1.5, p.scale, 0],
       x: ['-50%', `${-50 + Math.cos(p.rotation) * 90}%`],
       y: ['-50%', `${-50 + Math.sin(p.rotation) * 90}%`],
       rotate: [p.rotation, p.rotation + 180],
+    };
+    if (isDefense || isReflect) return {
+      opacity: [0, 1, 1, 1, 0],
+      scale: [0.2, p.scale * 1.3, p.scale, 0],
+      x: ['-50%', `${-50 + Math.cos(p.rotation) * 70}%`],
+      y: ['-50%', `${-50 + Math.sin(p.rotation) * 70}%`],
+      rotate: [p.rotation, p.rotation + 90],
     };
     if (isMelee) return {
       opacity: [0, 1, 1, 0],
@@ -352,13 +358,81 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
         </motion.div>
       )}
 
-      {/* Central "Casting" Flash for Curse/Defense */}
-      {(isCurse || isDefense) && (
+      {/* Epic Holographic Mirror Shield Dome for Reflect */}
+      {isReflect && (
+        <div className="absolute pointer-events-none" style={{ left: startCoords.left, top: startCoords.top, transform: 'translate(-50%, -50%)' }}>
+          {/* Expanding Glass Diamond / Hexagonal Mirror */}
+          <motion.div
+            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+            animate={{ 
+              scale: [0, 1.4, 1.1, 1.25, 0], 
+              opacity: [0, 1, 0.9, 1, 0],
+              rotate: [-45, 0, 45, 90, 180] 
+            }}
+            transition={{ duration: 1.6, times: [0, 0.25, 0.5, 0.85, 1], ease: "easeOut" }}
+            className="absolute size-44 -translate-x-1/2 -translate-y-1/2 z-[10008] flex items-center justify-center pointer-events-none"
+          >
+            {/* Hexagon / Diamond Glass Prism */}
+            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_30px_rgba(6,182,212,1)]">
+              <defs>
+                <linearGradient id="mirrorGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#a5f3fc" stopOpacity="0.9" />
+                  <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#0891b2" stopOpacity="0.8" />
+                </linearGradient>
+              </defs>
+              <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="url(#mirrorGlow)" stroke="#cffafe" strokeWidth="2.5" />
+              {/* Inner Facets */}
+              <line x1="50" y1="5" x2="50" y2="95" stroke="#ffffff" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
+              <line x1="10" y1="25" x2="90" y2="75" stroke="#ffffff" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
+              <line x1="10" y1="75" x2="90" y2="25" stroke="#ffffff" strokeWidth="1" strokeDasharray="2,2" opacity="0.6" />
+            </svg>
+          </motion.div>
+
+          {/* Shockwave Rings */}
+          <motion.div
+            initial={{ scale: 0.2, opacity: 1 }}
+            animate={{ scale: [0.2, 2.2], opacity: [1, 0] }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute size-40 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-cyan-300 shadow-[0_0_40px_rgba(6,182,212,1)]"
+          />
+          <motion.div
+            initial={{ scale: 0.2, opacity: 1 }}
+            animate={{ scale: [0.2, 2.8], opacity: [1, 0] }}
+            transition={{ duration: 1.1, delay: 0.15, ease: "easeOut" }}
+            className="absolute size-40 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-cyan-400"
+          />
+
+          {/* Floating Mirror Shards */}
+          {[...Array(6)].map((_, i) => {
+            const angle = (i * 60) * (Math.PI / 180);
+            const dist = 70;
+            return (
+              <motion.div
+                key={i}
+                initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
+                animate={{ 
+                  x: [0, Math.cos(angle) * dist, Math.cos(angle) * (dist + 20)],
+                  y: [0, Math.sin(angle) * dist, Math.sin(angle) * (dist + 20)],
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.2, 0],
+                  rotate: [0, 180]
+                }}
+                transition={{ duration: 1.2, delay: 0.1 + i * 0.05, ease: "easeOut" }}
+                className="absolute size-6 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-cyan-200 to-cyan-500 rounded-sm border border-white shadow-[0_0_15px_rgba(6,182,212,0.9)]"
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Central "Casting" Flash for Curse/Defense/Reflect */}
+      {(isCurse || isDefense || isReflect) && (
         <motion.div
           initial={{ opacity: 0, scale: 0, left: isCurse ? targetCoords.left : startCoords.left, top: isCurse ? targetCoords.top : startCoords.top, x: '-50%', y: '-50%' }}
           animate={{ opacity: [0, 0.8, 0], scale: [0, 2, 4] }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className={cn("absolute size-48 rounded-full blur-3xl z-[-1]", isCurse ? "bg-purple-600/30" : "bg-blue-600/30")}
+          className={cn("absolute size-48 rounded-full blur-3xl z-[-1]", isCurse ? "bg-purple-600/30" : isReflect ? "bg-cyan-400/50" : "bg-blue-600/30")}
         />
       )}
     </div>
@@ -720,6 +794,9 @@ export const Battle = ({
       const missPenalty = debuffEffect ? (debuffEffect.value || 40) : 0;
       const hitChance = Math.max(ability?.chance || 100, 50) - missPenalty;
 
+      let newlyAppliedPlayerEffect: StatusEffect | null = null;
+      let newlyAppliedEnemyEffect: StatusEffect | null = null;
+
       if (ability && Math.random() > hitChance / 100) {
         addLog(t('battle.log.missed', { name: getLoc(ability.name, i18n.language) }));
         addPopup(0, true, { isMiss: true });
@@ -736,18 +813,26 @@ export const Battle = ({
       else if (ability?.type === 'defense') { setShieldTurns(2); setShieldPower(1 - (ability.value || 60) / 100); dmg = 0; }
       else if (ability?.type === 'curse') {
         const s = getFinalStats(playerMonster);
-        setEnemyEffects(p => [...p, { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk }]);
+        newlyAppliedEnemyEffect = { type: 'curse', duration: 2, value: ability.value || 20, casterAtk: s.total.atk };
         dmg = 0; addLog(t('battle.log.curse_cast'));
       }
       else if (ability?.type === 'debuff') {
-        setEnemyEffects(p => [...p, { type: 'debuff', duration: 2, value: ability.value || 40 }]);
+        newlyAppliedEnemyEffect = { type: 'debuff', duration: 2, value: ability.value || 40 };
         dmg = 0; addLog(t('battle.log.debuff_cast'));
+      }
+      else if (ability?.type === 'reflect') {
+        const refVal = (ability.value && ability.value <= 1 ? ability.value * 100 : ability.value) || 50;
+        newlyAppliedPlayerEffect = { type: 'reflect', duration: 2, value: refVal };
+        dmg = 0; addLog(t('battle.log.reflect_cast'));
       }
       else if (isSkill && ability?.type === 'attack') {
         setTimeout(() => playSlash(), 100);
         setTimeout(() => playSlash(), 700);
       }
-      else if (ability?.type === 'regen') { setPlayerEffects(p => [...p, { type: 'regen', duration: 2, value: ability.value || 10 }]); dmg = 0; addLog(t('battle.log.regen_active')); }
+      else if (ability?.type === 'regen') { 
+        newlyAppliedPlayerEffect = { type: 'regen', duration: 2, value: ability.value || 10 };
+        dmg = 0; addLog(t('battle.log.regen_active')); 
+      }
 
       // Tutorial logic: Prevent death, force 1 HP
       if (isTutorial && enemyHP - dmg <= 0) {
@@ -758,6 +843,21 @@ export const Battle = ({
         }
       } else if (dmg > 0) {
         setEnemyHP(p => Math.max(0, p - dmg));
+
+        // Damage reflection from enemy to player
+        const enemyReflect = enemyEffects.find(e => e.type === 'reflect');
+        if (enemyReflect) {
+          const refDmg = Math.max(1, Math.round(dmg * ((enemyReflect.value || 50) / 100)));
+          setTimeout(() => {
+            setPlayerHP(p => Math.max(0, p - refDmg));
+            setPlayerAnim('hit');
+            triggerShake(true);
+            playHit();
+            addPopup(refDmg, false);
+            addLog(t('battle.log.reflect_trigger', { dmg: refDmg }));
+            setTimeout(() => setPlayerAnim('idle'), 350);
+          }, 300);
+        }
       }
 
       setEnemyAnim('hit');
@@ -773,7 +873,14 @@ export const Battle = ({
         else if (typeCz === 'Vodní') { setEnemyEffects(p => [...p, { type: 'slow', duration: 2 }]); addLog(t('battle.log.slowed')); }
         else if (typeCz === 'Elektrická') { setEnemyEffects(p => [...p, { type: 'paralyze', duration: 1 }]); addLog(t('battle.log.paralyzed')); }
       }
-      setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
+
+      if (newlyAppliedPlayerEffect) {
+        setPlayerEffects(prev => [...prev.filter(e => e.type !== newlyAppliedPlayerEffect!.type), newlyAppliedPlayerEffect!]);
+      }
+
+      if (newlyAppliedEnemyEffect) {
+        setEnemyEffects(prev => [...prev, newlyAppliedEnemyEffect!]);
+      }
       if (pvpRole && onSendAttack) {
         onSendAttack({
           ...res,
@@ -996,6 +1103,11 @@ export const Battle = ({
             setPlayerEffects(p => [...p, { type: 'debuff', duration: 2, value: ability.value || 40 }]);
             dmg = 0; addLog(t('battle.log.debuff_applied', { name: getLoc(enemyMonster.name, i18n.language) }));
           }
+          else if (ability?.type === 'reflect') {
+            const refVal = (ability.value && ability.value <= 1 ? ability.value * 100 : ability.value) || 50;
+            setEnemyEffects(p => [...p, { type: 'reflect', duration: 2, value: refVal }]);
+            dmg = 0; addLog(t('battle.log.reflect_applied', { name: getLoc(enemyMonster.name, i18n.language) }));
+          }
           if (isSkill && ability?.type === 'attack') {
             setTimeout(() => playSlash(), 100);
             setTimeout(() => playSlash(), 700);
@@ -1006,9 +1118,25 @@ export const Battle = ({
             setPlayerHP(p => Math.max(0, p - dmg)); setPlayerAnim('hit'); addPopup(dmg, false, res); triggerShake(res.isCrit);
             if (shieldTurns > 0) setShieldTurns(p => p - 1);
             if (res.isCrit) playCritical(); else playHit();
+
+            // Damage reflection from player to enemy
+            const playerReflect = playerEffects.find(e => e.type === 'reflect');
+            if (playerReflect) {
+              const refDmg = Math.max(1, Math.round(dmg * ((playerReflect.value || 50) / 100)));
+              setTimeout(() => {
+                setEnemyHP(p => Math.max(0, p - refDmg));
+                setEnemyAnim('hit');
+                triggerShake(true);
+                playHit();
+                addPopup(refDmg, true);
+                addLog(t('battle.log.reflect_trigger', { dmg: refDmg }));
+                setTimeout(() => setEnemyAnim('idle'), 350);
+              }, 300);
+            }
           }
 
           setEnemyEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
+          setPlayerEffects(p => p.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0));
           if (enemyShieldTurns > 0) setEnemyShieldTurns(p => p - 1);
 
           setTimeout(() => {
@@ -1354,6 +1482,28 @@ export const Battle = ({
                 )
               )}
             </AnimatePresence>
+            <AnimatePresence>
+              {enemyEffects.some(e => e.type === 'reflect') && (
+                <motion.div 
+                  key="enemy-reflect-aura"
+                  initial={{ scale: 0.7, opacity: 0 }} 
+                  animate={{ scale: [1, 1.05, 1], opacity: [0.9, 1, 0.9] }} 
+                  exit={{ scale: 0, opacity: 0 }} 
+                  transition={{ duration: 0.2 }} 
+                  className="absolute size-36 rounded-full border-2 border-cyan-300/80 bg-[radial-gradient(circle,rgba(6,182,212,0.25)_0%,transparent_75%)] z-15 shadow-[0_0_35px_rgba(6,182,212,0.9)] flex items-center justify-center translate-y-2 pointer-events-none"
+                >
+                  <div className="absolute inset-2 border border-dashed border-cyan-200/60 rounded-full animate-spin [animation-duration:8s]" />
+
+                  {/* 4 Orbiting Diamond Mirror Shards */}
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} className="absolute inset-0">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 size-3 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_8px_cyan]" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 size-3 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_8px_cyan]" />
+                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 size-3 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_8px_cyan]" />
+                    <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 size-3 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_8px_cyan]" />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="absolute -top-14 left-1/2 -translate-x-1/2 z-[450] pointer-events-none flex gap-2">
               <AnimatePresence>
@@ -1367,6 +1517,13 @@ export const Battle = ({
                 {enemyEffects.some(e => e.type === 'regen') && (
                   <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} className="bg-emerald-900/90 border-2 border-emerald-400 p-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-bounce">
                     <Leaf size={18} className="text-white fill-emerald-900" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {enemyEffects.some(e => e.type === 'reflect') && (
+                  <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} className="bg-cyan-950/90 border-2 border-cyan-400 p-2 rounded-full shadow-[0_0_25px_rgba(6,182,212,0.9)] animate-pulse">
+                    <ShieldAlert size={18} className="text-cyan-300 fill-cyan-950" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1407,6 +1564,28 @@ export const Battle = ({
                 )
               )}
             </AnimatePresence>
+            <AnimatePresence>
+              {playerEffects.some(e => e.type === 'reflect') && (
+                <motion.div 
+                  key="player-reflect-aura"
+                  initial={{ scale: 0.7, opacity: 0 }} 
+                  animate={{ scale: [1, 1.05, 1], opacity: [0.9, 1, 0.9] }} 
+                  exit={{ scale: 0, opacity: 0 }} 
+                  transition={{ duration: 0.2 }} 
+                  className="absolute size-48 rounded-full border-2 border-cyan-300/80 bg-[radial-gradient(circle,rgba(6,182,212,0.25)_0%,transparent_75%)] z-15 shadow-[0_0_40px_rgba(6,182,212,0.9)] flex items-center justify-center translate-y-2 pointer-events-none"
+                >
+                  <div className="absolute inset-2 border border-dashed border-cyan-200/60 rounded-full animate-spin [animation-duration:8s]" />
+
+                  {/* 4 Orbiting Diamond Mirror Shards */}
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} className="absolute inset-0">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 size-4 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_10px_cyan]" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 size-4 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_10px_cyan]" />
+                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 size-4 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_10px_cyan]" />
+                    <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 size-4 bg-gradient-to-br from-white to-cyan-400 rotate-45 border border-white shadow-[0_0_10px_cyan]" />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[450] pointer-events-none flex gap-2">
               <AnimatePresence>
@@ -1420,6 +1599,13 @@ export const Battle = ({
                 {playerEffects.some(e => e.type === 'regen') && (
                   <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} className="bg-emerald-900/90 border-2 border-emerald-400 p-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-bounce">
                     <Leaf size={22} className="text-white fill-emerald-900" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {playerEffects.some(e => e.type === 'reflect') && (
+                  <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} className="bg-cyan-950/90 border-2 border-cyan-400 p-2 rounded-full shadow-[0_0_25px_rgba(6,182,212,0.9)] animate-pulse">
+                    <ShieldAlert size={22} className="text-cyan-300 fill-cyan-950" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1487,6 +1673,8 @@ export const Battle = ({
           const isDefense = ab.type === 'defense';
           const isRegen = ab.type === 'regen';
           const isCurse = ab.type === 'curse';
+          const isDebuff = ab.type === 'debuff';
+          const isReflect = ab.type === 'reflect';
           const healVal = isHeal ? Math.round(playerMaxHP * ((ab.value || 15) / 100)) : 0;
 
           const type = ab.type?.toLowerCase() || 'attack';
@@ -1496,7 +1684,9 @@ export const Battle = ({
             'defense': { icon: <ShieldIcon size={16} strokeWidth={2.5} />, color: '#3b82f6', border: 'border-l-blue-400' },
             'heal': { icon: <Heart size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
             'regen': { icon: <Leaf size={16} strokeWidth={2.5} />, color: '#10b981', border: 'border-l-emerald-400' },
-            'curse': { icon: <Skull size={16} strokeWidth={2.5} />, color: '#a855f7', border: 'border-l-purple-400' }
+            'curse': { icon: <Skull size={16} strokeWidth={2.5} />, color: '#a855f7', border: 'border-l-purple-400' },
+            'debuff': { icon: <Target size={16} strokeWidth={2.5} />, color: '#fb7185', border: 'border-l-rose-400' },
+            'reflect': { icon: <ShieldAlert size={16} strokeWidth={2.5} />, color: '#22d3ee', border: 'border-l-cyan-400' }
           };
           const config = typeConfigs[type] || typeConfigs['attack'];
 
@@ -1510,7 +1700,7 @@ export const Battle = ({
                 <div className="flex flex-col gap-0.5">
                   <p className="text-[10px] leading-tight text-white/95">
                     <span className="inline-block text-[9px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/20 px-2 py-0.5 rounded-md mr-2">
-                      {isHeal ? `+${healVal} HP` : isDefense ? `${t('battle.shield')} 🛡️` : isCurse ? `${t('battle.curse')} 💀` : isRegen ? `${t('battle.regen_short')} 🌿` : `~${estDmg} DMG`}
+                      {isHeal ? `+${healVal} HP` : isDefense ? `${t('battle.shield')} 🛡️` : isCurse ? `${t('battle.curse')} 💀` : isRegen ? `${t('battle.regen_short')} 🌿` : isDebuff ? `-40% Hit 🎯` : isReflect ? `50% Odraz 🪞` : `~${estDmg} DMG`}
                       {ab.chance && ab.chance < 100 && <span className="ml-1 opacity-80 text-[8px]">({ab.chance}%)</span>}
                     </span>
                     <span className="text-slate-200 font-bold italic">{getLoc(ab.description, i18n.language)}</span>

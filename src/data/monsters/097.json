@@ -1,52 +1,67 @@
 {
-    "id": "097",
-    "name": {
-        "cz": "Zoubková víla",
-        "en": "Tooth Fairy",
-        "sk": "Zúbková víla"
+  "id": "097",
+  "name": {
+    "cz": "Zoubková víla",
+    "en": "Tooth Fairy",
+    "sk": "Zúbková víla"
+  },
+  "description": {
+    "cz": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
+    "en": "An ancient, toothless entity that rules the realm of nightmares. Her obsession with collecting teeth knows no bounds, and her rusty pincers will crack even the toughest armor.",
+    "sk": "Prastará, bezzubá entita, ktorá vládne ríši nočných mor. Jej posadnutosť zbieraním zubov nepozná medzí a jej hrdzavé kliešte rozlúsknu aj to najtvrdšie brnenie."
+  },
+  "type": "nature",
+  "rarity": "legendary",
+  "stats": {
+    "hp": 950,
+    "attack": 179,
+    "defense": 110
+  },
+  "abilities": [
+    {
+      "name": {
+        "cz": "Totální extrakce",
+        "en": "Total extraction",
+        "sk": "Totálna extrakcia"
+      },
+      "description": {
+        "cz": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
+        "en": "A brutal and unavoidable attack that rips out a piece of the enemy's life force.",
+        "sk": "Brutálny a nevyhnutný útok, ktorý vytrhne nepriateľovi kus jeho životnej sily."
+      },
+      "type": "attack",
+      "chance": 70,
+      "value": 230
     },
-    "description": {
-        "cz": "Prastará, bezzubá entita, která vládne říši nočních můr. Její posedlost sbíráním zubů nezná mezí a její rezavé kleště rozlousknou i to nejtvrdší brnění.",
-        "en": "An ancient, toothless entity that rules the realm of nightmares. Her obsession with collecting teeth knows no bounds, and her rusty pincers will crack even the toughest armor.",
-        "sk": "Prastará, bezzubá entita, ktorá vládne ríši nočných mor. Jej posadnutosť zbieraním zubov nepozná medzí a jej hrdzavé kliešte rozlúsknu aj to najtvrdšie brnenie."
+    {
+      "name": {
+        "cz": "Prokletí bezzubých",
+        "en": "Curse of the Toothless",
+        "sk": "Prekliatie bezzubých"
+      },
+      "description": {
+        "cz": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
+        "en": "A terrifying aura that weakens all resistance and dramatically lowers the enemy's attack and defense.",
+        "sk": "Desivá aura, ktorá oslabuje všetok odpor a dramaticky znižuje útok aj obranu nepriateľa."
+      },
+      "type": "curse",
+      "chance": 80,
+      "value": 50
     },
-    "type": "nature",
-    "rarity": "legendary",
-    "stats": {
-        "hp": 950,
-        "attack": 179,
-        "defense": 110
-    },
-    "abilities": [
-        {
-            "name": {
-                "cz": "Totální extrakce",
-                "en": "Total extraction",
-                "sk": "Totálna extrakcia"
-            },
-            "description": {
-                "cz": "Brutální a nevyhnutelný útok, který vytrhne nepříteli kus jeho životní síly.",
-                "en": "A brutal and unavoidable attack that rips out a piece of the enemy's life force.",
-                "sk": "Brutálny a nevyhnutný útok, ktorý vytrhne nepriateľovi kus jeho životnej sily."
-            },
-            "type": "attack",
-            "chance": 70,
-            "value": 230
-        },
-        {
-            "name": {
-                "cz": "Prokletí bezzubých",
-                "en": "Curse of the Toothless",
-                "sk": "Prekliatie bezzubých"
-            },
-            "description": {
-                "cz": "Děsivá aura, která oslabuje veškerý odpor a dramaticky snižuje útok i obranu nepřítele.",
-                "en": "A terrifying aura that weakens all resistance and dramatically lowers the enemy's attack and defense.",
-                "sk": "Desivá aura, ktorá oslabuje všetok odpor a dramaticky znižuje útok aj obranu nepriateľa."
-            },
-            "type": "curse",
-            "chance": 80,
-            "value": 50
-        }
-    ]
+    {
+      "name": {
+        "cz": "Zubní regenerace",
+        "en": "Dental Regeneration",
+        "sk": "Zubná regenerácia"
+      },
+      "description": {
+        "cz": "Použije nasbírané zuby k magickému zacelení svých zranění a obnovení životní síly.",
+        "en": "Uses collected teeth to magically mend her wounds and restore vitality.",
+        "sk": "Použije nazbierané zuby na magické zacelenie svojich zranení a obnovenie životnej sily."
+      },
+      "type": "heal",
+      "chance": 65,
+      "value": 22
+    }
+  ]
 }

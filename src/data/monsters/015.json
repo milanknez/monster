@@ -40,13 +40,13 @@
                 "sk": "Cukrová pasca"
             },
             "description": {
-                "cz": "Položí sladkou past, která zpomalí a oslabí každého nepřítele, který do ní vkročí (Snížení dmg 55-65%)",
-                "en": "Lays a sweet trap that slows and weakens any enemy that steps into it (Dmg reduction 55-65%)",
-                "sk": "Položí sladkú pascu, ktorá spomalí a oslabí každého nepriateľa, ktorý do nej vkročí (Zníženie dmg 55-65%)"
+                "cz": "Položí sladkou lepkavou past, která nepřítele zalepí a dramaticky sníží jeho šanci na zásah.",
+                "en": "Lays a sweet sticky trap that covers the enemy in syrup and dramatically reduces their hit chance.",
+                "sk": "Položí sladkú lepkavú pascu, ktorá nepriateľa zalepí a dramaticky zníži jeho šancu na zásah."
             },
-            "type": "defense",
+            "type": "debuff",
             "chance": 70,
-            "value": 60
+            "value": 45
         },
         {
             "name": {

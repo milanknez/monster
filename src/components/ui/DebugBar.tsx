@@ -28,6 +28,7 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'spawn:legendary', label: 'Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400' },
     { id: 'addLegendary', label: 'Získat Legendární (Přímo)', icon: Gift, color: 'text-amber-500 font-bold' },
     { id: 'addMonster:075', label: 'Pyro Hedgehog #075', icon: Star, color: 'text-purple-400' },
+    { id: 'addMonster:103', label: 'Bouřný Rys #103 (Reflect)', icon: Star, color: 'text-amber-400 font-bold' },
     { id: 'addMonster:114', label: 'Luminis #114', icon: Star, color: 'text-amber-400' },
 
     { id: 'playerXP200', label: 'Hráč XP +200', icon: Zap, color: 'text-cyan-400' },

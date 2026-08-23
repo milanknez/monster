@@ -1,67 +1,67 @@
 {
-    "id": "103",
-    "name": {
-        "cz": "Mrtvolný Loutkář",
-        "en": "Mortuary Puppeteer",
-        "sk": "Mŕtvolný Bábkár"
+  "id": "103",
+  "name": {
+    "cz": "Bouřný Qilin ",
+    "en": "Storm Lynx",
+    "sk": "Búrkový Rys"
+  },
+  "description": {
+    "cz": "Tajemná a hravě nebezpečná fialová šelma vystupující ze starodávných runových portálů. Její zářící azurové rohy fungují jako bleskový lapač a magické zrcadlo, které odrazí nepřátelské údery s drtivou silou zpět na útočníka.",
+    "en": "A mysterious and playfully dangerous purple feline emerging from ancient runic portals. Its glowing cyan horns act as a lightning rod and magic mirror, reflecting enemy blows back at the attacker with devastating force.",
+    "sk": "Tajomná a hravo nebezpečná fialová šelma vystupujúca zo starodávnych runových portálov. Jej žiariace azúrové rohy fungujú ako bleskový lapač a magické zrkadlo, ktoré odrazí nepriateľské údery s drvivou silou späť na útočníka."
+  },
+  "type": "electric",
+  "rarity": "legendary",
+  "stats": {
+    "hp": 1250,
+    "attack": 272,
+    "defense": 420
+  },
+  "abilities": [
+    {
+      "name": {
+        "cz": "Zrcadlové Rohy",
+        "en": "Mirror Horns",
+        "sk": "Zrkadlové Rohy"
+      },
+      "description": {
+        "cz": "Odrazí 50 % utrženého poškození zpět na útočníka.",
+        "en": "Reflects 50% of the damage taken back to the attacker.",
+        "sk": "Odrazí 50% utrhnutého poškodenia späť na útočníka."
+      },
+      "type": "reflect",
+      "chance": 70,
+      "value": 50
     },
-    "description": {
-        "cz": "Obří, groteskní masa svalů a šlach s mnoha pavoučími pažemi. Z každého prstu mu visí tenká, pulzující nervová vlákna, kterými ovládá loutky sešité z částí svých předchozích obětí.",
-        "en": "A giant, grotesque mass of muscle and sinew with many spidery arms. Thin, pulsing nerve fibers dangle from each of his fingers, which he uses to control puppets stitched together from the parts of his previous victims.",
-        "sk": "Obrie, groteskné mäsa svalov a šliach s mnohými pavúčími pažami. Z každého prsta mu visia tenké, pulzujúce nervové vlákna, ktorými ovláda bábky zošité z častí svojich predchádzajúcich obetí."
+    {
+      "name": {
+        "cz": "Hypnotický Pohled",
+        "en": "Hypnotic Stare",
+        "sk": "Hypnotický Pohľad"
+      },
+      "description": {
+        "cz": "Zastraší nepřítele bleskovým zrakem a sníží jeho šanci na zásah o 40 %.",
+        "en": "Intimidates the enemy with lightning gaze, reducing their hit chance by 40%.",
+        "sk": "Zastraší nepriateľa bleskovým zrakom a zníži jeho šancu na zásah o 40%."
+      },
+      "type": "debuff",
+      "chance": 50,
+      "value": 40
     },
-    "type": "electric",
-    "rarity": "legendary",
-    "stats": {
-        "hp": 1250,
-        "attack": 272,
-        "defense": 420
-    },
-    "abilities": [
-        {
-            "name": {
-                "cz": "Zvrácená Marioneta",
-                "en": "Perverted Marionette",
-                "sk": "Zvrátená Marioneta"
-            },
-            "description": {
-                "cz": "Odrazí 50 % utrženého poškození zpět na útočníka.",
-                "en": "Reflects 50% of the damage taken back to the attacker.",
-                "sk": "Odrazí 50% utrhnutého poškodenia späť na útočníka."
-            },
-            "type": "reflect",
-            "chance": 50,
-            "value": 0.5
-        },
-        {
-            "name": {
-                "cz": "Vlákna Osudu",
-                "en": "Threads of Fate",
-                "sk": "Vlákna Osudu"
-            },
-            "description": {
-                "cz": "Ochmrtí soupeře a dočasně mu ukradne část jeho útočné síly.",
-                "en": "Stuns the opponent and temporarily steals some of their attack power.",
-                "sk": "Ochmrtí súpera a dočasne mu ukradne časť jeho útočnej sily."
-            },
-            "type": "debuff",
-            "chance": 50,
-            "value": 0.4
-        },
-        {
-            "name": {
-                "cz": "Armáda Stínů",
-                "en": "Army of Shadows",
-                "sk": "Armáda Tieňov"
-            },
-            "description": {
-                "cz": "Vyvolá přízračné spolubojovníky, kteří zaútočí v mohutné salvě.",
-                "en": "Summons ghostly comrades who attack in a massive volley.",
-                "sk": "Vyvolá prízračných spolubojovníkov, ktorí zaútočia v mohutnej salve."
-            },
-            "type": "attack",
-            "chance": 70,
-            "value": 230
-        }
-    ]
+    {
+      "name": {
+        "cz": "Noční Hromobití",
+        "en": "Night Thunderstrike",
+        "sk": "Nočné Hromobitie"
+      },
+      "description": {
+        "cz": "Udeří elektrickými spáry a sešle ničivý příval blesků.",
+        "en": "Strikes with electrified claws and unleashes a devastating deluge of lightning.",
+        "sk": "Udrie elektrickými pazúrmi a zošle ničivý príval bleskov."
+      },
+      "type": "attack",
+      "chance": 70,
+      "value": 230
+    }
+  ]
 }

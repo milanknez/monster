@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Bolt, LayoutGrid, RefreshCw,
   Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical,
-  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap
+  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap, ShieldAlert
 } from 'lucide-react';
 
 import { useTranslation } from 'react-i18next';
@@ -75,6 +75,7 @@ const AbilityCard = ({ ability, originalAbility, idx, monsterType }: { ability: 
       case 'curse': return { label: t('monster.abilities_card.curse'), val: `-${ability.value || 15}% ATK/Tah`, icon: <Skull size={24} />, color: 'text-purple-500', bg: 'bg-purple-500/10', energy: 30 };
       case 'regen': return { label: t('monster.abilities_card.regen'), val: `+${ability.value || 10}% HP/Tah`, icon: <RefreshCw size={24} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10', energy: 30 };
       case 'debuff': return { label: t('monster.abilities_card.debuff'), val: `-${ability.value || 40}% Hit`, icon: <Target size={24} />, color: 'text-rose-400', bg: 'bg-rose-500/10', energy: 40 };
+      case 'reflect': return { label: t('monster.abilities_card.reflect'), val: `${(ability.value && ability.value <= 1 ? ability.value * 100 : ability.value) || 50}% Odraz`, icon: <ShieldAlert size={24} />, color: 'text-cyan-400', bg: 'bg-cyan-500/10', energy: 30 };
       default: return { label: t('monster.abilities_card.special'), val: t('monster.abilities_card.special_val'), icon: <Info size={24} />, color: 'text-slate-400', bg: 'bg-white/5', energy: 40 };
     }
   }, [effectiveType, ability.value]);
