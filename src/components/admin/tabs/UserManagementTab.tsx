@@ -1735,16 +1735,16 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                           .sort((a, b) => getMonsterPower(b) - getMonsterPower(a))
                           .map((m: any, i: number) => (
                             <div key={m.caughtAt || i} className="p-2.5 bg-black/40 border border-white/10 rounded-2xl flex flex-col items-center text-center group hover:border-primary/40 transition-all relative overflow-hidden">
-                              {/* Delete button */}
+                              {/* Delete button - always visible and highlighted */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteMonster(m);
                                 }}
                                 title="Odebrat příšeru hráči"
-                                className="absolute top-1.5 right-1.5 size-6 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 cursor-pointer shadow-md z-20"
+                                className="absolute top-1 right-1 size-6 rounded-lg bg-rose-600 text-white hover:bg-rose-500 flex items-center justify-center transition-all cursor-pointer shadow-lg z-30 active:scale-90 border border-white/20"
                               >
-                                <Trash2 size={11} />
+                                <Trash2 size={13} className="text-white" />
                               </button>
 
                               <div className="size-14 bg-black/60 rounded-xl p-1 flex items-center justify-center shrink-0 mb-1.5 relative border border-white/5">
