@@ -453,6 +453,32 @@ function AppContent() {
     return () => unsubscribe();
   }, [userUid]);
 
+  // Listen to remote administrative commands (e.g. remove monster from client device)
+  useEffect(() => {
+    if (!userUid) return;
+    const actionsRef = ref(db, `users/${userUid}/adminActions`);
+    const unsubscribe = onValue(actionsRef, (snapshot) => {
+      const actions = snapshot.val();
+      if (actions && typeof actions === 'object') {
+        Object.entries(actions).forEach(([actionId, data]: [string, any]) => {
+          if (data && data.action === 'remove_monster') {
+            const { monsterId, caughtAt, name } = data;
+            console.log(`[AdminAction] Vzdálené odebrání monstra ${monsterId} (${name})`);
+            removeMonster(monsterId, caughtAt ? Number(caughtAt) : undefined);
+            addToast({
+              title: 'Správa účtu',
+              message: `Příšera ${name || monsterId} byla odebrána administrátorem.`,
+              type: 'info'
+            });
+            // Vyčistit zpracovaný příkaz
+            remove(ref(db, `users/${userUid}/adminActions/${actionId}`));
+          }
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [userUid, removeMonster, addToast]);
+
   // Synchronize selectedMonster with caughtMonsters (for regeneration & updates)
   useEffect(() => {
     if (selectedMonster) {

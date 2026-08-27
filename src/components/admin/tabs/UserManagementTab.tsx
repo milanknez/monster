@@ -457,6 +457,52 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
 
+  const handleDeleteMonster = async (monsterToDelete: any) => {
+    if (!selectedPlayerId) return;
+    const monsterName = getLoc(monsterToDelete.name, 'cz') || monsterToDelete.id;
+    if (!window.confirm(`Opravdu chcete hráči odebrat příšeru "${monsterName}"? Příkaz se ihned odešle a vymaže ji ze zálohy i ze zařízení hráče.`)) {
+      return;
+    }
+
+    try {
+      // 1. Zapsat příkaz do realtime DB pro zařízení hráče
+      const actionId = `del_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+      const removePayload = {
+        action: 'remove_monster',
+        monsterId: monsterToDelete.id,
+        caughtAt: monsterToDelete.caughtAt || null,
+        name: monsterName,
+        timestamp: Date.now()
+      };
+      
+      await update(ref(db, `users/${selectedPlayerId}/adminActions/${actionId}`), removePayload);
+
+      // 2. Aktualizovat i existující backup v DB
+      const currentList = Array.isArray(detailedData?.caughtMonsters) ? detailedData.caughtMonsters : [];
+      const updatedList = currentList.filter((m: any) => {
+        if (monsterToDelete.caughtAt !== undefined && m.caughtAt !== undefined) {
+          return !(m.id === monsterToDelete.id && m.caughtAt === monsterToDelete.caughtAt);
+        }
+        return m.id !== monsterToDelete.id;
+      });
+
+      await update(ref(db, `users/${selectedPlayerId}`), {
+        caughtMonsters: updatedList
+      });
+
+      // 3. Aktualizovat lokální state administrace
+      setDetailedData((prev: any) => ({
+        ...prev,
+        caughtMonsters: updatedList
+      }));
+
+      alert(`Příšera "${monsterName}" byla úspěšně odebrána a příkaz byl odeslán.`);
+    } catch (err) {
+      console.error("Chyba při mazání monstra:", err);
+      alert("Nepodařilo se odebrat příšeru: " + (err as Error).message);
+    }
+  };
+
   useEffect(() => {
     setProfileTab('info');
     setMonsterSearch('');
@@ -1682,19 +1728,34 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
                       </div>
                     )}
 
-                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[300px] overflow-y-auto pr-1 content-start custom-scrollbar">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5 max-h-[360px] overflow-y-auto pr-1 content-start custom-scrollbar">
                       {caughtMonstersList.length > 0 ? (
                         [...caughtMonstersList]
                           .filter((m: any) => getLoc(m.name, 'cz').toLowerCase().includes(monsterSearch.toLowerCase()) || m.id.includes(monsterSearch))
                           .sort((a, b) => getMonsterPower(b) - getMonsterPower(a))
                           .map((m: any, i: number) => (
-                            <div key={i} className="p-2 bg-black/25 border border-white/5 rounded-xl flex flex-col items-center text-center group hover:border-primary/30 transition-all">
-                              <div className="size-12 bg-black/40 rounded-lg p-1 flex items-center justify-center shrink-0 mb-1">
+                            <div key={m.caughtAt || i} className="p-2.5 bg-black/40 border border-white/10 rounded-2xl flex flex-col items-center text-center group hover:border-primary/40 transition-all relative overflow-hidden">
+                              {/* Delete button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteMonster(m);
+                                }}
+                                title="Odebrat příšeru hráči"
+                                className="absolute top-1.5 right-1.5 size-6 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 cursor-pointer shadow-md z-20"
+                              >
+                                <Trash2 size={11} />
+                              </button>
+
+                              <div className="size-14 bg-black/60 rounded-xl p-1 flex items-center justify-center shrink-0 mb-1.5 relative border border-white/5">
                                 <img src={`/monsters/${m.id}.png`} className="w-full h-full object-contain filter drop-shadow-sm group-hover:scale-110 transition-transform duration-300" alt={getLoc(m.name, 'cz')} onError={(e) => e.currentTarget.style.display = 'none'} />
                               </div>
                               <div className="min-w-0 w-full">
-                                <div className="text-[9px] font-black text-white uppercase truncate leading-tight">{getLoc(m.name, 'cz')}</div>
-                                <div className={cn("text-[8px] font-black leading-tight", getMonsterRarityColor(m.rarity))}>Lv {m.level}</div>
+                                <div className="text-[10px] font-black text-white uppercase truncate leading-tight">{getLoc(m.name, 'cz')}</div>
+                                <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                                  <span className={cn("text-[8px] font-black leading-tight", getMonsterRarityColor(m.rarity))}>Lv {m.level}</span>
+                                  <span className="text-[7px] text-amber-300 font-mono font-bold">⚡{getMonsterPower(m)}</span>
+                                </div>
                               </div>
                             </div>
                           ))
