@@ -216,6 +216,28 @@ export const getMonsterAttack = (monster: any) => {
   return base + levelBonus + getEqBonus(monster.gems || []) + getEqBonus(monster.items || []);
 };
 
+export const getMonsterRole = (monster: any): { label: 'TANK' | 'HEALER' | 'DPS', icon: string, color: string } => {
+  if (!monster) return { label: 'DPS', icon: '⚔️', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
+
+  // 1. Pokud má schopnosti léčení (heal / regen), je to HEALER
+  const abilities = monster.abilities || [];
+  const hasHeal = abilities.some((a: any) => a.type === 'heal' || a.type === 'regen');
+  if (hasHeal) {
+    return { label: 'HEALER', icon: '💚', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' };
+  }
+
+  // 2. Tank je pouze ten, kdo má větší obranu než útok (DEF > ATK)
+  const def = getMonsterDefense(monster);
+  const atk = getMonsterAttack(monster);
+
+  if (def > atk) {
+    return { label: 'TANK', icon: '🛡️', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
+  }
+
+  // 3. Jinak je to DPS (útočník)
+  return { label: 'DPS', icon: '⚔️', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
+};
+
 export const getMonsterPower = (monster: any): number => {
   const hp = getMonsterMaxHP(monster);
   const atk = getMonsterAttack(monster);

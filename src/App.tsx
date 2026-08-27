@@ -361,6 +361,28 @@ function AppContent() {
       if (randomLegendary) {
         (window as any).addMonster(randomLegendary.id, 10);
       }
+    } else if (cheatId === 'add50RandomMonsters') {
+      const generated: Monster[] = [];
+      for (let i = 0; i < 50; i++) {
+        const template = monsterDB[Math.floor(Math.random() * monsterDB.length)];
+        const randomLevel = Math.floor(Math.random() * 25) + 1;
+        generated.push({
+          ...(template as any),
+          level: randomLevel,
+          image: `/monsters/${template.id}.png`,
+          caughtAt: Date.now() + i * 100,
+          xp: 0,
+          gems: [null, null, null],
+          items: [null, null, null],
+          abilities: (template.abilities || []).map((a: any) => ({ ...a, type: a.type as any }))
+        } as Monster);
+      }
+      saveMultipleMonsters(generated);
+      addToast({
+        title: '🎲 50 Monster přidáno!',
+        message: 'Do tvé sbírky bylo přidáno 50 náhodných monster různých úrovní!',
+        type: 'success'
+      });
     } else if (cheatId === 'debugIAP') {
       if ((window as any).debugIAP) (window as any).debugIAP();
     } else if (cheatId === 'openEditor') {
@@ -416,7 +438,7 @@ function AppContent() {
   )
 
 
-  const { caughtMonsters, saveMonster, removeMonster, giveMonsterXP, updateMonsterHP, updateMonsterStats, equipGem, equipItem } = useMonsters(addToast);
+  const { caughtMonsters, saveMonster, saveMultipleMonsters, removeMonster, giveMonsterXP, updateMonsterHP, updateMonsterStats, equipGem, equipItem } = useMonsters(addToast);
 
   // Listen to blocked status in Realtime Database
   useEffect(() => {
@@ -1073,35 +1095,6 @@ function AppContent() {
     }
   }, [currentLevel, dailyStats, caughtMonsters, unlockedQuests, addToast]);
 
-  // Temporary effect to grant the legendary monster as requested
-  useEffect(() => {
-    const hasGranted = localStorage.getItem('temp_granted_legendary_gift_114');
-    if (!hasGranted) {
-      const legendMonster = monsterDB.find(m => {
-        const r = (m.rarity || '').toLowerCase();
-        return r.includes('legend') || r.includes('legendárn');
-      }) || monsterDB.find(m => m.id === '114') || monsterDB[0];
-
-      if (legendMonster) {
-        const monsterToSave = {
-          ...legendMonster,
-          level: 10,
-          caughtAt: Date.now(),
-          xp: 0,
-          currentHP: (legendMonster.stats?.hp || 100) * 10, // Full HP
-          image: `/monsters/${legendMonster.id}.png`,
-          gems: [null, null, null]
-        };
-        saveMonster(monsterToSave as any, () => {});
-        localStorage.setItem('temp_granted_legendary_gift_114', 'true');
-        addToast({ 
-          title: '🎁 Legendární dárek!', 
-          message: `${getLoc(legendMonster.name)} (Lv.10) byl přidán do tvé sbírky!`, 
-          type: 'success' 
-        });
-      }
-    }
-  }, [saveMonster, addToast]);
 
   // --- TUTORIAL TRIGGERS ---
   useEffect(() => {

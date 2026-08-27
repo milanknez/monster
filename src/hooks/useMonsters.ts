@@ -127,8 +127,32 @@ export function useMonsters(addToast: (toast: any) => void) {
     } else {
       onGiveXP(0) // Trigger callback to show results without adding extra XP
     }
-    return true
-  }
+    return true;
+  };
+
+  const saveMultipleMonsters = useCallback((monsters: Monster[]) => {
+    setCaughtMonsters(prev => {
+      const updated = [...prev];
+      monsters.forEach(monster => {
+        const dbData = monsterDB.find(d => d.id === monster.id);
+        const baseStats = dbData?.stats || monster.stats;
+        const baseLevel = monster.level || 1;
+
+        const enriched: Monster = {
+          ...monster,
+          stats: baseStats,
+          level: baseLevel,
+          caughtAt: monster.caughtAt || (Date.now() + Math.floor(Math.random() * 100000)),
+          xp: monster.xp || 0,
+        };
+
+        const max = getMonsterMaxHP(enriched);
+        enriched.currentHP = monster.currentHP !== undefined ? monster.currentHP : max;
+        updated.unshift(enriched);
+      });
+      return updated;
+    });
+  }, []);
 
   const removeMonster = (id: string, caughtAt?: number) => {
     setCaughtMonsters(prev => {
@@ -143,14 +167,14 @@ export function useMonsters(addToast: (toast: any) => void) {
     })
   }
 
-  const giveMonsterXP = useCallback((monsterIdx: number, xpGain: number) => {
+  const giveMonsterXP = useCallback((index: number, xpGain: number) => {
     setCaughtMonsters(prev => {
-      const updated = [...prev]
-      if (!updated[monsterIdx]) return prev
-      const m = { ...updated[monsterIdx] }
+      const updated = [...prev];
+      if (!updated[index]) return prev;
+      const m = { ...updated[index] };
 
-      const oldLevel = m.level
-      m.xp = (m.xp || 0) + xpGain
+      const oldLevel = m.level;
+      m.xp = (m.xp || 0) + xpGain;
 
       // Relative Level up logic
       let nextLevelReq = getTotalXPForLevel(m.level + 1) - getTotalXPForLevel(m.level);
@@ -161,31 +185,32 @@ export function useMonsters(addToast: (toast: any) => void) {
       }
 
       if (m.level > oldLevel) {
+        m.currentHP = getMonsterMaxHP(m); // Full heal on level up
         addToast({
           title: 'LEVEL UP!',
           message: `${getLoc(m.name)} postoupil na úroveň ${m.level}!`,
           type: 'success'
-        })
+        });
       }
 
-      updated[monsterIdx] = m
-      return updated
-    })
-  }, [addToast])
+      updated[index] = m;
+      return updated;
+    });
+  }, [addToast]);
 
   const updateMonsterHP = useCallback((monsterIdx: number, hpChange: number) => {
     setCaughtMonsters(prev => {
-      const updated = [...prev]
-      if (!updated[monsterIdx]) return prev
+      const updated = [...prev];
+      if (!updated[monsterIdx]) return prev;
 
-      const m = { ...updated[monsterIdx] }
+      const m = { ...updated[monsterIdx] };
       const maxHP = getMonsterMaxHP(m);
-      m.currentHP = Math.min(maxHP, Math.max(0, (m.currentHP || 0) + hpChange))
+      m.currentHP = Math.min(maxHP, Math.max(0, (m.currentHP || 0) + hpChange));
 
-      updated[monsterIdx] = m
-      return updated
-    })
-  }, [])
+      updated[monsterIdx] = m;
+      return updated;
+    });
+  }, []);
 
   const equipGem = useCallback((monsterIdx: number, gemIdx: number, gemType: string | null) => {
     setCaughtMonsters(prev => {
@@ -200,18 +225,18 @@ export function useMonsters(addToast: (toast: any) => void) {
     });
   }, []);
 
-    const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number, xp?: number }, itemId?: string) => {
+  const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number, xp?: number }, itemId?: string) => {
     setCaughtMonsters(prev => {
-      const updated = [...prev]
-      if (!updated[monsterIdx]) return prev
+      const updated = [...prev];
+      if (!updated[monsterIdx]) return prev;
 
-      const m = { ...updated[monsterIdx] }
+      const m = { ...updated[monsterIdx] };
       const oldStats = m.stats || { hp: 100, attack: 10, defense: 10 };
       m.stats = {
         hp: oldStats.hp + (stats.hp || 0),
         attack: oldStats.attack + (stats.atk || 0),
         defense: oldStats.defense + (stats.def || 0)
-      }
+      };
 
       if (stats.xp) {
         const oldLevel = m.level;
@@ -230,7 +255,7 @@ export function useMonsters(addToast: (toast: any) => void) {
             title: 'LEVEL UP!',
             message: `${getLoc(m.name)} postoupil na úroveň ${m.level}!`,
             type: 'success'
-          })
+          });
         }
       }
 
@@ -243,10 +268,10 @@ export function useMonsters(addToast: (toast: any) => void) {
         m.mutations = mutations;
       }
 
-      updated[monsterIdx] = m
-      return updated
-    })
-  }, [addToast])
+      updated[monsterIdx] = m;
+      return updated;
+    });
+  }, [addToast]);
 
   const equipItem = useCallback((monsterIdx: number, itemIdx: number, itemType: string | null) => {
     setCaughtMonsters(prev => {
@@ -264,11 +289,12 @@ export function useMonsters(addToast: (toast: any) => void) {
   return {
     caughtMonsters,
     saveMonster,
+    saveMultipleMonsters,
     removeMonster,
     giveMonsterXP,
     updateMonsterHP,
     updateMonsterStats,
     equipGem,
     equipItem
-  }
+  };
 }

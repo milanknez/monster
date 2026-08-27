@@ -8,7 +8,10 @@ import { monsterDB } from '../../data/monsters';
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { dungeonsDB, DungeonConfig } from '../../data/dungeons';
 import type { Monster, Localized } from '../../types';
-import { cn, getLoc, triggerHaptic } from '../../utils';
+import { 
+  cn, getLoc, triggerHaptic, getMonsterPower, getRarityTheme, 
+  getMonsterColors, getMonsterTypeIcon, getMonsterMaxHP, getMonsterRole 
+} from '../../utils';
 import { useGameSound } from '../../data/sounds';
 import { DungeonVictoryModal } from './dungeon/DungeonVictoryModal';
 import { DungeonThreatList } from './dungeon/DungeonThreatList';
@@ -2955,48 +2958,120 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 overflow-y-auto max-h-[240px] pr-1 pb-4">
-                  {caughtMonsters.map((monster) => {
-                    const isSelected = myData?.monster && myData.monster.caughtAt === monster.caughtAt && myData.monster.id === monster.id;
-                    const isLvl = monster.level || 1;
-                    
-                    return (
-                      <div
-                        key={monster.caughtAt || monster.id}
-                        onClick={() => handleSelectMonsterLobby(monster)}
-                        className={cn(
-                          "p-2.5 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col items-center justify-center text-center",
-                          isSelected 
-                            ? myData?.isLocked
-                              ? "bg-emerald-500/10 border-emerald-500/60 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                              : "bg-blue-500/10 border-blue-500/60 shadow-[0_0_10px_rgba(59,130,246,0.15)]" 
-                            : "bg-slate-900/40 border-white/5 hover:border-white/10",
-                          myData?.isLocked && !isSelected && "opacity-40 cursor-not-allowed"
-                        )}
-                      >
-                        {isSelected && (
-                          <div className={cn("absolute top-1 right-1 text-slate-950 text-[6px] font-black rounded-full size-3.5 flex items-center justify-center", myData?.isLocked ? "bg-emerald-500" : "bg-blue-500")}>
-                            ✓
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 pb-2">
+                  {[...caughtMonsters]
+                    .sort((a, b) => getMonsterPower(b) - getMonsterPower(a))
+                    .map((monster) => {
+                      const isSelected = myData?.monster && myData.monster.caughtAt === monster.caughtAt && myData.monster.id === monster.id;
+                      const power = getMonsterPower(monster);
+                      const colors = getMonsterColors(monster.type);
+                      const theme = getRarityTheme(monster.rarity);
+                      const isRarityNonCommon = getLoc(monster.rarity, 'en').toLowerCase() !== 'common';
+
+                      return (
+                        <div
+                          key={monster.caughtAt || monster.id}
+                          onClick={() => !myData?.isLocked && handleSelectMonsterLobby(monster)}
+                          className={cn(
+                            "relative group aspect-square rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 border-2 select-none",
+                            theme.card,
+                            isSelected 
+                              ? myData?.isLocked
+                                ? "ring-2 ring-emerald-400 border-emerald-500 scale-[1.02] shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10"
+                                : "ring-2 ring-blue-400 border-blue-500 scale-[1.02] shadow-[0_0_15px_rgba(59,130,246,0.3)] z-10" 
+                              : "hover:border-white/20 hover:scale-[1.01]",
+                            myData?.isLocked && !isSelected && "opacity-40 cursor-not-allowed"
+                          )}
+                        >
+                          {/* Decorative Frame for Rare/Epic/Legendary */}
+                          {isRarityNonCommon && (
+                            <>
+                              <div className={cn(
+                                "absolute inset-0 pointer-events-none border-2 rounded-2xl z-30 opacity-60",
+                                theme.decor
+                              )} />
+                              <div className={cn(
+                                "absolute -inset-2 blur-xl opacity-20 z-0 pointer-events-none",
+                                theme.glow
+                              )} />
+                            </>
+                          )}
+
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 pointer-events-none" />
+
+                          {/* Top Left: Level */}
+                          <div className="absolute top-2 left-2 z-20 pointer-events-none flex items-center">
+                            <div className="h-5 px-1.5 rounded-lg bg-slate-900/90 text-[8px] font-black flex items-center justify-center border border-white/20 shadow-lg leading-none text-primary uppercase">
+                              LVL {monster.level || 1}
+                            </div>
                           </div>
-                        )}
-                        
-                        <img 
-                          src={`/monsters/${monster.id}.png`} 
-                          className={cn("w-9 h-9 object-contain transition-transform duration-300", isSelected && "scale-105")}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
-                          }}
-                        />
-                        
-                        <span className="text-[8px] font-black text-white uppercase tracking-wide truncate max-w-[80px] mt-1 block leading-tight">
-                          {getLoc(monster.name, 'cz')}
-                        </span>
-                        <span className="text-[6px] text-slate-400 font-mono mt-0.5 block leading-none">
-                          Lvl {isLvl}
-                        </span>
-                      </div>
-                    );
-                  })}
+
+                          {/* Top Right: Power Score or Selected badge */}
+                          <div className="absolute top-2 right-2 z-20 pointer-events-none flex items-center gap-1">
+                            {isSelected ? (
+                              <div className={cn(
+                                "h-5 px-2 rounded-lg text-[8px] font-black flex items-center gap-1 shadow-lg text-slate-950 uppercase",
+                                myData?.isLocked ? "bg-emerald-400" : "bg-blue-400"
+                              )}>
+                                {myData?.isLocked ? '✓ ZAMČENO' : '✓ ZVOLENO'}
+                              </div>
+                            ) : (
+                              <div className="h-5 px-1.5 rounded-lg bg-black/75 text-[8px] font-mono font-black flex items-center gap-0.5 border border-white/10 shadow-lg text-amber-300">
+                                ⚡ {power}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Monster Image */}
+                          <img 
+                            src={`/monsters/${monster.id}.png`} 
+                            className={cn(
+                              "absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 pointer-events-none",
+                              isSelected ? "scale-110" : "group-hover:scale-105"
+                            )}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                            }}
+                          />
+
+                          {/* Bottom Left: Element Icon badge & Role Badge */}
+                          <div className="absolute bottom-11 left-2.5 z-20 pointer-events-none flex items-center gap-1">
+                            <div className="p-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 flex items-center shadow-lg">
+                              {(() => {
+                                const Icon = getMonsterTypeIcon(monster.type);
+                                return Icon ? <Icon size={12} className={colors.text} /> : null;
+                              })()}
+                            </div>
+                            {(() => {
+                              const role = getMonsterRole(monster);
+                              return role ? (
+                                <div className={cn("px-1.5 py-0.5 rounded-md border text-[7px] font-black uppercase tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1 leading-none", role.color)}>
+                                  <span>{role.icon}</span>
+                                  <span>{role.label}</span>
+                                </div>
+                              ) : null;
+                            })()}
+                          </div>
+
+                          {/* Bottom Info: Name & Rarity & HP */}
+                          <div className="absolute bottom-2 left-2.5 right-2.5 z-20 pointer-events-none">
+                            <p className="text-white text-xs font-black uppercase tracking-tight truncate leading-tight">
+                              {getLoc(monster.name, 'cz')}
+                            </p>
+                            <div className="flex items-center justify-between mt-0.5">
+                              <span className={cn("text-[7px] font-black uppercase tracking-widest", theme.text)}>
+                                {getLoc(monster.rarity, 'cz') || monster.rarity}
+                              </span>
+                              <span className="text-[8px] font-mono font-bold text-rose-400 flex items-center gap-0.5">
+                                <Heart size={9} className="text-rose-500 fill-rose-500" />
+                                {getMonsterMaxHP(monster)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -3205,13 +3280,13 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             </div>
 
             {/* Collection Grid */}
-            <div className="space-y-3 flex-1 flex flex-col min-h-[250px]">
+            <div className="space-y-3">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
                 Vaše Sbírka Příšer ({caughtMonsters.length})
               </h3>
               
               {caughtMonsters.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/30 border border-white/5 border-dashed rounded-3xl p-8 text-center">
+                <div className="flex flex-col items-center justify-center bg-slate-900/30 border border-white/5 border-dashed rounded-3xl p-8 text-center">
                   <span className="text-2xl mb-2">👾</span>
                   <p className="text-[10px] text-slate-400 font-medium max-w-xs mb-3">
                     Nemáte chycené žádné vlastní příšery. Můžete použít zkušební hrdiny pro vstup do dungeonu!
@@ -3230,45 +3305,115 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 overflow-y-auto max-h-[300px] pr-1 pb-4">
-                  {caughtMonsters.map((monster) => {
-                    const isSelected = partySlots.some(s => s && s.caughtAt === monster.caughtAt && s.id === monster.id);
-                    const isLvl = monster.level || 1;
-                    
-                    return (
-                      <div
-                        key={monster.caughtAt || monster.id}
-                        onClick={() => handleSelectMonster(monster)}
-                        className={cn(
-                          "p-3 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col items-center justify-center text-center",
-                          isSelected 
-                            ? "bg-amber-500/10 border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.15)]" 
-                            : "bg-slate-900/40 border-white/5 hover:border-white/10"
-                        )}
-                      >
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 bg-amber-500 text-slate-950 text-[6px] font-black rounded-full size-3.5 flex items-center justify-center">
-                            ✓
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 pb-2">
+                  {[...caughtMonsters]
+                    .sort((a, b) => getMonsterPower(b) - getMonsterPower(a))
+                    .map((monster) => {
+                      const slotIdx = partySlots.findIndex(s => s && s.caughtAt === monster.caughtAt && s.id === monster.id);
+                      const isSelected = slotIdx !== -1;
+                      const power = getMonsterPower(monster);
+                      const colors = getMonsterColors(monster.type);
+                      const theme = getRarityTheme(monster.rarity);
+                      const isRarityNonCommon = getLoc(monster.rarity, 'en').toLowerCase() !== 'common';
+
+                      return (
+                        <div
+                          key={monster.caughtAt || monster.id}
+                          onClick={() => handleSelectMonster(monster)}
+                          className={cn(
+                            "relative group aspect-square rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 border-2 select-none",
+                            theme.card,
+                            isSelected 
+                              ? "ring-2 ring-amber-400 border-amber-500 scale-[1.02] shadow-[0_0_15px_rgba(245,158,11,0.3)] z-10" 
+                              : "hover:border-white/20 hover:scale-[1.01]"
+                          )}
+                        >
+                          {/* Decorative Frame for Rare/Epic/Legendary */}
+                          {isRarityNonCommon && (
+                            <>
+                              <div className={cn(
+                                "absolute inset-0 pointer-events-none border-2 rounded-2xl z-30 opacity-60",
+                                theme.decor
+                              )} />
+                              <div className={cn(
+                                "absolute -inset-2 blur-xl opacity-20 z-0 pointer-events-none",
+                                theme.glow
+                              )} />
+                            </>
+                          )}
+
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 pointer-events-none" />
+
+                          {/* Top Left: Level */}
+                          <div className="absolute top-2 left-2 z-20 pointer-events-none flex items-center">
+                            <div className="h-5 px-1.5 rounded-lg bg-slate-900/90 text-[8px] font-black flex items-center justify-center border border-white/20 shadow-lg leading-none text-primary uppercase">
+                              LVL {monster.level || 1}
+                            </div>
                           </div>
-                        )}
-                        
-                        <img 
-                          src={`/monsters/${monster.id}.png`} 
-                          className={cn("w-10 h-10 object-contain transition-transform duration-300", isSelected && "scale-105")}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
-                          }}
-                        />
-                        
-                        <span className="text-[9px] font-black text-white uppercase tracking-wide truncate max-w-[85px] mt-1.5 block leading-tight">
-                          {getLoc(monster.name, 'cz')}
-                        </span>
-                        <span className="text-[7px] text-slate-400 font-mono mt-0.5 block leading-none">
-                          Lvl {isLvl}
-                        </span>
-                      </div>
-                    );
-                  })}
+
+                          {/* Top Right: Power Score or Slot badge */}
+                          <div className="absolute top-2 right-2 z-20 pointer-events-none flex items-center gap-1">
+                            {isSelected ? (
+                              <div className="h-5 px-2 rounded-lg bg-amber-400 text-[8px] font-black flex items-center gap-1 shadow-lg text-slate-950 uppercase">
+                                SLOT {slotIdx + 1} ✓
+                              </div>
+                            ) : (
+                              <div className="h-5 px-1.5 rounded-lg bg-black/75 text-[8px] font-mono font-black flex items-center gap-0.5 border border-white/10 shadow-lg text-amber-300">
+                                ⚡ {power}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Monster Image */}
+                          <img 
+                            src={`/monsters/${monster.id}.png`} 
+                            className={cn(
+                              "absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500 pointer-events-none",
+                              isSelected ? "scale-110" : "group-hover:scale-105"
+                            )}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://img.icons8.com/color/96/cute-monster.png';
+                            }}
+                          />
+
+                          {/* Bottom Left: Element Icon badge & Role Badge */}
+                          <div className="absolute bottom-11 left-2.5 z-20 pointer-events-none flex items-center gap-1">
+                            <div className="p-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 flex items-center shadow-lg">
+                              {(() => {
+                                const Icon = getMonsterTypeIcon(monster.type);
+                                return Icon ? <Icon size={12} className={colors.text} /> : null;
+                              })()}
+                            </div>
+                            {(() => {
+                              const role = getMonsterRole(monster);
+                              return role ? (
+                                <div className={cn("px-1.5 py-0.5 rounded-md border text-[7px] font-black uppercase tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1 leading-none", role.color)}>
+                                  <span>{role.icon}</span>
+                                  <span>{role.label}</span>
+                                </div>
+                              ) : null;
+                            })()}
+                          </div>
+
+                          {/* Bottom Info: Name & Rarity & HP */}
+                          <div className="absolute bottom-2 left-2.5 right-2.5 z-20 pointer-events-none">
+                            <p className="text-white text-xs font-black uppercase tracking-tight truncate leading-tight">
+                              {getLoc(monster.name, 'cz')}
+                            </p>
+                            <div className="flex items-center justify-between mt-0.5">
+                              <span className={cn("text-[7px] font-black uppercase tracking-widest", theme.text)}>
+                                {getLoc(monster.rarity, 'cz') || monster.rarity}
+                              </span>
+                              <span className="text-[8px] font-mono font-bold text-rose-400 flex items-center gap-0.5">
+                                <Heart size={9} className="text-rose-500 fill-rose-500" />
+                                {getMonsterMaxHP(monster)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>

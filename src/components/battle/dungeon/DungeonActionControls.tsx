@@ -1,8 +1,37 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Swords, ShieldAlert, Sparkles, Heart, Zap, Shield, Skull } from 'lucide-react';
+import { 
+  Swords, ShieldAlert, Sparkles, Heart, Zap, Shield, Skull, 
+  Sword, RefreshCw, Target, Info 
+} from 'lucide-react';
 import { cn, getLoc } from '../../../utils';
 import type { DungeonPlayer } from './types';
+
+const getAbilityVisuals = (type?: string, idx: number = 0) => {
+  const effectiveType = type || (idx === 0 ? 'attack' : 'extra');
+  switch (effectiveType) {
+    case 'attack':
+      return { icon: <Sword size={16} />, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30' };
+    case 'extra':
+      return { icon: <Zap size={16} />, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30' };
+    case 'defense':
+      return { icon: <Shield size={16} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/30' };
+    case 'heal':
+      return { icon: <Heart size={16} />, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30' };
+    case 'buff':
+      return { icon: <Sparkles size={16} />, color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/30' };
+    case 'curse':
+      return { icon: <Skull size={16} />, color: 'text-purple-500', bg: 'bg-purple-500/10 border-purple-500/30' };
+    case 'regen':
+      return { icon: <RefreshCw size={16} />, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' };
+    case 'debuff':
+      return { icon: <Target size={16} />, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30' };
+    case 'reflect':
+      return { icon: <ShieldAlert size={16} />, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/30' };
+    default:
+      return { icon: <Info size={16} />, color: 'text-slate-400', bg: 'bg-white/5 border-white/10' };
+  }
+};
 
 interface DungeonActionControlsProps {
   isFighting: boolean;
@@ -93,16 +122,17 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
                 initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-52 bg-slate-900 border border-white/10 p-3 rounded-2xl shadow-2xl z-[10000] space-y-2 pointer-events-auto"
+                className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 p-3 rounded-2xl shadow-2xl z-[10000] space-y-2 pointer-events-auto"
               >
                 <h4 className="text-[9px] font-black text-purple-400 uppercase text-center tracking-widest opacity-60">
                   Schopnosti monstra
                 </h4>
-                <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+                <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
                   {abilities.map((ab, idx) => {
                     const isHeal = ab.type === 'heal' || ab.type === 'regen';
                     const cost = isHeal ? 30 : 40;
                     const hasEnergy = (mainPlayer?.energy || 0) >= cost;
+                    const visual = getAbilityVisuals(ab.type, idx);
 
                     return (
                       <button
@@ -114,20 +144,30 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
                           setShowSkillsMenu(false);
                         }}
                         className={cn(
-                          "w-full flex justify-between items-center p-2 rounded-xl text-[9px] font-bold text-white transition text-left border cursor-pointer active:scale-95",
-                          isHeal ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30" : "bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30",
-                          !hasEnergy && "opacity-45 cursor-not-allowed pointer-events-none"
+                          "w-full flex items-center gap-2.5 p-2 rounded-xl text-left border transition-all cursor-pointer active:scale-95 shadow-md",
+                          visual.bg,
+                          !hasEnergy && "opacity-40 cursor-not-allowed pointer-events-none"
                         )}
                       >
-                        <div className="flex flex-col min-w-0 pr-1">
-                          <span className="truncate text-white font-bold">{getLoc(ab.name, 'cz')}</span>
-                          <span className="text-[6px] text-slate-400 font-normal truncate italic">
+                        {/* Ability Icon box */}
+                        <div className={cn("size-8 rounded-lg flex items-center justify-center shrink-0 border border-white/10 bg-slate-950/80 shadow-inner", visual.color)}>
+                          {visual.icon}
+                        </div>
+
+                        {/* Title & Description */}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[10px] font-black text-white block truncate leading-tight">
+                            {getLoc(ab.name, 'cz')}
+                          </span>
+                          <span className="text-[7px] text-slate-400 font-medium block truncate mt-0.5 leading-none">
                             {getLoc(ab.description, 'cz')}
                           </span>
                         </div>
+
+                        {/* Energy Cost Badge */}
                         <span className={cn(
-                          "text-[8px] px-1.5 py-0.5 rounded font-mono shrink-0 font-bold",
-                          hasEnergy ? "text-purple-300 bg-purple-500/20" : "text-slate-500 bg-slate-800"
+                          "text-[8px] px-1.5 py-0.5 rounded-md font-mono shrink-0 font-black border border-white/10",
+                          hasEnergy ? "text-amber-300 bg-amber-500/20" : "text-slate-500 bg-slate-800"
                         )}>
                           {cost}⚡
                         </span>
