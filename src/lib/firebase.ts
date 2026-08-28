@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, onDisconnect, update, get, remove, DataSnapshot } from "firebase/database";
+import { getDatabase, ref, onValue, onChildAdded, set, onDisconnect, update, get, remove, push, DataSnapshot } from "firebase/database";
 import {
     getAuth,
     signInWithPopup,
@@ -71,7 +71,7 @@ export const db = getDatabase(app);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { onAuthStateChanged, ref, get, update, set, onValue, signInAnonymously };
+export { onAuthStateChanged, ref, get, update, set, remove, onValue, signInAnonymously };
 
 export const signInWithGoogle = async () => {
     try {
@@ -649,12 +649,11 @@ export const updateLobbyPlayerMonster = async (lobbyId: string, playerUid: strin
     } else {
         await set(monsterRef, {
             id: monster.id || monster.i || 'm1',
-            nm: monster.name || monster.n || 'Monster',
+            nm: typeof monster.name === 'object' ? (monster.name.cz || monster.name.en || 'Monster') : (monster.name || 'Monster'),
             lv: monster.level || monster.l || 1,
             rt: monster.rarity || monster.r || 'Běžné',
             hp: monster.stats?.hp || monster.maxHP || monster.hp || 1000,
-            at: monster.stats?.attack || monster.attack || 50,
-            full: monster
+            at: monster.stats?.attack || monster.attack || 50
         });
     }
 };
@@ -798,14 +797,26 @@ export const deleteDungeonLobby = async (lobbyId: string) => {
 
 export const broadcastCombatEvent = async (lobbyId: string, event: any) => {
     const eventRef = ref(db, `dungeon_lobbies/${lobbyId}/ev`);
-    await set(eventRef, { ...event, ts: Date.now() });
+    const newEventRef = push(eventRef);
+    await set(newEventRef, { ...event, ts: Date.now() });
 };
 
-export const watchCombatEvents = (lobbyId: string, callback: (event: any) => void) => {
+export const clearCombatEvents = async (lobbyId: string) => {
     const eventRef = ref(db, `dungeon_lobbies/${lobbyId}/ev`);
-    return onValue(eventRef, (snapshot: DataSnapshot) => {
+    await remove(eventRef).catch(() => {});
+};
+
+export const watchCombatEvents = (lobbyId: string, minTs: number, callback: (event: any) => void) => {
+    const eventRef = ref(db, `dungeon_lobbies/${lobbyId}/ev`);
+    const processedKeys = new Set<string>();
+    return onChildAdded(eventRef, (snapshot: DataSnapshot) => {
+        const key = snapshot.key;
+        if (!key || processedKeys.has(key)) return;
+        processedKeys.add(key);
         const val = snapshot.val();
-        if (val) callback(val);
+        if (val && (val.ts || 0) >= minTs) {
+            callback(val);
+        }
     });
 };
 

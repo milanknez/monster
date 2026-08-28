@@ -38,6 +38,7 @@ interface DungeonActionControlsProps {
   isPaused: boolean;
   isTransitioning: boolean;
   players: DungeonPlayer[];
+  playerUid?: string;
   hpPotions: number;
   manaPotions: number;
   showItems: boolean;
@@ -56,6 +57,7 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
   isPaused,
   isTransitioning,
   players,
+  playerUid,
   hpPotions,
   manaPotions,
   showItems,
@@ -70,7 +72,7 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
 }) => {
   if (!isFighting) return null;
 
-  const mainPlayer = players[0];
+  const mainPlayer = (playerUid ? players.find(p => p.uid === playerUid) : null) || players[0];
   const mainPlayerStunned = mainPlayer && (mainPlayer.stunTimer > 0 || mainPlayer.freezeTimer > 0);
   const playerMonster = mainPlayer?.monster;
   const abilities = playerMonster?.abilities || [];

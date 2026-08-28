@@ -280,12 +280,9 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
     };
     if (isCurse) return {
       opacity: [0, 0.8, 1, 0.8, 0],
-      scale: [0.2, p.scale, p.scale * 1.5, 0],
+      scale: [0.2, p.scale * 1.5, p.scale, 0],
       x: ['-50%', `${-50 + Math.cos(p.rotation) * 80}%`, `${-50 + Math.cos(p.rotation + 180) * 120}%`],
       y: ['-50%', `${-50 + Math.sin(p.rotation) * 80}%`, `${-50 + Math.sin(p.rotation + 180) * 120}%`],
-      scale: [0.2, p.scale * 1.5, p.scale, 0],
-      x: ['-50%', `${-50 + Math.cos(p.rotation) * 90}%`],
-      y: ['-50%', `${-50 + Math.sin(p.rotation) * 90}%`],
       rotate: [p.rotation, p.rotation + 180],
     };
     if (isDefense || isReflect) return {
@@ -904,9 +901,10 @@ export const Battle = ({
           const generatedLoot: any[] = [];
 
           const rStr = (getLoc(enemyMonster.rarity) || '').toLowerCase();
-          const isEpic = rStr.includes('epic') || rStr.includes('epick');
-          const isRare = rStr.includes('rare') || rStr.includes('vzacn');
-          const isCommon = !isEpic && !isRare;
+          const isLegendary = rStr.includes('legend') || rStr.includes('legenda');
+          const isEpic = !isLegendary && (rStr.includes('epic') || rStr.includes('epick'));
+          const isRare = !isLegendary && !isEpic && (rStr.includes('rare') || rStr.includes('vzacn'));
+          const isCommon = !isLegendary && !isEpic && !isRare;
 
           const getLootFromPool = (rarity: string, category?: string) => {
             const pool = Object.keys(RESOURCE_CONFIG)
@@ -987,7 +985,19 @@ export const Battle = ({
               if (rand < 0.5) addLootItem('rare', 'relic');
               else addLootItem('epic', 'relic');
             }
-            if (Math.random() < 0.02) addLootItem('legendary');
+            if (Math.random() < 0.05) addLootItem('legendary');
+          }
+          else if (isLegendary) {
+            addLootItem('epic', 'material');
+            addLootItem('legendary', 'material');
+            addLootItem('legendary', 'gem');
+            if (Math.random() < 0.6) addLootItem('legendary', 'relic');
+
+            // Secret inventory expansion items (low drop chance 2%)
+            if (Math.random() < 0.02) {
+              const secretItem = Math.random() < 0.65 ? 'backpack_pouch' : 'backpack_vault';
+              generatedLoot.push({ id: secretItem + '_' + Math.random(), type: secretItem, count: 1, collected: false });
+            }
           }
 
           setLoot(generatedLoot);

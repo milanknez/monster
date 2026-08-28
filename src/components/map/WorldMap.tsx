@@ -7,6 +7,8 @@ import 'leaflet/dist/leaflet.css'
 
 import { monsterDB } from '../../data/monsters'
 import type { Monster, SpawnPoint, SpawnRarity, ResourceType, ResourceSpawn, Cooldowns, NearbyPlayer } from '../../types'
+import { dungeonsDB } from '../../data/dungeons'
+import { DungeonPreviewModal } from '../modals/DungeonPreviewModal'
 import { cn, getLoc } from '../../utils'
 import { syncPlayerToFirebase, watchNearbyPlayers } from '../../lib/firebase'
 import { useGameSound } from '../../data/sounds'
@@ -266,6 +268,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   const [nearbyPlayers, setNearbyPlayers] = useState<NearbyPlayer[]>([])
   const [firebasePlayers, setFirebasePlayers] = useState<NearbyPlayer[]>([])
   const [selectedOtherPlayer, setSelectedOtherPlayer] = useState<NearbyPlayer | null>(null)
+  const [selectedDungeonPreview, setSelectedDungeonPreview] = useState<DungeonSpawnPoint | null>(null)
   const [buildings, setBuildings] = useState<{ lat: number, lng: number }[]>([])
   const buildingsRef = useRef<{ lat: number, lng: number }[]>([])
   const [isAutoCenter, setIsAutoCenter] = useState(true)
@@ -470,7 +473,9 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         }
       } else if (map) {
         const m = L.marker([d.lat, d.lng], { icon: makeDungeonIcon(d.type, d.title, d.recommendedLevel, scale) })
-          .on('click', () => { if (onOpenDungeon) onOpenDungeon(d); })
+          .on('click', () => { 
+            setSelectedDungeonPreview(d);
+          })
           .addTo(map)
           ; (m as any)._scale = scale
         dExisting.set(d.id, m)
@@ -1221,6 +1226,17 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
           </div>
         )}
       </AnimatePresence>
+      <DungeonPreviewModal
+        dungeon={selectedDungeonPreview}
+        playerLevel={playerLevel}
+        onClose={() => setSelectedDungeonPreview(null)}
+        onEnter={(dung) => {
+          setSelectedDungeonPreview(null);
+          if (onOpenDungeon) {
+            onOpenDungeon(dung);
+          }
+        }}
+      />
 
     </motion.div>
   )

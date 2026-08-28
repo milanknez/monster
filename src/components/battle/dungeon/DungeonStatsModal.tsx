@@ -61,7 +61,7 @@ export const DungeonStatsModal: React.FC<DungeonStatsModalProps> = ({
             <span className="text-right text-emerald-400">Léčení</span>
           </div>
           <div className="divide-y divide-white/5">
-            {players.map((p, idx) => {
+            {[...players].sort((a, b) => (b.totalDamage || 0) - (a.totalDamage || 0)).map((p, idx) => {
               const dmgPct = totalDamageDealt > 0 ? Math.round((p.totalDamage / totalDamageDealt) * 100) : 0;
               const dpsVal = dungeonTime > 0 ? Math.round(p.totalDamage / (dungeonTime / 10)) : 0;
               const displayName = p.playerName || getLoc(p.monster.name, 'cz');

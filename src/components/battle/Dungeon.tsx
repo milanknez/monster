@@ -35,6 +35,7 @@ import {
   saveLobbyFinalStats,
   updateLobbyPlayerPos,
   broadcastCombatEvent,
+  clearCombatEvents,
   watchCombatEvents,
   PLAYER_UID
 } from '../../lib/firebase';
@@ -151,13 +152,20 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     return dungeonsDB[0];
   });
 
+  useEffect(() => {
+    if (initialDungeonId) {
+      const match = dungeonsDB.find(d => d.id === initialDungeonId);
+      if (match) setSelectedDungeon(match);
+    }
+  }, [initialDungeonId]);
+
   // Vertical Exploration Map & Fighting States
   const [isFighting, setIsFighting] = useState<boolean>(false);
   const [isInLobby, setIsInLobby] = useState<boolean>(true);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [partySlots, setPartySlots] = useState<(Monster | null)[]>([null, null, null, null]);
-  const [lobbyMode, setLobbyMode] = useState<'solo' | 'multiplayer' | null>(null);
-  const [multiplayerState, setMultiplayerState] = useState<'choice' | 'lobbies_list' | 'lobby_room' | 'solo_lobby'>('choice');
+  const [lobbyMode, setLobbyMode] = useState<'solo' | 'multiplayer' | null>('multiplayer');
+  const [multiplayerState, setMultiplayerState] = useState<'choice' | 'lobbies_list' | 'lobby_room' | 'solo_lobby'>('lobbies_list');
   const [activeLobbyCode, setActiveLobbyCode] = useState<string | null>(null);
   const [activeLobbyData, setActiveLobbyData] = useState<any | null>(null);
   const [availableLobbies, setAvailableLobbies] = useState<Record<string, any>>({});
@@ -193,11 +201,20 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   const [transitionText, setTransitionText] = useState<string>('');
 
   const lastPosSyncRef = useRef<number>(0);
-  const lastCombatEventTsRef = useRef<number>(0);
+  const dungeonSessionStartTsRef = useRef<number>(Date.now() - 1000);
+  const isStartingFightRef = useRef<boolean>(false);
   const hasStartedGameRef = useRef<boolean>(false);
   const targetPosRef = useRef(targetPos);
   const activeLobbyDataRef = useRef(activeLobbyData);
   const enemiesRef = useRef<DungeonEnemy[]>(enemies);
+  const currentWaveRef = useRef<number>(currentWave);
+  const playersRef = useRef<DungeonPlayer[]>(players);
+  const selectedDungeonRef = useRef(selectedDungeon);
+
+  useEffect(() => { isStartingFightRef.current = false; }, [currentWave]);
+  useEffect(() => { currentWaveRef.current = currentWave; }, [currentWave]);
+  useEffect(() => { playersRef.current = players; }, [players]);
+  useEffect(() => { selectedDungeonRef.current = selectedDungeon; }, [selectedDungeon]);
   useEffect(() => { enemiesRef.current = enemies; }, [enemies]);
   useEffect(() => { targetPosRef.current = targetPos; }, [targetPos]);
   useEffect(() => { activeLobbyDataRef.current = activeLobbyData; }, [activeLobbyData]);
@@ -531,24 +548,16 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     loadWaveEnemies(1, selectedDungeon);
   }, [partySlots, caughtMonsters, epicMonsters, selectedDungeon, loadWaveEnemies]);
 
-  // Direct Multiplayer Raid lobby entry
+  // Initialize party slots and default to lobbies list once on mount
   useEffect(() => {
-    if (selectedDungeon && !hasStartedGameRef.current) {
-      hasStartedGameRef.current = true;
-      const initialParty: (Monster | null)[] = [null, null, null, null];
-      for (let i = 0; i < 4; i++) {
-        if (caughtMonsters && caughtMonsters[i]) {
-          initialParty[i] = caughtMonsters[i];
-        }
+    const initialParty: (Monster | null)[] = [null, null, null, null];
+    for (let i = 0; i < 4; i++) {
+      if (caughtMonsters && caughtMonsters[i]) {
+        initialParty[i] = caughtMonsters[i];
       }
-      setPartySlots(initialParty);
-
-      setIsInLobby(true);
-      setLobbyMode('multiplayer');
-      setMultiplayerState('lobbies_list');
-      setIsFighting(false);
     }
-  }, [selectedDungeon, initialDungeonId, initSimulation, caughtMonsters]);
+    setPartySlots(initialParty);
+  }, [caughtMonsters]);
 
   const localPlayerName = useMemo(() => localStorage.getItem('monster_collector_player_name') || 'Lovec', []);
 
@@ -649,20 +658,18 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         }
         const participants = Object.values(lobbyData.players || {}) as any[];
         participants.sort((a, b) => {
-          if (a.uid === PLAYER_UID) return -1;
-          if (b.uid === PLAYER_UID) return 1;
-          return a.joinedAt - b.joinedAt;
+          if ((a.joinedAt || 0) !== (b.joinedAt || 0)) {
+            return (a.joinedAt || 0) - (b.joinedAt || 0);
+          }
+          return (a.uid || '').localeCompare(b.uid || '');
         });
 
         const recLevel = selectedDungeon?.recommendedLevel || 10;
         const initialPlayers: DungeonPlayer[] = participants.map((player, idx) => {
           let monster = player.monster?.full || player.monster || epicMonsters[idx % epicMonsters.length];
-          // Check if stats are missing and look up from monsterDB
-          if (!monster.stats?.hp) {
-            const dbMatch = monsterDB.find(m => m.id === monster.id || getLoc(m.name) === getLoc(monster.name));
-            if (dbMatch) {
-              monster = { ...monster, ...dbMatch, stats: dbMatch.stats };
-            }
+          const dbMatch = monsterDB.find(m => m.id === monster.id || getLoc(m.name) === getLoc(monster.name));
+          if (dbMatch) {
+            monster = { ...dbMatch, ...monster, stats: { ...dbMatch.stats, ...(monster.stats || {}) } };
           }
           const monsterLvl = monster.level || recLevel;
           const baseHp = monster.stats?.hp || 1000;
@@ -847,17 +854,18 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         const spotY = currentWave === 1 ? 1800 : (currentWave === 2 ? 1200 : 500);
         
         // Check if wave is not completed
-        if (!completedWaves.includes(currentWave)) {
+        if (!completedWaves.includes(currentWave) && !isStartingFightRef.current) {
           if (activeLobby) {
-            // MULTIPLAYER RAID ASSEMBLY CIRCLE CHECK
+            // MULTIPLAYER RAID ASSEMBLY CIRCLE CHECK (HOST ONLY TRIGGERS)
+            const isHost = activeLobbyDataRef.current?.hostUid === PLAYER_UID;
             const allPlayers = Object.values(activeLobby.players || {}) as any[];
             const inZoneCount = allPlayers.filter((p: any) => {
               const pPos = p.uid === PLAYER_UID ? { x: nextX, y: nextY } : (p.pos || { x: 300, y: 2300 });
               return Math.hypot(pPos.x - 300, pPos.y - spotY) <= 130 || pPos.y <= spotY + 40;
             }).length;
 
-            if (inZoneCount >= allPlayers.length && allPlayers.length > 0) {
-              // Trigger fight for team!
+            if (isHost && inZoneCount >= allPlayers.length && allPlayers.length > 0) {
+              isStartingFightRef.current = true;
               setTargetPos({ x: 300, y: spotY + 30 });
               
               if (activeLobbyCode) {
@@ -867,22 +875,11 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                   sy: spotY
                 });
               }
-
-              setIsPaused(true);
-              setIsTransitioning(true);
-              setTransitionText(currentWave === selectedDungeon.waves.length ? 'FINÁLNÍ VLNA: VŠICHNI SHROMÁŽDĚNI! BOSS SE PROBOUZÍ!' : `VLNA ${currentWave}: SHROMAŽDIŠTĚ OBSAZENO! BOJ ZAČÍNÁ! ⚔️`);
-              playLevelUp();
-              
-              setTimeout(() => {
-                setIsTransitioning(false);
-                setIsFighting(true);
-                setIsPaused(false);
-              }, 2000);
-              
               return { x: 300, y: spotY + 30 };
             }
           } else if (nextY <= spotY + 30) {
             // Singleplayer trigger
+            isStartingFightRef.current = true;
             setTargetPos({ x: nextX, y: spotY + 30 });
             
             setIsPaused(true);
@@ -989,6 +986,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     if (activeLobbyCode && !isFromSync) {
       const isHost = activeLobbyDataRef.current?.hostUid === PLAYER_UID;
       if (isHost) {
+        clearCombatEvents(activeLobbyCode);
         broadcastCombatEvent(activeLobbyCode, {
           t: 'adv_wave',
           nw: nextWave
@@ -1101,6 +1099,15 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
       }
     }
 
+    // Secret inventory expansion drops from Dungeon Boss (2% chance)
+    if (Math.random() < 0.02) {
+      const secretId = Math.random() < 0.65 ? 'backpack_pouch' : 'backpack_vault';
+      const secretCfg = RESOURCE_CONFIG[secretId];
+      if (secretCfg) {
+        finalDrops.push({ id: secretId, config: secretCfg });
+      }
+    }
+
     // Pokud by nic nepadlo, garantujeme alespoň 1 rare item ze světa
     if (finalDrops.length === 0) {
       const fallback = rollLoot('rare', bossItemIds) || rollLoot('epic', bossItemIds);
@@ -1132,10 +1139,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     }
   }, [playVictory, rollLoot, selectedDungeon, activeLobbyCode, activeLobbyData, players, dungeonTime]);
 
-  // Manual player actions (Player 0)
+  // Manual player actions
   const handleUserBasicAttack = () => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
-    const activePlayer = players[0];
+    const activePlayer = players.find(p => p.uid === PLAYER_UID) || players[0];
     if (!activePlayer || activePlayer.isDead || activePlayer.cooldown < 100 || activePlayer.stunTimer > 0 || activePlayer.freezeTimer > 0) return;
 
     const targetEnemy = enemies.find(e => !e.isDead);
@@ -1153,7 +1160,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         d: dmg,
         c: isCrit
       });
-      setPlayers(prev => prev.map(p => p.index === 0 ? { ...p, cooldown: 0 } : p));
+      setPlayers(prev => prev.map(p => (p.uid ? p.uid === PLAYER_UID : p.index === activePlayer.index) ? { ...p, cooldown: 0 } : p));
       return;
     }
 
@@ -1187,8 +1194,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
         const allEnemiesDead = nextEnems.every((e) => e.isDead);
         if (allEnemiesDead) {
-          if (currentWave < selectedDungeon.waves.length) {
-            advanceWave(currentWave + 1);
+          const currW = currentWaveRef.current;
+          const totalW = selectedDungeonRef.current?.waves.length || selectedDungeon.waves.length;
+          if (currW < totalW) {
+            advanceWave(currW + 1);
           } else {
             triggerVictory();
           }
@@ -1200,7 +1209,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     addLog(`⚔️ [VY] ${getLoc(activePlayer.monster.name, 'cz')} zaútočil na ${getLoc(targetEnemy.monster.name, 'cz')} za ${dmg} DMG.`, 'player');
 
     setPlayers(currentPlayers => currentPlayers.map(pl => 
-      pl.index === 0 
+      (pl.uid ? pl.uid === PLAYER_UID : pl.index === 0) 
         ? { ...pl, cooldown: 0, totalDamage: pl.totalDamage + dmg, threat: pl.threat + dmg * 0.9 }
         : pl
     ));
@@ -1209,7 +1218,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   // User Agro / Taunt ability to pull enemy threat to yourself
   const handleUserTaunt = () => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
-    const p = players[0];
+    const p = players.find(pl => pl.uid === PLAYER_UID) || players[0];
     if (!p || p.isDead || p.stunTimer > 0 || p.freezeTimer > 0) return;
 
     // Check energy cost (20 energy)
@@ -1234,7 +1243,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
     addLog(`🛡️ [VY] ${getLoc(p.monster.name, 'cz')} použil PROVOKACI (AGRO) a strhl pozornost nepřátel!`, 'player');
 
     setPlayers(prevPls => prevPls.map(pl => 
-      pl.index === 0 
+      (pl.uid ? pl.uid === PLAYER_UID : pl.index === 0) 
         ? { ...pl, energy: pl.energy - 20, threat: pl.threat + addedThreat } 
         : pl
     ));
@@ -1243,7 +1252,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   // Dynamic user execution of character's monster abilities
   const handleUserExecuteAbility = (abilityIndex: number) => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
-    const p = players[0];
+    const p = players.find(pl => pl.uid === PLAYER_UID) || players[0];
     if (!p || p.isDead || p.stunTimer > 0 || p.freezeTimer > 0) return;
 
     const ability = p.monster.abilities?.[abilityIndex];
@@ -1277,7 +1286,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         playHeal();
 
         livingPlayers.forEach((pl) => {
-          spawnSpellAnimation('heal', 0, pl.index);
+          spawnSpellAnimation('heal', p.index, pl.index);
           const healAmount = Math.round(pl.maxHP * 0.25);
           
           setTimeout(() => {
@@ -1292,7 +1301,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         });
 
         setPlayers((prevPls) => prevPls.map((pl) => 
-          pl.index === 0 
+          (pl.uid ? pl.uid === PLAYER_UID : pl.index === 0) 
             ? { ...pl, energy: pl.energy - cost, totalHealing: pl.totalHealing + totalGroupHeal, threat: pl.threat + totalGroupHeal * 0.5 } 
             : pl
         ));
@@ -1348,8 +1357,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
           const allEnemiesDead = nextEnems.every((e) => e.isDead);
           if (allEnemiesDead) {
-            if (currentWave < selectedDungeon.waves.length) {
-              advanceWave(currentWave + 1);
+            const currW = currentWaveRef.current;
+            const totalW = selectedDungeonRef.current?.waves.length || selectedDungeon.waves.length;
+            if (currW < totalW) {
+              advanceWave(currW + 1);
             } else {
               triggerVictory();
             }
@@ -1371,9 +1382,8 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   useEffect(() => {
     if (!activeLobbyCode) return;
 
-    const unsubscribe = watchCombatEvents(activeLobbyCode, (evt: any) => {
-      if (!evt || !evt.ts || evt.ts <= lastCombatEventTsRef.current) return;
-      lastCombatEventTsRef.current = evt.ts;
+    const unsubscribe = watchCombatEvents(activeLobbyCode, dungeonSessionStartTsRef.current, (evt: any) => {
+      if (!evt) return;
 
       const evtType = evt.t || evt.type;
       const attackerUid = evt.au || evt.attackerUid;
@@ -1388,11 +1398,12 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
       // 0. Synchronized Wave Fight Start
       if (evtType === 'start_fight') {
         const spotY = evt.sy || (evt.w === 1 ? 1800 : (evt.w === 2 ? 1200 : 500));
+        isStartingFightRef.current = true;
         setPlayerPos({ x: 300, y: spotY + 30 });
         setTargetPos({ x: 300, y: spotY + 30 });
         setIsPaused(true);
         setIsTransitioning(true);
-        setTransitionText(evt.w === selectedDungeon?.waves.length ? 'FINÁLNÍ VLNA: VŠICHNI SHROMÁŽDĚNI! BOSS SE PROBOUZÍ!' : `VLNA ${evt.w || 1}: SHROMAŽDIŠTĚ OBSAZENO! BOJ ZAČÍNÁ! ⚔️`);
+        setTransitionText(evt.w === selectedDungeonRef.current?.waves.length ? 'FINÁLNÍ VLNA: VŠICHNI SHROMÁŽDĚNI! BOSS SE PROBOUZÍ!' : `VLNA ${evt.w || 1}: SHROMAŽDIŠTĚ OBSAZENO! BOJ ZAČÍNÁ! ⚔️`);
         playLevelUp();
 
         setTimeout(() => {
@@ -1405,9 +1416,9 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
       // 1. Synchronized Player Basic Attack
       if (evtType === 'pa' || evtType === 'player_attack') {
-        const attackerP = players.find(p => p.uid === attackerUid);
+        const attackerP = playersRef.current.find(p => p.uid === attackerUid);
         const attackerIdx = attackerP ? attackerP.index : 0;
-        spawnSpellAnimation('attack', attackerIdx, targetEnemyIdx, undefined, enemies.length || 3);
+        spawnSpellAnimation('attack', attackerIdx, targetEnemyIdx, undefined, enemiesRef.current.length || 3);
         playAttack();
 
         setTimeout(() => {
@@ -1438,8 +1449,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             if (allEnemiesDead) {
               const isHost = activeLobbyDataRef.current?.hostUid === PLAYER_UID;
               if (isHost) {
-                if (currentWave < (selectedDungeon?.waves.length || 1)) {
-                  advanceWave(currentWave + 1);
+                const currW = currentWaveRef.current;
+                const totalW = selectedDungeonRef.current?.waves.length || 3;
+                if (currW < totalW) {
+                  advanceWave(currW + 1);
                 } else {
                   triggerVictory();
                 }
@@ -1461,7 +1474,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
       // 2. Synchronized Player Ability (Heal or Damage)
       if (evtType === 'ab' || evtType === 'player_ability') {
-        const attackerP = players.find(p => p.uid === attackerUid);
+        const attackerP = playersRef.current.find(p => p.uid === attackerUid);
         const attackerIdx = attackerP ? attackerP.index : 0;
 
         if (isHeal) {
@@ -1497,7 +1510,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             });
           });
         } else {
-          spawnSpellAnimation('attack', attackerIdx, targetEnemyIdx, undefined, enemies.length || 3);
+          spawnSpellAnimation('attack', attackerIdx, targetEnemyIdx, undefined, enemiesRef.current.length || 3);
           playSpell();
 
           setTimeout(() => {
@@ -1524,8 +1537,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
               if (allEnemiesDead) {
                 const isHost = activeLobbyDataRef.current?.hostUid === PLAYER_UID;
                 if (isHost) {
-                  if (currentWave < (selectedDungeon?.waves.length || 1)) {
-                    advanceWave(currentWave + 1);
+                  const currW = currentWaveRef.current;
+                  const totalW = selectedDungeonRef.current?.waves.length || 3;
+                  if (currW < totalW) {
+                    advanceWave(currW + 1);
                   } else {
                     triggerVictory();
                   }
@@ -1594,12 +1609,14 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         if (pIdx !== -1) setBossTargetIdx(pIdx);
       }
 
-      // 3. Synchronized Host Enemy Attack
+      // 3. Synchronized Host Enemy Attack & Spells
       if (evtType === 'ea' || evtType === 'enemy_attack') {
         const enemyIdx = evt.ei !== undefined ? evt.ei : 0;
         const targetPlayerIdx = evt.ti !== undefined ? evt.ti : 0;
         const targetPlayerUid = evt.tu || null;
         const isSwoop = evt.sw || false;
+        const isAoe = evt.aoe || false;
+        const elementKey = evt.el || null;
 
         if (targetPlayerUid) {
           setBossTargetUid(targetPlayerUid);
@@ -1609,46 +1626,160 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
           setBossTargetIdx(targetPlayerIdx);
         }
 
-        if (isSwoop) {
+        if (isAoe) {
+          setActiveExplosionIndices([0, 1, 2, 3]);
+          setTimeout(() => setActiveExplosionIndices([]), 850);
+          triggerShake('rgba(239, 68, 68, 0.55)');
+          playSpell();
+          players.forEach((p) => {
+            if (!p.isDead) {
+              spawnSpellAnimation('boss_attack', enemyIdx, p.index, elementKey || undefined, enemies.length || 3);
+            }
+          });
+
+          setTimeout(() => {
+            setPlayers((prevPls) => prevPls.map((p) => {
+              if (!p.isDead) {
+                const nextHP = Math.max(0, p.currentHP - dmgVal);
+                addPopup(dmgVal, false, true, p.index, true);
+                if (isCrit) playCritical(); else playHit();
+                if (nextHP <= 0) playDeath();
+
+                return {
+                  ...p,
+                  currentHP: nextHP,
+                  isDead: nextHP <= 0,
+                  burnTimer: elementKey === 'fire' ? 4.0 : p.burnTimer,
+                  freezeTimer: elementKey === 'water' ? 2.5 : p.freezeTimer,
+                  rootTimer: elementKey === 'nature' ? 3.0 : p.rootTimer,
+                  cooldown: elementKey === 'lightning' ? 0 : p.cooldown
+                };
+              }
+              return p;
+            }));
+          }, 350);
+        } else if (isSwoop) {
           setSwoopEnemyIdx(enemyIdx);
           playSlash();
           triggerShake('rgba(239, 68, 68, 0.2)');
           setTimeout(() => setSwoopEnemyIdx(null), 800);
+
+          setTimeout(() => {
+            setPlayers((prevPls) => prevPls.map((p) => {
+              const isHit = targetPlayerUid ? p.uid === targetPlayerUid : p.index === targetPlayerIdx;
+              if (isHit && !p.isDead) {
+                const nextHP = Math.max(0, p.currentHP - dmgVal);
+                addPopup(dmgVal, false, true, p.index, isCrit);
+                triggerShake(isCrit ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.1)');
+                if (isCrit) playCritical(); else playHit();
+                if (nextHP <= 0) playDeath();
+
+                return {
+                  ...p,
+                  currentHP: nextHP,
+                  isDead: nextHP <= 0
+                };
+              }
+              return p;
+            }));
+          }, 350);
         } else {
-          spawnSpellAnimation('boss_attack', enemyIdx, targetPlayerIdx, undefined, 3);
+          spawnSpellAnimation('boss_attack', enemyIdx, targetPlayerIdx, undefined, enemies.length || 3);
           triggerEnemyAttackAnimation(enemyIdx);
           if (isCrit) playSpell(); else playAttack();
-        }
 
-        const isAoe = evt.aoe || false;
+          setTimeout(() => {
+            setPlayers((prevPls) => prevPls.map((p) => {
+              const isHit = targetPlayerUid ? p.uid === targetPlayerUid : p.index === targetPlayerIdx;
+              if (isHit && !p.isDead) {
+                const nextHP = Math.max(0, p.currentHP - dmgVal);
+                addPopup(dmgVal, false, true, p.index, isCrit);
+                triggerShake(isCrit ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.1)');
+                if (isCrit) playCritical(); else playHit();
+                if (nextHP <= 0) playDeath();
+
+                return {
+                  ...p,
+                  currentHP: nextHP,
+                  isDead: nextHP <= 0
+                };
+              }
+              return p;
+            }));
+          }, 350);
+        }
+      }
+
+      // 4. Synchronized Boss Drain
+      if (evtType === 'boss_drain') {
+        const drainDmg = evt.d || 150;
+        const enemyIdx = evt.ei !== undefined ? evt.ei : 0;
+        const targetUid = evt.tu || null;
+        const targetIdx = evt.ti !== undefined ? evt.ti : 0;
+        spawnSpellAnimation('boss_attack', enemyIdx, targetIdx, 'water', enemies.length || 3);
+        playSpell();
 
         setTimeout(() => {
           setPlayers((prevPls) => prevPls.map((p) => {
-            const isHit = isAoe ? !p.isDead : (targetPlayerUid ? p.uid === targetPlayerUid : p.index === targetPlayerIdx);
-            if (isHit && !p.isDead) {
-              const nextHP = Math.max(0, p.currentHP - dmgVal);
-              addPopup(dmgVal, false, true, p.index, isCrit);
-              triggerShake(isCrit ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.1)');
-              if (isCrit) playCritical(); else playHit();
+            const isTarget = targetUid ? p.uid === targetUid : p.index === targetIdx;
+            if (isTarget && !p.isDead) {
+              const nextHP = Math.max(0, p.currentHP - drainDmg);
+              addPopup(drainDmg, false, true, p.index, true);
+              playCritical();
               if (nextHP <= 0) playDeath();
-
-              return {
-                ...p,
-                currentHP: nextHP,
-                isDead: nextHP <= 0,
-                threat: nextHP <= 0 ? 0 : Math.max(0, p.threat - dmgVal * 0.1)
-              };
+              return { ...p, currentHP: nextHP, isDead: nextHP <= 0 };
             }
             return p;
           }));
-        }, 350);
+
+          setEnemies((prevEnems) => prevEnems.map((e) => {
+            if (e.index === enemyIdx) {
+              return { ...e, currentHP: Math.min(e.maxHP, e.currentHP + drainDmg) };
+            }
+            return e;
+          }));
+        }, 400);
+      }
+
+      // 5. Synchronized Boss Enrage
+      if (evtType === 'boss_enrage') {
+        playSpell();
+        setBossEnraged(true);
+        setBossEnrageCount(2);
+        triggerShake('rgba(239, 68, 68, 0.4)');
+      }
+
+      // 6. Synchronized Minion Summon
+      if (evtType === 'sm') {
+        const minionData = evt.m;
+        const minionHp = evt.hp || 1200;
+        if (minionData) {
+          playSpell();
+          triggerShake('rgba(168, 85, 247, 0.25)');
+          setEnemies((prevEnems) => {
+            if (prevEnems.length >= 3) return prevEnems;
+            const nextIdx = prevEnems.length;
+            const minionEnemy: DungeonEnemy = {
+              index: nextIdx,
+              monster: minionData as Monster,
+              currentHP: minionHp,
+              maxHP: minionHp,
+              energy: 0,
+              shield: 0,
+              shieldMax: 0,
+              isBoss: false,
+              isDead: false,
+            };
+            return [...prevEnems, minionEnemy];
+          });
+        }
       }
     });
 
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [activeLobbyCode, isFighting]);
+  }, [activeLobbyCode]);
 
   // Main combat logic loops
   useEffect(() => {
@@ -1833,89 +1964,60 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
                     // 5 Special Boss Actions
                     if (spellRoll < 0.35) {
-                      // Element-Specific AOE with fiery explosion overlays on players!
-                      setActiveExplosionIndices([0, 1, 2, 3]);
-                      setTimeout(() => setActiveExplosionIndices([]), 850);
+                      // Element-Specific AOE
+                      let elKey = 'fire';
+                      let baseDmg = 280;
 
                       if (element.includes('ohn') || element.includes('fire')) {
+                        elKey = 'fire';
+                        baseDmg = 280;
                         addLog(`🌋 BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} VYVOLAL KATAKLYZMA (Ohnivý déšť na všechny)!`, 'boss');
-                        triggerShake('rgba(239, 68, 68, 0.55)');
-                        playSpell();
-                        if (isMultiplayer) {
-                          broadcastCombatEvent(activeLobbyCode!, {
-                            t: 'ea',
-                            ei: enemy.index,
-                            ti: 0,
-                            d: 280,
-                            c: true,
-                            sw: false,
-                            aoe: true,
-                            el: 'fire'
-                          });
-                        }
-                        alivePls.forEach((p) => {
-                          spawnSpellAnimation('boss_attack', enemy.index, p.index, 'fire', currentEnemies.length);
-                          setTimeout(() => {
-                            setPlayers((prevPls) => prevPls.map((pl) => {
-                              if (pl.index === p.index && !pl.isDead) {
-                                const baseDmg = Math.round(280 * (0.8 + Math.random() * 0.4));
-                                addPopup(baseDmg, false, true, pl.index, true);
-                                playHit();
-                                return { ...pl, currentHP: Math.max(0, pl.currentHP - baseDmg), burnTimer: 4.0 };
-                              }
-                              return pl;
-                            }));
-                          }, 500);
-                        });
                       } else if (element.includes('vod') || element.includes('water')) {
+                        elKey = 'water';
+                        baseDmg = 150;
                         addLog(`❄️ BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} SESLAL BLIZZARD (Plošné zmrazení skupiny)!`, 'boss');
-                        triggerShake('rgba(14, 165, 233, 0.45)');
-                        playSpell();
-                        alivePls.forEach((p) => {
-                          spawnSpellAnimation('boss_attack', enemy.index, p.index, 'water', currentEnemies.length);
-                          setTimeout(() => {
-                            setPlayers((prevPls) => prevPls.map((pl) => {
-                              if (pl.index === p.index && !pl.isDead) {
-                                const baseDmg = Math.round(150 * (0.8 + Math.random() * 0.3));
-                                addPopup(baseDmg, false, true, pl.index, true);
-                                playHit();
-                                return { ...pl, currentHP: Math.max(0, pl.currentHP - baseDmg), freezeTimer: 2.5 };
-                              }
-                              return pl;
-                            }));
-                          }, 500);
-                        });
                       } else if (element.includes('pří') || element.includes('nature') || element.includes('leaf')) {
+                        elKey = 'nature';
+                        baseDmg = 160;
                         addLog(`🌿 BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} SESLAL ŠTĚPIVÉ KOŘENY (Znehybnění všech)!`, 'boss');
-                        triggerShake('rgba(16, 185, 129, 0.4)');
-                        playSpell();
-                        alivePls.forEach((p) => {
-                          spawnSpellAnimation('boss_attack', enemy.index, p.index, 'nature', currentEnemies.length);
-                          setTimeout(() => {
-                            setPlayers((prevPls) => prevPls.map((pl) => {
-                              if (pl.index === p.index && !pl.isDead) {
-                                const baseDmg = Math.round(160 * (0.8 + Math.random() * 0.3));
-                                addPopup(baseDmg, false, true, pl.index, true);
-                                playHit();
-                                return { ...pl, currentHP: Math.max(0, pl.currentHP - baseDmg), rootTimer: 3.0 };
-                              }
-                              return pl;
-                            }));
-                          }, 500);
+                      } else {
+                        elKey = 'lightning';
+                        baseDmg = 200;
+                        addLog(`⚡ BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} SESLAL BLESKOVOU BOUŘI (Elektrické smažení)!`, 'boss');
+                      }
+
+                      if (isMultiplayer) {
+                        broadcastCombatEvent(activeLobbyCode!, {
+                          t: 'ea',
+                          ei: enemy.index,
+                          ti: 0,
+                          d: baseDmg,
+                          c: true,
+                          sw: false,
+                          aoe: true,
+                          el: elKey
                         });
                       } else {
-                        addLog(`⚡ BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} SESLAL BLESKOVOU BOUŘI (Elektrické smažení)!`, 'boss');
-                        triggerShake('rgba(234, 179, 8, 0.5)');
+                        setActiveExplosionIndices([0, 1, 2, 3]);
+                        setTimeout(() => setActiveExplosionIndices([]), 850);
+                        triggerShake('rgba(239, 68, 68, 0.55)');
                         playSpell();
                         alivePls.forEach((p) => {
-                          spawnSpellAnimation('boss_attack', enemy.index, p.index, 'lightning', currentEnemies.length);
+                          spawnSpellAnimation('boss_attack', enemy.index, p.index, elKey, currentEnemies.length);
                           setTimeout(() => {
                             setPlayers((prevPls) => prevPls.map((pl) => {
                               if (pl.index === p.index && !pl.isDead) {
-                                const baseDmg = Math.round(200 * (0.8 + Math.random() * 0.4));
-                                addPopup(baseDmg, false, true, pl.index, true);
-                                playCritical();
-                                return { ...pl, currentHP: Math.max(0, pl.currentHP - baseDmg), cooldown: 0 };
+                                const finalD = Math.round(baseDmg * (0.8 + Math.random() * 0.4));
+                                addPopup(finalD, false, true, pl.index, true);
+                                playHit();
+                                return { 
+                                  ...pl, 
+                                  currentHP: Math.max(0, pl.currentHP - finalD),
+                                  burnTimer: elKey === 'fire' ? 4.0 : pl.burnTimer,
+                                  freezeTimer: elKey === 'water' ? 2.5 : pl.freezeTimer,
+                                  rootTimer: elKey === 'nature' ? 3.0 : pl.rootTimer,
+                                  cooldown: elKey === 'lightning' ? 0 : pl.cooldown
+                                };
                               }
                               return pl;
                             }));
@@ -1923,88 +2025,128 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                         });
                       }
                     } else if (spellRoll < 0.55) {
-                      // Shockwave AOE slam with explosions overlay on all players!
+                      // Shockwave AOE
                       addLog(`🌋 BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} VYVOLAL ZEMNÍ RÁZOVOU VLNU (Plošný výbuch)!`, 'boss');
-                      triggerShake('rgba(239, 68, 68, 0.65)');
-                      playSpell();
-                      setActiveExplosionIndices([0, 1, 2, 3]);
-                      setTimeout(() => setActiveExplosionIndices([]), 850);
+                      if (isMultiplayer) {
+                        broadcastCombatEvent(activeLobbyCode!, {
+                          t: 'ea',
+                          ei: enemy.index,
+                          ti: 0,
+                          d: 220,
+                          c: true,
+                          sw: false,
+                          aoe: true,
+                          el: 'earth'
+                        });
+                      } else {
+                        triggerShake('rgba(239, 68, 68, 0.65)');
+                        playSpell();
+                        setActiveExplosionIndices([0, 1, 2, 3]);
+                        setTimeout(() => setActiveExplosionIndices([]), 850);
 
-                      alivePls.forEach((p) => {
-                        spawnSpellAnimation('boss_attack', enemy.index, p.index, undefined, currentEnemies.length);
+                        alivePls.forEach((p) => {
+                          spawnSpellAnimation('boss_attack', enemy.index, p.index, undefined, currentEnemies.length);
+                          setTimeout(() => {
+                            setPlayers((prevPls) => prevPls.map((pl) => {
+                              if (pl.index === p.index && !pl.isDead) {
+                                const dmgVal = Math.round(220 * (0.85 + Math.random() * 0.3));
+                                addPopup(dmgVal, false, true, pl.index, true);
+                                playHit();
+                                return { ...pl, currentHP: Math.max(0, pl.currentHP - dmgVal) };
+                              }
+                              return pl;
+                            }));
+                          }, 500);
+                        });
+                      }
+                    } else if (spellRoll < 0.70) {
+                      // Life Drain
+                      const drain = Math.round(targetPl.maxHP * 0.18);
+                      addLog(`🩸 BOSS ${getLoc(enemy.monster.name, 'cz')} vysál životy z ${getLoc(targetPl.monster.name, 'cz')}!`, 'boss');
+                      if (isMultiplayer) {
+                        broadcastCombatEvent(activeLobbyCode!, {
+                          t: 'boss_drain',
+                          ei: enemy.index,
+                          tu: targetPl.uid,
+                          ti: targetPl.index,
+                          d: drain
+                        });
+                      } else {
+                        spawnSpellAnimation('boss_attack', enemy.index, targetPl.index, 'water', currentEnemies.length);
+                        playSpell();
                         setTimeout(() => {
                           setPlayers((prevPls) => prevPls.map((pl) => {
-                            if (pl.index === p.index && !pl.isDead) {
-                              const dmgVal = Math.round(220 * (0.85 + Math.random() * 0.3));
-                              addPopup(dmgVal, false, true, pl.index, true);
-                              playHit();
-                              return { ...pl, currentHP: Math.max(0, pl.currentHP - dmgVal) };
+                            if (pl.index === targetPl.index && !pl.isDead) {
+                              addPopup(drain, false, true, pl.index, true);
+                              playCritical();
+                              setEnemies((prevEnems) => prevEnems.map((e) => {
+                                if (e.index === enemy.index) return { ...e, currentHP: Math.min(e.maxHP, e.currentHP + drain) };
+                                return e;
+                              }));
+                              return { ...pl, currentHP: Math.max(0, pl.currentHP - drain) };
                             }
                             return pl;
                           }));
                         }, 500);
-                      });
-                    } else if (spellRoll < 0.70) {
-                      // Life Drain
-                      addLog(`🩸 BOSS ${getLoc(enemy.monster.name, 'cz')} vysál životy z ${getLoc(targetPl.monster.name, 'cz')}!`, 'boss');
-                      spawnSpellAnimation('boss_attack', enemy.index, targetPl.index, 'water', currentEnemies.length);
-                      playSpell();
-                      setTimeout(() => {
-                        setPlayers((prevPls) => prevPls.map((pl) => {
-                          if (pl.index === targetPl.index && !pl.isDead) {
-                            const drain = Math.round(targetPl.maxHP * 0.18);
-                            addPopup(drain, false, true, pl.index, true);
-                            playCritical();
-                            setEnemies((prevEnems) => prevEnems.map((e) => {
-                              if (e.index === enemy.index) return { ...e, currentHP: Math.min(e.maxHP, e.currentHP + drain) };
-                              return e;
-                            }));
-                            return { ...pl, currentHP: Math.max(0, pl.currentHP - drain) };
-                          }
-                          return pl;
-                        }));
-                      }, 500);
+                      }
                     } else if (spellRoll < 0.80) {
                       // Boss Bojový vztek (Enrage) Buff
                       addLog(`🌋 BOSS ${getLoc(enemy.monster.name, 'cz').toUpperCase()} PROPÁDÁ ZUŘIVOSTI (+50% DMG na příští 2 útoky)!`, 'boss');
-                      playSpell();
-                      setBossEnraged(true);
-                      setBossEnrageCount(2);
-                      triggerShake('rgba(239, 68, 68, 0.4)');
+                      if (isMultiplayer) {
+                        broadcastCombatEvent(activeLobbyCode!, {
+                          t: 'boss_enrage',
+                          ei: enemy.index
+                        });
+                      } else {
+                        playSpell();
+                        setBossEnraged(true);
+                        setBossEnrageCount(2);
+                        triggerShake('rgba(239, 68, 68, 0.4)');
+                      }
                     } else if (spellRoll < 0.90 && currentEnemies.length < 3) {
                       // Summon a rare helper minion to flank the boss!
                       const pool = rareMonsters.length > 0 ? rareMonsters : epicMonsters;
                       const m = pool[Math.floor(Math.random() * pool.length)];
                       addLog(`👿 BOSS ${getLoc(enemy.monster.name, 'cz')} VYVOLAL POMOCNÍKA ${getLoc(m.name, 'cz').toUpperCase()}!`, 'boss');
-                      playSpell();
-                      triggerShake('rgba(168, 85, 247, 0.25)');
 
-                      setTimeout(() => {
-                        setEnemies((prevEnems) => {
-                          if (prevEnems.length >= 3) return prevEnems;
-                          const nextIdx = prevEnems.length;
-                          const minionEnemy: DungeonEnemy = {
-                            index: nextIdx,
-                            monster: {
-                              ...(m as any),
-                              name: {
-                                cz: `Pomocník ${getLoc(m.name, 'cz')}`,
-                                en: `Minion ${getLoc(m.name, 'en')}`,
-                              },
-                              image: (m as any).image || `/monsters/${m.id}.png`,
-                              level: 10,
-                            } as Monster,
-                            currentHP: 1200,
-                            maxHP: 1200,
-                            energy: 0,
-                            shield: 0,
-                            shieldMax: 0,
-                            isBoss: false,
-                            isDead: false,
-                          };
-                          return [...prevEnems, minionEnemy];
+                      const minionMonsterData = {
+                        ...(m as any),
+                        name: {
+                          cz: `Pomocník ${getLoc(m.name, 'cz')}`,
+                          en: `Minion ${getLoc(m.name, 'en')}`,
+                        },
+                        image: (m as any).image || `/monsters/${m.id}.png`,
+                        level: 10,
+                      };
+
+                      if (isMultiplayer) {
+                        broadcastCombatEvent(activeLobbyCode!, {
+                          t: 'sm',
+                          m: minionMonsterData,
+                          hp: 1200
                         });
-                      }, 100);
+                      } else {
+                        playSpell();
+                        triggerShake('rgba(168, 85, 247, 0.25)');
+                        setTimeout(() => {
+                          setEnemies((prevEnems) => {
+                            if (prevEnems.length >= 3) return prevEnems;
+                            const nextIdx = prevEnems.length;
+                            const minionEnemy: DungeonEnemy = {
+                              index: nextIdx,
+                              monster: minionMonsterData as Monster,
+                              currentHP: 1200,
+                              maxHP: 1200,
+                              energy: 0,
+                              shield: 0,
+                              shieldMax: 0,
+                              isBoss: false,
+                              isDead: false,
+                            };
+                            return [...prevEnems, minionEnemy];
+                          });
+                        }, 100);
+                      }
                     }
                     }
                   }
@@ -2139,8 +2281,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                     const allEnemiesDead = nextEnems.every((e) => e.isDead);
                     if (allEnemiesDead) {
                       setTimeout(() => {
-                        if (currentWave < selectedDungeon.waves.length) {
-                          advanceWave(currentWave + 1);
+                        const currW = currentWaveRef.current;
+                        const totalW = selectedDungeonRef.current?.waves.length || selectedDungeon.waves.length;
+                        if (currW < totalW) {
+                          advanceWave(currW + 1);
                         } else {
                           triggerVictory();
                         }
@@ -2202,8 +2346,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                   const allEnemiesDead = nextEnems.every((e) => e.isDead);
                   if (allEnemiesDead) {
                     setTimeout(() => {
-                      if (currentWave < selectedDungeon.waves.length) {
-                        advanceWave(currentWave + 1);
+                      const currW = currentWaveRef.current;
+                      const totalW = selectedDungeonRef.current?.waves.length || selectedDungeon.waves.length;
+                      if (currW < totalW) {
+                        advanceWave(currW + 1);
                       } else {
                         triggerVictory();
                       }
@@ -2413,6 +2559,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                   setIsInLobby(false);
                   setLobbyMode(null);
                   triggerHaptic('light');
+                  onBack();
                 }}
                 className="p-2 rounded-full bg-slate-800/80 text-slate-300 border border-white/10 hover:bg-slate-700 transition cursor-pointer"
               >
@@ -4329,24 +4476,51 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
 
         {/* Floating DPS / Logs Summary */}
-        <div className="absolute top-1/2 right-4 z-20 bg-slate-950/80 border border-white/5 p-2 rounded-xl text-[8px] font-mono space-y-1 backdrop-blur-md max-w-[145px]">
-          <div className="text-[9px] font-black uppercase text-slate-400 border-b border-white/5 pb-0.5">Statistiky:</div>
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 z-20 bg-slate-950/90 border border-white/10 p-2.5 rounded-2xl text-[8px] font-mono space-y-1.5 backdrop-blur-md min-w-[160px] shadow-2xl">
+          <div className="text-[9px] font-black uppercase text-slate-300 border-b border-white/10 pb-1 flex justify-between items-center">
+            <span className="flex items-center gap-1 font-sans">
+              <span>📊</span>
+              <span>Žebříček DMG</span>
+            </span>
+            <span className="text-[7px] text-slate-500 font-mono">celkem</span>
+          </div>
           {(() => {
             const maxGroupHP = Math.max(...players.map(p => p.maxHP || p.monster?.stats?.hp || 0), 1);
-            return players.map((p, idx) => {
+            const sortedPlayers = [...players].sort((a, b) => {
+              const diffDmg = (b.totalDamage || 0) - (a.totalDamage || 0);
+              if (diffDmg !== 0) return diffDmg;
+              return (b.totalHealing || 0) - (a.totalHealing || 0);
+            });
+
+            return sortedPlayers.map((p, idx) => {
               const hasHealAbility = p.monster?.abilities?.some((a: any) => a.type === 'heal' || a.type === 'regen');
               const playerHP = p.maxHP || p.monster?.stats?.hp || 0;
               const isTank = !hasHealAbility && playerHP === maxGroupHP && playerHP > 0;
               const roleIcon = hasHealAbility ? '💚' : isTank ? '🛡️' : '⚔️';
-              const isTargeted = (bossTargetUid && p.uid ? p.uid === bossTargetUid : idx === bossTargetIdx) && !p.isDead;
+              const isTargeted = (bossTargetUid && p.uid ? p.uid === bossTargetUid : p.index === bossTargetIdx) && !p.isDead;
+              const isMe = p.uid ? p.uid === PLAYER_UID : p.index === 0;
+              const dps = dungeonTime > 0 ? Math.round(p.totalDamage / (dungeonTime / 10)) : 0;
+              const rankColor = idx === 0 ? 'text-amber-400 font-black' : idx === 1 ? 'text-slate-300 font-bold' : 'text-amber-700 font-bold';
 
               return (
-                <div key={p.index} className="flex justify-between gap-2 items-center">
-                  <span className={cn("truncate max-w-[90px] flex items-center gap-1", isTargeted && "text-red-400 font-bold")}>
-                    <span className="text-[9px]">{roleIcon}</span>
-                    {isTargeted ? '🎯 ' : ''}{p.playerName || getLoc(p.monster.name, 'cz')}
+                <div key={p.uid || p.index} className={cn("flex justify-between gap-2 items-center py-0.5", p.isDead && "opacity-60")}>
+                  <span className={cn("truncate max-w-[100px] flex items-center gap-1", isTargeted && "text-red-400 font-bold", isMe && "text-amber-300 font-bold")}>
+                    <span className={cn("text-[8px] font-mono shrink-0", rankColor)}>#{idx + 1}</span>
+                    <span className="text-[9px] shrink-0">{p.isDead ? '💀' : roleIcon}</span>
+                    {isTargeted ? '🎯 ' : ''}
+                    <span className="truncate">{p.playerName || getLoc(p.monster?.name, 'cz') || `Hráč ${p.index + 1}`}</span>
+                    {isMe && <span className="text-[7px] text-amber-400/80 font-mono shrink-0">(VY)</span>}
                   </span>
-                  <span className="text-amber-400">{Math.round(p.threat)}</span>
+                  <div className="text-right font-mono shrink-0 flex flex-col items-end leading-none">
+                    <span className={cn("text-[9px] font-bold", idx === 0 ? "text-amber-400" : "text-slate-200")}>
+                      {p.totalDamage || 0}
+                    </span>
+                    {dps > 0 && (
+                      <span className="text-[7px] text-slate-500">
+                        {dps}/s
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             });
@@ -4381,7 +4555,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             {players.map((p, idx) => {
               const hpPercent = (p.currentHP / p.maxHP) * 100;
               const isTargeted = (bossTargetUid && p.uid ? p.uid === bossTargetUid : idx === bossTargetIdx) && !p.isDead;
-              const isMainPlayer = p.index === 0;
+              const isMainPlayer = p.uid ? p.uid === PLAYER_UID : p.index === 0;
 
               return (
                 <motion.div 
@@ -4517,6 +4691,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         isPaused={isPaused}
         isTransitioning={isTransitioning}
         players={players}
+        playerUid={PLAYER_UID}
         hpPotions={hpPotions}
         manaPotions={manaPotions}
         showItems={showItems}
@@ -4530,9 +4705,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
           if (hpPotions <= 0) return;
           setHpPotions(p => p - 1);
           setPlayers((prevPls) => prevPls.map((pl) => {
-            if (pl.index === 0) {
+            const isMe = pl.uid ? pl.uid === PLAYER_UID : pl.index === 0;
+            if (isMe) {
               const healed = Math.min(pl.maxHP, pl.currentHP + 400);
-              addPopup(400, true, true, 0);
+              addPopup(400, true, true, pl.index);
               playHeal();
               addLog(`🧪 Použili jste léčivý lektvar (+400 HP)!`, 'heal');
               return { ...pl, currentHP: healed };
@@ -4545,9 +4721,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
           if (manaPotions <= 0) return;
           setManaPotions(p => p - 1);
           setPlayers((prevPls) => prevPls.map((pl) => {
-            if (pl.index === 0) {
+            const isMe = pl.uid ? pl.uid === PLAYER_UID : pl.index === 0;
+            if (isMe) {
               const energy = Math.min(100, pl.energy + 50);
-              addPopup(50, true, true, 0);
+              addPopup(50, true, true, pl.index);
               playHeal();
               addLog(`🧪 Použili jste lektvar many (+50 Energie)!`, 'heal');
               return { ...pl, energy };

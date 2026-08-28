@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword, Activity } from 'lucide-react';
+import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword, Activity, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DebugBarProps {
@@ -11,6 +11,9 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
   const [selectedCheat, setSelectedCheat] = useState('');
 
   const cheats = [
+    { id: 'addSecretBackpackItems', label: '🎒 TAJNÉ PŘEDMĚTY: 1x Bezedný váček + 1x Astrální truhla (Rozšíření batohu)', icon: Gift, color: 'text-amber-400 font-black animate-pulse' },
+    { id: 'addSecretPouch', label: '🎒 1x Mystický bezedný váček (+4 sloty -> 20)', icon: Package, color: 'text-amber-400 font-bold' },
+    { id: 'addSecretVault', label: '✨ 1x Astrální truhla dimenzí (MAX -> 24)', icon: Sparkles, color: 'text-purple-400 font-bold' },
     { id: 'healMe', label: 'Uzdravit vše (Heal All)', icon: Heart, color: 'text-rose-400' },
     { id: 'addLichSet', label: '👑 LICH BOSS SET: 4x Legendární Relikvie (+950 HP, +170 DEF, +115 ATK)', icon: Gift, color: 'text-amber-400 font-black' },
     { id: 'addMegaHPMutagens', label: '🧪 5x Mutagen Duší (+450 HP pro příšeru)', icon: Heart, color: 'text-rose-400 font-bold' },

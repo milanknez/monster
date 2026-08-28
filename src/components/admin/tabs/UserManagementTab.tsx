@@ -511,7 +511,7 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
     if (selectedPlayerId) {
       fetchUserDetails(selectedPlayerId);
     }
-  }, [selectedPlayerId, players]);
+  }, [selectedPlayerId]);
 
 
 
@@ -732,13 +732,21 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
 
 
       // Vynucený update
-      setTimeout(() => map.invalidateSize(), 200);
+      setTimeout(() => {
+        if (mapRef.current && mapRef.current.getContainer()) {
+          mapRef.current.invalidateSize();
+        }
+      }, 200);
     }
   }, [selectedPlayerId, hasCoords, currentLat, currentLng]);
 
   const catchesMapContainerRef = useCallback((node: HTMLDivElement | null) => {
     if (catchesMapRef.current) {
-      catchesMapRef.current.remove();
+      try {
+        catchesMapRef.current.remove();
+      } catch (e) {
+        console.warn("catchesMap cleanup error:", e);
+      }
       catchesMapRef.current = null;
     }
 
@@ -786,12 +794,16 @@ export const UserManagementTab: React.FC<UserManagementTabProps> = ({ players, s
           .bindPopup(popupContent);
       });
 
-      setTimeout(() => map.invalidateSize(), 200);
+      setTimeout(() => {
+        if (catchesMapRef.current && catchesMapRef.current.getContainer()) {
+          catchesMapRef.current.invalidateSize();
+        }
+      }, 200);
     }
   }, [selectedPlayerId, caughtMonstersList]);
 
   useEffect(() => {
-    if (!catchesMapRef.current) return;
+    if (!catchesMapRef.current || !catchesMapRef.current.getContainer()) return;
 
     // Remove existing markers
     catchesMapRef.current.eachLayer((layer: any) => {

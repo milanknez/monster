@@ -2007,6 +2007,46 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropWeight": 0, "dropMin": 1, "dropMax": 1,
     "stats": { "hp": 450, "def": 25 },
     "hasCustomIcon": true, "customIcon": "lich_amulet"
+  },
+  "backpack_pouch": {
+    "color": "#f59e0b",
+    "label": {
+      "cz": "Mystický bezedný váček",
+      "en": "Mystic Void Satchel",
+      "sk": "Mystický bezodný vačok"
+    },
+    "icon": "🎒",
+    "hasCustomIcon": true,
+    "category": "consumable",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Tajný starodávný artefakt. Po použití natrvalo rozšíří kapacitu batohu na 20 slotů!",
+      "en": "Secret ancient artifact. When used, permanently expands backpack capacity to 20 slots!",
+      "sk": "Tajný starodávny artefakt. Po použití natrvalo rozšíri kapacitu batohu na 20 slotov!"
+    },
+    "dropWeight": 1,
+    "dropMin": 1,
+    "dropMax": 1
+  },
+  "backpack_vault": {
+    "color": "#c084fc",
+    "label": {
+      "cz": "Astrální truhla dimenzí",
+      "en": "Astral Dimension Vault",
+      "sk": "Astrálna truhlica dimenzií"
+    },
+    "icon": "✨",
+    "hasCustomIcon": true,
+    "category": "consumable",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Extrémně vzácný relikviář ohýbající prostor. Po použití natrvalo rozšíří kapacitu batohu na maximum (24 slotů)!",
+      "en": "Extremely rare space-bending relic. When used, permanently expands backpack capacity to maximum (24 slots)!",
+      "sk": "Extrémne vzácny relikviár ohýbajúci priestor. Po použití natrvalo rozšíri kapacitu batohu na maximum (24 slotov)!"
+    },
+    "dropWeight": 1,
+    "dropMin": 1,
+    "dropMax": 1
   }
 };
 

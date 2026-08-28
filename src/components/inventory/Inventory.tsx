@@ -53,8 +53,8 @@ export const Inventory = ({
   };
 
   const isConsumable = (type: string) => {
-    return ['xp_booster', 'energy_drink'].includes(type);
-  }
+    return ['xp_booster', 'energy_drink', 'backpack_pouch', 'backpack_vault'].includes(type);
+  };
 
   return (
     <motion.div
@@ -213,16 +213,17 @@ export const Inventory = ({
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
                 <div className={cn(
-                  "size-12 rounded-xl border flex items-center justify-center shadow-lg",
-                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'legendary' ? "border-amber-500/50 bg-amber-500/10" :
-                    RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'epic' ? "border-purple-500/50 bg-purple-500/10" :
+                  "size-14 rounded-2xl border flex items-center justify-center shadow-lg shrink-0 p-1.5",
+                  RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'legendary' ? "border-amber-500/50 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]" :
+                    RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'epic' ? "border-purple-500/50 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]" :
                       RESOURCE_CONFIG[inventory[draggedIdx]!.type]?.rarity === 'rare' ? "border-blue-500/50 bg-blue-500/10" :
-                        "border-white/10 bg-slate-700"
+                        "border-white/10 bg-slate-700/60"
                 )}>
                   <ResourceIcon
                     id={inventory[draggedIdx]!.type}
                     config={RESOURCE_CONFIG[inventory[draggedIdx]!.type]!}
                     size="md"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div>

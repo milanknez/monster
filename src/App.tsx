@@ -7,6 +7,7 @@ import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
 import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier, getLoc } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
+import { ResourceIcon } from './components/ui/ResourceIcon'
 
 import { Header } from './components/ui/Header'
 import { StatsCard } from './components/ui/StatsCard'
@@ -58,6 +59,7 @@ import {
   auth,
   db,
   update,
+  remove,
   ref,
   onAuthStateChanged,
   onValue,
@@ -247,7 +249,17 @@ function AppContent() {
 
   const handleCheat = (cheatId: string) => {
     const addRes = addResource as any;
-    if (cheatId === 'addLichSet') {
+    if (cheatId === 'addSecretBackpackItems') {
+      addRes('backpack_pouch', 1);
+      addRes('backpack_vault', 1);
+      addToast({ title: '🎒 Tajné předměty přidány!', message: 'Získal jsi 1x Mystický bezedný váček a 1x Astrální truhlu dimenzí! Otevři batoh a vyzkoušej je.', type: 'success' });
+    } else if (cheatId === 'addSecretPouch') {
+      addRes('backpack_pouch', 1);
+      addToast({ title: '🎒 Bezedný váček přidán!', message: 'Mystický bezedný váček (+4 sloty -> 20) byl přidán do tvého batohu.', type: 'success' });
+    } else if (cheatId === 'addSecretVault') {
+      addRes('backpack_vault', 1);
+      addToast({ title: '✨ Astrální truhla přidána!', message: 'Astrální truhla dimenzí (MAX -> 24) byla přidána do tvého batohu.', type: 'success' });
+    } else if (cheatId === 'addLichSet') {
       addRes('li01', 1); // Lich Crown (+60 DEF, +300 HP)
       addRes('li02', 1); // Lich Staff (+75 ATK)
       addRes('li03', 1); // Lich Robes (+40 ATK, +45 DEF, +200 HP)
@@ -1028,6 +1040,12 @@ function AppContent() {
       addXP(amt);
     };
 
+    (window as any).giveSecretBackpack = () => {
+      addResource('backpack_pouch', 1);
+      addResource('backpack_vault', 1);
+      addToast({ title: 'Tajné předměty přidány', message: 'Do batohu byl přidán Mystický váček a Astrální truhla!', type: 'success' });
+    };
+
     return () => {
       delete (window as any).addGems;
       delete (window as any).giveXP;
@@ -1035,6 +1053,7 @@ function AppContent() {
       delete (window as any).forceWildEncounter;
       delete (window as any).healMe;
       delete (window as any).givePlayerXP;
+      delete (window as any).giveSecretBackpack;
     };
   }, [addResource, giveMonsterXP, saveMonster, addToast, caughtMonsters, healHP, updateMonsterHP, selectedMonster]);
 
@@ -1249,6 +1268,25 @@ function AppContent() {
         addToast({ title: t('toasts.hp_regen_title'), message: t('toasts.hp_regen_msg', { mins }), type: 'success' });
       }
     }
+
+    // Apply inventory expansion items
+    if (type === 'backpack_pouch') {
+      const nextCap = Math.max(20, maxSlots >= 20 ? Math.min(24, maxSlots + 4) : 20);
+      upgradeCapacity(nextCap);
+      addToast({
+        title: '🎒 Batoh Rozšířen!',
+        message: `Kapacita batohu byla natrvalo navýšena na ${nextCap} slotů!`,
+        type: 'success'
+      });
+    } else if (type === 'backpack_vault') {
+      const nextCap = 24;
+      upgradeCapacity(nextCap);
+      addToast({
+        title: '✨ Dimenze Otevřena!',
+        message: `Kapacita batohu byla natrvalo navýšena na maximum (${nextCap} slotů)!`,
+        type: 'success'
+      });
+    }
   };
 
   const handleStartBattle = (enemy: Monster, opponentName?: string, opponentUid?: string, mySelectedMonster?: Monster, pvpRole?: 'challenger' | 'defender', spawnId?: string) => {
@@ -1336,16 +1374,37 @@ function AppContent() {
 
   useEffect(() => {
     if (p2pTrade?.step === 'CONFIRMING' && p2pTrade.confirmedByMe && p2pTrade.confirmedByThem) {
-      handleCompleteTrade((myMonster, theirMonster) => {
-        const dbM = monsterDB.find(m => m.id === theirMonster.id) || monsterDB[0];
-        removeMonster(myMonster.id, (myMonster as any).caughtAt);
-        saveMonster({ ...dbM, level: theirMonster.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
-        addToast({ title: t('toasts.trade_done'), message: t('toasts.trade_done_msg', { name: getLoc(dbM.name) }), type: 'success' });
+      handleCompleteTrade((myOffer, theirOffer) => {
+        // 1. Process My Offer (remove monster or consume items)
+        if (myOffer.kind === 'monster') {
+          removeMonster(myOffer.id, (myOffer.monster as any)?.caughtAt);
+        } else if (myOffer.kind === 'item') {
+          consumeResources([{ type: myOffer.itemId as any, count: myOffer.amount }]);
+        }
+
+        // 2. Process Their Offer (save monster or add items)
+        let gainedText = '';
+        if (theirOffer.kind === 'monster') {
+          const dbM = monsterDB.find(m => m.id === theirOffer.id) || monsterDB[0];
+          saveMonster({ ...dbM, level: theirOffer.level, image: `/monsters/${dbM.id}.png` } as Monster, (xp) => addXP(xp), false);
+          gainedText = `${getLoc(dbM.name)} (LVL ${theirOffer.level})`;
+        } else if (theirOffer.kind === 'item') {
+          addResource(theirOffer.itemId as any, theirOffer.amount);
+          const cfg = RESOURCE_CONFIG[theirOffer.itemId];
+          gainedText = `${theirOffer.amount}× ${getLoc(cfg?.label) || theirOffer.itemId}`;
+        }
+
+        addToast({
+          title: t('toasts.trade_done') || 'Výměna dokončena!',
+          message: t('toasts.trade_done_msg', { name: gainedText }) || `Získal jsi: ${gainedText}`,
+          type: 'success'
+        });
+
         // Immediately clear state to prevent double execution
         setP2pTrade(null);
       });
     }
-  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, p2pTrade?.step, handleCompleteTrade, saveMonster, removeMonster, addXP, addToast, setP2pTrade]);
+  }, [p2pTrade?.confirmedByMe, p2pTrade?.confirmedByThem, p2pTrade?.step, handleCompleteTrade, saveMonster, removeMonster, consumeResources, addResource, addXP, addToast, setP2pTrade, t]);
 
   useEffect(() => {
     (window as any).triggerLevelUp = (lvl?: number) => {
@@ -1359,10 +1418,22 @@ function AppContent() {
     (window as any).simulateP2P_PartnerAccepted = () => setP2pTrade(prev => prev ? { ...prev, step: 'SELECTING' } : null);
     (window as any).simulateP2P_PartnerOffered = (id = '001', lvl = 5) => {
       const dbM = monsterDB.find(m => m.id === id) || monsterDB[0];
+      const theirOffer = { kind: 'monster' as const, id, level: lvl, name: dbM.name };
       setP2pTrade(prev => prev ? {
         ...prev,
+        theirOffer,
         theirMonster: { id, level: lvl, name: dbM.name },
-        step: prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
+        step: prev.myOffer || prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
+      } : null);
+    };
+    (window as any).simulateP2P_PartnerOfferedItem = (itemId = 'wood', amount = 10) => {
+      const cfg = RESOURCE_CONFIG[itemId];
+      const theirOffer = { kind: 'item' as const, itemId, amount, name: cfg?.label || itemId };
+      setP2pTrade(prev => prev ? {
+        ...prev,
+        theirOffer,
+        theirMonster: undefined,
+        step: prev.myOffer || prev.myMonster ? 'CONFIRMING' : 'WAITING_OFFER'
       } : null);
     };
     (window as any).simulateP2P_PartnerConfirmed = () => setP2pTrade(prev => prev ? { ...prev, confirmedByThem: true } : null);
@@ -1891,7 +1962,7 @@ function AppContent() {
             <Dungeon 
               onBack={() => {
                 setSelectedDungeonId(null);
-                setActiveTab('home');
+                setActiveTab('world');
               }} 
               caughtMonsters={caughtMonsters} 
               initialDungeonId={selectedDungeonId}
@@ -2037,48 +2108,88 @@ function AppContent() {
               </motion.div>
             )}
 
-            {p2pTrade.step === 'CONFIRMING' && p2pTrade.myMonster && p2pTrade.theirMonster && (
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
-                <h3 className="text-xl font-black text-center text-white uppercase mb-6">{t('p2p_trade.confirm_title')}</h3>
-                <div className="flex items-center justify-between gap-4 mb-8">
-                  <div className="flex-1 text-center bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
-                    <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-2">{t('p2p_trade.you_give')}</p>
-                    <img src={`/monsters/${p2pTrade.myMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
-                    <p className="text-xs font-bold text-white uppercase">{getLoc(p2pTrade.myMonster.name)}</p>
-                    <p className="text-[10px] text-slate-400">LVL {p2pTrade.myMonster.level}</p>
-                  </div>
-                  <RefreshCw size={24} className="text-slate-500 shrink-0" />
-                  <div className="flex-1 text-center bg-green-500/10 p-4 rounded-2xl border border-green-500/20">
-                    <p className="text-[9px] font-black text-green-500 uppercase tracking-widest mb-2">{t('p2p_trade.you_get')}</p>
-                    <img src={`/monsters/${p2pTrade.theirMonster.id}.png`} className="w-16 h-16 object-contain mx-auto mix-blend-screen mb-1" alt="" />
-                    <p className="text-xs font-bold text-white uppercase">{getLoc(p2pTrade.theirMonster.name)}</p>
-                    <p className="text-[10px] text-slate-400">LVL {p2pTrade.theirMonster.level}</p>
-                  </div>
-                </div>
+            {p2pTrade.step === 'CONFIRMING' && (p2pTrade.myOffer || p2pTrade.myMonster) && (p2pTrade.theirOffer || p2pTrade.theirMonster) && (() => {
+              const myOff = p2pTrade.myOffer || { kind: 'monster' as const, id: p2pTrade.myMonster!.id, level: p2pTrade.myMonster!.level, name: p2pTrade.myMonster!.name, monster: p2pTrade.myMonster };
+              const theirOff = p2pTrade.theirOffer || { kind: 'monster' as const, id: p2pTrade.theirMonster!.id, level: p2pTrade.theirMonster!.level, name: p2pTrade.theirMonster!.name };
 
-                {p2pTrade.confirmedByMe ? (
-                  <div className="w-full text-center py-4 rounded-xl bg-orange-500/20 border border-orange-500/30">
-                    <p className="text-xs font-black text-orange-400 uppercase tracking-widest animate-pulse">{t('p2p_trade.waiting_finish')}</p>
+              return (
+                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-sm bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-2xl overflow-hidden">
+                  <h3 className="text-xl font-black text-center text-white uppercase mb-6 tracking-tight">{t('p2p_trade.confirm_title') || 'Potvrdit Výměnu'}</h3>
+                  <div className="flex items-center justify-between gap-3 mb-8">
+                    {/* You Give */}
+                    <div className="flex-1 text-center bg-red-500/10 p-3.5 rounded-2xl border border-red-500/20 flex flex-col items-center justify-center min-h-[140px]">
+                      <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1.5">{t('p2p_trade.you_give') || 'Dáváš'}</p>
+                      {myOff.kind === 'monster' ? (
+                        <>
+                          <img src={`/monsters/${myOff.id}.png`} className="w-14 h-14 object-contain mx-auto mix-blend-screen mb-1" alt="" />
+                          <p className="text-xs font-bold text-white uppercase line-clamp-1">{getLoc(myOff.name)}</p>
+                          <p className="text-[10px] text-slate-400 font-bold">LVL {myOff.level}</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="size-14 rounded-xl bg-black/40 border border-amber-500/30 flex items-center justify-center mb-1">
+                            <ResourceIcon id={myOff.itemId} config={RESOURCE_CONFIG[myOff.itemId] || { icon: '📦' }} size="md" />
+                          </div>
+                          <p className="text-xs font-bold text-white uppercase line-clamp-1">{getLoc(myOff.name) || myOff.itemId}</p>
+                          <span className="mt-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black rounded-md">
+                            {myOff.amount}× ks
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <RefreshCw size={22} className="text-slate-500 shrink-0 animate-spin" style={{ animationDuration: '6s' }} />
+
+                    {/* You Get */}
+                    <div className="flex-1 text-center bg-green-500/10 p-3.5 rounded-2xl border border-green-500/20 flex flex-col items-center justify-center min-h-[140px]">
+                      <p className="text-[9px] font-black text-green-500 uppercase tracking-widest mb-1.5">{t('p2p_trade.you_get') || 'Dostaneš'}</p>
+                      {theirOff.kind === 'monster' ? (
+                        <>
+                          <img src={`/monsters/${theirOff.id}.png`} className="w-14 h-14 object-contain mx-auto mix-blend-screen mb-1" alt="" />
+                          <p className="text-xs font-bold text-white uppercase line-clamp-1">{getLoc(theirOff.name)}</p>
+                          <p className="text-[10px] text-slate-400 font-bold">LVL {theirOff.level}</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="size-14 rounded-xl bg-black/40 border border-emerald-500/30 flex items-center justify-center mb-1">
+                            <ResourceIcon id={theirOff.itemId} config={RESOURCE_CONFIG[theirOff.itemId] || { icon: '📦' }} size="md" />
+                          </div>
+                          <p className="text-xs font-bold text-white uppercase line-clamp-1">{getLoc(theirOff.name) || theirOff.itemId}</p>
+                          <span className="mt-1 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-black rounded-md">
+                            {theirOff.amount}× ks
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => setP2pTrade({ ...p2pTrade, confirmedByMe: true })} className="px-4 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">{t('p2p_trade.complete')}</button>
-                    <button onClick={() => setP2pTrade(null)} className="px-4 py-4 rounded-xl bg-slate-800 text-slate-400 font-bold uppercase transition-transform active:scale-95">{t('p2p_trade.cancel')}</button>
-                  </div>
-                )}
-              </motion.div>
-            )}
+
+                  {p2pTrade.confirmedByMe ? (
+                    <div className="w-full text-center py-3.5 rounded-xl bg-orange-500/20 border border-orange-500/30">
+                      <p className="text-xs font-black text-orange-400 uppercase tracking-widest animate-pulse">{t('p2p_trade.waiting_finish') || 'Čekání na potvrzení partnera...'}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => setP2pTrade({ ...p2pTrade, confirmedByMe: true })} className="px-4 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black uppercase text-xs tracking-widest shadow-lg transition-transform active:scale-95">{t('p2p_trade.complete') || 'Potvrdit'}</button>
+                      <button onClick={() => setP2pTrade(null)} className="px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold uppercase text-xs transition-transform active:scale-95">{t('p2p_trade.cancel') || 'Zrušit'}</button>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })()}
 
             {p2pTrade.step === 'SELECTING' && (
               <div className="relative w-full max-w-lg z-50">
                 <TradeSelectionModal
                   caughtMonsters={caughtMonsters}
+                  inventory={inventory}
+                  offeringOffer={p2pTrade.theirOffer}
                   onClose={() => setP2pTrade(null)}
-                  onSelect={(myMonster) => {
+                  onSelect={(offer) => {
                     setP2pTrade({
                       ...p2pTrade,
-                      step: p2pTrade.theirMonster ? 'CONFIRMING' : 'WAITING_OFFER',
-                      myMonster
+                      step: p2pTrade.theirOffer ? 'CONFIRMING' : 'WAITING_OFFER',
+                      myOffer: offer,
+                      myMonster: offer.kind === 'monster' ? offer.monster : undefined
                     });
                   }}
                 />

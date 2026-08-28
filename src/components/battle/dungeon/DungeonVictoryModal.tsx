@@ -345,11 +345,12 @@ export const DungeonVictoryModal: React.FC<DungeonVictoryModalProps> = ({
                     .sort((a, b) => b.pDmg - a.pDmg)
                     .map((p, idx) => {
                       const dmgPct = totalDamageDealt > 0 ? Math.round((p.pDmg / totalDamageDealt) * 100) : 0;
-                      const displayName = p.playerName || getLoc(p.monster.name, 'cz');
+                      const isMe = p.uid ? p.uid === PLAYER_UID : p.index === 0;
+                      const displayName = p.playerName || p.name || (p.monster ? getLoc(p.monster.name, 'cz') : `Hráč ${p.index + 1}`);
                       return (
                         <div key={p.index} className="grid grid-cols-4 px-3 py-2 text-[10px] font-bold items-center font-mono">
                           <span className="truncate font-sans pr-1 text-slate-300">
-                            #{idx + 1} {displayName}{p.index === 0 && ' (VY)'}
+                            #{idx + 1} {displayName}{isMe && ' (VY)'}
                           </span>
                           <span className="text-right text-purple-300">
                             {p.pDmg} <span className="text-[8px] text-slate-500">({dmgPct}%)</span>
