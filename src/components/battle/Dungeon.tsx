@@ -3208,7 +3208,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                             </p>
                             <div className="flex items-center justify-between mt-0.5">
                               <span className={cn("text-[7px] font-black uppercase tracking-widest", theme.text)}>
-                                {getLoc(monster.rarity, 'cz') || monster.rarity}
+                                {getLoc(monster.rarity, 'cz')}
                               </span>
                               <span className="text-[8px] font-mono font-bold text-rose-400 flex items-center gap-0.5">
                                 <Heart size={9} className="text-rose-500 fill-rose-500" />
@@ -3550,7 +3550,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                             </p>
                             <div className="flex items-center justify-between mt-0.5">
                               <span className={cn("text-[7px] font-black uppercase tracking-widest", theme.text)}>
-                                {getLoc(monster.rarity, 'cz') || monster.rarity}
+                                {getLoc(monster.rarity, 'cz')}
                               </span>
                               <span className="text-[8px] font-mono font-bold text-rose-400 flex items-center gap-0.5">
                                 <Heart size={9} className="text-rose-500 fill-rose-500" />

@@ -346,7 +346,7 @@ export const DungeonVictoryModal: React.FC<DungeonVictoryModalProps> = ({
                     .map((p, idx) => {
                       const dmgPct = totalDamageDealt > 0 ? Math.round((p.pDmg / totalDamageDealt) * 100) : 0;
                       const isMe = p.uid ? p.uid === PLAYER_UID : p.index === 0;
-                      const displayName = p.playerName || p.name || (p.monster ? getLoc(p.monster.name, 'cz') : `Hráč ${p.index + 1}`);
+                      const displayName = p.playerName || (p.monster ? getLoc(p.monster.name, 'cz') : `Hráč ${p.index + 1}`);
                       return (
                         <div key={p.index} className="grid grid-cols-4 px-3 py-2 text-[10px] font-bold items-center font-mono">
                           <span className="truncate font-sans pr-1 text-slate-300">
