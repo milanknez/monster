@@ -513,6 +513,12 @@
       "cannot_use": "Nelze použít",
       "xp_elixir": "XP Elixír",
       "energy_drink": "Energetický Nápoj",
+      "cyclops_vision": "Kyklopovo Vidění",
+      "monsters_revealed": "Odhalená monstra na mapě",
+      "master_hunter": "Mistrovský Lov",
+      "hunter_bonus": "Šance na chyt +25% & Extra Loot",
+      "titan_berserk": "Titánský Hněv",
+      "berserk_bonus": "Útok v boji +35%",
       "bonus": "Bonus"
     },
     "battle": {
@@ -1230,6 +1236,12 @@
       "cannot_use": "Cannot Use",
       "xp_elixir": "XP Elixir",
       "energy_drink": "Energy Drink",
+      "cyclops_vision": "Cyclops Vision",
+      "monsters_revealed": "Monsters Revealed on Map",
+      "master_hunter": "Master Hunter",
+      "hunter_bonus": "Catch Rate +25% & Extra Loot",
+      "titan_berserk": "Titan Berserk",
+      "berserk_bonus": "Combat Damage +35%",
       "bonus": "Bonus"
     },
     "battle": {
@@ -1948,6 +1960,12 @@
       "cannot_use": "Nedá sa použiť",
       "xp_elixir": "XP Elixír",
       "energy_drink": "Energetický Nápoj",
+      "cyclops_vision": "Kyklopovo Videnie",
+      "monsters_revealed": "Odhalené monštrá na mape",
+      "master_hunter": "Majstrovský Lov",
+      "hunter_bonus": "Šanca na chyt +25% & Extra Loot",
+      "titan_berserk": "Titánsky Hnev",
+      "berserk_bonus": "Útok v boji +35%",
       "bonus": "Bonus"
     },
     "battle": {

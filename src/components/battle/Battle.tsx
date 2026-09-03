@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TutorialOverlay } from './TutorialOverlay';
 import {
@@ -436,6 +436,104 @@ const SkillEffect = ({ type, fromSide, subType, isLow }: { type: string | Locali
   );
 };
 
+// --- EFEKT VYSTŘÍKNUTÍ KRVE A GENETICKÉHO VÝBOJE PŘI NESTABILITĚ ---
+const BloodSplatterBurst = ({ type }: { type: 'blood' | 'electric' | 'berserk' }) => {
+  const drops = useMemo(() => {
+    return Array.from({ length: 24 }).map((_, i) => {
+      const angle = (i / 24) * 360 + (Math.random() * 20 - 10);
+      const rad = (angle * Math.PI) / 180;
+      const distance = 70 + Math.random() * 150;
+      return {
+        id: i,
+        targetX: Math.cos(rad) * distance,
+        targetY: Math.sin(rad) * distance,
+        size: 7 + Math.random() * 15,
+        duration: 0.45 + Math.random() * 0.35,
+        delay: Math.random() * 0.05,
+        color: type === 'electric'
+          ? (Math.random() > 0.5 ? '#c084fc' : '#38bdf8')
+          : (Math.random() > 0.4 ? '#e11d48' : '#991b1b'),
+      };
+    });
+  }, [type]);
+
+  return (
+    <div className="fixed inset-0 z-[10020] pointer-events-none overflow-hidden">
+      {/* Celoobrazovkový krvavý/elektrický záblesk po okrajích */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.95, 0.5, 0] }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={cn(
+          "absolute inset-0 pointer-events-none",
+          type === 'electric'
+            ? "shadow-[inset_0_0_120px_rgba(168,85,247,0.9)] bg-purple-950/20"
+            : "shadow-[inset_0_0_140px_rgba(225,29,72,0.95)] bg-rose-950/25"
+        )}
+      />
+
+      {/* Krvavé kapky vystřikující přímo z těla monstra hráče */}
+      <div className="absolute left-[30%] sm:left-[35%] top-[72%] -translate-x-1/2 -translate-y-1/2">
+        {/* Rázová vlna krve / energie */}
+        <motion.div
+          initial={{ scale: 0.1, opacity: 1 }}
+          animate={{ scale: [0.1, 2.4, 3], opacity: [1, 0.8, 0] }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={cn(
+            "absolute -inset-20 rounded-full blur-2xl",
+            type === 'electric' ? "bg-fuchsia-600/70" : "bg-rose-600/80"
+          )}
+        />
+
+        {/* Létající stříkající kapky */}
+        {drops.map((d) => (
+          <motion.div
+            key={d.id}
+            initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+            animate={{
+              x: d.targetX,
+              y: d.targetY + 40,
+              scale: [1, 1.3, 0.2],
+              opacity: [1, 1, 0]
+            }}
+            transition={{ duration: d.duration, delay: d.delay, ease: "easeOut" }}
+            style={{ width: d.size, height: d.size, backgroundColor: d.color }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_12px_currentColor]"
+          />
+        ))}
+
+        {/* Velký realistický cákanec vystříknuté krve na sklo */}
+        <motion.div
+          initial={{ scale: 0.3, opacity: 0, rotate: -20 }}
+          animate={{ scale: [0.3, 1.25, 1.2], opacity: [0, 1, 0.85, 0] }}
+          transition={{ duration: 0.9, times: [0, 0.15, 0.7, 1] }}
+          className="absolute -top-32 -left-32 w-64 h-64 pointer-events-none"
+        >
+          {type === 'electric' ? (
+            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_20px_#c084fc]">
+              <path d="M50 0 L25 45 L50 45 L30 100 L75 42 L52 42 Z" fill="#c084fc" />
+              <path d="M55 5 L35 45 L55 45 L40 90 L70 42 L56 42 Z" fill="#ffffff" opacity="0.8" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_25px_rgba(225,29,72,1)]">
+              {/* Hlavní krvavý cákanec */}
+              <path
+                d="M50,15 C65,5 82,22 70,42 C88,38 98,55 82,72 C92,88 68,98 52,82 C40,98 18,92 24,75 C5,82 2,58 20,48 C2,32 25,15 38,32 C38,12 45,10 50,15 Z"
+                fill="#be123c"
+              />
+              <circle cx="20" cy="18" r="4" fill="#991b1b" />
+              <circle cx="85" cy="28" r="5" fill="#e11d48" />
+              <circle cx="88" cy="85" r="3.5" fill="#be123c" />
+              <circle cx="12" cy="78" r="4.5" fill="#e11d48" />
+              <circle cx="50" cy="96" r="3" fill="#991b1b" />
+            </svg>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
 // --- Helpers ---
 const getFinalStats = (m: Monster) => {
   const stats = { atk: m.stats?.attack || 10, def: m.stats?.defense || 10, hp: m.stats?.hp || 100 };
@@ -483,13 +581,15 @@ const getFinalStats = (m: Monster) => {
 // --- Main Component ---
 export const Battle = ({
   playerMonster, enemyMonster, isAlreadyCaught, opponentName, incomingEmote, pvpRole,
-  incomingAttack, xpMultiplier = 1, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem,
+  incomingAttack, xpMultiplier = 1, isMasterHunter = false, isTitanBerserk = false, isInventoryFull, inventory, onSendEmote, onSendAttack, onUseItem,
   onWin, onLose, onBack, onCatch, onCatchFail, isNewMonster, isTutorial, graphicsQuality
 }: {
   playerMonster: Monster, enemyMonster: Monster, isAlreadyCaught?: boolean, opponentName?: string,
   incomingEmote?: string | null, pvpRole?: 'challenger' | 'defender',
   incomingAttack?: { dmg: number, isCrit: boolean, isSkill: boolean, isEffective: boolean, isWeak: boolean, isShield?: boolean, timestamp: number } | null,
   xpMultiplier?: number,
+  isMasterHunter?: boolean,
+  isTitanBerserk?: boolean,
   isInventoryFull?: boolean,
   inventory?: { type: string, count: number }[],
   onSendEmote?: (emote: string) => void,
@@ -510,6 +610,19 @@ export const Battle = ({
   const [catchPhase, setCatchPhase] = useState<'idle' | 'throwing' | 'shaking' | 'success' | 'fail'>('idle');
   const [catchResult, setCatchResult] = useState(false);
   const [popups, setPopups] = useState<DamagePopup[]>([]);
+
+  // Buněčná nestabilita monstra hráče
+  const playerInstability = useMemo(() => {
+    const mutations = playerMonster.mutations || [];
+    const count = mutations.length;
+    if (count === 0) return 0;
+    const hasForbidden = mutations.some((m: any, idx: number) => (m.slotIndex ?? idx) === 15);
+    const basePct = Math.round((count / 15) * 100);
+    return hasForbidden ? Math.max(105, basePct + 15) : Math.min(100, basePct);
+  }, [playerMonster.mutations]);
+
+  const [bloodSplatter, setBloodSplatter] = useState<{ id: number; type: 'blood' | 'electric' | 'berserk' } | null>(null);
+
   const [showEmotes, setShowEmotes] = useState(false);
   const [outgoingEmote, setOutgoingEmote] = useState<string | null>(null);
   const [showItems, setShowItems] = useState(false);
@@ -785,7 +898,72 @@ export const Battle = ({
       });
 
       const res = calculateDamage(playerMonster, enemyMonster, isSkill, abilityIdx);
-      let dmg = res.dmg;
+      let dmg = isTitanBerserk ? Math.round(res.dmg * 1.35) : res.dmg;
+
+      // --- DOPAD BUNĚČNÉ NESTABILITY NA SOUBOJ ---
+      let instabilityRecoil = 0;
+      let splatterType: 'blood' | 'electric' | 'berserk' | null = null;
+
+      if (playerInstability > 100) {
+        // --- 1. Zakázaná DNA & Přetížení (> 100 %) ---
+        const roll = Math.random();
+        if (roll < 0.60) { // 60% šance na anomální reakci pro testování a okamžitý dopad
+          const subRoll = Math.random();
+          if (subRoll < 0.50) {
+            // Berserk Backlash (+35 % masivní dmg, ale 7 % max HP recoil)
+            dmg = Math.round(dmg * 1.35);
+            instabilityRecoil = Math.max(1, Math.round(playerMaxHP * 0.07));
+            splatterType = 'berserk';
+            addLog(`💥 ${getLoc(playerMonster.name, i18n.language)} upadlo do anomálního běsnění (+35 % DMG)! Ale utrpělo zpětný ráz (-${instabilityRecoil} HP).`);
+          } else if (subRoll < 0.80) {
+            // Elektrický zkrat v DNA (-8 % HP a -20 energie)
+            instabilityRecoil = Math.max(1, Math.round(playerMaxHP * 0.08));
+            setPlayerEnergy(e => Math.max(0, e - 20));
+            splatterType = 'electric';
+            addLog(`⚡ Elektrický zkrat v zakázané DNA ${getLoc(playerMonster.name, i18n.language)} (-${instabilityRecoil} HP, -20 energie)!`);
+          } else {
+            // Buněčná paralýza (útok ztratí polovinu síly)
+            dmg = Math.round(dmg * 0.5);
+            splatterType = 'electric';
+            addLog(`🧬 Zakázaná DNA vyvolala buněčný třes! Síla útoku ${getLoc(playerMonster.name, i18n.language)} klesla na polovinu.`);
+          }
+        }
+      } else if (playerInstability >= 81) {
+        // --- 2. Kritický strop (81 - 100 %) ---
+        if (Math.random() < 0.45) {
+          instabilityRecoil = Math.max(1, Math.round(playerMaxHP * 0.04));
+          splatterType = 'blood';
+          addLog(`🔥 Tkáň ${getLoc(playerMonster.name, i18n.language)} se přehřívá z vysoké nestability (-${instabilityRecoil} HP)!`);
+        }
+      } else if (playerInstability >= 51) {
+        // --- 3. Zvýšená nestabilita (51 - 80 %) ---
+        if (Math.random() < 0.30) {
+          instabilityRecoil = Math.max(1, Math.round(playerMaxHP * 0.02));
+          splatterType = 'blood';
+          addLog(`⚡ Buněčný třes způsobil lehkou nestabilitu svaloviny (-${instabilityRecoil} HP)!`);
+        }
+      }
+
+      if (instabilityRecoil > 0 || splatterType) {
+        if (instabilityRecoil > 0) {
+          setPlayerHP(p => Math.max(0, p - instabilityRecoil));
+          addPopup(instabilityRecoil, false, { isCrit: true });
+        }
+        triggerShake(true);
+
+        // Vystříknutí krve nebo elektrický blesk
+        setBloodSplatter({ id: Date.now(), type: splatterType || 'blood' });
+        setTimeout(() => setBloodSplatter(null), 1000);
+
+        // Krátká animace zranění a zvuku hitu
+        setTimeout(() => {
+          playSlash();
+          playHit();
+          setPlayerAnim('hit');
+          setTimeout(() => setPlayerAnim('idle'), 350);
+        }, 120);
+      }
+
       const currentEffects = turn === 'player' ? playerEffects : enemyEffects;
       const debuffEffect = currentEffects.find(e => e.type === 'debuff');
       const missPenalty = debuffEffect ? (debuffEffect.value || 40) : 0;
@@ -910,6 +1088,8 @@ export const Battle = ({
             const pool = Object.keys(RESOURCE_CONFIG)
               .filter(id => {
                 const cfg = RESOURCE_CONFIG[id];
+                // Vyloučit položky s dropWeight === 0 (např. troll_urine, vajíčka a specifické boss relikvie)
+                if (cfg.dropWeight === 0) return false;
                 const matchRarity = cfg.rarity === rarity;
                 const matchCategory = !category || cfg.category === category;
                 return matchRarity && matchCategory;
@@ -922,12 +1102,13 @@ export const Battle = ({
               return null;
             }
             const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+            if (totalWeight <= 0) return null;
             let r = Math.random() * totalWeight;
             for (const item of pool) {
               if (r < item.weight) return item.id;
               r -= item.weight;
             }
-            return pool[0].id;
+            return pool[0]?.id || null;
           };
 
           const addLootItem = (targetRarity: string, category?: string) => {
@@ -979,25 +1160,52 @@ export const Battle = ({
           else if (isEpic) {
             addLootItem('rare', 'material');
             addLootItem('rare', 'material');
-            addLootItem('epic', 'material');
             if (Math.random() < 0.5) {
               const rand = Math.random();
               if (rand < 0.5) addLootItem('rare', 'relic');
               else addLootItem('epic', 'relic');
             }
             if (Math.random() < 0.05) addLootItem('legendary');
+
+            // 1% drop chance for Troll Urine from Epic monsters
+            if (Math.random() < 0.01) {
+              generatedLoot.push({ id: 'troll_urine_' + Math.random(), type: 'troll_urine', count: 1, collected: false });
+            }
           }
           else if (isLegendary) {
-            addLootItem('epic', 'material');
-            addLootItem('legendary', 'material');
-            addLootItem('legendary', 'gem');
-            if (Math.random() < 0.6) addLootItem('legendary', 'relic');
+            // Hodnotný vzácný materiál (Magický krystal nebo Vzácný minerál)
+            addLootItem('rare', 'material');
+
+            // 60% šance na další hodnotný materiál / epický klenot
+            if (Math.random() < 0.6) {
+              if (Math.random() < 0.5) addLootItem('rare', 'material');
+              else addLootItem('epic', 'gem');
+            }
+
+            // Vyvážená šance na 1 legendární předmět (35 % šance, max 1 na boj)
+            if (Math.random() < 0.35) {
+              addLootItem('legendary');
+            }
+
+            // 2% drop chance for Troll Urine from Legendary monsters
+            if (Math.random() < 0.02) {
+              generatedLoot.push({ id: 'troll_urine_' + Math.random(), type: 'troll_urine', count: 1, collected: false });
+            }
 
             // Secret inventory expansion items (low drop chance 2%)
             if (Math.random() < 0.02) {
               const secretItem = Math.random() < 0.65 ? 'backpack_pouch' : 'backpack_vault';
               generatedLoot.push({ id: secretItem + '_' + Math.random(), type: secretItem, count: 1, collected: false });
             }
+          }
+
+          // Master Hunter bonus: 50% chance to double each loot item count
+          if (isMasterHunter) {
+            generatedLoot.forEach(item => {
+              if (Math.random() < 0.5) {
+                item.count = (item.count || 1) * 2;
+              }
+            });
           }
 
           setLoot(generatedLoot);
@@ -1013,7 +1221,9 @@ export const Battle = ({
     if (enemyHP <= 0) return;
     
     const hpRatio = enemyHP / enemyMaxHP;
-    const chance = Math.min(0.95, 0.95 * Math.pow(1 - hpRatio, 2.6));
+    const baseChance = 0.95 * Math.pow(1 - hpRatio, 2.6);
+    const bonusChance = isMasterHunter ? 0.25 : 0;
+    const chance = Math.min(0.99, baseChance + bonusChance);
     const success = Math.random() < chance;
     setCatchResult(success);
     
@@ -1621,14 +1831,71 @@ export const Battle = ({
               </AnimatePresence>
             </div>
 
-            <img src={playerMonster.image || `/monsters/${playerMonster.id}.png`} className="w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2" />
+            {/* Vizuální aura buněčné nestability monstra */}
+            {playerInstability > 100 ? (
+              <motion.div
+                animate={{
+                  scale: [1, 1.14, 0.96, 1.08, 1],
+                  opacity: [0.55, 0.9, 0.55]
+                }}
+                transition={{ duration: 1.1, repeat: Infinity }}
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-600/50 via-fuchsia-600/50 to-purple-600/50 blur-2xl pointer-events-none z-10"
+              />
+            ) : playerInstability >= 81 ? (
+              <motion.div
+                animate={{ scale: [1, 1.08, 1], opacity: [0.4, 0.75, 0.4] }}
+                transition={{ duration: 1.4, repeat: Infinity }}
+                className="absolute inset-0 rounded-full bg-rose-500/40 blur-xl pointer-events-none z-10"
+              />
+            ) : playerInstability >= 51 ? (
+              <motion.div
+                animate={{ opacity: [0.25, 0.55, 0.25] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-full bg-amber-500/30 blur-lg pointer-events-none z-10"
+              />
+            ) : null}
+
+            <img
+              src={playerMonster.image || `/monsters/${playerMonster.id}.png`}
+              className={cn(
+                "w-32 h-32 object-contain drop-shadow-2xl relative z-20 translate-y-2 transition-all",
+                bloodSplatter
+                  ? (bloodSplatter.type === 'electric'
+                      ? "filter brightness-150 saturate-200 hue-rotate-[90deg] drop-shadow-[0_0_35px_#a855f7]"
+                      : "filter brightness-125 saturate-200 sepia hue-rotate-[-50deg] drop-shadow-[0_0_40px_#e11d48]")
+                  : playerInstability > 100
+                  ? "filter drop-shadow-[0_0_15px_rgba(244,63,94,0.7)]"
+                  : playerInstability >= 81
+                  ? "filter drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"
+                  : ""
+              )}
+            />
             <PopupLayer popups={popups.filter(p => p.isPlayerSide)} t={t} isLow={isLow} />
           </motion.div>
           <div id="tutorial-player-stats" className="w-full bg-slate-900/80 backdrop-blur-xl p-3 rounded-xl border border-primary/30 shadow-2xl space-y-1.5 transform rotate-1 relative">
             <RarityBadge rarity={playerMonster.rarity || ''} />
             <div className="flex justify-between items-center whitespace-nowrap overflow-visible">
-              <div className="flex items-center gap-1.5 min-w-0"><TypeIcon type={playerMonster.type} /><span className="text-[12px] font-black text-white uppercase truncate">{getLoc(playerMonster.name, i18n.language)}</span></div>
-              <span className="text-[8px] font-black text-primary ml-2 shrink-0">Lv {playerMonster.level}</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <TypeIcon type={playerMonster.type} />
+                <span className="text-[12px] font-black text-white uppercase truncate">{getLoc(playerMonster.name, i18n.language)}</span>
+              </div>
+              <div className="flex items-center gap-1.5 ml-2 shrink-0">
+                {playerInstability > 0 && (
+                  <span className={cn(
+                    "text-[7px] font-black px-1.5 py-0.5 rounded-full border uppercase tracking-wider",
+                    playerInstability > 100
+                      ? "bg-rose-950/80 border-rose-500/60 text-rose-300 animate-pulse shadow-[0_0_8px_#f43f5e]"
+                      : playerInstability >= 81
+                      ? "bg-red-950/80 border-red-500/50 text-red-300"
+                      : playerInstability >= 51
+                      ? "bg-amber-950/80 border-amber-500/50 text-amber-300"
+                      : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                  )}>
+                    {playerInstability > 100 ? `⚠️ ${playerInstability}%` : `🧬 ${playerInstability}%`}
+                  </span>
+                )}
+                <span className="text-[8px] font-black text-primary">Lv {playerMonster.level}</span>
+              </div>
             </div>
             <HealthBar current={playerHP} max={playerMaxHP} label="HP" colorClass="bg-gradient-to-r from-emerald-500 to-teal-400" shadowColor="rgba(52,211,153,0.4)" />
             <div className="h-1 w-full bg-black/80 rounded-full overflow-hidden border border-white/10 p-[0.5px] mb-1"><motion.div animate={{ width: `${playerEnergy}%` }} className="h-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" /></div>
@@ -1762,14 +2029,16 @@ export const Battle = ({
           <div className="relative col-span-1 z-[7001]">
             <AnimatePresence>
               {showItems && (
-                <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] right-0 w-52 bg-slate-900/98 backdrop-blur-3xl border border-white/10 p-4 rounded-2xl shadow-3xl z-[9999] space-y-3">
+                <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute bottom-[80px] right-0 w-60 sm:w-64 bg-slate-900/98 backdrop-blur-3xl border border-white/10 p-4 rounded-2xl shadow-3xl z-[9999] space-y-3">
                   <h4 className="text-[10px] font-black text-blue-400 mb-1 uppercase text-center tracking-widest opacity-60">{t('battle.backpack')}</h4>
-                  <div className="flex flex-col gap-2.5">
-                    {(inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).length || 0) === 0 ? (
+                  <div className="flex flex-col gap-2.5 max-h-64 overflow-y-auto pr-0.5">
+                    {(inventory?.filter(i => ['hp_potion', 'mana_potion', 'titan_berserk_potion', 'master_hunter_elixir'].includes(i.type)).length || 0) === 0 ? (
                       <p className="text-[9px] text-slate-500 font-bold uppercase py-4 text-center">{t('battle.no_potions')}</p>
                     ) : (
-                      inventory?.filter(i => ['hp_potion', 'mana_potion'].includes(i.type)).map(i => {
+                      inventory?.filter(i => ['hp_potion', 'mana_potion', 'titan_berserk_potion', 'master_hunter_elixir'].includes(i.type)).map(i => {
                         const cfg = RESOURCE_CONFIG[i.type];
+                        const isTitan = i.type === 'titan_berserk_potion';
+                        const isHunter = i.type === 'master_hunter_elixir';
                         return (
                           <button key={i.type} onClick={() => {
                             if (cfg?.stats) {
@@ -1791,16 +2060,33 @@ export const Battle = ({
                               }
                               playHeal?.();
                             }
+                            if (isTitan) {
+                              addLog('⚔️ Použili jste Sérum Titánského Hněvu! Poškození zvýšeno o +35 %!');
+                              playCritical?.();
+                            } else if (isHunter) {
+                              addLog('🎯 Použili jste Nektar Mistrovského Lovu! Zisk surovin zdvojen a +25 % šance na chycení!');
+                              playHeal?.();
+                            }
                             onUseItem?.(i.type);
                             setShowItems(false);
                             setShowSkills(false);
                             setItemUsedInTurn(true);
-                          }} className="flex justify-between items-center p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[10px] font-bold text-white uppercase hover:bg-blue-500/10 transition-colors">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">{cfg?.icon || '📦'}</span>
-                              <span>{getLoc(cfg?.label, i18n.language) || i.type.replace('_', ' ')}</span>
+                          }} className={cn(
+                            "flex justify-between items-center p-3 border rounded-xl text-[10px] font-bold text-white transition-colors cursor-pointer",
+                            isTitan ? "bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/20" :
+                            isHunter ? "bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20" :
+                            "bg-blue-500/5 border-blue-500/20 hover:bg-blue-500/10"
+                          )}>
+                            <div className="flex items-center gap-2 truncate">
+                              <span className="text-sm shrink-0">{cfg?.icon || '📦'}</span>
+                              <span className="truncate">{getLoc(cfg?.label, i18n.language) || i.type.replace('_', ' ')}</span>
                             </div>
-                            <span className="text-[9px] text-blue-300 bg-blue-500/20 px-2.5 py-0.5 rounded-lg">{i.count}x</span>
+                            <span className={cn(
+                              "text-[9px] px-2.5 py-0.5 rounded-lg shrink-0 ml-1 font-mono",
+                              isTitan ? "text-rose-300 bg-rose-500/20" :
+                              isHunter ? "text-amber-300 bg-amber-500/20" :
+                              "text-blue-300 bg-blue-500/20"
+                            )}>{i.count}x</span>
                           </button>
                         )
                       })
@@ -1826,7 +2112,10 @@ export const Battle = ({
 
           {/* Special (Catch) - PVE Only */}
           {!pvpRole && (() => {
-            const catchChance = Math.max(1, Math.round(Math.min(0.95, 0.95 * Math.pow(1 - (enemyHP / enemyMaxHP), 2.6)) * 100));
+            const hpRatio = enemyHP / enemyMaxHP;
+            const baseChance = 0.95 * Math.pow(1 - hpRatio, 2.6);
+            const bonusChance = isMasterHunter ? 0.25 : 0;
+            const catchChance = Math.max(1, Math.round(Math.min(0.99, baseChance + bonusChance) * 100));
             const isHighChance = catchChance >= 40;
 
             return (
@@ -1876,6 +2165,7 @@ export const Battle = ({
         onComplete={() => onLose(winXP)}
       />
       <AnimatePresence>{activeBurst && <SkillEffect key={activeBurst.id} type={activeBurst.type} fromSide={activeBurst.fromSide} subType={activeBurst.subType} isLow={isLow} />}</AnimatePresence>
+      <AnimatePresence>{bloodSplatter && <BloodSplatterBurst key={bloodSplatter.id} type={bloodSplatter.type} />}</AnimatePresence>
 
       <AnimatePresence>
         {isTutorialActive && (

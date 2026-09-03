@@ -3,7 +3,7 @@ import { Trophy, Gift, ChevronRight } from 'lucide-react';
 import { RESOURCE_CONFIG } from '../map/mapUtils';
 import { useGameSound } from '../../data/sounds';
 import { useTranslation } from 'react-i18next';
-import { getLoc } from '../../utils';
+import { getLoc, cn } from '../../utils';
 
 import { ResourceIcon } from '../ui/ResourceIcon';
 
@@ -93,25 +93,71 @@ export const LootModal = ({
                   <AnimatePresence>
                     {loot.map(i => {
                       if (i.collected) return null;
-                      const config = RESOURCE_CONFIG[i.type] || { icon: '📦', color: '#fff', label: i.type };
+                      const config = RESOURCE_CONFIG[i.type] || { icon: '📦', color: '#fff', label: i.type, rarity: 'common' };
+                      const rarity = config.rarity || 'common';
+                      
+                      const visual = rarity === 'legendary' ? {
+                        card: "bg-gradient-to-b from-amber-500/20 via-slate-900 to-slate-950 border-2 border-amber-500/70 shadow-[0_0_25px_rgba(245,158,11,0.35)] ring-1 ring-amber-500/40",
+                        badge: "bg-amber-500/25 border-amber-500/50 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.2)]",
+                        label: "👑 Legendární",
+                        counter: "bg-amber-500 text-slate-950 shadow-[0_0_10px_rgba(245,158,11,0.6)]",
+                        title: "text-amber-200"
+                      } : rarity === 'epic' ? {
+                        card: "bg-gradient-to-b from-purple-500/20 via-slate-900 to-slate-950 border-2 border-purple-500/60 shadow-[0_0_20px_rgba(168,85,247,0.3)] ring-1 ring-purple-500/30",
+                        badge: "bg-purple-500/25 border-purple-500/50 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.2)]",
+                        label: "🏰 Epické",
+                        counter: "bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)]",
+                        title: "text-purple-200"
+                      } : rarity === 'rare' ? {
+                        card: "bg-gradient-to-b from-blue-500/15 via-slate-900 to-slate-950 border-2 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)] ring-1 ring-blue-500/25",
+                        badge: "bg-blue-500/25 border-blue-500/40 text-blue-300",
+                        label: "🏛️ Vzácné",
+                        counter: "bg-blue-500 text-white shadow-[0_0_8px_rgba(59,130,246,0.4)]",
+                        title: "text-blue-200"
+                      } : {
+                        card: "bg-slate-900/90 border-2 border-slate-700/50 shadow-md",
+                        badge: "bg-slate-800/80 border-slate-700/60 text-slate-400",
+                        label: "⚔️ Běžné",
+                        counter: "bg-slate-700 text-white",
+                        title: "text-slate-300"
+                      };
+
                       return (
                         <motion.div
                           key={i.id}
                           initial={{ scale: 0, y: 20 }}
                           animate={{ scale: 1, y: 0 }}
                           onClick={() => handleCollect(i.id)}
-                          className="bg-slate-800 border-2 border-white/5 rounded-[1.5rem] p-5 cursor-pointer relative shadow-2xl flex flex-col items-center gap-2 group active:scale-95 transition-all"
-                          style={{ boxShadow: `0 10px 30px -10px ${config.color}33` }}
+                          className={cn(
+                            "rounded-[1.5rem] p-4 cursor-pointer relative flex flex-col items-center gap-1.5 group active:scale-95 transition-all",
+                            visual.card
+                          )}
                         >
-                          <div className="size-12 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform">
+                          {/* Rarity badge at top */}
+                          <span className={cn(
+                            "text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border leading-tight",
+                            visual.badge
+                          )}>
+                            {visual.label}
+                          </span>
+
+                          <div className="size-12 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform my-0.5">
                             <ResourceIcon id={i.type} config={config as any} size="lg" className="filter drop-shadow-xl" />
                           </div>
-                          <span className="text-[9px] font-black text-white uppercase tracking-wider block opacity-70 text-center">{getLoc(config.label)}</span>
 
-                          <span className="absolute -top-1 -right-1 bg-primary text-black text-[12px] font-black size-7 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-lg">
+                          <span className={cn("text-[9px] font-black uppercase tracking-wider block text-center leading-tight line-clamp-2", visual.title)}>
+                            {getLoc(config.label)}
+                          </span>
+
+                          {/* Item count badge in corner */}
+                          <span className={cn(
+                            "absolute -top-1.5 -right-1.5 text-[11px] font-black size-6 rounded-full flex items-center justify-center border-2 border-slate-950 shadow-md font-mono",
+                            visual.counter
+                          )}>
                             {i.count}
                           </span>
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[1.5rem] pointer-events-none" />
+
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-[1.5rem] pointer-events-none opacity-40 group-hover:opacity-100 transition-opacity" />
                         </motion.div>
                       );
                     })}

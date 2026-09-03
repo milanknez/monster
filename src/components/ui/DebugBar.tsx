@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword, Activity, Sparkles } from 'lucide-react';
+import { Shield, Zap, Package, UserPlus, Heart, RefreshCw, X, Gift, Database, Star, FlaskConical, Bell, ShoppingBag, Sword, Activity, Sparkles, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DebugBarProps {
@@ -11,6 +11,11 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
   const [selectedCheat, setSelectedCheat] = useState('');
 
   const cheats = [
+    { id: 'importBisiAshLord', label: '🔥 IMPORT: Démonický Pán Popela (od Biši, Lv 19, 157k CP)', icon: Flame, color: 'text-orange-400 font-black animate-pulse' },
+    { id: 'addTrollUrine', label: '🧪 5x Trolí moč (Surovina)', icon: FlaskConical, color: 'text-yellow-400 font-bold' },
+    { id: 'addCyclopsEye', label: '👁️ 2x Kyklopovo oko (Odhalení monster)', icon: Sparkles, color: 'text-sky-400 font-bold' },
+    { id: 'addMasterHunterElixir', label: '🎯 2x Nektar Mistrovského Lovu (+25% chyt & 2x loot)', icon: Gift, color: 'text-amber-400 font-bold' },
+    { id: 'addTitanBerserkPotion', label: '⚔️ 2x Sérum Titánského Hněvu (+35% DMG)', icon: Sword, color: 'text-rose-400 font-bold' },
     { id: 'addSecretBackpackItems', label: '🎒 TAJNÉ PŘEDMĚTY: 1x Bezedný váček + 1x Astrální truhla (Rozšíření batohu)', icon: Gift, color: 'text-amber-400 font-black animate-pulse' },
     { id: 'addSecretPouch', label: '🎒 1x Mystický bezedný váček (+4 sloty -> 20)', icon: Package, color: 'text-amber-400 font-bold' },
     { id: 'addSecretVault', label: '✨ 1x Astrální truhla dimenzí (MAX -> 24)', icon: Sparkles, color: 'text-purple-400 font-bold' },

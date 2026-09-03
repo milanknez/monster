@@ -41,6 +41,10 @@ interface DungeonActionControlsProps {
   playerUid?: string;
   hpPotions: number;
   manaPotions: number;
+  titanPotions?: number;
+  masterHunterElixirs?: number;
+  isTitanActive?: boolean;
+  isMasterHunterActive?: boolean;
   showItems: boolean;
   setShowItems: (show: boolean | ((prev: boolean) => boolean)) => void;
   showSkillsMenu: boolean;
@@ -50,6 +54,8 @@ interface DungeonActionControlsProps {
   onExecuteAbility: (idx: number) => void;
   onUseHpPotion: () => void;
   onUseManaPotion: () => void;
+  onUseTitanPotion?: () => void;
+  onUseMasterHunterElixir?: () => void;
 }
 
 export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
@@ -60,6 +66,10 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
   playerUid,
   hpPotions,
   manaPotions,
+  titanPotions = 0,
+  masterHunterElixirs = 0,
+  isTitanActive = false,
+  isMasterHunterActive = false,
   showItems,
   setShowItems,
   showSkillsMenu,
@@ -69,6 +79,8 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
   onExecuteAbility,
   onUseHpPotion,
   onUseManaPotion,
+  onUseTitanPotion,
+  onUseMasterHunterElixir,
 }) => {
   if (!isFighting) return null;
 
@@ -76,6 +88,7 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
   const mainPlayerStunned = mainPlayer && (mainPlayer.stunTimer > 0 || mainPlayer.freezeTimer > 0);
   const playerMonster = mainPlayer?.monster;
   const abilities = playerMonster?.abilities || [];
+  const isClickingAbilityRef = React.useRef<boolean>(false);
 
   return (
     <div className="p-4 bg-slate-950/85 border-t border-white/5 backdrop-blur-3xl relative z-[9100] flex flex-col items-center gap-3 w-full">
@@ -142,8 +155,13 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
                         disabled={!hasEnergy}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onExecuteAbility(idx);
+                          if (isClickingAbilityRef.current) return;
+                          isClickingAbilityRef.current = true;
                           setShowSkillsMenu(false);
+                          onExecuteAbility(idx);
+                          setTimeout(() => {
+                            isClickingAbilityRef.current = false;
+                          }, 600);
                         }}
                         className={cn(
                           "w-full flex items-center gap-2.5 p-2 rounded-xl text-left border transition-all cursor-pointer active:scale-95 shadow-md",
@@ -208,29 +226,85 @@ export const DungeonActionControls: React.FC<DungeonActionControlsProps> = ({
                 initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="absolute bottom-16 right-0 w-44 bg-slate-900 border border-white/10 p-3 rounded-2xl shadow-2xl z-[9999] space-y-2"
+                className="absolute bottom-16 right-0 w-56 sm:w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 p-3 rounded-2xl shadow-2xl z-[9999] space-y-2.5"
               >
-                <h4 className="text-[9px] font-black text-blue-400 uppercase text-center tracking-widest opacity-60">Lektvary</h4>
+                <h4 className="text-[9px] font-black text-blue-400 uppercase text-center tracking-widest opacity-60">Lektvary & Elixíry</h4>
                 
-                {/* HP Potion */}
-                <button
-                  onClick={onUseHpPotion}
-                  disabled={hpPotions <= 0}
-                  className="w-full flex justify-between items-center p-2 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[9px] font-bold text-white transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-1">🧪 HP Lektvar (+400 HP)</span>
-                  <span className="text-[8px] bg-emerald-500/20 px-1.5 py-0.5 rounded">{hpPotions}x</span>
-                </button>
+                <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto pr-0.5">
+                  {/* HP Potion */}
+                  <button
+                    onClick={onUseHpPotion}
+                    disabled={hpPotions <= 0}
+                    className="w-full flex justify-between items-center p-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-[9px] font-bold text-white transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <span>🧪</span>
+                      <span className="truncate">HP Lektvar (+400 HP)</span>
+                    </span>
+                    <span className="text-[8px] bg-emerald-500/20 text-emerald-300 font-mono px-1.5 py-0.5 rounded font-black shrink-0">{hpPotions}x</span>
+                  </button>
 
-                {/* Mana Potion */}
-                <button
-                  onClick={onUseManaPotion}
-                  disabled={manaPotions <= 0}
-                  className="w-full flex justify-between items-center p-2 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 rounded-xl text-[9px] font-bold text-white transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-1">🧪 Mana Lektvar (+50 EN)</span>
-                  <span className="text-[8px] bg-blue-500/20 px-1.5 py-0.5 rounded">{manaPotions}x</span>
-                </button>
+                  {/* Mana Potion */}
+                  <button
+                    onClick={onUseManaPotion}
+                    disabled={manaPotions <= 0}
+                    className="w-full flex justify-between items-center p-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl text-[9px] font-bold text-white transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <span>⚡</span>
+                      <span className="truncate">Mana Lektvar (+50 EN)</span>
+                    </span>
+                    <span className="text-[8px] bg-blue-500/20 text-blue-300 font-mono px-1.5 py-0.5 rounded font-black shrink-0">{manaPotions}x</span>
+                  </button>
+
+                  {/* Titan Berserk Potion */}
+                  <button
+                    onClick={onUseTitanPotion}
+                    disabled={!onUseTitanPotion || titanPotions <= 0}
+                    className={cn(
+                      "w-full flex justify-between items-center p-2 rounded-xl text-[9px] font-bold text-white transition cursor-pointer border",
+                      isTitanActive 
+                        ? "bg-rose-500/20 border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.3)]" 
+                        : "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30",
+                      (!onUseTitanPotion || titanPotions <= 0) && "opacity-40 cursor-not-allowed pointer-events-none"
+                    )}
+                  >
+                    <div className="flex items-center gap-1.5 truncate min-w-0">
+                      <span>⚔️</span>
+                      <div className="flex flex-col text-left truncate">
+                        <span className="truncate text-rose-200">Titánský Hněv (+35% DMG)</span>
+                        {isTitanActive && <span className="text-[7px] text-emerald-400 font-black uppercase">Aktivní buff</span>}
+                      </div>
+                    </div>
+                    <span className="text-[8px] bg-rose-500/20 text-rose-300 font-mono px-1.5 py-0.5 rounded font-black shrink-0 ml-1">
+                      {titanPotions}x
+                    </span>
+                  </button>
+
+                  {/* Master Hunter Elixir */}
+                  <button
+                    onClick={onUseMasterHunterElixir}
+                    disabled={!onUseMasterHunterElixir || masterHunterElixirs <= 0}
+                    className={cn(
+                      "w-full flex justify-between items-center p-2 rounded-xl text-[9px] font-bold text-white transition cursor-pointer border",
+                      isMasterHunterActive 
+                        ? "bg-amber-500/20 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]" 
+                        : "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30",
+                      (!onUseMasterHunterElixir || masterHunterElixirs <= 0) && "opacity-40 cursor-not-allowed pointer-events-none"
+                    )}
+                  >
+                    <div className="flex items-center gap-1.5 truncate min-w-0">
+                      <span>🎯</span>
+                      <div className="flex flex-col text-left truncate">
+                        <span className="truncate text-amber-200">Mistrovský Lov (2x Loot)</span>
+                        {isMasterHunterActive && <span className="text-[7px] text-emerald-400 font-black uppercase">Aktivní buff</span>}
+                      </div>
+                    </div>
+                    <span className="text-[8px] bg-amber-500/20 text-amber-300 font-mono px-1.5 py-0.5 rounded font-black shrink-0 ml-1">
+                      {masterHunterElixirs}x
+                    </span>
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

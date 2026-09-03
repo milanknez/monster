@@ -91,6 +91,100 @@ interface FlyingSpell {
   endY: string;
 }
 
+// --- EFEKT VYSTŘÍKNUTÍ KRVE A GENETICKÉHO VÝBOJE PŘI NESTABILITĚ V DUNGEONU ---
+const DungeonBloodSplatterBurst = ({ type }: { type: 'blood' | 'electric' | 'berserk' }) => {
+  const drops = useMemo(() => {
+    return Array.from({ length: 24 }).map((_, i) => {
+      const angle = (i / 24) * 360 + (Math.random() * 20 - 10);
+      const rad = (angle * Math.PI) / 180;
+      const distance = 80 + Math.random() * 160;
+      return {
+        id: i,
+        targetX: Math.cos(rad) * distance,
+        targetY: Math.sin(rad) * distance,
+        size: 7 + Math.random() * 15,
+        duration: 0.45 + Math.random() * 0.35,
+        delay: Math.random() * 0.05,
+        color: type === 'electric'
+          ? (Math.random() > 0.5 ? '#c084fc' : '#38bdf8')
+          : (Math.random() > 0.4 ? '#e11d48' : '#991b1b'),
+      };
+    });
+  }, [type]);
+
+  return (
+    <div className="fixed inset-0 z-[10020] pointer-events-none overflow-hidden">
+      {/* Celoobrazovkový krvavý/elektrický záblesk po okrajích */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.95, 0.5, 0] }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={cn(
+          "absolute inset-0 pointer-events-none",
+          type === 'electric'
+            ? "shadow-[inset_0_0_120px_rgba(168,85,247,0.9)] bg-purple-950/20"
+            : "shadow-[inset_0_0_140px_rgba(225,29,72,0.95)] bg-rose-950/25"
+        )}
+      />
+
+      {/* Krvavé kapky vystřikující z hráče */}
+      <div className="absolute left-[50%] top-[70%] -translate-x-1/2 -translate-y-1/2">
+        <motion.div
+          initial={{ scale: 0.1, opacity: 1 }}
+          animate={{ scale: [0.1, 2.4, 3], opacity: [1, 0.8, 0] }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={cn(
+            "absolute -inset-20 rounded-full blur-2xl",
+            type === 'electric' ? "bg-fuchsia-600/70" : "bg-rose-600/80"
+          )}
+        />
+
+        {drops.map((d) => (
+          <motion.div
+            key={d.id}
+            initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+            animate={{
+              x: d.targetX,
+              y: d.targetY + 40,
+              scale: [1, 1.3, 0.2],
+              opacity: [1, 1, 0]
+            }}
+            transition={{ duration: d.duration, delay: d.delay, ease: "easeOut" }}
+            style={{ width: d.size, height: d.size, backgroundColor: d.color }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_12px_currentColor]"
+          />
+        ))}
+
+        <motion.div
+          initial={{ scale: 0.3, opacity: 0, rotate: -20 }}
+          animate={{ scale: [0.3, 1.25, 1.2], opacity: [0, 1, 0.85, 0] }}
+          transition={{ duration: 0.9, times: [0, 0.15, 0.7, 1] }}
+          className="absolute -top-32 -left-32 w-64 h-64 pointer-events-none"
+        >
+          {type === 'electric' ? (
+            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_20px_#c084fc]">
+              <path d="M50 0 L25 45 L50 45 L30 100 L75 42 L52 42 Z" fill="#c084fc" />
+              <path d="M55 5 L35 45 L55 45 L40 90 L70 42 L56 42 Z" fill="#ffffff" opacity="0.8" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_25px_rgba(225,29,72,1)]">
+              <path
+                d="M50,15 C65,5 82,22 70,42 C88,38 98,55 82,72 C92,88 68,98 52,82 C40,98 18,92 24,75 C5,82 2,58 20,48 C2,32 25,15 38,32 C38,12 45,10 50,15 Z"
+                fill="#be123c"
+              />
+              <circle cx="20" cy="18" r="4" fill="#991b1b" />
+              <circle cx="85" cy="28" r="5" fill="#e11d48" />
+              <circle cx="88" cy="85" r="3.5" fill="#be123c" />
+              <circle cx="12" cy="78" r="4.5" fill="#e11d48" />
+              <circle cx="50" cy="96" r="3" fill="#991b1b" />
+            </svg>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
 const MonsterPodium = ({ isPlayer, rarity, isAggro }: { isPlayer?: boolean, rarity?: any, isAggro?: boolean }) => {
   const r = (getLoc(rarity) || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let color = isPlayer ? 'rgba(13,185,242,0.8)' : 'rgba(239,68,68,0.8)';
@@ -136,7 +230,23 @@ const generateRandomRaidName = () => {
   return `${adj} ${noun} ${num}`;
 };
 
-export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddResource }: { onBack: () => void, caughtMonsters?: Monster[], initialDungeonId?: string | null, onAddResource?: (type: any, amount?: number) => void }) => {
+export const Dungeon = ({ 
+  onBack, 
+  caughtMonsters = [], 
+  initialDungeonId, 
+  onAddResource,
+  inventory = [],
+  onUseItem,
+  activeBoosts = []
+}: { 
+  onBack: () => void;
+  caughtMonsters?: Monster[];
+  initialDungeonId?: string | null;
+  onAddResource?: (type: any, amount?: number) => void;
+  inventory?: Array<{ type: string; count: number }>;
+  onUseItem?: (type: string) => void;
+  activeBoosts?: any[];
+}) => {
   const { 
     playAttack, playHit, playCritical, playHeal, playSlash, 
     playVictory, playDefeat, playDeath, playSpell, playLevelUp,
@@ -211,6 +321,11 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   const playersRef = useRef<DungeonPlayer[]>(players);
   const selectedDungeonRef = useRef(selectedDungeon);
 
+  const isExecutingAbilityRef = useRef<boolean>(false);
+  const lastAbilityCastTsRef = useRef<number>(0);
+  const lastBasicAttackTsRef = useRef<number>(0);
+  const lastTauntTsRef = useRef<number>(0);
+
   useEffect(() => { isStartingFightRef.current = false; }, [currentWave]);
   useEffect(() => { currentWaveRef.current = currentWave; }, [currentWave]);
   useEffect(() => { playersRef.current = players; }, [players]);
@@ -225,6 +340,24 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   const [manaPotions, setManaPotions] = useState<number>(2);
   const [showItems, setShowItems] = useState<boolean>(false);
   const [showSkillsMenu, setShowSkillsMenu] = useState<boolean>(false);
+  const [bloodSplatter, setBloodSplatter] = useState<{ id: number; type: 'blood' | 'electric' | 'berserk' } | null>(null);
+
+  // Buněčná nestabilita hráče v dungeonu
+  const playerInstability = useMemo(() => {
+    const myPlayer = players.find(p => p.uid === PLAYER_UID) || players[0];
+    const mutations = myPlayer?.monster?.mutations || [];
+    const count = mutations.length;
+    if (count === 0) return 0;
+    const hasForbidden = mutations.some((m: any, idx: number) => (m.slotIndex ?? idx) === 15);
+    const basePct = Math.round((count / 15) * 100);
+    return hasForbidden ? Math.max(105, basePct + 15) : Math.min(100, basePct);
+  }, [players]);
+
+  const isTitanBerserkActive = activeBoosts.some(b => b.type === 'titan_berserk' && b.expiresAt > Date.now());
+  const isMasterHunterActive = activeBoosts.some(b => b.type === 'master_hunter' && b.expiresAt > Date.now());
+
+  const titanPotionsCount = inventory.find(i => i.type === 'titan_berserk_potion')?.count || 0;
+  const masterHunterElixirsCount = inventory.find(i => i.type === 'master_hunter_elixir')?.count || 0;
 
   // Advanced Boss / Enemy Custom Attack states
   const [swoopEnemyIdx, setSwoopEnemyIdx] = useState<number | null>(null);
@@ -1142,14 +1275,67 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   // Manual player actions
   const handleUserBasicAttack = () => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
+    const now = Date.now();
+    if (now - lastBasicAttackTsRef.current < 350) return;
+
     const activePlayer = players.find(p => p.uid === PLAYER_UID) || players[0];
     if (!activePlayer || activePlayer.isDead || activePlayer.cooldown < 100 || activePlayer.stunTimer > 0 || activePlayer.freezeTimer > 0) return;
+    lastBasicAttackTsRef.current = now;
 
     const targetEnemy = enemies.find(e => !e.isDead);
     if (!targetEnemy) return;
 
     const isCrit = Math.random() < 0.15;
-    const dmg = Math.round((activePlayer.monster.stats?.attack || 45) * (isCrit ? 1.6 : 1) * (0.95 + Math.random() * 0.15));
+    const titanMult = isTitanBerserkActive ? 1.35 : 1;
+    let dmg = Math.round((activePlayer.monster.stats?.attack || 45) * (isCrit ? 1.6 : 1) * (0.95 + Math.random() * 0.15) * titanMult);
+
+    // --- DOPAD BUNĚČNÉ NESTABILITY V DUNGEONU ---
+    let instabilityRecoil = 0;
+    let splatterType: 'blood' | 'electric' | 'berserk' | null = null;
+
+    if (playerInstability > 100) {
+      if (Math.random() < 0.60) {
+        const subRoll = Math.random();
+        if (subRoll < 0.50) {
+          dmg = Math.round(dmg * 1.35);
+          instabilityRecoil = Math.max(1, Math.round(activePlayer.maxHP * 0.07));
+          splatterType = 'berserk';
+          addLog(`💥 [ANOMÁLIE] ${getLoc(activePlayer.monster.name, 'cz')} propadl anomálnímu běsnění (+35% DMG)! Zpětný ráz (-${instabilityRecoil} HP).`, 'player');
+        } else if (subRoll < 0.80) {
+          instabilityRecoil = Math.max(1, Math.round(activePlayer.maxHP * 0.08));
+          splatterType = 'electric';
+          setPlayers(prev => prev.map(p => (p.uid ? p.uid === PLAYER_UID : p.index === activePlayer.index) ? { ...p, energy: Math.max(0, p.energy - 20) } : p));
+          addLog(`⚡ [ZKRAT] Elektrický zkrat v zakázané DNA ${getLoc(activePlayer.monster.name, 'cz')} (-${instabilityRecoil} HP, -20 energie)!`, 'player');
+        } else {
+          dmg = Math.round(dmg * 0.5);
+          splatterType = 'electric';
+          addLog(`🧬 [PARALÝZA] Zakázaná DNA vyvolala buněčný třes! Síla útoku klesla na polovinu.`, 'player');
+        }
+      }
+    } else if (playerInstability >= 81) {
+      if (Math.random() < 0.45) {
+        instabilityRecoil = Math.max(1, Math.round(activePlayer.maxHP * 0.04));
+        splatterType = 'blood';
+        addLog(`🔥 [PŘEHŘÁTÍ] Tkáň ${getLoc(activePlayer.monster.name, 'cz')} se přehřívá z vysoké nestability (-${instabilityRecoil} HP)!`, 'player');
+      }
+    } else if (playerInstability >= 51) {
+      if (Math.random() < 0.30) {
+        instabilityRecoil = Math.max(1, Math.round(activePlayer.maxHP * 0.02));
+        splatterType = 'blood';
+        addLog(`⚡ [TŘES] Buněčný třes způsobil lehkou nestabilitu svaloviny (-${instabilityRecoil} HP)!`, 'player');
+      }
+    }
+
+    if (instabilityRecoil > 0 || splatterType) {
+      if (instabilityRecoil > 0) {
+        setPlayers(prev => prev.map(p => (p.uid ? p.uid === PLAYER_UID : p.index === activePlayer.index) ? { ...p, currentHP: Math.max(1, p.currentHP - instabilityRecoil) } : p));
+        addPopup(instabilityRecoil, true, false, activePlayer.index, true, enemies.length);
+      }
+      setBloodSplatter({ id: Date.now(), type: splatterType || 'blood' });
+      setTimeout(() => setBloodSplatter(null), 1000);
+      setScreenShake(true);
+      setTimeout(() => setScreenShake(false), 400);
+    }
 
     if (activeLobbyCode) {
       broadcastCombatEvent(activeLobbyCode, {
@@ -1218,17 +1404,26 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   // User Agro / Taunt ability to pull enemy threat to yourself
   const handleUserTaunt = () => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
+    const now = Date.now();
+    if (now - lastTauntTsRef.current < 600) return;
+
     const p = players.find(pl => pl.uid === PLAYER_UID) || players[0];
     if (!p || p.isDead || p.stunTimer > 0 || p.freezeTimer > 0) return;
 
     // Check energy cost (20 energy)
     if (p.energy < 20) return;
+    lastTauntTsRef.current = now;
 
     // Find highest threat among players to surpass it
     const maxThreat = Math.max(...players.map(pl => pl.threat || 0), 100);
     const addedThreat = maxThreat + 500;
 
     if (activeLobbyCode) {
+      setPlayers(prevPls => prevPls.map(pl => 
+        (pl.uid ? pl.uid === PLAYER_UID : pl.index === 0) 
+          ? { ...pl, energy: Math.max(0, pl.energy - 20) } 
+          : pl
+      ));
       broadcastCombatEvent(activeLobbyCode, {
         t: 'taunt',
         au: PLAYER_UID,
@@ -1252,6 +1447,9 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
   // Dynamic user execution of character's monster abilities
   const handleUserExecuteAbility = (abilityIndex: number) => {
     if (isPaused || battleResult || isTransitioning || !selectedDungeon) return;
+    const now = Date.now();
+    if (isExecutingAbilityRef.current || now - lastAbilityCastTsRef.current < 600) return;
+
     const p = players.find(pl => pl.uid === PLAYER_UID) || players[0];
     if (!p || p.isDead || p.stunTimer > 0 || p.freezeTimer > 0) return;
 
@@ -1260,6 +1458,13 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
     const cost = ability.type === 'heal' || ability.type === 'regen' ? 30 : 40;
     if (p.energy < cost) return;
+
+    // Lock to prevent duplicate / double-tap casting
+    isExecutingAbilityRef.current = true;
+    lastAbilityCastTsRef.current = now;
+    setTimeout(() => {
+      isExecutingAbilityRef.current = false;
+    }, 600);
 
     const isHeal = ability.type === 'heal' || ability.type === 'regen';
     
@@ -1270,6 +1475,13 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         const totalGroupHeal = livingPlayers.reduce((sum, pl) => sum + Math.round(pl.maxHP * 0.25), 0);
 
         if (activeLobbyCode) {
+          // Immediately deduct energy locally to prevent rapid double-clicks from passing checks
+          setPlayers(prev => prev.map(pl => 
+            (pl.uid ? pl.uid === PLAYER_UID : pl.index === p.index) 
+              ? { ...pl, energy: Math.max(0, pl.energy - cost) } 
+              : pl
+          ));
+
           broadcastCombatEvent(activeLobbyCode, {
             t: 'ab',
             au: PLAYER_UID,
@@ -1302,7 +1514,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
         setPlayers((prevPls) => prevPls.map((pl) => 
           (pl.uid ? pl.uid === PLAYER_UID : pl.index === 0) 
-            ? { ...pl, energy: pl.energy - cost, totalHealing: pl.totalHealing + totalGroupHeal, threat: pl.threat + totalGroupHeal * 0.5 } 
+            ? { ...pl, energy: Math.max(0, pl.energy - cost), totalHealing: pl.totalHealing + totalGroupHeal, threat: pl.threat + totalGroupHeal * 0.5 } 
             : pl
         ));
       }
@@ -1310,9 +1522,59 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
       const targetEnemy = enemies.find(e => !e.isDead);
       if (!targetEnemy) return;
 
-      const dmg = Math.round((p.monster.stats?.attack || 45) * 4.2);
+      const titanMult = isTitanBerserkActive ? 1.35 : 1;
+      let dmg = Math.round((p.monster.stats?.attack || 45) * 4.2 * titanMult);
+
+      // --- DOPAD BUNĚČNÉ NESTABILITY PŘI SCHOPNOSTI V DUNGEONU ---
+      let abilityRecoil = 0;
+      let abilitySplatterType: 'blood' | 'electric' | 'berserk' | null = null;
+
+      if (playerInstability > 100) {
+        if (Math.random() < 0.60) {
+          const subRoll = Math.random();
+          if (subRoll < 0.50) {
+            dmg = Math.round(dmg * 1.35);
+            abilityRecoil = Math.max(1, Math.round(p.maxHP * 0.08));
+            abilitySplatterType = 'berserk';
+            addLog(`💥 [ANOMÁLNÍ SCHOPNOST] ${getLoc(p.monster.name, 'cz')} propadl běsnění (+35% DMG schopnosti)! Zpětný ráz (-${abilityRecoil} HP).`, 'player');
+          } else if (subRoll < 0.80) {
+            abilityRecoil = Math.max(1, Math.round(p.maxHP * 0.09));
+            abilitySplatterType = 'electric';
+            setPlayers(prev => prev.map(pl => (pl.uid ? pl.uid === PLAYER_UID : pl.index === p.index) ? { ...pl, energy: Math.max(0, pl.energy - 20) } : pl));
+            addLog(`⚡ [ZKRAT] Elektrický výboj v zakázané DNA při sesílání (-${abilityRecoil} HP)!`, 'player');
+          } else {
+            dmg = Math.round(dmg * 0.5);
+            abilitySplatterType = 'electric';
+            addLog(`🧬 [PARALÝZA] Buněčný třes oslabil sílu schopnosti na polovinu!`, 'player');
+          }
+        }
+      } else if (playerInstability >= 81) {
+        if (Math.random() < 0.45) {
+          abilityRecoil = Math.max(1, Math.round(p.maxHP * 0.04));
+          abilitySplatterType = 'blood';
+          addLog(`🔥 [PŘEHŘÁTÍ] Přehřátí tkání při schopnosti (-${abilityRecoil} HP)!`, 'player');
+        }
+      }
+
+      if (abilityRecoil > 0 || abilitySplatterType) {
+        if (abilityRecoil > 0) {
+          setPlayers(prev => prev.map(pl => (pl.uid ? pl.uid === PLAYER_UID : pl.index === p.index) ? { ...pl, currentHP: Math.max(1, pl.currentHP - abilityRecoil) } : pl));
+          addPopup(abilityRecoil, true, false, p.index, true, enemies.length);
+        }
+        setBloodSplatter({ id: Date.now(), type: abilitySplatterType || 'blood' });
+        setTimeout(() => setBloodSplatter(null), 1000);
+        setScreenShake(true);
+        setTimeout(() => setScreenShake(false), 400);
+      }
 
       if (activeLobbyCode) {
+        // Immediately deduct energy locally to prevent rapid double-clicks from passing checks
+        setPlayers(prev => prev.map(pl => 
+          (pl.uid ? pl.uid === PLAYER_UID : pl.index === p.index) 
+            ? { ...pl, energy: Math.max(0, pl.energy - cost) } 
+            : pl
+        ));
+
         broadcastCombatEvent(activeLobbyCode, {
           t: 'ab',
           au: PLAYER_UID,
@@ -1371,7 +1633,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
 
       setPlayers((prevPls) => prevPls.map((pl) => 
         pl.index === 0 
-          ? { ...pl, energy: pl.energy - cost, totalDamage: pl.totalDamage + dmg, threat: pl.threat + dmg * 1.8 } 
+          ? { ...pl, energy: Math.max(0, pl.energy - cost), totalDamage: pl.totalDamage + dmg, threat: pl.threat + dmg * 1.8 } 
           : pl
       ));
     }
@@ -1501,7 +1763,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
               if (pl.uid === attackerUid) {
                 return {
                   ...pl,
-                  energy: Math.max(0, pl.energy - 30),
+                  energy: attackerUid === PLAYER_UID ? pl.energy : Math.max(0, pl.energy - 30),
                   totalHealing: pl.totalHealing + totalHealed,
                   threat: pl.threat + totalHealed * 0.5
                 };
@@ -1556,7 +1818,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             if (pl.uid === attackerUid) {
               return {
                 ...pl,
-                energy: Math.max(0, pl.energy - 40),
+                energy: attackerUid === PLAYER_UID ? pl.energy : Math.max(0, pl.energy - 40),
                 totalDamage: pl.totalDamage + dmgVal,
                 threat: pl.threat + dmgVal * 1.8
               };
@@ -1596,7 +1858,7 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             if (pl.uid === attackerUid) {
               return {
                 ...pl,
-                energy: Math.max(0, pl.energy - 20),
+                energy: attackerUid === PLAYER_UID ? pl.energy : Math.max(0, pl.energy - 20),
                 threat: pl.threat + addedThreat
               };
             }
@@ -2248,7 +2510,9 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                 }
               } else {
                 const isCrit = Math.random() < 0.25;
-                const dmgBase = (p.monster.stats?.attack || 45) * 2.5;
+                const isLocal = p.uid ? p.uid === PLAYER_UID : p.index === 0;
+                const titanMult = (isLocal && isTitanBerserkActive) ? 1.35 : 1;
+                const dmgBase = (p.monster.stats?.attack || 45) * 2.5 * titanMult;
                 const dmg = Math.round(dmgBase * (isCrit ? 1.6 : 1) * (0.9 + Math.random() * 0.2));
 
                 spawnSpellAnimation('attack', p.index, targetEnemy.index, getLoc(p.monster.type, 'cz'), enemiesRef.current.length);
@@ -2314,7 +2578,9 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
               };
             } else {
               const isCrit = Math.random() < 0.1;
-              const dmg = Math.round((p.monster.stats?.attack || 45) * (isCrit ? 1.5 : 1) * (0.9 + Math.random() * 0.2));
+              const isLocal = p.uid ? p.uid === PLAYER_UID : p.index === 0;
+              const titanMult = (isLocal && isTitanBerserkActive) ? 1.35 : 1;
+              const dmg = Math.round((p.monster.stats?.attack || 45) * (isCrit ? 1.5 : 1) * (0.9 + Math.random() * 0.2) * titanMult);
               
               spawnSpellAnimation('attack', p.index, targetEnemy.index, undefined, enemiesRef.current.length);
               playAttack();
@@ -4634,7 +4900,23 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
                         {getLoc(p.monster.name, 'cz')}
                       </span>
                     </div>
-                    <span className="text-[7px] font-black text-red-500 font-mono shrink-0 ml-1">Lv {p.monster.level}</span>
+                    <div className="flex items-center gap-1 shrink-0 ml-1">
+                      {isMainPlayer && playerInstability > 0 && (
+                        <span className={cn(
+                          "text-[6px] font-black px-1 py-0.2 rounded-full border uppercase",
+                          playerInstability > 100
+                            ? "bg-rose-950/80 border-rose-500/60 text-rose-300 animate-pulse shadow-[0_0_8px_#f43f5e]"
+                            : playerInstability >= 81
+                            ? "bg-red-950/80 border-red-500/50 text-red-300"
+                            : playerInstability >= 51
+                            ? "bg-amber-950/80 border-amber-500/50 text-amber-300"
+                            : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                        )}>
+                          {playerInstability > 100 ? `⚠️ ${playerInstability}%` : `🧬 ${playerInstability}%`}
+                        </span>
+                      )}
+                      <span className="text-[7px] font-black text-red-500 font-mono">Lv {p.monster.level}</span>
+                    </div>
                   </div>
 
                   {/* HP Bar */}
@@ -4694,6 +4976,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
         playerUid={PLAYER_UID}
         hpPotions={hpPotions}
         manaPotions={manaPotions}
+        titanPotions={titanPotionsCount}
+        masterHunterElixirs={masterHunterElixirsCount}
+        isTitanActive={isTitanBerserkActive}
+        isMasterHunterActive={isMasterHunterActive}
         showItems={showItems}
         setShowItems={setShowItems}
         showSkillsMenu={showSkillsMenu}
@@ -4733,6 +5019,22 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
           }));
           setShowItems(false);
         }}
+        onUseTitanPotion={() => {
+          if (titanPotionsCount <= 0) return;
+          onUseItem?.('titan_berserk_potion');
+          triggerShake('rgba(239, 68, 68, 0.4)');
+          playSpell();
+          addLog(`⚔️ [VY] Vypili jste Sérum Titánského Hněvu! Poškození zvýšeno o +35 % na 15 minut!`, 'player');
+          setShowItems(false);
+        }}
+        onUseMasterHunterElixir={() => {
+          if (masterHunterElixirsCount <= 0) return;
+          onUseItem?.('master_hunter_elixir');
+          triggerShake('rgba(245, 158, 11, 0.4)');
+          playSpell();
+          addLog(`🎯 [VY] Vypili jste Nektar Mistrovského Lovu! Zisk surovin zdvojen na 30 minut!`, 'heal');
+          setShowItems(false);
+        }}
       />
 
       {/* Victory / Defeat Modal with Interactive Loot Roll & Stats */}
@@ -4752,7 +5054,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
           }
         }}
         onBack={handleBackClick}
-        onAddResource={onAddResource}
+        onAddResource={(resType, amt = 1) => {
+          const finalAmt = isMasterHunterActive ? amt * 2 : amt;
+          onAddResource?.(resType, finalAmt);
+        }}
       />
 
       {/* Loot Item Detail Preview Modal */}
@@ -4813,6 +5118,10 @@ export const Dungeon = ({ onBack, caughtMonsters = [], initialDungeonId, onAddRe
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {bloodSplatter && <DungeonBloodSplatterBurst key={bloodSplatter.id} type={bloodSplatter.type} />}
       </AnimatePresence>
 
     </div>

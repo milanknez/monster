@@ -47,10 +47,12 @@ export interface Monster {
 export interface Mutation {
   id: string; // resource type id
   timestamp: number;
+  slotIndex?: number;
+  multiplier?: number;
 }
 
 export interface Boost {
-  type: 'hp_regen' | 'xp_boost';
+  type: 'hp_regen' | 'xp_boost' | 'cyclops_vision' | 'master_hunter' | 'titan_berserk';
   multiplier: number;
   expiresAt: number;
 }
@@ -72,6 +74,8 @@ export type ResourceType =
   | 'magic_crystal' | 'super_mineral' 
   | 'potion' 
   | 'xp_booster' | 'hp_potion' | 'hp_potion_large' | 'mana_potion' | 'energy_drink'
+  | 'cyclops_eye' | 'troll_urine'
+  | 'master_hunter_elixir' | 'titan_berserk_potion'
   | 'monster_egg'
   | 'gem_red_1' | 'gem_red_2' | 'gem_red_3' | 'gem_red_4' | 'gem_red_5' | 'gem_red_6'
   | 'gem_green_1' | 'gem_green_2' | 'gem_green_3' | 'gem_green_4' | 'gem_green_5' | 'gem_green_6'
@@ -131,7 +135,7 @@ export interface ResourceConfig {
   dropMin?: number;
   dropMax?: number;
   customIcon?: string;
-  specialEffect?: 'none' | 'xp_boost' | 'hp_regen';
+  specialEffect?: 'none' | 'xp_boost' | 'hp_regen' | 'cyclops_vision' | 'master_hunter' | 'titan_berserk';
   effectDuration?: number; // duration in minutes
 }
 

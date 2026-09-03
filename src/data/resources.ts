@@ -2047,6 +2047,127 @@ export const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
     "dropWeight": 1,
     "dropMin": 1,
     "dropMax": 1
+  },
+  "troll_urine": {
+    "color": "#eab308",
+    "label": {
+      "cz": "Trolí moč",
+      "en": "Troll Urine",
+      "sk": "Trolia moč"
+    },
+    "icon": "🧪",
+    "category": "material",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Silně zapáchající, ale magicky vysoce reaktivní substance. Legendární přísada získávaná z epických a legendárních monster.",
+      "en": "Strong-smelling, highly reactive magical substance. Legendary ingredient dropped by epic and legendary monsters.",
+      "sk": "Silne zapáchajúca, ale magicky vysoko reaktívna substancia. Legendárna prísada z epických a legendárnych príšer."
+    },
+    "dropWeight": 0,
+    "dropMin": 1,
+    "dropMax": 1,
+    "hasCustomIcon": true,
+    "customIcon": "troll_urine"
+  },
+  "cyclops_eye": {
+    "color": "#38bdf8",
+    "label": {
+      "cz": "Kyklopovo oko",
+      "en": "Cyclops Eye",
+      "sk": "Kyklopovo oko"
+    },
+    "icon": "👁️",
+    "category": "consumable",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Mystický zrak kyklopa. Po použití na 15 minut odhalí na mapě přesnou identitu všech příšer na otazníčcích.",
+      "en": "Mystic sight of the cyclops. When used, reveals the exact identity of all monsters on map question marks for 15 minutes.",
+      "sk": "Mystický zrak kyklopa. Po použití na 15 minút odhalí na mape presnú identitu všetkých príšer na otáznikoch."
+    },
+    "recipe": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 0,
+    "dropMin": 1,
+    "dropMax": 1,
+    "specialEffect": "cyclops_vision",
+    "effectDuration": 15,
+    "hasCustomIcon": true,
+    "customIcon": "cyclops_eye"
+  },
+  "master_hunter_elixir": {
+    "color": "#f59e0b",
+    "label": {
+      "cz": "Nektar Mistrovského Lovu",
+      "en": "Master Hunter's Elixir",
+      "sk": "Nektár Majstrovského Lovu"
+    },
+    "icon": "🎯",
+    "category": "consumable",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Legendární elixír zvyšující šanci na chycení příšery o +25 % a zisk surovin z vítězství na 30 minut.",
+      "en": "Legendary elixir that increases monster catch rate by +25% and victory loot gain for 30 minutes.",
+      "sk": "Legendárny elixír zvyšujúci šancu na chytenie príšery o +25 % a zisk surovín z víťazstva na 30 minút."
+    },
+    "recipe": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      },
+      {
+        "type": "magic_crystal",
+        "count": 5
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 0,
+    "dropMin": 1,
+    "dropMax": 1,
+    "specialEffect": "master_hunter",
+    "effectDuration": 30,
+    "hasCustomIcon": true,
+    "customIcon": "master_hunter_elixir"
+  },
+  "titan_berserk_potion": {
+    "color": "#ef4444",
+    "label": {
+      "cz": "Sérum Titánského Hněvu",
+      "en": "Titan Berserk Potion",
+      "sk": "Sérum Titánskeho Hnevu"
+    },
+    "icon": "⚔️",
+    "category": "consumable",
+    "rarity": "legendary",
+    "description": {
+      "cz": "Bojový elixír zvyšující udělené poškození v boji a dungeonech o +35 % na 15 minut.",
+      "en": "Combat elixir that increases damage dealt in battles and dungeons by +35% for 15 minutes.",
+      "sk": "Bojový elixír zvyšujúci udelené poškodenie v boji a dungeonoch o +35 % na 15 minút."
+    },
+    "recipe": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      },
+      {
+        "type": "super_mineral",
+        "count": 3
+      }
+    ],
+    "recipeAmount": 1,
+    "dropWeight": 0,
+    "dropMin": 1,
+    "dropMax": 1,
+    "specialEffect": "titan_berserk",
+    "effectDuration": 15,
+    "hasCustomIcon": true,
+    "customIcon": "titan_berserk_potion"
   }
 };
+
+
 

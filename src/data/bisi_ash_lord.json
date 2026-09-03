@@ -1,0 +1,1353 @@
+{
+  "abilities": [
+    {
+      "chance": 70,
+      "description": {
+        "cz": "Zasadí ránu plamenem pekelným, která ignoruje 50 % nepřítelovy obrany.",
+        "en": "Deals a hellfire blow that ignores 50% of the enemy's defense.",
+        "sk": "Zasadí ranu plameňom pekelným, ktorá ignoruje 50% nepriateľovej obrany."
+      },
+      "name": {
+        "cz": "Pekelné Sežehnutí",
+        "en": "Infernal Scorching",
+        "sk": "Pekelné spálenie"
+      },
+      "type": "attack",
+      "value": 230
+    },
+    {
+      "chance": 50,
+      "description": {
+        "cz": "Sežehne bojiště i vzduch, čímž drasticky sníží obranu nepřítele.",
+        "en": "Scorches both the battlefield and the air, drastically reducing the enemy's defenses.",
+        "sk": "Zožehne bojisko aj vzduch, čím drasticky zníži obranu nepriateľa."
+      },
+      "name": {
+        "cz": "Uhelná Bouře",
+        "en": "Coal Storm",
+        "sk": "Uhoľná Búrka"
+      },
+      "type": "debuff",
+      "value": 0.3
+    },
+    {
+      "chance": 70,
+      "description": {
+        "cz": "Monstrum nahromadí energii ve své hrudi a vypustí ničivou vlnu lávy.",
+        "en": "The monster builds up energy in its chest and unleashes a devastating wave of lava.",
+        "sk": "Monštrum nahromadí energiu vo svojej hrudi a vypustí ničivú vlnu lávy."
+      },
+      "name": {
+        "cz": "Sopečný Výbuch",
+        "en": "Volcanic Eruption",
+        "sk": "Sopečný Výbuch"
+      },
+      "type": "attack",
+      "value": 230
+    }
+  ],
+  "caughtAt": 1787288241114,
+  "currentHP": 27812,
+  "description": {
+    "cz": "Gigantická bestie složená z tvrzeného obsidiánu a tekuté lávy. Její hruď tvoří sopečná pec, která pohlcuje vše živé a mění to v dusivý popel.",
+    "en": "A gigantic beast composed of hardened obsidian and liquid lava. Her chest is a volcanic furnace that consumes all living things and turns them into suffocating ash.",
+    "sk": "Gigantická beštia zložená z tvrdeného obsidiánu a tekutej lávy. Jej hruď tvorí sopečná pec, ktorá pohlcuje všetko živé a mení to na dusivý popol."
+  },
+  "gems": [
+    "gem_white_5",
+    "gem_green_5",
+    "gem_red_6"
+  ],
+  "id": "109",
+  "image": "/monsters/109.png",
+  "lat": 49.2862576,
+  "level": 19,
+  "lng": 13.9562779,
+  "mutations": [
+    {
+      "id": "loot_6",
+      "timestamp": 1787289154601
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289157235
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289159963
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289162501
+    },
+    {
+      "id": "loot_15",
+      "timestamp": 1787289166697
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289169816
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787289174882
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1787289179479
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787289181847
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289184241
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787289189545
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289704528
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289707384
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787289710133
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289713386
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289715869
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289718122
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787289723081
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787289725115
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787289727216
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787289730231
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787289734121
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787289736638
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787289738668
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787289741090
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787289743472
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787289745676
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787289748671
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289751289
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289753205
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289755357
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289757358
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787289759472
+    },
+    {
+      "id": "xp_serum_2",
+      "timestamp": 1787290155052
+    },
+    {
+      "id": "loot_11",
+      "timestamp": 1787314754394
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787314777480
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787314780384
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787314783361
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787314796279
+    },
+    {
+      "id": "xp_serum_1",
+      "timestamp": 1787315072532
+    },
+    {
+      "id": "xp_serum_1",
+      "timestamp": 1787333761377
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347371757
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347375592
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347378283
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347380788
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347383064
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347386003
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347388208
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347390385
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347395524
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787347400438
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787347407010
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787347410073
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787347412717
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787347415654
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787347420817
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787347425961
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787347429210
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787347431824
+    },
+    {
+      "id": "xp_serum_2",
+      "timestamp": 1787347589340
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787347956927
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347959896
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347964268
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787347966668
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787347970258
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787347973201
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787347977295
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787347982002
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1787347985210
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787347992471
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1787347995297
+    },
+    {
+      "id": "xp_serum_2",
+      "timestamp": 1787348072174
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787348363827
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787348367896
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787399581798
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787399584692
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787399587945
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787399597431
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787399599990
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787399602078
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787399604243
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787399606843
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787399608992
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787399611451
+    },
+    {
+      "id": "xp_serum_2",
+      "timestamp": 1787399717258
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787402135981
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787402139304
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787402142399
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787402144631
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787402146795
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787402148830
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787402150940
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787402152858
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787402154963
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787402157353
+    },
+    {
+      "id": "xp_serum_1",
+      "timestamp": 1787467451501
+    },
+    {
+      "id": "xp_serum_2",
+      "timestamp": 1787652541551
+    },
+    {
+      "id": "loot_12",
+      "timestamp": 1787771293375
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1787771298354
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1787771302385
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771305762
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771307470
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771308232
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771315219
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771315401
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771322640
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771322820
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771385984
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386154
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386336
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386485
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386641
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386804
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771386952
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771387102
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771387255
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771387401
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771387561
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771387872
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771388020
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771388174
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787771390989
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771393872
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394038
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394205
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394352
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394491
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394659
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394813
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771394941
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771395108
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771395262
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771395409
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397107
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397280
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397431
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397596
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397764
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771397933
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398105
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398267
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398421
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398568
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398736
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771398917
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399076
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399247
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399417
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399587
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399767
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771399937
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787771400114
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1787771402023
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1787771402176
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1787771402343
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771404770
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771404931
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771405095
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771405247
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771405411
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1787771405567
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771407306
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771407471
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771407643
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771407823
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771407967
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771408133
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771408317
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771408491
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771408653
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787771408822
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771410435
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771410618
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771410797
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771410952
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771411144
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771411301
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771411465
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1787771411613
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1787856287706
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1787856289608
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1787856291500
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1787856293222
+    },
+    {
+      "id": "loot_15",
+      "timestamp": 1787856294924
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788004129931
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788004131636
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788004133086
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788004134728
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788004137100
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788084554860
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788084556574
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788084557343
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1788084559154
+    },
+    {
+      "id": "loot_2",
+      "timestamp": 1788084560706
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788097308782
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788097309476
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788097311766
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788097312270
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1788103101595
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788103105371
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788103107090
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788183214059
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1788183215819
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788183217707
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788183219287
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788183219976
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788183962554
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1788183965272
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788183966938
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788183968060
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788183969736
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788183970467
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788184814156
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788184819094
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788185461508
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788185462951
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788185464418
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788186449580
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788186451285
+    },
+    {
+      "id": "loot_4",
+      "timestamp": 1788186453062
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788189579745
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788189582447
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788189584878
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1788189591236
+    },
+    {
+      "id": "loot_10",
+      "timestamp": 1788207682220
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788207684353
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788207686795
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788207688681
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788208235785
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788208238225
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788208240353
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788208242570
+    },
+    {
+      "id": "sn03",
+      "timestamp": 1788208511560
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788208522542
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788208531258
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788209346528
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788209347553
+    },
+    {
+      "id": "sn03",
+      "timestamp": 1788209349725
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788209351489
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788209353221
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788209922286
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788209923485
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788209927248
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788209928152
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788209928649
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788209930503
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788209931645
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788209931879
+    },
+    {
+      "id": "loot_6",
+      "timestamp": 1788209934023
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1788209936163
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1788209937345
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788209940089
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788209942167
+    },
+    {
+      "id": "loot_14",
+      "timestamp": 1788215727193
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788215729364
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788215731391
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788215733858
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788216117612
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788216119833
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788216120528
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788216123777
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788216125845
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788216127283
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788244618238
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788244618989
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788244621154
+    },
+    {
+      "id": "loot_8",
+      "timestamp": 1788244622874
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788244624993
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788244626565
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788244628763
+    },
+    {
+      "id": "loot_14",
+      "timestamp": 1788244630819
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788253004225
+    },
+    {
+      "id": "sn03",
+      "timestamp": 1788253006520
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788253008307
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788253009882
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788253011592
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788253013129
+    },
+    {
+      "id": "loot_11",
+      "timestamp": 1788253014524
+    },
+    {
+      "id": "loot_3",
+      "timestamp": 1788253016145
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788254873467
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788254874536
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788254876333
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788254877053
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788261022358
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788261023111
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788261025268
+    },
+    {
+      "id": "loot_11",
+      "timestamp": 1788261027760
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788261029466
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788261031279
+    },
+    {
+      "id": "ka02",
+      "timestamp": 1788261314424
+    },
+    {
+      "id": "ka01",
+      "timestamp": 1788261317235
+    },
+    {
+      "id": "sn03",
+      "timestamp": 1788279271765
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788279273322
+    },
+    {
+      "id": "loot_5",
+      "timestamp": 1788279274834
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1788279276262
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788288916819
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788288917504
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788288921685
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788288922098
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788288922486
+    },
+    {
+      "id": "loot_14",
+      "timestamp": 1788288924261
+    },
+    {
+      "id": "loot_9",
+      "timestamp": 1788288926028
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1788288927576
+    },
+    {
+      "id": "loot_7",
+      "timestamp": 1788288929417
+    },
+    {
+      "id": "sn03",
+      "timestamp": 1788288930938
+    },
+    {
+      "id": "loot_11",
+      "timestamp": 1788288932723
+    },
+    {
+      "id": "loot_16",
+      "timestamp": 1788291741247
+    },
+    {
+      "id": "loot_13",
+      "timestamp": 1788291744440
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788291746287
+    },
+    {
+      "id": "sn04",
+      "timestamp": 1788347468338
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788347470027
+    },
+    {
+      "id": "sn02",
+      "timestamp": 1788347471727
+    },
+    {
+      "id": "sn01",
+      "timestamp": 1788347476164
+    },
+    {
+      "id": "li02",
+      "timestamp": 1788364437437
+    },
+    {
+      "id": "li01",
+      "timestamp": 1788364439319
+    },
+    {
+      "id": "li02",
+      "timestamp": 1788366561634
+    },
+    {
+      "id": "li04",
+      "timestamp": 1788366564205
+    },
+    {
+      "id": "loot_11",
+      "timestamp": 1788366569452
+    }
+  ],
+  "name": {
+    "cz": "Démonický Pán Popela",
+    "en": "Demon Ash Lord",
+    "sk": "Démonický Pán Popola"
+  },
+  "rarity": "legendary",
+  "stats": {
+    "attack": 3008,
+    "defense": 1725,
+    "hp": 9030
+  },
+  "type": "fire",
+  "xp": 1926
+}

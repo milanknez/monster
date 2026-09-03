@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Bolt, LayoutGrid, RefreshCw,
   Clock, Package, Plus, Heart, Sword, Shield, Trash2, X, FlaskConical,
-  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap, ShieldAlert
+  Sparkles, Info, Activity, ChevronRight, Star, Target, Gem, Dna, Skull, Zap, ShieldAlert, Lock
 } from 'lucide-react';
 
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import {
 import { RESOURCE_CONFIG } from '../../data/resources';
 import { monsterDB } from '../../data/monsters';
 import { ResourceIcon } from '../ui/ResourceIcon';
+import { GenomicTreeModal, TOTAL_GENOMIC_SLOTS, getUnlockedGenomicSlots } from './GenomicTreeModal';
 import type { Monster, Localized } from '../../types';
 
 // --- Sub-components for better organization ---
@@ -525,12 +526,15 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   onUsePotion?: (type: string) => void;
   onEquipGem?: (idx: number, gemType: string | null) => void;
   onEquipItem?: (idx: number, itemType: string | null) => void;
-  onPermanentlyUpgrade?: (itemType: string, stats: any) => void;
+  onPermanentlyUpgrade?: (itemType: string, stats: any, slotIdx?: number, multiplier?: number) => void;
+  onRemoveMutation?: (slotIndex: number) => void;
+  onSwapMutationSlots?: (fromSlot: number, toSlot: number, newMultiplier: number, oldMultiplier: number) => void;
+  onOpenGenome?: () => void;
   onRelease?: () => void;
   canRelease?: boolean;
   graphicsQuality?: 'low' | 'high';
 }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRelease, canRelease = true, graphicsQuality = 'high' }, ref) => {
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRemoveMutation, onSwapMutationSlots, onOpenGenome, onRelease, canRelease = true, graphicsQuality = 'high' }, ref) => {
     const { t, i18n } = useTranslation();
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [focusedItem, setFocusedItem] = useState<any>(null);
@@ -538,6 +542,19 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
     const [showHealingModal, setShowHealingModal] = useState(false);
     const [showMutations, setShowMutations] = useState(false);
     const [showItemPicker, setShowItemPicker] = useState(false);
+    const [returnToMutations, setReturnToMutations] = useState(false);
+    const [targetGenomicSlot, setTargetGenomicSlot] = useState<number | undefined>(undefined);
+    const [targetTierMultiplier, setTargetTierMultiplier] = useState<number>(1.0);
+
+    const closePicker = () => {
+      setShowItemPicker(false);
+      setActiveSlotIdx(null);
+      setFocusedItem(null);
+      if (returnToMutations) {
+        setShowMutations(true);
+        setReturnToMutations(false);
+      }
+    };
 
     if (!monster) return null;
 
@@ -687,11 +704,12 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: -15 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowMutations(true)}
+                  onClick={() => onOpenGenome ? onOpenGenome() : setShowMutations(true)}
                   className={cn(
                     "size-10 rounded-lg flex items-center justify-center border border-white/10 bg-background-dark/80 backdrop-blur-md text-primary shadow-2xl transition-all",
                     monster.mutations && monster.mutations.length > 0 ? "ring-1 ring-primary/30 ring-offset-1 ring-offset-slate-900" : "opacity-40 grayscale hover:grayscale-0"
                   )}
+                  title="Otevřít Biologickou Matici Žil"
                 >
                   <Dna size={18} className={cn(monster.mutations && monster.mutations.length > 0 && "animate-pulse")} />
                 </motion.button>
@@ -896,19 +914,28 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 </div>
                 <h3 className="text-xs font-black text-white uppercase tracking-widest">{t('monster.detail.gems_relics')}</h3>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setActiveSlotIdx(null);
-                  setShowItemPicker(true);
-                  setFocusedItem(null);
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-xl text-primary text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                <Dna size={12} />
-                {t('monster.detail.mutate')}
-              </motion.button>
+              {(() => {
+                const mCount = monster.mutations?.length || 0;
+                const unl = getUnlockedGenomicSlots(monster.level || 1);
+                const isFull = mCount >= TOTAL_GENOMIC_SLOTS;
+                return (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onOpenGenome ? onOpenGenome() : setShowMutations(true)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm",
+                      isFull
+                        ? "bg-rose-500/15 border-rose-500/30 text-rose-400"
+                        : "bg-primary/20 hover:bg-primary/30 border-primary/30 text-primary"
+                    )}
+                    title="Otevřít Biologickou Matici Žil"
+                  >
+                    <Dna size={12} className={cn(mCount > 0 && "animate-pulse")} />
+                    <span>{t('monster.detail.mutate')} ({mCount}/{unl})</span>
+                  </motion.button>
+                );
+              })()}
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -1199,7 +1226,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }}
+                onClick={closePicker}
                 className="absolute inset-0 bg-black/60 backdrop-blur-md"
               />
               <motion.div
@@ -1225,7 +1252,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                       </div>
                   </div>
                   <button
-                    onClick={() => { setShowItemPicker(false); setActiveSlotIdx(null); setFocusedItem(null); }}
+                    onClick={closePicker}
                     className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400 transition-colors"
                   >
                     <X size={24} />
@@ -1320,25 +1347,68 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                           <p className="text-sm text-slate-400 font-medium leading-relaxed italic tracking-tight">{getLoc(cfg.description, i18n.language)}</p>
 
                           <div className="flex flex-col gap-3 pt-2">
-                            {(cfg.category === 'relic' || focusedItem.type.startsWith('loot_')) && (
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onPermanentlyUpgrade && cfg.stats && currentCount > 0) {
-                                    onPermanentlyUpgrade(focusedItem.type, cfg.stats);
-                                    if (currentCount <= 1) {
-                                      setFocusedItem(null);
+                            {(cfg.category === 'relic' || focusedItem.type.startsWith('loot_')) && (() => {
+                              const mCount = monster.mutations?.length || 0;
+                              const unl = getUnlockedGenomicSlots(monster.level || 1);
+                              const isTotalCap = mCount >= TOTAL_GENOMIC_SLOTS;
+                              const isLevelCap = mCount >= unl;
+                              const canApply = !isTotalCap && !isLevelCap;
+
+                              return (
+                                <motion.button
+                                  whileHover={canApply ? { scale: 1.02 } : undefined}
+                                  whileTap={canApply ? { scale: 0.95 } : undefined}
+                                  disabled={!canApply}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (canApply && onPermanentlyUpgrade && cfg.stats && currentCount > 0) {
+                                      const mult = targetTierMultiplier || 1.0;
+                                      const effectiveStats = {
+                                        ...cfg.stats,
+                                        hp: cfg.stats.hp ? Math.round(cfg.stats.hp * mult) : undefined,
+                                        atk: cfg.stats.atk ? Math.round(cfg.stats.atk * mult) : undefined,
+                                        def: cfg.stats.def ? Math.round(cfg.stats.def * mult) : undefined,
+                                      };
+                                      onPermanentlyUpgrade(focusedItem.type, effectiveStats, targetGenomicSlot, mult);
+
+                                      if (returnToMutations) {
+                                        setShowItemPicker(false);
+                                        setFocusedItem(null);
+                                        setShowMutations(true);
+                                        setReturnToMutations(false);
+                                        setTargetGenomicSlot(undefined);
+                                        setTargetTierMultiplier(1.0);
+                                      } else if (currentCount <= 1) {
+                                        setFocusedItem(null);
+                                      }
                                     }
-                                  }
-                                }}
-                                className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-black rounded-2xl uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-orange-900/40 flex items-center justify-center gap-2 border-b-4 border-black/20"
-                              >
-                                <Sparkles size={18} />
-                                {t('monster.detail.permanently_upgrade_dna')}
-                              </motion.button>
-                            )}
+                                  }}
+                                  className={cn(
+                                    "w-full py-4 text-white font-black rounded-2xl uppercase text-[11px] tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 border-b-4 border-black/20 transition-all",
+                                    canApply
+                                      ? "bg-gradient-to-r from-orange-600 to-red-600 shadow-orange-900/40"
+                                      : "bg-slate-800 border-white/10 text-slate-500 cursor-not-allowed"
+                                  )}
+                                >
+                                  {isTotalCap ? (
+                                    <>
+                                      <Lock size={16} />
+                                      <span>Genetický Strop (15/15)</span>
+                                    </>
+                                  ) : isLevelCap ? (
+                                    <>
+                                      <Lock size={16} />
+                                      <span>Sloty pro Lv {monster.level} Plné ({mCount}/{unl})</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Sparkles size={18} />
+                                      {t('monster.detail.permanently_upgrade_dna')}
+                                    </>
+                                  )}
+                                </motion.button>
+                              );
+                            })()}
 
                             {cfg.category === 'gem' && activeSlotIdx !== null && (
                               <motion.button
@@ -1375,120 +1445,23 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
           )}
         </AnimatePresence>
 
-        {/* Mutation History Modal (GEN Chain) */}
-        <AnimatePresence>
-          {showMutations && (
-            <div className="fixed inset-0 z-[20000] flex items-center justify-end flex-col">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setShowMutations(false)}
-                className={cn("absolute inset-0 bg-black/40", graphicsQuality !== 'low' && "backdrop-blur-xl")}
-              />
-              <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className={cn(
-                  "w-full max-w-lg border-t-4 border-primary/50 rounded-t-[2rem] p-8 pb-12 shadow-[0_-20px_100px_rgba(var(--primary-rgb),0.4)] relative z-10 max-h-[85vh] flex flex-col bg-slate-900 border-x border-b border-slate-800"
-                )}
-              >
-                {/* Header */}
-                <div className="flex justify-between items-center mb-8 shrink-0">
-                  <div className="flex items-center gap-4">
-                    <div className="size-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shadow-lg shadow-primary/10">
-                      <Dna size={32} />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">
-                        {t('monster.genom.title')}
-                      </h2>
-                      <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em] italic">
-                        {t('monster.genom.subtitle')}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowMutations(false)}
-                    className="size-12 bg-white/5 hover:bg-white/10 rounded-2xl flex items-center justify-center text-slate-400"
-                  >
-                    <X size={24} />
-                  </button>
-                </div>
-
-                {/* History List */}
-                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4">
-                  {!monster.mutations || monster.mutations.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-20 italic">
-                      <Activity size={48} className="mb-4" />
-                      <p className="text-sm font-black uppercase tracking-widest text-slate-400">{t('monster.genom.no_mutations')}</p>
-                    </div>
-                  ) : (
-                    <div className="relative pl-8 space-y-6 mt-4">
-                      {/* DNA Vertical Line */}
-                      <div className="absolute left-[15px] top-4 bottom-4 w-1 bg-gradient-to-b from-primary via-purple-500 to-primary/40 rounded-full" />
-
-                      {monster.mutations.map((mut, idx) => {
-                        const cfg = RESOURCE_CONFIG[mut.id];
-                        return (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            className="relative flex items-start gap-4"
-                          >
-                            {/* Node Icon Cluster */}
-                            <div className="absolute -left-[27px] size-14 z-10">
-                              <div className="size-full bg-slate-900 border-2 border-primary rounded-xl flex items-center justify-center shadow-lg overflow-hidden group">
-                                <ResourceIcon id={mut.id} config={cfg} size="lg" />
-                                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <div className="absolute -z-10 -inset-2 bg-primary/30 blur-xl rounded-full animate-pulse" />
-                            </div>
-
-                            <div className="flex-1 bg-white/[0.03] border border-white/10 rounded-2xl p-4 ml-8 backdrop-blur-md shadow-xl transition-all hover:bg-white/[0.06] hover:border-white/20">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <h4 className="text-sm font-black text-white uppercase tracking-tight">{getLoc(cfg?.label, i18n.language) || mut.id}</h4>
-                                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">
-                                    {new Date(mut.timestamp).toLocaleDateString()} • {new Date(mut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </p>
-                                </div>
-                                <div className="size-6 bg-primary/10 rounded-full flex items-center justify-center text-[8px] font-black text-primary border border-primary/20">
-                                  #{idx + 1}
-                                </div>
-                              </div>
-
-                              <div className="flex flex-wrap gap-2">
-                                {(cfg?.stats?.atk || 0) > 0 && <span className="text-[8px] font-black text-red-400 bg-red-400/10 px-2 py-1 rounded-lg border border-red-400/20">+{cfg.stats?.atk} {t('stats.atk_short')}</span>}
-                                {(cfg?.stats?.hp || 0) > 0 && <span className="text-[8px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg border border-emerald-400/20">+{cfg.stats?.hp} {t('stats.hp_short')}</span>}
-                                {(cfg?.stats?.def || 0) > 0 && <span className="text-[8px] font-black text-blue-400 bg-blue-400/10 px-2 py-1 rounded-lg border border-blue-400/20">+{cfg.stats?.def} {t('stats.def_short')}</span>}
-                                {(cfg?.stats?.xp || 0) > 0 && <span className="text-[8px] font-black text-amber-400 bg-amber-400/10 px-2 py-1 rounded-lg border border-amber-400/20">+{cfg.stats?.xp} XP</span>}
-                              </div>
-                            </div>
-                          </motion.div>
-                        );
-                      }).reverse()}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Info */}
-                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-3">
-                    <div className="px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20">
-                      <p className="text-[9px] font-black text-primary uppercase tracking-widest">{t('monster.genom.total_mutations')} {monster.mutations?.length || 0}</p>
-                    </div>
-                  </div>
-                  <p className="text-[9px] font-black text-slate-500 uppercase italic tracking-tighter leading-none opacity-40">{t('monster.genom.verified')}</p>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+        {/* Genomic Vein Tree & Matrix Modal */}
+        <GenomicTreeModal
+          isOpen={showMutations}
+          onClose={() => setShowMutations(false)}
+          monster={monster}
+          onOpenMutatePicker={(targetSlot, multiplier) => {
+            setTargetGenomicSlot(targetSlot);
+            setTargetTierMultiplier(multiplier ?? 1.0);
+            setReturnToMutations(true);
+            setShowMutations(false);
+            setActiveSlotIdx(null);
+            setShowItemPicker(true);
+            setFocusedItem(null);
+          }}
+          onRemoveMutation={onRemoveMutation}
+          onSwapSlots={onSwapMutationSlots}
+        />
       </motion.div>
     )
   }

@@ -53,7 +53,7 @@ export const Inventory = ({
   };
 
   const isConsumable = (type: string) => {
-    return ['xp_booster', 'energy_drink', 'backpack_pouch', 'backpack_vault'].includes(type);
+    return ['xp_booster', 'energy_drink', 'backpack_pouch', 'backpack_vault', 'cyclops_eye'].includes(type) || RESOURCE_CONFIG[type]?.category === 'consumable';
   };
 
   return (
@@ -73,30 +73,62 @@ export const Inventory = ({
         <section className="px-6 mb-8">
           <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">{t('inventory.active_effects')}</h3>
           <div className="grid grid-cols-1 gap-2">
-            {activeBoosts.map((boost, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="size-8 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-500 shrink-0">
-                    {boost.type === 'xp_boost' ? <Star size={18} fill="currentColor" /> : <Zap size={18} fill="currentColor" />}
+            {activeBoosts.map((boost, idx) => {
+              const isCyclops = boost.type === 'cyclops_vision';
+              const isHunter = boost.type === 'master_hunter';
+              const isBerserk = boost.type === 'titan_berserk';
+              const isXp = boost.type === 'xp_boost';
+
+              const title = isCyclops ? t('inventory.cyclops_vision', 'Kyklopovo Vidění') :
+                            isHunter ? t('inventory.master_hunter', 'Mistrovský Lov') :
+                            isBerserk ? t('inventory.titan_berserk', 'Titánský Hněv') :
+                            isXp ? t('inventory.xp_elixir') : t('inventory.energy_drink');
+
+              const subtitle = isCyclops ? t('inventory.monsters_revealed', 'Odhalená monstra na mapě') :
+                               isHunter ? t('inventory.hunter_bonus', 'Šance na chyt +25% & Extra Loot') :
+                               isBerserk ? t('inventory.berserk_bonus', 'Útok v boji +35%') :
+                               `${t('inventory.bonus')} ${boost.multiplier}x`;
+
+              const borderColor = isCyclops ? "bg-sky-500/10 border-sky-500/30" :
+                                  isHunter ? "bg-amber-500/10 border-amber-500/30" :
+                                  isBerserk ? "bg-rose-500/10 border-rose-500/30" :
+                                  "bg-emerald-500/10 border-emerald-500/20";
+
+              const iconBg = isCyclops ? "bg-sky-500/20 text-sky-400" :
+                             isHunter ? "bg-amber-500/20 text-amber-400" :
+                             isBerserk ? "bg-rose-500/20 text-rose-400" :
+                             "bg-emerald-500/20 text-emerald-500";
+
+              const subColor = isCyclops ? "text-sky-400/80" :
+                               isHunter ? "text-amber-400/80" :
+                               isBerserk ? "text-rose-400/80" :
+                               "text-emerald-500/70";
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className={cn("flex items-center justify-between p-2 rounded-xl border", borderColor)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("size-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
+                      {isCyclops ? <Sparkles size={18} /> : isHunter ? <Sparkles size={18} /> : isBerserk ? <Zap size={18} /> : isXp ? <Star size={18} fill="currentColor" /> : <Zap size={18} fill="currentColor" />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-white uppercase">{title}</p>
+                      <p className={cn("text-[10px] font-bold uppercase", subColor)}>{subtitle}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase">{boost.type === 'xp_boost' ? t('inventory.xp_elixir') : t('inventory.energy_drink')}</p>
-                    <p className="text-[10px] font-bold text-emerald-500/70 uppercase">{t('inventory.bonus')} {boost.multiplier}x</p>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase">
+                      <Clock size={10} />
+                      <span>{Math.max(1, Math.round((boost.expiresAt - Date.now()) / 60000))} min</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase">
-                    <Clock size={10} />
-                    <span>{Math.round((boost.expiresAt - Date.now()) / 60000)} min</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </section>
       )}

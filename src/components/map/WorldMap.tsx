@@ -168,6 +168,7 @@ export interface WorldMapProps {
   pvpWins?: number
   pvpLosses?: number
   onOpenDungeon?: (dungeon: DungeonSpawnPoint) => void
+  isCyclopsVisionActive?: boolean
 }
 
 // ── Konfigurace ──────────────────────────────────────────────
@@ -205,7 +206,8 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
   spawnRadius = 1000,
   pvpWins = 0,
   pvpLosses = 0,
-  onOpenDungeon
+  onOpenDungeon,
+  isCyclopsVisionActive = false
 }, ref) => {
 
   const { t, i18n } = useTranslation()
@@ -411,23 +413,26 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         const isNearby = dist <= CATCH_RADIUS_M
         const currentLocked = s.level > pLevel
         const isCollected = caughtMonsters.some(m => m.id === s.monsterId)
+        const isRevealed = isCyclopsVisionActive || isNearby
         const marker = existing.get(s.id)
 
         if (marker) {
-          if ((marker as any)._isNearby !== isNearby || (marker as any)._isLocked !== currentLocked || (marker as any)._scale !== scale || (marker as any)._isCollected !== isCollected) {
-            marker.setIcon(makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected))
-            marker.setTooltipContent(makeTooltipHtml(s, pLevel))
+          if ((marker as any)._isNearby !== isNearby || (marker as any)._isLocked !== currentLocked || (marker as any)._scale !== scale || (marker as any)._isCollected !== isCollected || (marker as any)._isRevealed !== isRevealed) {
+            marker.setIcon(makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected, isRevealed))
+            marker.setTooltipContent(makeTooltipHtml(s, pLevel, isRevealed))
               ; (marker as any)._isNearby = isNearby
               ; (marker as any)._isLocked = currentLocked
               ; (marker as any)._scale = scale
               ; (marker as any)._isCollected = isCollected
+              ; (marker as any)._isRevealed = isRevealed
           }
         } else {
-          const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected) }).bindTooltip(makeTooltipHtml(s, pLevel), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
+          const m = L.marker([s.lat, s.lng], { icon: makeMarkerIcon(s, isNearby, currentLocked, scale, isCollected, isRevealed) }).bindTooltip(makeTooltipHtml(s, pLevel, isRevealed), { direction: 'top', offset: [0, -12], className: 'monster-tooltip' }).addTo(map)
             ; (m as any)._isNearby = isNearby
             ; (m as any)._isLocked = currentLocked
             ; (m as any)._scale = scale
             ; (m as any)._isCollected = isCollected
+            ; (m as any)._isRevealed = isRevealed
           existing.set(s.id, m)
         }
       }
@@ -481,7 +486,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
         dExisting.set(d.id, m)
       }
     }
-  }, [visibleRarities, dungeons])
+  }, [visibleRarities, dungeons, isCyclopsVisionActive, caughtMonsters])
 
   const updateOtherPlayers = useCallback((map: L.Map, players: NearbyPlayer[]) => {
     const existing = otherPlayersMarkersRef.current
@@ -875,7 +880,7 @@ export const WorldMap = forwardRef<WorldMapHandle, WorldMapProps>(({
     if (!playerPos || !mapRef.current) return
     updateMarkers(mapRef.current, spawns, resources, playerPos[0], playerPos[1], playerLevel, !showMonsters, !showResources, iconScale)
     updateOtherPlayers(mapRef.current, nearbyPlayers)
-  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale, visibleRarities])
+  }, [spawns, resources, playerPos, playerLevel, nearbyPlayers, updateMarkers, updateOtherPlayers, showMonsters, showResources, iconScale, visibleRarities, isCyclopsVisionActive])
 
 
   useEffect(() => {

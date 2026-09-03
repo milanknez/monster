@@ -301,7 +301,7 @@ export const getPlayerRank = (caughtCount: number) => {
   return i18n.t('ranks.r6');
 };
 
-export const calculateBoostMultiplier = (activeBoosts: any[], type: 'xp_boost' | 'hp_regen') => {
+export const calculateBoostMultiplier = (activeBoosts: any[], type: 'xp_boost' | 'hp_regen' | 'master_hunter' | 'titan_berserk' | string) => {
   const boosts = (activeBoosts || []).filter(b => b.type === type && b.expiresAt > Date.now());
   if (boosts.length === 0) return 1;
   // Sečteme bonusové části (např. 2x a 1.5x => 1 + 1.0 + 0.5 = 2.5x)

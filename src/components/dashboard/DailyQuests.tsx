@@ -130,7 +130,8 @@ export const DailyQuests = ({
       color: 'text-red-500',
       bg: 'bg-red-500/10',
       completed: (dailyDistance / 1000) >= 2.0,
-      reward: 250
+      reward: 250,
+      maxLevel: 10
     },
     {
       id: 4,
@@ -177,6 +178,7 @@ export const DailyQuests = ({
 
   const visibleQuests = quests.filter(q => {
     if (q.minLevel && playerLevel < q.minLevel) return false;
+    if ((q as any).maxLevel && playerLevel > (q as any).maxLevel) return false;
     
     // Pokud tento quest vyžaduje jiný, zobrazím ho jen, pokud je ten předchozí splněn v historii
     if (q.requires) {

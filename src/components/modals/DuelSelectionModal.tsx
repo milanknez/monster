@@ -4,7 +4,7 @@ import {
   Sword, X, Heart, Zap, Flame, Droplets, 
   Leaf, Skull, Check 
 } from 'lucide-react';
-import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, TYPE_MAP } from '../../utils';
+import { cn, getMonsterMaxHP, TYPE_COLORS, getTotalXPForLevel, getLoc, getMonsterColors, getRarityTheme, getMonsterTypeIcon, TYPE_MAP, getMonsterPower } from '../../utils';
 import type { Monster } from '../../types';
 import { RESOURCE_CONFIG } from '../../data/resources';
 
@@ -24,8 +24,8 @@ export const DuelSelectionModal = ({
   description?: string
 }) => {
   const { t, i18n } = useTranslation();
-  // Seřadit podle nejsilnějšího (lvl * útok nebo prostě lvl)
-  const sorted = [...caughtMonsters].sort((a, b) => (b.level || 0) - (a.level || 0));
+  // Seřadit podle nejvyššího skóre (power / bojové síly)
+  const sorted = [...caughtMonsters].sort((a, b) => getMonsterPower(b) - getMonsterPower(a));
   const isCollected = opponent ? caughtMonsters.some(m => m.id === opponent.id) : false;
 
   const TypeIcon = ({ type, size = 16, className = "" }: { type: string, size?: number, className?: string }) => {
@@ -192,14 +192,18 @@ export const DuelSelectionModal = ({
                       </div>
                     </div>
 
-                    {/* HP Indicator */}
-                    <div className="absolute top-3 right-3 z-20">
+                    {/* HP & Score Indicator */}
+                    <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1">
                       <div className={cn(
                         "h-6 px-2 rounded-lg bg-slate-950/80 border text-[9px] font-black flex items-center gap-1 shadow-lg",
                         hpPercent > 90 ? "border-emerald-500/30 text-emerald-500" : "border-orange-500/30 text-orange-400"
                       )}>
                         <Heart size={10} className="fill-current" />
                         <span>{hpPercent}%</span>
+                      </div>
+                      <div className="h-5 px-1.5 rounded-md bg-amber-500/20 border border-amber-500/30 text-[9px] font-black flex items-center gap-1 shadow-lg text-amber-300">
+                        <Zap size={9} className="fill-current text-amber-400" />
+                        <span>{getMonsterPower(monster)}</span>
                       </div>
                     </div>
 

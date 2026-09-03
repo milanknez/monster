@@ -87,19 +87,24 @@ export function calculateHPCost(level: number, rarity: SpawnRarity) {
   return base + (level * 2) + rarityBonus
 }
 
-export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0, isCollected = false): L.DivIcon {
+export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: boolean, scale = 1.0, isCollected = false, isRevealed = false): L.DivIcon {
   const c = RARITY_COLORS[spawn.rarity]
   const outerSize = spawn.rarity === 'legendary' ? 50 : (spawn.rarity === 'epic' || spawn.rarity === 'rare') ? 38 : 32
   const innerR = 32
 
-  // Silhouette added as background even when locked to show it's a monster
-  const silhouette = `<g transform="translate(18, 18) scale(0.64)" opacity="0.4" style="color:${c.label}">${SILHOUETTE_SVG}</g>`
-
-  const lockOverlay = isLocked
-    ? `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`
-    : `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`
+  let centerContent = '';
+  if (isLocked) {
+    centerContent = `<g transform="translate(30, 30) scale(1.6)"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="#f59e0b" stroke="#000" stroke-width="0.5"/></g>`;
+  } else if (isRevealed) {
+    const monster = monsterDB.find(m => m.id === spawn.monsterId);
+    const imgUrl = (monster as any)?.image || `/monsters/${spawn.monsterId}.png`;
+    centerContent = `<clipPath id="circleClip-${spawn.id}"><circle cx="50" cy="50" r="28" /></clipPath><image href="${imgUrl}" x="22" y="22" width="56" height="56" preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip-${spawn.id})" />`;
+  } else {
+    centerContent = `<text x="50" y="65" text-anchor="middle" font-size="48" font-weight="900" fill="${c.label}" opacity="0.9">?</text>`;
+  }
 
   const pulse = isNearby && !isLocked ? `<circle cx="50" cy="50" r="46" fill="none" stroke="${c.glow}" stroke-width="3" opacity="0.7"><animate attributeName="r" values="42;50;42" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8" dur="1.2s" repeatCount="indefinite"/></circle>` : ''
+  const visionAura = isRevealed && !isLocked ? `<circle cx="50" cy="50" r="38" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 2" opacity="0.9"><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/></circle>` : ''
 
   const svg = `<div style="width:${outerSize}px; height:${(outerSize + 10)}px; transform:scale(${scale}); transform-origin: center center;">
     <svg xmlns="http://www.w3.org/2000/svg" width="${outerSize}" height="${outerSize + 10}" viewBox="0 0 100 115">
@@ -107,8 +112,9 @@ export function makeMarkerIcon(spawn: SpawnPoint, isNearby: boolean, isLocked: b
         <filter id="mg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       ${pulse}
-      <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${c.border}" stroke-width="3.5" filter="url(#mg)"/>
-      ${lockOverlay}
+      ${visionAura}
+      <circle cx="50" cy="50" r="${innerR}" fill="${c.bg}" stroke="${isRevealed ? '#38bdf8' : c.border}" stroke-width="3.5" filter="url(#mg)"/>
+      ${centerContent}
       <rect x="28" y="76" width="44" height="18" rx="9" fill="${c.badge}" stroke="${c.border}" stroke-width="1.5"/>
       <text x="50" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="${c.label}">Lv.${spawn.level}</text>
     </svg>
@@ -147,9 +153,12 @@ export function makeResourceTooltipHtml(type: string, amount: number): string {
   `
 }
 
-export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string {
+export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number, isRevealed = false): string {
   const c = RARITY_COLORS[spawn.rarity]
   const locked = spawn.level > playerLevel;
+  const monster = monsterDB.find(m => m.id === spawn.monsterId);
+  const monsterName = monster ? getLoc(monster.name, i18n.language) : null;
+  const imgUrl = (monster as any)?.image || `/monsters/${spawn.monsterId}.png`;
   
   const rarityLabel = spawn.rarity === 'legendary' ? `👑 ${i18n.t('rarities.legendary')}` : 
                       spawn.rarity === 'epic' ? `🏰 ${i18n.t('rarities.epic')}` : 
@@ -157,7 +166,18 @@ export function makeTooltipHtml(spawn: SpawnPoint, playerLevel: number): string 
                       `⚔️ ${i18n.t('rarities.common')}`;
 
   const energyCost = calculateHPCost(spawn.level, spawn.rarity)
-  return `<div style="text-align:center;min-width:90px;"><svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg><div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div><div style="color:#64748b;font-size:10px;">${rarityLabel}</div><div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ${i18n.t('stats.energy').toUpperCase()}</div>${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 ${i18n.t('common.requires')} Lv.${spawn.level}</div>` : ''}</div>`
+  const headerVisual = isRevealed
+    ? `<img src="${imgUrl}" style="width:48px;height:48px;object-fit:contain;margin:0 auto 2px auto;filter:drop-shadow(0 0 6px rgba(56,189,248,0.5));" />`
+    : `<svg width="48" height="52" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="42" r="38" fill="${c.bg}" stroke="${c.border}" stroke-width="3"/><g style="color:${c.label}">${SILHOUETTE_SVG}</g></svg>`;
+
+  return `<div style="text-align:center;min-width:90px;">
+    ${headerVisual}
+    ${isRevealed && monsterName ? `<div style="color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;">${monsterName}</div>` : ''}
+    <div style="color:${c.label};font-size:13px;font-weight:800;margin-top:2px;">Lv. ${spawn.level}</div>
+    <div style="color:#64748b;font-size:10px;">${rarityLabel}</div>
+    <div style="color:#ef4444;font-size:9px;margin-top:3px;font-weight:bold;">⚡ -${energyCost}% ${i18n.t('stats.energy').toUpperCase()}</div>
+    ${locked ? `<div style="color:#ef4444;font-size:10px;margin-top:2px;">🔒 ${i18n.t('common.requires')} Lv.${spawn.level}</div>` : ''}
+  </div>`
 }
 
 export function makePlayerIcon(): L.DivIcon {

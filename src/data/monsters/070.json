@@ -1,67 +1,67 @@
 {
-    "id": "070",
-    "name": {
-        "cz": "Prastarý Duch Vlka",
-        "en": "Ancient Spirit Wolf",
-        "sk": "Prastarý Duch Vlka"
+  "id": "070",
+  "name": {
+    "cz": "Prastarý Duch Vlka",
+    "en": "Ancient Spirit Wolf",
+    "sk": "Prastarý Duch Vlka"
+  },
+  "description": {
+    "cz": "Legendární strážce hlubokých hvozdů, který se zjevuje jen za úplňku. Jeho tělo je tvořeno prastarým dřevem a mechem, zatímco v jeho očích plane smaragdový oheň samotné přírody. Je ztělesněním síly a moudrosti lesa.",
+    "en": "A legendary guardian of the deep woods that appears only at the full moon. Its body is made of ancient wood and moss, while the emerald fire of nature itself burns in its eyes. It is the embodiment of the forest's strength and wisdom.",
+    "sk": "Legendárny strážca hlbokých lesov, ktorý sa zjavuje len za splnu. Jeho telo je tvorené prastarým drevom a machom, zatiaľ čo v jeho očiach planie smaragdový oheň samotnej prírody. Je stelesnením sily a múdrosti lesa."
+  },
+  "type": "nature",
+  "rarity": "legendary",
+  "stats": {
+    "hp": 1028,
+    "attack": 211,
+    "defense": 270
+  },
+  "abilities": [
+    {
+      "name": {
+        "cz": "Smaragdové kousnutí",
+        "en": "Emerald Bite",
+        "sk": "Smaragdové zahryznutie"
+      },
+      "description": {
+        "cz": "Prudce se zakousne a do těla nepřítele vypustí čistou přírodní energii.",
+        "en": "Bites sharply and releases pure natural energy into the enemy's body.",
+        "sk": "Prudko sa zahryzne a do tela nepriateľa vypustí čistú prírodnú energiu."
+      },
+      "type": "attack",
+      "chance": 75,
+      "value": 230
     },
-    "description": {
-        "cz": "Legendární strážce hlubokých hvozdů, který se zjevuje jen za úplňku. Jeho tělo je tvořeno prastarým dřevem a mechem, zatímco v jeho očích plane smaragdový oheň samotné přírody. Je ztělesněním síly a moudrosti lesa.",
-        "en": "A legendary guardian of the deep woods that appears only at the full moon. Its body is made of ancient wood and moss, while the emerald fire of nature itself burns in its eyes. It is the embodiment of the forest's strength and wisdom.",
-        "sk": "Legendárny strážca hlbokých lesov, ktorý sa zjavuje len za splnu. Jeho telo je tvorené prastarým drevom a machom, zatiaľ čo v jeho očiach planie smaragdový oheň samotnej prírody. Je stelesnením sily a múdrosti lesa."
+    {
+      "name": {
+        "cz": "Vytí hvozdu",
+        "en": "Howl of the Deep Wood",
+        "sk": "Vytie hvozdu"
+      },
+      "description": {
+        "cz": "Mocné vytí, které ochromí nepřítele hrůzou a sníží jeho obranu.",
+        "en": "A powerful howl that paralyzes the enemy with terror and lowers their defense.",
+        "sk": "Mocné vytie, ktoré ochromí nepriateľa hrôzou a zníži jeho obranu."
+      },
+      "type": "debuff",
+      "chance": 66,
+      "value": 0.3
     },
-    "type": "nature",
-    "rarity": "legendary",
-    "stats": {
-        "hp": 974,
-        "attack": 230,
-        "defense": 153
-    },
-    "abilities": [
-        {
-            "name": {
-                "cz": "Smaragdové kousnutí",
-                "en": "Emerald Bite",
-                "sk": "Smaragdové zahryznutie"
-            },
-            "description": {
-                "cz": "Prudce se zakousne a do těla nepřítele vypustí čistou přírodní energii.",
-                "en": "Bites sharply and releases pure natural energy into the enemy's body.",
-                "sk": "Prudko sa zahryzne a do tela nepriateľa vypustí čistú prírodnú energiu."
-            },
-            "type": "attack",
-            "chance": 75,
-            "value": 230
-        },
-        {
-            "name": {
-                "cz": "Vytí hvozdu",
-                "en": "Howl of the Deep Wood",
-                "sk": "Vytie hvozdu"
-            },
-            "description": {
-                "cz": "Mocné vytí, které ochromí nepřítele hrůzou a sníží jeho obranu.",
-                "en": "A powerful howl that paralyzes the enemy with terror and lowers their defense.",
-                "sk": "Mocné vytie, ktoré ochromí nepriateľa hrôzou a zníži jeho obranu."
-            },
-            "type": "debuff",
-            "chance": 50,
-            "value": 0.3
-        },
-        {
-            "name": {
-                "cz": "Zakořenění",
-                "en": "Deep Roots",
-                "sk": "Zakorenenie"
-            },
-            "description": {
-                "cz": "Obalí se prastarými kořeny a mechem, což mu poskytne neuvěřitelnou ochranu (Snížení dmg 55-65%)",
-                "en": "Wraps itself in ancient roots and moss, providing incredible protection (Dmg reduction 55-65%)",
-                "sk": "Obalí sa prastarými koreňmi a machom, čo mu poskytne neuveriteľnú ochranu (Zníženie dmg 55-65%)"
-            },
-            "type": "defense",
-            "chance": 65,
-            "value": 60
-        }
-    ]
+    {
+      "name": {
+        "cz": "Zakořenění",
+        "en": "Deep Roots",
+        "sk": "Zakorenenie"
+      },
+      "description": {
+        "cz": "Obalí se prastarými kořeny a mechem, což mu poskytne neuvěřitelnou ochranu (Snížení dmg 55-65%)",
+        "en": "Wraps itself in ancient roots and moss, providing incredible protection (Dmg reduction 55-65%)",
+        "sk": "Obalí sa prastarými koreňmi a machom, čo mu poskytne neuveriteľnú ochranu (Zníženie dmg 55-65%)"
+      },
+      "type": "defense",
+      "chance": 74,
+      "value": 60
+    }
+  ]
 }

@@ -200,5 +200,61 @@ export const recipes: Recipe[] = [
       "id": "gem_white_4",
       "amount": 1
     }
+  },
+  {
+    "id": "cyclops_eye",
+    "name": "Kyklopovo oko",
+    "description": "Odhalí na mapě všechny příšery na 15 minut.",
+    "requirements": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      }
+    ],
+    "result": {
+      "type": "item",
+      "id": "cyclops_eye",
+      "amount": 1
+    }
+  },
+  {
+    "id": "master_hunter_elixir",
+    "name": "Nektar Mistrovského Lovu",
+    "description": "Zvýší šanci na chycení o +25 % a zisk surovin na 30 minut.",
+    "requirements": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      },
+      {
+        "type": "magic_crystal",
+        "count": 5
+      }
+    ],
+    "result": {
+      "type": "item",
+      "id": "master_hunter_elixir",
+      "amount": 1
+    }
+  },
+  {
+    "id": "titan_berserk_potion",
+    "name": "Sérum Titánského Hněvu",
+    "description": "Zvýší udělené poškození o +35 % na 15 minut.",
+    "requirements": [
+      {
+        "type": "troll_urine",
+        "count": 1
+      },
+      {
+        "type": "super_mineral",
+        "count": 3
+      }
+    ],
+    "result": {
+      "type": "item",
+      "id": "titan_berserk_potion",
+      "amount": 1
+    }
   }
 ];

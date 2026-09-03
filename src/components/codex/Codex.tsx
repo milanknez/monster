@@ -65,7 +65,7 @@ export const Laboratory = ({
     }))
     .filter(recipe => {
       if (activeCategory === 'all') return true;
-      if (activeCategory === 'potions') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink');
+      if (activeCategory === 'potions') return recipe.id.includes('potion') || recipe.id.includes('booster') || recipe.id.includes('drink') || recipe.id.includes('eye') || RESOURCE_CONFIG[recipe.id]?.category === 'consumable';
       if (activeCategory === 'gems') return recipe.id.includes('gem');
       if (activeCategory === 'relics') return recipe.id.includes('loot') || RESOURCE_CONFIG[recipe.id]?.category === 'relic';
       return true;
@@ -152,7 +152,7 @@ export const Laboratory = ({
                     {recipe.name}
                   </h3>
 
-                  <p className="text-[9px] text-slate-500 font-bold mb-3 line-clamp-2 leading-tight h-7">
+                  <p className="text-[9px] text-slate-400 font-medium mb-3 leading-relaxed">
                     {recipe.description}
                   </p>
 

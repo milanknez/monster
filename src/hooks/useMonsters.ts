@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { Monster } from '../types'
+import type { Monster, Mutation } from '../types'
 import { monsterDB } from '../data/monsters'
+import { RESOURCE_CONFIG } from '../data/resources'
 import { getMonsterMaxHP, calculateLevel, getTotalXPForLevel, getLoc } from '../utils'
 
 export function useMonsters(addToast: (toast: any) => void) {
@@ -101,12 +102,15 @@ export function useMonsters(addToast: (toast: any) => void) {
     }
 
     const dbData = monsterDB.find(d => d.id === monster.id)
-    const baseStats = dbData?.stats || monster.stats
+    const baseStats = monster.stats ? { ...monster.stats } : (dbData?.stats ? { ...dbData.stats } : { hp: 100, attack: 10, defense: 10 })
     const baseLevel = monster.level || 1
 
     const enriched: Monster = {
       ...monster,
       stats: baseStats,
+      mutations: monster.mutations ? JSON.parse(JSON.stringify(monster.mutations)) : [],
+      gems: monster.gems ? [...monster.gems] : [null, null, null],
+      items: monster.items ? [...monster.items] : [null, null, null],
       level: baseLevel,
       caughtAt: monster.caughtAt || Date.now(),
       xp: monster.xp || 0,
@@ -225,7 +229,13 @@ export function useMonsters(addToast: (toast: any) => void) {
     });
   }, []);
 
-  const updateMonsterStats = useCallback((monsterIdx: number, stats: { hp?: number, atk?: number, def?: number, xp?: number }, itemId?: string) => {
+  const updateMonsterStats = useCallback((
+    monsterIdx: number, 
+    stats: { hp?: number, atk?: number, def?: number, xp?: number }, 
+    itemId?: string,
+    slotIndex?: number,
+    multiplier?: number
+  ) => {
     setCaughtMonsters(prev => {
       const updated = [...prev];
       if (!updated[monsterIdx]) return prev;
@@ -260,10 +270,43 @@ export function useMonsters(addToast: (toast: any) => void) {
       }
 
       if (itemId) {
-        const mutations = [...(m.mutations || [])];
+        const currentMutations = m.mutations || [];
+        // Importované limity: max 15, odemykání po levelech
+        const unlockedCount = (() => {
+          const lvl = m.level || 1;
+          let count = 0;
+          if (lvl >= 1) count += 5;
+          if (lvl >= 6) count += 4;
+          if (lvl >= 12) count += 3;
+          if (lvl >= 20) count += 2;
+          if (lvl >= 28) count += 1;
+          return count;
+        })();
+
+        if (currentMutations.length >= 15) {
+          addToast({
+            title: 'Genetický strop naplněn',
+            message: `${getLoc(m.name)} již dosáhl maximální kapacity 15 mutací (100% buněčná nestabilita).`,
+            type: 'error'
+          });
+          return prev;
+        }
+
+        if (currentMutations.length >= unlockedCount) {
+          addToast({
+            title: 'Genetické sloty plné',
+            message: `Kapacita pro úroveň ${m.level} je vyčerpána (${currentMutations.length}/${unlockedCount}). Zvyš level pro odemčení dalšího patra.`,
+            type: 'warning'
+          });
+          return prev;
+        }
+
+        const mutations = [...currentMutations];
         mutations.push({
           id: itemId,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          slotIndex: slotIndex ?? currentMutations.length,
+          multiplier: multiplier || 1.0
         });
         m.mutations = mutations;
       }
@@ -286,8 +329,116 @@ export function useMonsters(addToast: (toast: any) => void) {
     });
   }, []);
 
+  const removeMonsterMutation = useCallback((monsterIdx: number, slotIndex: number): string | null => {
+    let removedId: string | null = null;
+    setCaughtMonsters(prev => {
+      const next = [...prev];
+      if (!next[monsterIdx]) return prev;
+      const m = { ...next[monsterIdx] };
+      const mutations = [...(m.mutations || [])];
+
+      // Najít mutaci na daném slotIndexu (nebo na indexu pole)
+      const mutIdx = mutations.findIndex((mut, idx) => (mut.slotIndex ?? idx) === slotIndex);
+      if (mutIdx === -1) return prev;
+
+      const removed = mutations[mutIdx];
+      removedId = removed.id;
+      const cfg = RESOURCE_CONFIG[removed.id];
+      const mult = removed.multiplier || 1.0;
+
+      if (cfg?.stats) {
+        const oldStats = m.stats || { hp: 100, attack: 10, defense: 10 };
+        m.stats = {
+          hp: Math.max(10, oldStats.hp - Math.round((cfg.stats.hp || 0) * mult)),
+          attack: Math.max(1, oldStats.attack - Math.round((cfg.stats.atk || 0) * mult)),
+          defense: Math.max(1, oldStats.defense - Math.round((cfg.stats.def || 0) * mult))
+        };
+      }
+
+      mutations.splice(mutIdx, 1);
+      m.mutations = mutations;
+      next[monsterIdx] = m;
+
+      return next;
+    });
+    return removedId;
+  }, []);
+
+  const swapMonsterMutationSlots = useCallback((monsterIdx: number, fromSlot: number, toSlot: number, newMultiplier: number, oldMultiplier: number) => {
+    setCaughtMonsters(prev => {
+      const next = [...prev];
+      if (!next[monsterIdx]) return prev;
+      const m = { ...next[monsterIdx] };
+      const mutations = [...(m.mutations || [])];
+
+      const fromMutIdx = mutations.findIndex((mut, idx) => (mut.slotIndex ?? idx) === fromSlot);
+      const toMutIdx = mutations.findIndex((mut, idx) => (mut.slotIndex ?? idx) === toSlot);
+
+      if (fromMutIdx === -1) return prev;
+
+      const fromMutItem = mutations[fromMutIdx];
+      const cfg = RESOURCE_CONFIG[fromMutItem.id];
+
+      // Pokud se mění násobič patra, přepočítat rozdíl ve statech
+      if (cfg?.stats && newMultiplier !== oldMultiplier) {
+        const oldStats = m.stats || { hp: 100, attack: 10, defense: 10 };
+        const baseHp = cfg.stats.hp || 0;
+        const baseAtk = cfg.stats.atk || 0;
+        const baseDef = cfg.stats.def || 0;
+
+        const hpDiff = Math.round(baseHp * newMultiplier) - Math.round(baseHp * oldMultiplier);
+        const atkDiff = Math.round(baseAtk * newMultiplier) - Math.round(baseAtk * oldMultiplier);
+        const defDiff = Math.round(baseDef * newMultiplier) - Math.round(baseDef * oldMultiplier);
+
+        m.stats = {
+          hp: Math.max(10, oldStats.hp + hpDiff),
+          attack: Math.max(1, oldStats.attack + atkDiff),
+          defense: Math.max(1, oldStats.defense + defDiff)
+        };
+      }
+
+      const fromMut: Mutation = {
+        ...fromMutItem,
+        slotIndex: toSlot,
+        multiplier: newMultiplier
+      };
+      mutations[fromMutIdx] = fromMut;
+
+      if (toMutIdx !== -1) {
+        const toMut: Mutation = {
+          ...mutations[toMutIdx],
+          slotIndex: fromSlot,
+          multiplier: oldMultiplier
+        };
+        mutations[toMutIdx] = toMut;
+      }
+
+      m.mutations = mutations;
+      next[monsterIdx] = m;
+
+      addToast({
+        title: 'Mutagen přemístěn',
+        message: `Genetická esence byla přepojena do nového žilního patra (${newMultiplier}× efekt).`,
+        type: 'success'
+      });
+
+      return next;
+    });
+  }, [addToast]);
+
+  const importDirectMonster = useCallback((monster: Monster) => {
+    setCaughtMonsters(prev => {
+      const filtered = prev.filter(m => (m as any).caughtAt !== (monster as any).caughtAt && !(m.id === monster.id && (m.stats?.attack || 0) < 3000));
+      const updated = [monster, ...filtered];
+      localStorage.setItem('monster_collector_caught', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   return {
     caughtMonsters,
+    setCaughtMonsters,
+    importDirectMonster,
     saveMonster,
     saveMultipleMonsters,
     removeMonster,
@@ -295,6 +446,8 @@ export function useMonsters(addToast: (toast: any) => void) {
     updateMonsterHP,
     updateMonsterStats,
     equipGem,
-    equipItem
+    equipItem,
+    removeMonsterMutation,
+    swapMonsterMutationSlots
   };
 }

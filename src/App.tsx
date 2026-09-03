@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TutorialOverlay, BATTLE_TUTORIAL_STEPS, HOME_TUTORIAL_STEPS, WORLD_TUTORIAL_STEPS, COLLECTION_TUTORIAL_STEPS, INVENTORY_TUTORIAL_STEPS, CODEX_TUTORIAL_STEPS } from './components/battle/TutorialOverlay'
 import { monsterDB } from './data/monsters'
 import type { Monster, Boost, Recipe, ResourceType } from './types'
-import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier, getLoc } from './utils'
+import { cn, getTotalXPForLevel, calculateLevel, calculateBoostMultiplier, getLoc, getMonsterPower } from './utils'
 import { RESOURCE_CONFIG } from './components/map/mapUtils'
 import { ResourceIcon } from './components/ui/ResourceIcon'
 
@@ -31,6 +31,7 @@ import { SettingsModal } from './components/modals/SettingsModal'
 import { pickLevel, pickMonster } from './components/map/mapUtils'
 import { Store } from './components/bestiary/Store'
 import { GooglePayModal } from './components/modals/GooglePayModal'
+import { GenomicTreeView } from './components/bestiary/GenomicTreeView'
 
 const SystemEditor = import.meta.env.DEV
   ? lazy(() => import('./components/admin/SystemEditor').then(m => ({ default: m.SystemEditor })))
@@ -249,7 +250,21 @@ function AppContent() {
 
   const handleCheat = (cheatId: string) => {
     const addRes = addResource as any;
-    if (cheatId === 'addSecretBackpackItems') {
+    if (cheatId === 'importBisiAshLord') {
+      (window as any).importBisiMonster?.();
+    } else if (cheatId === 'addTrollUrine') {
+      addRes('troll_urine', 5);
+      addToast({ title: '🧪 Trolí moč získána!', message: 'Získal jsi 5x Trolí moč! Můžeš z ní v laboratoři vyrobit Kyklopovo oko.', type: 'success' });
+    } else if (cheatId === 'addCyclopsEye') {
+      addRes('cyclops_eye', 2);
+      addToast({ title: '👁️ Kyklopovo oko získáno!', message: 'Získal jsi 2x Kyklopovo oko! Použij ho v batohu k odhalení monster.', type: 'success' });
+    } else if (cheatId === 'addMasterHunterElixir') {
+      addRes('master_hunter_elixir', 2);
+      addToast({ title: '🎯 Nektar Mistrovského Lovu získán!', message: 'Získal jsi 2x Nektar Mistrovského Lovu (+25% chyt & 2x loot)!', type: 'success' });
+    } else if (cheatId === 'addTitanBerserkPotion') {
+      addRes('titan_berserk_potion', 2);
+      addToast({ title: '⚔️ Sérum Titánského Hněvu získáno!', message: 'Získal jsi 2x Sérum Titánského Hněvu (+35% DMG)!', type: 'success' });
+    } else if (cheatId === 'addSecretBackpackItems') {
       addRes('backpack_pouch', 1);
       addRes('backpack_vault', 1);
       addToast({ title: '🎒 Tajné předměty přidány!', message: 'Získal jsi 1x Mystický bezedný váček a 1x Astrální truhlu dimenzí! Otevři batoh a vyzkoušej je.', type: 'success' });
@@ -450,7 +465,36 @@ function AppContent() {
   )
 
 
-  const { caughtMonsters, saveMonster, saveMultipleMonsters, removeMonster, giveMonsterXP, updateMonsterHP, updateMonsterStats, equipGem, equipItem } = useMonsters(addToast);
+  const { 
+    caughtMonsters, 
+    setCaughtMonsters, 
+    importDirectMonster, 
+    saveMonster, 
+    saveMultipleMonsters, 
+    removeMonster, 
+    giveMonsterXP, 
+    updateMonsterHP, 
+    updateMonsterStats, 
+    equipGem, 
+    equipItem,
+    removeMonsterMutation,
+    swapMonsterMutationSlots
+  } = useMonsters(addToast);
+
+  // Expose importBisiMonster globally for debug cheats
+  useEffect(() => {
+    (window as any).importBisiMonster = () => {
+      import('./data/bisi_ash_lord.json').then((module) => {
+        const fullMonster = JSON.parse(JSON.stringify(module.default));
+        importDirectMonster(fullMonster as any);
+        addToast({
+          title: '🔥 Pán Popela Importován!',
+          message: `Démonický Pán Popela (Lv 19, 157k síla, ${fullMonster.mutations?.length || 0} mutací) byl úspěšně nahrán!`,
+          type: 'success'
+        });
+      });
+    };
+  }, [importDirectMonster, addToast]);
 
   // Listen to blocked status in Realtime Database
   useEffect(() => {
@@ -826,6 +870,26 @@ function AppContent() {
       syncReferralProgress(userUid, currentLevel, totalXP, referredBy, playerName || undefined);
     }
   }, [totalXP, currentLevel, userUid, referredBy, playerName]);
+
+  // Automatický import monstra Démonický Pán Popela od Biši pro účet Tvůrce (OtZupv0xx5MpPuFAZkGJqcqCg8j2)
+  useEffect(() => {
+    if (userUid === 'OtZupv0xx5MpPuFAZkGJqcqCg8j2' && caughtMonsters.length > 0) {
+      const ashLordInCollection = caughtMonsters.find(m => (m as any).caughtAt === 1787288241114 || (m.id === '109' && m.level === 19));
+      const hasFullMutations = ashLordInCollection && (ashLordInCollection.mutations?.length || 0) >= 50 && (ashLordInCollection.stats?.attack || 0) >= 3000;
+      
+      if (!hasFullMutations) {
+        import('./data/bisi_ash_lord.json').then((module) => {
+          const fullMonster = JSON.parse(JSON.stringify(module.default));
+          importDirectMonster(fullMonster as any);
+          addToast({
+            title: '🔥 Démonický Pán Popela opraven!',
+            message: `Nahráno kompletní monstrum od Biši se všemi ${fullMonster.mutations?.length || 0} mutacemi a 157k CP!`,
+            type: 'success'
+          });
+        });
+      }
+    }
+  }, [userUid, caughtMonsters.length, importDirectMonster, addToast]);
 
   // Trigger toast if weak device was auto-detected on first launch
   useEffect(() => {
@@ -1266,6 +1330,15 @@ function AppContent() {
       } else if (cfg.specialEffect === 'hp_regen') {
         activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
         addToast({ title: t('toasts.hp_regen_title'), message: t('toasts.hp_regen_msg', { mins }), type: 'success' });
+      } else if (cfg.specialEffect === 'cyclops_vision') {
+        activateBoost({ type: 'cyclops_vision', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
+        addToast({ title: '👁️ Kyklopovo vidění aktivováno!', message: `Na mapě vidíš přesnou identitu všech monster po dobu ${mins} minut.`, type: 'boost' });
+      } else if (cfg.specialEffect === 'master_hunter') {
+        activateBoost({ type: 'master_hunter', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
+        addToast({ title: '🎯 Nektar Mistrovského Lovu!', message: `Šance na chycení zvýšena o +25 % a zisk surovin zdvojen na ${mins} minut.`, type: 'boost' });
+      } else if (cfg.specialEffect === 'titan_berserk') {
+        activateBoost({ type: 'titan_berserk', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
+        addToast({ title: '⚔️ Titánský Hněv aktivován!', message: `Tvoje útoky v bojích a dungeonech udělují o +35 % vyšší poškození na ${mins} minut.`, type: 'boost' });
       }
     }
 
@@ -1303,7 +1376,15 @@ function AppContent() {
     }
 
     if (pIdx === -1) {
-      pIdx = caughtMonsters.findIndex(m => (m.currentHP === undefined || m.currentHP > 0)); // fallback to first alive
+      // Vybrat živé monstrum s nejvyšším skóre (power)
+      const aliveCandidates = caughtMonsters
+        .map((m, idx) => ({ m, idx, power: getMonsterPower(m) }))
+        .filter(item => item.m.currentHP === undefined || item.m.currentHP > 0)
+        .sort((a, b) => b.power - a.power);
+
+      if (aliveCandidates.length > 0) {
+        pIdx = aliveCandidates[0].idx;
+      }
     }
 
     if (pIdx === -1) {
@@ -1561,6 +1642,8 @@ function AppContent() {
             inventory={inventory.filter(i => i !== null) as any}
             isInventoryFull={inventory.every(i => i !== null)}
             xpMultiplier={calculateBoostMultiplier(activeBoosts, 'xp_boost')}
+            isMasterHunter={activeBoosts.some(b => b.type === 'master_hunter' && b.expiresAt > Date.now())}
+            isTitanBerserk={activeBoosts.some(b => b.type === 'titan_berserk' && b.expiresAt > Date.now())}
             graphicsQuality={graphicsQuality}
             isTutorial={!localStorage.getItem('monster_tutorial_done')}
             onUseItem={(type) => {
@@ -1579,6 +1662,12 @@ function AppContent() {
                   activateBoost({ type: 'xp_boost', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
                 } else if (cfg.specialEffect === 'hp_regen') {
                   activateBoost({ type: 'hp_regen', multiplier: 2, expiresAt: Date.now() + mins * 60 * 1000 });
+                } else if (cfg.specialEffect === 'cyclops_vision') {
+                  activateBoost({ type: 'cyclops_vision', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
+                } else if (cfg.specialEffect === 'master_hunter') {
+                  activateBoost({ type: 'master_hunter', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
+                } else if (cfg.specialEffect === 'titan_berserk') {
+                  activateBoost({ type: 'titan_berserk', multiplier: 1, expiresAt: Date.now() + mins * 60 * 1000 });
                 }
               }
             }}
@@ -1673,7 +1762,7 @@ function AppContent() {
         />
       )}
 
-      {activeTab !== 'detail' && (() => {
+      {activeTab !== 'detail' && activeTab !== 'genome' && (() => {
         const activeUserEmail = user?.email || playerEmail || '';
         const isDeveloperUser = activeUserEmail.trim().toLowerCase().endsWith('@fida.cz') || import.meta.env.DEV;
         return (
@@ -1823,6 +1912,7 @@ function AppContent() {
               email={user?.email || playerEmail}
               pvpWins={pvpWins}
               pvpLosses={pvpLosses}
+              isCyclopsVisionActive={activeBoosts.some(b => b.type === 'cyclops_vision' && b.expiresAt > Date.now())}
               onOpenDungeon={(dung) => {
                 setSelectedDungeonId(dung.dungeonConfigId);
                 setActiveTab('dungeon');
@@ -1934,6 +2024,7 @@ function AppContent() {
                     });
                   }
                 }}
+                onOpenGenome={() => setActiveTab('genome')}
                 onRelease={() => {
                   const idx = caughtMonsters.findIndex(m =>
                     ((m as any).caughtAt === (selectedMonster as any).caughtAt) &&
@@ -1958,6 +2049,46 @@ function AppContent() {
             </motion.div>
           )}
 
+          {activeTab === 'genome' && selectedMonster && (() => {
+            const currentIdx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt) !== -1
+              ? caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt)
+              : caughtMonsters.findIndex(m => m.id === selectedMonster.id);
+            const liveMonster = currentIdx !== -1 ? caughtMonsters[currentIdx] : selectedMonster;
+
+            return (
+              <GenomicTreeView
+                monster={liveMonster}
+                inventory={inventory.filter(i => i !== null) as any}
+                onBack={() => setActiveTab('detail')}
+                onApplyMutation={(itemType: string, stats: any, targetSlot: number, mult: number) => {
+                  if (currentIdx !== -1) {
+                    updateMonsterStats(currentIdx, stats, itemType, targetSlot, mult);
+                    consumeResources([{ type: itemType as any, count: 1 }]);
+                  }
+                }}
+                onRemoveMutation={(slotIdx: number) => {
+                  if (currentIdx !== -1) {
+                    const removedItemType = removeMonsterMutation(currentIdx, slotIdx);
+                    if (removedItemType) {
+                      addResource(removedItemType as any, 1);
+                      const cfg = RESOURCE_CONFIG[removedItemType];
+                      addToast({
+                        title: 'Mutagen vrácen do inventáře',
+                        message: `${getLoc(cfg?.label) || removedItemType} byl bezpečně vyjmut a vrácen do tvého batohu.`,
+                        type: 'success'
+                      });
+                    }
+                  }
+                }}
+                onSwapSlots={(fromSlot: number, toSlot: number, newMult: number, oldMult: number) => {
+                  if (currentIdx !== -1) {
+                    swapMonsterMutationSlots(currentIdx, fromSlot, toSlot, newMult, oldMult);
+                  }
+                }}
+              />
+            );
+          })()}
+
           {activeTab === 'dungeon' && (
             <Dungeon 
               onBack={() => {
@@ -1967,17 +2098,22 @@ function AppContent() {
               caughtMonsters={caughtMonsters} 
               initialDungeonId={selectedDungeonId}
               onAddResource={addResource}
+              inventory={inventory.filter(i => i !== null) as any}
+              onUseItem={handleUseItem}
+              activeBoosts={activeBoosts}
             />
           )}
         </div>
       </main>
 
-      <NavBar active={activeTab === 'codex' ? 'inventory' : activeTab} onTabChange={(tab) => {
-        setSelectedMonster(null)
-        setActiveTab(tab)
-        // Scroll to top of the page when clicking the navigation tabs
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }} />
+      {activeTab !== 'genome' && (
+        <NavBar active={activeTab === 'codex' ? 'inventory' : activeTab} onTabChange={(tab) => {
+          setSelectedMonster(null)
+          setActiveTab(tab)
+          // Scroll to top of the page when clicking the navigation tabs
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }} />
+      )}
 
       <AnimatePresence>
         {newMonster && (
