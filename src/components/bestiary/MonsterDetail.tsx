@@ -923,6 +923,56 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
           {/* --- Equipment Section --- */}
           <div className="bg-[#0f141d]/80 backdrop-blur-md rounded-2xl border border-white/10 p-6 shadow-2xl relative">
+            {/* --- Prominent Biologická Matice Žil Banner --- */}
+            <div className="mb-6">
+              {(() => {
+                const mCount = monster.mutations?.length || 0;
+                const unl = getUnlockedGenomicSlots(monster.level || 1);
+                const isFull = mCount >= TOTAL_GENOMIC_SLOTS;
+
+                return (
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => onOpenGenome ? onOpenGenome() : setShowMutations(true)}
+                    className="relative group cursor-pointer overflow-hidden rounded-2xl p-4 sm:p-5 border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-950/80 via-slate-950/90 to-teal-950/80 shadow-[0_0_30px_rgba(16,185,129,0.25)] hover:shadow-[0_0_40px_rgba(16,185,129,0.45)] hover:border-emerald-400 transition-all"
+                  >
+                    {/* Background glowing vein pattern */}
+                    <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+                      <Dna size={120} className="text-emerald-400 rotate-12" />
+                    </div>
+
+                    <div className="relative z-10 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="size-12 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] shrink-0">
+                          <Dna size={26} className="animate-pulse" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-xs font-black text-white uppercase tracking-wider">
+                              Biologická Matice Žil
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                              {mCount}/{unl} slotů
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 font-medium leading-tight">
+                            Vkládej mutageny, posiluj DNA a ovládej buněčnou nestabilitu
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider shrink-0 shadow-lg group-hover:bg-emerald-400 transition-colors">
+                        <span>Otevřít</span>
+                        <ChevronRight size={16} strokeWidth={3} />
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })()}
+            </div>
+
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
@@ -930,28 +980,6 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                 </div>
                 <h3 className="text-xs font-black text-white uppercase tracking-widest">{t('monster.detail.gems_relics')}</h3>
               </div>
-              {(() => {
-                const mCount = monster.mutations?.length || 0;
-                const unl = getUnlockedGenomicSlots(monster.level || 1);
-                const isFull = mCount >= TOTAL_GENOMIC_SLOTS;
-                return (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onOpenGenome ? onOpenGenome() : setShowMutations(true)}
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm",
-                      isFull
-                        ? "bg-rose-500/15 border-rose-500/30 text-rose-400"
-                        : "bg-primary/20 hover:bg-primary/30 border-primary/30 text-primary"
-                    )}
-                    title="Otevřít Biologickou Matici Žil"
-                  >
-                    <Dna size={12} className={cn(mCount > 0 && "animate-pulse")} />
-                    <span>{t('monster.detail.mutate')} ({mCount}/{unl})</span>
-                  </motion.button>
-                );
-              })()}
             </div>
 
             <div className="grid grid-cols-3 gap-4">

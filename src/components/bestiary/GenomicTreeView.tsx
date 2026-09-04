@@ -409,15 +409,15 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
 
   return (
     <div className="relative w-full min-h-screen bg-slate-950 text-white flex flex-col select-none pb-14">
-      {/* Celostránkové realistické pozadí svalů a žil s tmavou poloprůhlednou vrstvou */}
+      {/* Celostránkové realistické pozadí svalů a žil - výrazné a živé */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
         <img
           src="/vein_matrix_bg.jpg"
           alt="Bio Vein Matrix Background"
-          className="w-full h-full object-cover object-center opacity-35 filter contrast-125"
+          className="w-full h-full object-cover object-center opacity-70 filter contrast-150 saturate-125"
         />
-        {/* Tmavá poloprůhledná vrstva pro čistou čitelnost */}
-        <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[0.5px]" />
+        {/* Jemná poloprůhledná vrstva, aby byly žíly zřetelně vidět a text zůstal ostrý */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/75" />
       </div>
 
       {/* Header Section přesně podle MonsterDetail / screenshotu */}
@@ -729,23 +729,23 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                     })}
                   </div>
 
-                  {/* SVG žíly mezi patry */}
+                  {/* SVG žíly mezi patry - pulzující a výrazné */}
                   {tIdx < tierSlotsData.length - 1 && (
-                    <div className="w-full max-w-sm h-3 flex items-center justify-center relative my-0.5 pointer-events-none">
+                    <div className="w-full max-w-sm h-4 flex items-center justify-center relative my-0.5 pointer-events-none">
                       <svg className="w-full h-full" viewBox="0 0 200 24" fill="none">
                         <path
                           d="M100 0 L100 24 M70 4 L100 24 L130 4"
-                          stroke={tIdx === 0 ? "rgba(192, 132, 252, 0.35)" : "url(#veinGradientMain)"}
-                          strokeWidth="2"
-                          strokeDasharray={tIdx === 0 ? "3 3" : "4 2"}
-                          opacity={tIdx === 0 && isHiddenTier ? 0.2 : 0.6}
-                          className="animate-pulse"
+                          stroke={tIdx === 0 ? "rgba(192, 132, 252, 0.65)" : "url(#veinGradientMain)"}
+                          strokeWidth="3.2"
+                          strokeLinecap="round"
+                          opacity={tIdx === 0 && isHiddenTier ? 0.35 : 0.9}
+                          className="drop-shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"
                         />
                         <defs>
                           <linearGradient id="veinGradientMain" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.9" />
-                            <stop offset="50%" stopColor="#a855f7" stopOpacity="0.75" />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.95" />
+                            <stop offset="0%" stopColor="#06b6d4" stopOpacity="1" />
+                            <stop offset="50%" stopColor="#a855f7" stopOpacity="0.9" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="1" />
                           </linearGradient>
                         </defs>
                       </svg>
