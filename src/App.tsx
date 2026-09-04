@@ -382,6 +382,15 @@ function AppContent() {
       setIsSpeedLimitDisabled(newVal);
       localStorage.setItem('monster_debug_no_speed', newVal.toString());
       addToast({ title: 'Rychlostní limit', message: newVal ? 'VYPNUT! Můžeš chytat i v raketě. 🚀' : 'ZAPNUT! Bezpečnost především. 🛡️', type: newVal ? 'success' : 'info' });
+    } else if (cheatId === 'addEpic') {
+      const epics = monsterDB.filter(m => {
+        const r = typeof m.rarity === 'string' ? m.rarity.toLowerCase() : '';
+        return r === 'epická' || r === 'epic';
+      });
+      const randomEpic = epics[Math.floor(Math.random() * epics.length)];
+      if (randomEpic) {
+        (window as any).addMonster(randomEpic.id, 8);
+      }
     } else if (cheatId === 'addLegendary') {
       const legendaries = monsterDB.filter(m => m.rarity === 'Legendární');
       const randomLegendary = legendaries[Math.floor(Math.random() * legendaries.length)];
@@ -1618,7 +1627,7 @@ function AppContent() {
   }
 
   return (
-    <div className={cn("min-h-screen font-display flex flex-col", activeTab !== 'world' && "pb-32")}>
+    <div className={cn("min-h-screen font-display flex flex-col", activeTab !== 'world' && activeTab !== 'genome' && "pb-32")}>
       <AnimatePresence>
         {isDebugMode && (
           <DebugBar
@@ -1962,6 +1971,21 @@ function AppContent() {
                       addToast({
                         title: t('toasts.monster_healed'),
                         message: t('toasts.monster_healed_msg', { amount: cfg.stats.hp }),
+                        type: 'success'
+                      });
+                    }
+                  }
+                }}
+                onUseXPSerum={(type: string) => {
+                  const idx = caughtMonsters.findIndex(m => (m as any).caughtAt === (selectedMonster as any).caughtAt);
+                  if (idx !== -1) {
+                    const cfg = RESOURCE_CONFIG[type];
+                    if (cfg && cfg.stats?.xp) {
+                      giveMonsterXP(idx, cfg.stats.xp);
+                      consumeResources([{ type: type as any, count: 1 }]);
+                      addToast({
+                        title: '⚡ XP Sérum Aplikováno!',
+                        message: `Příšeře bylo vstříknuto +${cfg.stats.xp} XP!`,
                         type: 'success'
                       });
                     }

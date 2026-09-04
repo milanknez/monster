@@ -63,21 +63,33 @@ export const DebugConsole = ({ isOpen, onClose, logs, onClear, onCheat, onToggle
 
       <div className="p-4 border-t border-white/10 bg-slate-900/50">
         <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-3">Quick Actions</p>
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           <button 
             onClick={onToggleLegacy}
-            className="p-3 bg-slate-800 border border-slate-700 rounded-lg text-[10px] font-bold text-slate-300 hover:bg-slate-700 transition-all uppercase flex items-center justify-center gap-2"
+            className="p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-[10px] font-bold text-slate-300 hover:bg-slate-700 transition-all uppercase flex items-center justify-center gap-1.5"
           >
             Legacy Bar
+          </button>
+          <button 
+            onClick={() => onCheat('spawn:epic')}
+            className="p-2.5 bg-purple-500/10 border border-purple-500/30 rounded-lg text-[10px] font-bold text-purple-300 hover:bg-purple-500/20 transition-all uppercase flex items-center justify-center gap-1.5"
+          >
+            Spawn Epic
+          </button>
+          <button 
+            onClick={() => onCheat('spawn:legendary')}
+            className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-lg text-[10px] font-bold text-amber-300 hover:bg-amber-500/20 transition-all uppercase flex items-center justify-center gap-1.5"
+          >
+            Spawn Legend
           </button>
           <button 
             onClick={() => {
                 const ref = prompt('Enter Referral Code:');
                 if (ref) onCheat(`setReferral:${ref}`);
             }}
-            className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-[10px] font-bold text-primary hover:bg-primary/20 transition-all uppercase flex items-center justify-center gap-2"
+            className="p-2.5 bg-primary/10 border border-primary/20 rounded-lg text-[10px] font-bold text-primary hover:bg-primary/20 transition-all uppercase flex items-center justify-center gap-1.5"
           >
-            Test Referral
+            Referral
           </button>
         </div>
 

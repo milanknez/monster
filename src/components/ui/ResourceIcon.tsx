@@ -36,8 +36,9 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({ id, config, size = '
     return (
       <img
         src={`/resources/${fileName}.png`}
-        className={cn(sizeClasses[size], "object-contain", className)}
+        className={cn(sizeClasses[size], "object-contain select-none pointer-events-none", className)}
         alt={id}
+        draggable={false}
         onError={() => setError(true)}
       />
     );

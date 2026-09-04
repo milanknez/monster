@@ -270,6 +270,12 @@ export function useMonsters(addToast: (toast: any) => void) {
       }
 
       if (itemId) {
+        // XP séra (xp_serum_1, xp_serum_2, xp_serum_3) jsou okamžitá stimulancia - přidají XP, ale nezabírají trvalý genomický slot
+        if (itemId.startsWith('xp_serum_')) {
+          updated[monsterIdx] = m;
+          return updated;
+        }
+
         const currentMutations = m.mutations || [];
         // Importované limity: max 15, odemykání po levelech
         const unlockedCount = (() => {

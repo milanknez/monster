@@ -524,6 +524,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   onUpgrade?: () => void;
   inventory?: any[];
   onUsePotion?: (type: string) => void;
+  onUseXPSerum?: (type: string) => void;
   onEquipGem?: (idx: number, gemType: string | null) => void;
   onEquipItem?: (idx: number, itemType: string | null) => void;
   onPermanentlyUpgrade?: (itemType: string, stats: any, slotIdx?: number, multiplier?: number) => void;
@@ -534,12 +535,13 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
   canRelease?: boolean;
   graphicsQuality?: 'low' | 'high';
 }>(
-  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRemoveMutation, onSwapMutationSlots, onOpenGenome, onRelease, canRelease = true, graphicsQuality = 'high' }, ref) => {
+  ({ monster, onBack, onUpgrade, inventory, onUsePotion, onUseXPSerum, onEquipGem, onEquipItem, onPermanentlyUpgrade, onRemoveMutation, onSwapMutationSlots, onOpenGenome, onRelease, canRelease = true, graphicsQuality = 'high' }, ref) => {
     const { t, i18n } = useTranslation();
     const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
     const [focusedItem, setFocusedItem] = useState<any>(null);
     const [confirmRelease, setConfirmRelease] = useState(false);
     const [showHealingModal, setShowHealingModal] = useState(false);
+    const [showXPSerumModal, setShowXPSerumModal] = useState(false);
     const [showMutations, setShowMutations] = useState(false);
     const [showItemPicker, setShowItemPicker] = useState(false);
     const [returnToMutations, setReturnToMutations] = useState(false);
@@ -566,7 +568,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
 
     // Prevent body scroll when any modal is open
     useEffect(() => {
-      const isAnyModalOpen = showHealingModal || showMutations || showItemPicker || confirmRelease;
+      const isAnyModalOpen = showHealingModal || showXPSerumModal || showMutations || showItemPicker || confirmRelease;
       if (isAnyModalOpen) {
         document.body.style.overflow = 'hidden';
       } else {
@@ -575,7 +577,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
       return () => {
         document.body.style.overflow = 'unset';
       };
-    }, [showHealingModal, showMutations, showItemPicker, confirmRelease]);
+    }, [showHealingModal, showXPSerumModal, showMutations, showItemPicker, confirmRelease]);
 
     const originalMonster = useMemo(() => monsterDB.find(dbm => dbm.id === monster.id), [monster.id]);
     const originalStats = originalMonster?.stats || { hp: 100, attack: 10, defense: 10 };
@@ -648,7 +650,7 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
             </div>
           </div>
 
-          {/* Progress Bar in Header */}
+          {/* Progress Bar in Header with XP Serum Quick Action */}
           <div className="mt-4 px-1">
             {(() => {
               const currentLVL = monster.level;
@@ -657,11 +659,25 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
               const neededXPInLevel = nextXPBase - currentXPBase;
               const currentXPInLevel = monster.xp || 0;
               const progress = Math.min(100, (currentXPInLevel / neededXPInLevel) * 100);
+              const xpSerumsCount = inventory?.filter(i => i?.type?.startsWith('xp_serum_') && i?.count > 0).reduce((acc, i) => acc + i.count, 0) || 0;
 
               return (
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{t('stats.xp_next')}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{t('stats.xp_next')}</span>
+                      {xpSerumsCount > 0 && (
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          onClick={() => setShowXPSerumModal(true)}
+                          className="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-[8px] font-black uppercase tracking-wider flex items-center gap-1 transition-all"
+                          title="Aplikovat XP sérum z batohu"
+                        >
+                          <span>💉</span>
+                          <span>XP Sérum ({xpSerumsCount})</span>
+                        </motion.button>
+                      )}
+                    </div>
                     <span className="text-[9px] font-black text-white/40 tabular-nums">
                       {Math.round(currentXPInLevel)}<span className="mx-1">/</span>{Math.round(neededXPInLevel)} XP
                     </span>
@@ -1196,6 +1212,78 @@ export const MonsterDetail = forwardRef<HTMLDivElement, {
                   )}
                 </div>
                 <button onClick={() => setShowHealingModal(false)} className="w-full mt-10 py-5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest rounded-[2rem] transition-all active:scale-95 shadow-xl">{t('monster.healing.later_btn')}</button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* --- XP Serum Modal --- */}
+        <AnimatePresence>
+          {showXPSerumModal && (
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowXPSerumModal(false)} className={cn("absolute inset-0 bg-black/60", graphicsQuality !== 'low' && "backdrop-blur-xl")} />
+              <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="w-full max-w-lg border-2 border-emerald-500/20 rounded-[2.5rem] p-6 sm:p-8 relative z-10 bg-slate-900 shadow-2xl">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3.5">
+                    <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10 text-2xl">
+                      💉
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">XP Stimulanty</h2>
+                      <p className="text-[10px] font-black text-emerald-400/80 uppercase tracking-widest">Okamžité navýšení zkušeností</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowXPSerumModal(false)} className="size-10 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-400 transition-colors shadow-inner">
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 max-h-[45vh] overflow-y-auto pr-1 custom-scrollbar">
+                  {inventory?.filter(i => i?.type?.startsWith('xp_serum_') && i?.count > 0).map(item => {
+                    const cfg = RESOURCE_CONFIG[item?.type || ''];
+                    if (!cfg) return null;
+                    const xpGain = cfg.stats?.xp || 0;
+
+                    return (
+                      <motion.button
+                        key={item.type}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          onUseXPSerum?.(item.type);
+                          setShowXPSerumModal(false);
+                        }}
+                        className="group relative flex items-center gap-4 p-4 bg-emerald-500/[0.04] border border-emerald-500/15 rounded-2xl hover:border-emerald-500/40 transition-all text-left overflow-hidden"
+                      >
+                        <div className="size-16 flex-shrink-0 bg-gradient-to-br from-emerald-600 to-teal-800 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform">
+                          <ResourceIcon id={item.type} config={cfg} size="md" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-base font-black text-white uppercase tracking-tight truncate">{getLoc(cfg.label, i18n.language)}</p>
+                            <span className="bg-emerald-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow">
+                              {item.count}×
+                            </span>
+                          </div>
+                          <p className="text-[11px] font-bold text-slate-400 italic leading-snug line-clamp-1">{getLoc(cfg.description, i18n.language)}</p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 font-black text-[10px]">
+                              +{xpGain} XP
+                            </span>
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+
+                  {(!inventory || inventory.filter(i => i?.type?.startsWith('xp_serum_') && i?.count > 0).length === 0) && (
+                    <div className="py-12 text-center">
+                      <div className="size-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3 border border-white/5 text-2xl">💉</div>
+                      <p className="text-xs font-black text-slate-500 uppercase tracking-widest italic max-w-[220px] mx-auto">V batohu nemáš žádná XP séra.</p>
+                    </div>
+                  )}
+                </div>
+
+                <button onClick={() => setShowXPSerumModal(false)} className="w-full mt-6 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-lg">Zavřít</button>
               </motion.div>
             </div>
           )}

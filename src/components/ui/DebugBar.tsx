@@ -11,6 +11,12 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
   const [selectedCheat, setSelectedCheat] = useState('');
 
   const cheats = [
+    { id: 'spawn:epic', label: '🟣 Spawn Epické (MAP)', icon: UserPlus, color: 'text-purple-400 font-bold' },
+    { id: 'spawn:legendary', label: '👑 Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400 font-bold' },
+    { id: 'spawn:rare', label: '🔵 Spawn Vzácné (MAP)', icon: UserPlus, color: 'text-blue-400' },
+    { id: 'spawn:common', label: '⚪ Spawn Běžné (MAP)', icon: UserPlus, color: 'text-slate-400' },
+    { id: 'addEpic', label: '🎁 Získat Epické (Přímo)', icon: Gift, color: 'text-purple-400 font-bold' },
+    { id: 'addLegendary', label: '🎁 Získat Legendární (Přímo)', icon: Gift, color: 'text-amber-500 font-bold' },
     { id: 'importBisiAshLord', label: '🔥 IMPORT: Démonický Pán Popela (od Biši, Lv 19, 157k CP)', icon: Flame, color: 'text-orange-400 font-black animate-pulse' },
     { id: 'addTrollUrine', label: '🧪 5x Trolí moč (Surovina)', icon: FlaskConical, color: 'text-yellow-400 font-bold' },
     { id: 'addCyclopsEye', label: '👁️ 2x Kyklopovo oko (Odhalení monster)', icon: Sparkles, color: 'text-sky-400 font-bold' },
@@ -31,10 +37,6 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
     { id: 'giveXP', label: 'Přidat XP Monstru', icon: Zap, color: 'text-indigo-400' },
     { id: 'addPotions', label: 'Lektvary (HP/Mana)', icon: FlaskConical, color: 'text-emerald-400' },
     { id: 'spawnNearMe', label: 'Spawn Příšera + Bylina (MAP)', icon: UserPlus, color: 'text-purple-400 font-bold animate-pulse' },
-    { id: 'spawn:common', label: 'Spawn Běžné (MAP)', icon: UserPlus, color: 'text-slate-400' },
-    { id: 'spawn:rare', label: 'Spawn Vzácné (MAP)', icon: UserPlus, color: 'text-blue-400' },
-    { id: 'spawn:legendary', label: 'Spawn Legendární (MAP)', icon: UserPlus, color: 'text-amber-400' },
-    { id: 'addLegendary', label: 'Získat Legendární (Přímo)', icon: Gift, color: 'text-amber-500 font-bold' },
     { id: 'add50RandomMonsters', label: '🎲 Získat 50 NÁHODNÝCH Příšer', icon: Star, color: 'text-amber-400 font-black animate-pulse' },
     { id: 'addMonster:075', label: 'Pyro Hedgehog #075', icon: Star, color: 'text-purple-400' },
     { id: 'addMonster:103', label: 'Bouřný Rys #103 (Reflect)', icon: Star, color: 'text-amber-400 font-bold' },
@@ -92,8 +94,17 @@ export const DebugBar = ({ onClose, onCheat }: DebugBarProps) => {
           </div>
 
           <button 
+            onClick={() => onCheat('spawn:epic')}
+            className="px-2 py-1.5 bg-gradient-to-r from-purple-700 to-indigo-600 border border-purple-500/40 rounded-lg hover:from-purple-600 hover:to-indigo-500 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 text-white shadow-sm shrink-0"
+            title="Okamžitě spawne Epické monstrum vedle tebe na mapě"
+          >
+            <UserPlus size={12} className="text-purple-200" />
+            Epic
+          </button>
+
+          <button 
             onClick={() => onCheat('openDungeonSim')}
-            className="px-2.5 py-1.5 bg-gradient-to-r from-red-600 to-rose-500 border border-red-500/30 rounded-lg hover:from-red-500 hover:to-rose-400 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
+            className="px-2.5 py-1.5 bg-gradient-to-r from-red-600 to-rose-500 border border-red-500/30 rounded-lg hover:from-red-500 hover:to-rose-400 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shrink-0"
             title="Dungeon"
           >
             <Sword size={12} className="text-white" />

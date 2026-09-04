@@ -285,9 +285,10 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
   const [activeTab, setActiveTab] = useState<'tree' | 'history'>('tree');
   const [visibleHistoryCount, setVisibleHistoryCount] = useState(25);
 
-  // Spodní vysouvací panely (Bottom Sheet) & Drag and Drop
+  // Spodní vysouvací panely (Bottom Sheet), Přesun (Move mode) & Drag and Drop
   const [selectedSlot, setSelectedSlot] = useState<any | null>(null);
   const [targetSlotForInsert, setTargetSlotForInsert] = useState<{ slotIndex: number; multiplier: number } | null>(null);
+  const [movingSourceSlot, setMovingSourceSlot] = useState<{ slotIndex: number; multiplier: number; config: any; mutation: any } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showInstabilityHelp, setShowInstabilityHelp] = useState(false);
 
@@ -387,10 +388,11 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
     return { atk, hp, def, xp };
   }, [mutations]);
 
-  // Filtrované mutageny z inventáře
+  // Filtrované mutageny z inventáře (XP séra jsou přímé stimulanty, ne permanentní mutageny do slotů)
   const availableMutagens = useMemo(() => {
     return inventory.filter((i: any) => {
       if (!i || (i.count ?? 0) <= 0 || !i.type) return false;
+      if (i.type.startsWith('xp_serum_')) return false;
       const cfg = RESOURCE_CONFIG[i.type];
       const isGem = i.type.startsWith('gem_') || cfg?.category === 'gem';
       return (cfg?.category === 'relic' || (cfg?.stats && !isGem) || i.type.startsWith('loot_') || i.type.startsWith('item_'));
@@ -406,7 +408,7 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-slate-950 text-white flex flex-col overflow-x-hidden select-none pb-20">
+    <div className="relative w-full min-h-screen bg-slate-950 text-white flex flex-col select-none pb-14">
       {/* Celostránkové realistické pozadí svalů a žil s tmavou poloprůhlednou vrstvou */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
         <img
@@ -419,7 +421,7 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
       </div>
 
       {/* Header Section přesně podle MonsterDetail / screenshotu */}
-      <div className="sticky top-0 z-40 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 border-b border-white/5 backdrop-blur-xl bg-slate-950/85">
+      <div className="sticky top-0 z-50 px-4 pt-[calc(0.5rem+env(safe-area-inset-top))] pb-2 border-b border-white/5 backdrop-blur-xl bg-slate-950/85">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -485,6 +487,39 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
             />
           </div>
         </div>
+
+        {/* Informační lišta aktivního režimu přemístění */}
+        <AnimatePresence>
+          {movingSourceSlot && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              className="mt-2.5 p-2.5 rounded-2xl bg-cyan-950/80 border border-cyan-400/50 flex items-center justify-between shadow-lg shadow-cyan-950/50"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="size-8 rounded-xl bg-slate-900 border border-cyan-400/40 flex items-center justify-center shrink-0">
+                  <ResourceIcon id={movingSourceSlot.mutation.id} config={movingSourceSlot.config} size="sm" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-black uppercase text-cyan-300 truncate">
+                    Vyber cílový slot pro přemístění
+                  </div>
+                  <div className="text-[9px] text-slate-300 truncate">
+                    {getLoc(movingSourceSlot.config?.label, i18n.language)} • Klikni na prázdný nebo jiný slot
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setMovingSourceSlot(null)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors shrink-0 ml-2"
+                title="Zrušit přemístění"
+              >
+                <X size={14} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Hlavní strom žil */}
@@ -530,9 +565,11 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                       const hasMutation = !!slot.mutation;
                       const isUnlocked = slot.isUnlocked;
                       const isSelected = selectedSlot?.slotIndex === slot.slotIndex;
+                      const isMoveSource = movingSourceSlot?.slotIndex === slot.slotIndex;
+                      const isMoveTargetCandidate = !!movingSourceSlot && slot.isUnlocked && movingSourceSlot.slotIndex !== slot.slotIndex;
 
                       if (hasMutation && slot.config) {
-                        // Obsazený uzel s podporou Drag and Drop
+                        // Obsazený uzel s podporou Drag and Drop i Move mode kliknutí
                         return (
                           <motion.div
                             key={slot.slotIndex}
@@ -551,7 +588,7 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                             onDragEnd={(_, info) => {
                               setTimeout(() => setIsDragging(false), 80);
                               const elements = document.elementsFromPoint(info.point.x, info.point.y);
-                              const targetEl = elements.find(el => el.hasAttribute('data-genomic-slot')) as HTMLElement | undefined;
+                              const targetEl = elements.find(el => el.closest('[data-genomic-slot]'))?.closest('[data-genomic-slot]') as HTMLElement | undefined;
                               if (targetEl) {
                                 const targetSlotIdx = parseInt(targetEl.getAttribute('data-genomic-slot') || '-1', 10);
                                 const targetMult = parseFloat(targetEl.getAttribute('data-multiplier') || '1.0');
@@ -560,21 +597,36 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                                 if (targetSlotIdx >= 0 && targetSlotIdx !== slot.slotIndex && isTargetUnlocked) {
                                   onSwapSlots(slot.slotIndex, targetSlotIdx, targetMult, tier.multiplier);
                                   setSelectedSlot(null);
+                                  setMovingSourceSlot(null);
                                 }
                               }
                             }}
                             onClick={() => {
-                              if (!isDragging) {
-                                setSelectedSlot(slot);
-                                setTargetSlotForInsert(null);
+                              if (isDragging) return;
+
+                              if (movingSourceSlot) {
+                                if (movingSourceSlot.slotIndex === slot.slotIndex) {
+                                  setMovingSourceSlot(null);
+                                } else {
+                                  onSwapSlots(movingSourceSlot.slotIndex, slot.slotIndex, tier.multiplier, movingSourceSlot.multiplier);
+                                  setMovingSourceSlot(null);
+                                }
+                                return;
                               }
+
+                              setSelectedSlot(slot);
+                              setTargetSlotForInsert(null);
                             }}
                             data-genomic-slot={slot.slotIndex}
                             data-multiplier={tier.multiplier}
                             data-unlocked={slot.isUnlocked ? 'true' : 'false'}
                             className={cn(
                               "relative group size-14 sm:size-16 rounded-full bg-slate-950/90 border-2 shadow-[0_0_22px_rgba(16,185,129,0.4)] flex flex-col items-center justify-center p-1.5 cursor-grab active:cursor-grabbing transition-all select-none touch-none",
-                              isSelected
+                              isMoveSource
+                                ? "border-cyan-300 ring-4 ring-cyan-400/80 scale-110 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.8)]"
+                                : isMoveTargetCandidate
+                                ? "border-cyan-400/80 ring-2 ring-cyan-400/40 hover:scale-110 cursor-pointer"
+                                : isSelected
                                 ? "border-amber-400 ring-4 ring-amber-400/60 scale-105"
                                 : tier.tier === 6
                                 ? "border-purple-400 shadow-[0_0_25px_rgba(192,132,252,0.8)]"
@@ -582,9 +634,11 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                                 ? "border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.6)]"
                                 : "border-emerald-400 hover:border-emerald-300"
                             )}
-                            title={`${getLoc(slot.config.label, i18n.language)} (Chyť a přetáhni do jiného slotu, nebo klikni pro detail)`}
+                            title={`${getLoc(slot.config.label, i18n.language)} (Chyť a přetáhni do jiného slotu, nebo klikni pro přesun/detail)`}
                           >
-                            <ResourceIcon id={slot.mutation!.id} config={slot.config} size="md" />
+                            <div className="pointer-events-none select-none flex items-center justify-center">
+                              <ResourceIcon id={slot.mutation!.id} config={slot.config} size="md" />
+                            </div>
                             <div className={cn(
                               "absolute inset-0 rounded-full border pointer-events-none animate-pulse",
                               tier.tier === 6
@@ -598,7 +652,7 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                       }
 
                       if (isUnlocked) {
-                        // Volný uzel (drop cíl i klikací pro vložení)
+                        // Volný uzel (drop cíl, cíl přesunu i klikací pro vložení)
                         return (
                           <motion.button
                             key={slot.slotIndex}
@@ -608,20 +662,36 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                             whileHover={{ scale: 1.12 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => {
-                              if (!isDragging) {
-                                setTargetSlotForInsert({ slotIndex: slot.slotIndex, multiplier: tier.multiplier });
-                                setSelectedSlot(null);
+                              if (isDragging) return;
+
+                              if (movingSourceSlot) {
+                                onSwapSlots(movingSourceSlot.slotIndex, slot.slotIndex, tier.multiplier, movingSourceSlot.multiplier);
+                                setMovingSourceSlot(null);
+                                return;
                               }
+
+                              setTargetSlotForInsert({ slotIndex: slot.slotIndex, multiplier: tier.multiplier });
+                              setSelectedSlot(null);
                             }}
                             className={cn(
                               "size-14 sm:size-16 rounded-full border-2 border-dashed flex items-center justify-center transition-all shadow-md backdrop-blur-sm group",
-                              tier.tier === 6
+                              isMoveTargetCandidate
+                                ? "border-cyan-300 bg-cyan-950/70 text-cyan-200 ring-4 ring-cyan-400/60 animate-pulse shadow-[0_0_25px_rgba(6,182,212,0.6)] scale-105"
+                                : tier.tier === 6
                                 ? "border-purple-400 bg-purple-950/50 hover:bg-purple-900/60 hover:border-purple-300 text-purple-200 shadow-[0_0_22px_rgba(192,132,252,0.4)]"
                                 : "border-cyan-400/70 bg-slate-950/70 hover:bg-cyan-950/50 hover:border-cyan-300 text-cyan-300/80 hover:text-cyan-200 shadow-[0_0_18px_rgba(6,182,212,0.3)]"
                             )}
-                            title={`Vložit mutagen do tohoto slotu (${tier.bonusLabel})`}
+                            title={
+                              movingSourceSlot
+                                ? `Přemístit mutagen sem (${tier.bonusLabel})`
+                                : `Vložit mutagen do tohoto slotu (${tier.bonusLabel})`
+                            }
                           >
-                            <Plus size={20} className="group-hover:scale-125 transition-transform" />
+                            {movingSourceSlot ? (
+                              <ArrowRightLeft size={20} className="text-cyan-300 animate-bounce" />
+                            ) : (
+                              <Plus size={20} className="group-hover:scale-125 transition-transform" />
+                            )}
                           </motion.button>
                         );
                       }
@@ -828,14 +898,31 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
                   )}
                 </div>
 
-                {/* Tlačítko Odebrat (přesun je řešen pomocí Drag & Drop) */}
-                <div className="pt-2">
+                {/* Tlačítka Akcí: Přemístit do jiného slotu & Odebrat */}
+                <div className="pt-2 grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      setMovingSourceSlot({
+                        slotIndex: selectedSlot.slotIndex,
+                        multiplier: selectedSlot.tier.multiplier,
+                        config: selectedSlot.config,
+                        mutation: selectedSlot.mutation
+                      });
+                      setSelectedSlot(null);
+                    }}
+                    className="w-full py-3.5 px-3 bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/40 text-cyan-200 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+                    title="Kliknutím aktivuješ režim přemístění do libovolného odemčeného slotu"
+                  >
+                    <ArrowRightLeft size={16} />
+                    Přemístit
+                  </button>
+
                   <button
                     onClick={() => {
                       onRemoveMutation(selectedSlot.slotIndex);
                       setSelectedSlot(null);
                     }}
-                    className="w-full py-3.5 px-4 bg-rose-500/20 hover:bg-rose-500/35 border border-rose-500/40 text-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+                    className="w-full py-3.5 px-3 bg-rose-500/20 hover:bg-rose-500/35 border border-rose-500/40 text-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
                     title="Odebrat tuto relikvii z těla a vrátit do batohu"
                   >
                     <Package size={16} />
