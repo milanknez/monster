@@ -409,15 +409,15 @@ export const GenomicTreeView: React.FC<GenomicTreeViewProps> = ({
 
   return (
     <div className="relative w-full min-h-screen bg-slate-950 text-white flex flex-col select-none pb-14">
-      {/* Celostránkové realistické pozadí svalů a žil - decentní bio atmosféra */}
+      {/* Celostránkové realistické pozadí svalů a žil - o kousek světlejší a živější */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
         <img
           src="/vein_matrix_bg.jpg"
           alt="Bio Vein Matrix Background"
-          className="w-full h-full object-cover object-center opacity-45 filter contrast-125 saturate-110"
+          className="w-full h-full object-cover object-center opacity-60 filter contrast-125 brightness-110 saturate-115"
         />
-        {/* Jemný radiální závoj pro klidné a čitelné popředí */}
-        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[0.5px]" />
+        {/* Jemný lehký závoj pro zachování čitelnosti textů */}
+        <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[0.5px]" />
       </div>
 
       {/* Header Section přesně podle MonsterDetail / screenshotu */}

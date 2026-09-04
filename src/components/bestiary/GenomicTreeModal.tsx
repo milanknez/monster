@@ -220,15 +220,15 @@ export const GenomicTreeModal: React.FC<GenomicTreeModalProps> = ({
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           className="relative w-full max-w-2xl bg-slate-950 border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         >
-          {/* Realistické pozadí pulzujících žil a svalů - decentní */}
+          {/* Realistické pozadí pulzujících žil a svalů */}
           <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
             <img
               src="/vein_matrix_bg.jpg"
               alt="Bio Vein Matrix"
-              className="w-full h-full object-cover object-center opacity-45 filter contrast-125 saturate-110"
+              className="w-full h-full object-cover object-center opacity-60 filter contrast-125 brightness-110 saturate-115"
             />
-            {/* Jemný závoj pro klidné a čitelné popředí */}
-            <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[0.5px]" />
+            {/* Jemný lehký závoj */}
+            <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[0.5px]" />
           </div>
 
           {/* Header */}
